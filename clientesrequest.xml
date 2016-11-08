@@ -1,0 +1,119 @@
+<RestClientRequest>
+    <option name="biscuits">
+        <list>
+            <Biscuit>
+                <option name="date" value="-1"/>
+                <option name="domain" value="localhost"/>
+                <option name="name" value="ci_session"/>
+                <option name="path" value="/"/>
+                <option name="value"
+                        value="svjZuYRgJUBnRxZyo7MblnY6jUe4VbFXEcKqDAL3kZ95w89J7ScfMMeLs0EfzCzptLyvkNJaYnHxyLuUmHejQyeIMBgRVTl5NO2F%2FefqsKFtGM%2ByOOAZZ%2FLw93ciKV5XutTzj5DDThao5%2BEJMXLad0aibkm9P6lByRXn10GsQ7JRLdJnHi8YKtYyracy3sZZpcZCa9N6RRcXhdHonXnDe5B1FdyFkdzeD4zMLCfLI1EGYDp8L94HGl%2FvW0xEZG5KODg9N6rDxWuSSWUFlVN%2FVT9UCz7lI7jVF1HSxa7G%2FuDXbfCrfh2AzoHrVT7HyCBxeRgNaNN93kwKQTiFbaDWVw%3D%3D"/>
+            </Biscuit>
+        </list>
+    </option>
+    <option name="httpMethod" value="POST"/>
+    <option name="urlBase" value="http://localhost"/>
+    <option name="urlPath" value="/distribucion/api/Clientes/create"/>
+    <option name="headers">
+        <list>
+            <KeyValuePair>
+                <option name="key" value="Accept"/>
+                <option name="value" value="*/*"/>
+            </KeyValuePair>
+            <KeyValuePair>
+                <option name="key" value="Cache-Control"/>
+                <option name="value" value="no-cache"/>
+            </KeyValuePair>
+            <KeyValuePair>
+                <option name="key" value="x-api-key"/>
+                <option name="value" value="uGS7XnFFUvVAXZY9NAGpRkQqQEedwUF2h4duA4dc"/>
+            </KeyValuePair>
+        </list>
+    </option>
+    <option name="parameters">
+        <list>
+            <KeyValuePair>
+                <option name="key" value="ciudad_id"/>
+                <option name="value" value="1"/>
+            </KeyValuePair>
+            <KeyValuePair>
+                <option name="key" value="codigo_postal"/>
+                <option name="value" value="1"/>
+            </KeyValuePair>
+            <KeyValuePair>
+                <option name="key" value="descuento"/>
+                <option name="value" value="12312"/>
+            </KeyValuePair>
+            <KeyValuePair>
+                <option name="key" value="direccion"/>
+                <option name="value" value="dasasdasd"/>
+            </KeyValuePair>
+            <KeyValuePair>
+                <option name="key" value="direccion2"/>
+                <option name="value" value="qweqweqwe"/>
+            </KeyValuePair>
+            <KeyValuePair>
+                <option name="key" value="email"/>
+                <option name="value" value="weqweqwqwe"/>
+            </KeyValuePair>
+            <KeyValuePair>
+                <option name="key" value="grupo_id"/>
+                <option name="value" value="1"/>
+            </KeyValuePair>
+            <KeyValuePair>
+                <option name="key" value="fax"/>
+                <option name="value" value="23123123"/>
+            </KeyValuePair>
+            <KeyValuePair>
+                <option name="key" value="limite_credito"/>
+                <option name="value" value="3123"/>
+            </KeyValuePair>
+            <KeyValuePair>
+                <option name="key" value="razon_social"/>
+                <option name="value" value="asdsd"/>
+            </KeyValuePair>
+            <KeyValuePair>
+                <option name="key" value="pagina_web"/>
+                <option name="value" value="www.sadasd.com"/>
+            </KeyValuePair>
+            <KeyValuePair>
+                <option name="key" value="telefono1"/>
+                <option name="value" value="21313"/>
+            </KeyValuePair>
+            <KeyValuePair>
+                <option name="key" value="telefono2"/>
+                <option name="value" value="312312"/>
+            </KeyValuePair>
+            <KeyValuePair>
+                <option name="key" value="nota"/>
+                <option name="value" value="213213"/>
+            </KeyValuePair>
+            <KeyValuePair>
+                <option name="key" value="latitud"/>
+                <option name="value" value="0"/>
+            </KeyValuePair>
+            <KeyValuePair>
+                <option name="key" value="longitud"/>
+                <option name="value" value="0"/>
+            </KeyValuePair>
+            <KeyValuePair>
+                <option name="key" value="id_zona"/>
+                <option name="value" value="1"/>
+            </KeyValuePair>
+            <KeyValuePair>
+                <option name="key" value="vendedor"/>
+                <option name="value" value="7"/>
+            </KeyValuePair>
+            <KeyValuePair>
+                <option name="key" value="identificacion"/>
+                <option name="value" value="12122"/>
+            </KeyValuePair>
+        </list>
+    </option>
+    <option name="parametersEnabled" value="true"/>
+    <option name="haveTextToSend" value="false"/>
+    <option name="haveFileToSend" value="false"/>
+    <option name="isFileUpload" value="false"/>
+    <option name="textToSend" value="dsad"/>
+    <option name="filesToSend" value=""/>
+</RestClientRequest>

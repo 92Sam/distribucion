@@ -1,0 +1,132 @@
+<form name="formagregar" action="<?= base_url() ?>proveedor/guardar" method="post" id="formagregar">
+
+    <input type="hidden" name="id" id=""
+           value="<?php if (isset($proveedor['id_proveedor'])) echo $proveedor['id_proveedor']; ?>">
+
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">Nuevo Proveedor</h4>
+            </div>
+            <div class="modal-body">
+
+                <div class="row">
+                    <div class="form-group">
+                        <div class="col-md-3">
+                            <label>Nombre</label>
+                        </div>
+                        <div class="col-md-9">
+                            <input type="text" name="proveedor_nombre" id="proveedor_nombre" required="true"
+                                   class="form-control"
+                                   value="<?php if (isset($proveedor['proveedor_nombre'])) echo $proveedor['proveedor_nombre']; ?>">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="form-group">
+                        <div class="col-md-3">
+                            <label>Tel&eacute;fono 1</label>
+                        </div>
+                        <div class="col-md-9">
+                            <input type="text" name="proveedor_telefono1" id=""  class="form-control"
+                                   value="<?php if (isset($proveedor['proveedor_telefono1'])) echo $proveedor['proveedor_telefono1']; ?>">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="form-group">
+                        <div class="col-md-3">
+                            <label>Tel&eacute;fono 2</label>
+                        </div>
+                        <div class="col-md-9">
+                            <input type="text" name="proveedor_telefono2" id=""  class="form-control"
+                                   value="<?php if (isset($proveedor['proveedor_telefono2'])) echo $proveedor['proveedor_telefono2']; ?>">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="form-group">
+                        <div class="col-md-3">
+                            <label>N&uacute;mero Fax</label>
+                        </div>
+                        <div class="col-md-9">
+                            <input type="text" name="proveedor_nrofax" id=""  class="form-control"
+                                   value="<?php if (isset($proveedor['proveedor_nrofax'])) echo $proveedor['proveedor_nrofax']; ?>">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="form-group">
+                        <div class="col-md-3">
+                            <label>Direcci&oacute;n 1</label>
+                        </div>
+                        <div class="col-md-9">
+                            <input type="text" name="proveedor_direccion1" id=""  class="form-control"
+                                   value="<?php if (isset($proveedor['proveedor_direccion1'])) echo $proveedor['proveedor_direccion1']; ?>">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="form-group">
+                        <div class="col-md-3">
+                            <label>Direcci&oacute;n 2</label>
+                        </div>
+                        <div class="col-md-9">
+                            <input type="text" name="proveedor_direccion2" id=""  class="form-control"
+                                   value="<?php if (isset($proveedor['proveedor_direccion2'])) echo $proveedor['proveedor_direccion2']; ?>">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="form-group">
+                        <div class="col-md-3">
+                            <label>Email</label>
+                        </div>
+                        <div class="col-md-9">
+                            <input type="text" name="proveedor_email" id=""  class="form-control"
+                                   value="<?php if (isset($proveedor['proveedor_email'])) echo $proveedor['proveedor_email']; ?>">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="form-group">
+                        <div class="col-md-3">
+                            <label>P&aacute;gina Web</label>
+                        </div>
+                        <div class="col-md-9">
+                            <input type="text" name="proveedor_paginaweb" id=""  class="form-control"
+                                   value="<?php if (isset($proveedor['proveedor_paginaweb'])) echo $proveedor['proveedor_paginaweb']; ?>">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="form-group">
+                        <div class="col-md-3">
+                            <label>Observaci&oacute;n</label>
+                        </div>
+                        <div class="col-md-9">
+                            <input type="text" name="proveedor_observacion" id="" class="form-control"
+                                   value="<?php if (isset($proveedor['proveedor_observacion'])) echo $proveedor['proveedor_observacion']; ?>">
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" id="" class="btn btn-primary" onclick="grupo.guardar()" >Confirmar</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+
+            </div>
+            <!-- /.modal-content -->
+        </div>
+</form>
