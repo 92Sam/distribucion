@@ -73,11 +73,12 @@ class consolidado_carga extends REST_Controller
             $where = $where . " AND  date(consolidado_carga.fecha) <= '" . date('Y-m-d', strtotime($post['fecha_fin'])) . "'";
         }
 
-
-
+        $transportista = $post['transportista'];
         if (!empty($transportista)) {
-            $transportista = $post['transportista'];
-            $where = $where." and id_trabajadores =".$transportista;
+            $chofer = $this->db->get_where('usuario', array('nUsuCodigo' => $post['transportista']))->row();
+            if ($chofer->grupo == '4') {
+                $where = $where . " AND id_trabajadores=" . $transportista;
+            }
         }
 
         $consolidados = $this->consolidado_model->get_consolidado_by($where);

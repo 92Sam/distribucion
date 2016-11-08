@@ -888,7 +888,7 @@ function agregarProducto() {
         var unidad_nombre = $('#unidadnombre' + unidad_id).val();
         var cantidad = parseFloat($('#cantidad').val());
         var precio = parseFloat($('#unidadprecio' + unidad_id).val())
-        console.log('precio'+precio);
+        console.log('precio' + precio);
         var precio_id = $('#precios').val();
         var precio_sugerido = parseFloat($('#precio_sugerido').val());
         var porcentaje_impuesto = $('#porcentaje_impuesto' + unidad_id).val();
@@ -902,7 +902,7 @@ function agregarProducto() {
             precio = unidaddescuento;
         }
         var subtotal = precio * cantidad;
-        console.log('subtotal' +subtotal);
+        console.log('subtotal' + subtotal);
         var cantidad_total = (parseFloat(stockhidden.val()) - unidades * cantidad);
         // Stock Insuficiente - Producto
 
@@ -1030,7 +1030,7 @@ function getBonificacion(id, productoeliminar, lista_temporal) {
                 }
 
                 if (productoeliminar != undefined) {
-                    addBonosToTable(0, productoeliminar.unidad_medida, productoeliminar.id_producto,productoeliminar.cantidad);
+                    addBonosToTable(0, productoeliminar.unidad_medida, productoeliminar.id_producto, productoeliminar.cantidad);
                     // deleteBono(productoeliminar.unidad_medida, productoeliminar.cantidad, productoeliminar.id_producto)
                 }
             },
@@ -1069,311 +1069,6 @@ function agregarBono(id_bonificacion, bono_id, bono_producto, bono_cantidad, bon
     $("#tbodyproductos").append(tr);
     countbonos++;
 
-}
-
-
-function deleteBono(unidadseleccionada, lacantidadcomprada, idprpod) {
-  //  console.log('elimino');
-
-
-    console.log(bonos);
-    console.log(lst_bonos);
-    var recorrer = bonos;
-
-    var bonos_arr = new Array();
-
-    var bono_uniq = new Array();
-
-
-    console.log(recorrer);
-    jQuery.each(recorrer, function (i, valuee) {
-        var existe_uniq = false;
-        var yaexiste = false;
-        var yaexiste2 = false;
-        // console.log('el bono');
-
-
-        if (bonos_arr.length == 0) {
-            var bono_uniq = new Array();
-            bono_uniq.push(valuee);
-            bonos_arr.push(bono_uniq);
-        } else {
-
-            jQuery.each(bonos_arr, function (o, valuest) {
-
-
-                jQuery.each(valuest, function (p, valuej) {
-
-                    // console.log(valuej.bono_id);
-
-                    if (valuej.bono_id === valuee.bono_id) {
-
-
-                        console.log(valuee);
-                        jQuery.each(valuest, function (a, valuea) {
-                            if (valuea.bono_id === valuee.bono_id && valuea.id_bonificacion === valuee.id_bonificacion) {
-                                console.log(valuea.bono_id + "es iguaal");
-                                yaexiste2 = true;
-                            }
-                        });
-
-                        if (yaexiste2 === false) {
-                            var bono_uniq = new Array();
-                            bono_uniq = valuest;
-                            // console.log('existee ' + valuee);
-                            bono_uniq.push(valuee);
-                            bonos_arr.splice(p, 1);
-
-                            bonos_arr.push(bono_uniq);
-                        }
-                    }
-                    else {
-
-
-                        existe_uniq = true
-
-
-                    }
-                });
-
-                if (existe_uniq == true) {
-                    //   console.log(bonos_arr);
-                    jQuery.each(bonos_arr, function (a, valuea) {
-                        jQuery.each(valuea, function (b, valueb) {
-                            if (valueb.bono_id === valuee.bono_id) {
-                                //  console.log(valuee);
-                                //  console.log(valuea.bono_id + "es iguaal");
-                                yaexiste = true;
-                            }
-                        });
-                    });
-
-                    if (yaexiste === false) {
-                        // console.log(' no existeee ' + valuee.bono_id);
-
-                        var bono_uniq = new Array();
-                        bono_uniq.push(valuee);
-                        bonos_arr.push(bono_uniq);
-                    }
-
-                }
-
-            });
-
-
-        }
-
-
-        //  console.log(bonos_arr);
-    });
-
-
-    //console.log(recorrer);
-    // console.log(bonos_arr);
-    //console.log('los bonos separados');
-    var cantidad_tomar_en_cuenta = lacantidadcomprada;
-
-
-    // /AQUI ESTOY RECORRIENDO LOS PRODUTOS COMPARANDOLOS CONTRA EL BONO PARA SUMAR LAS CANTIDADES DE PRODUCTO CONDICION
-    var existeprod = false;
-    var prodlista = new Array();
-
-
-    jQuery.each(bonos_arr, function (o, values) {
-        var agrego = false
-        jQuery.each(values, function (i, bonito) {
-
-            jQuery.each(bonito.bonificaciones_has_producto, function (h, bono_has_pro) {
-
-
-                jQuery.each(lst_producto, function (l, prod_lista) {
-
-
-                    /*  console.log(prod_lista.id_producto);
-                     console.log(bono_has_pro.id_producto);
-                     console.log(idprpod);
-                     console.log(agrego);*/
-                    if (prod_lista.id_producto === bono_has_pro.id_producto && prod_lista.id_producto != idprpod && agrego === false) {
-                        agrego = true;
-                        existeprod = true;
-                        prodlista = prod_lista;
-                        console.log(prodlista);
-                        cantidad_tomar_en_cuenta = cantidad_tomar_en_cuenta + prod_lista.cantidad;
-
-                    }
-
-                });
-
-            });
-
-        });
-    });
-
-    // console.log(cantidad_tomar_en_cuenta + 'la nueva cantidad');
-    cantidad_tomar_en_cuenta = cantidad_tomar_en_cuenta - lacantidadcomprada;
-
-    console.log(lacantidadcomprada + 'lacantidadcomprada');
-    console.log(bonos_arr);
-    jQuery.each(bonos, function (i, value) {
-
-            jQuery.each(bonos_arr, function (o, values) {
-
-                var cantidad_bonificar = 0;
-                jQuery.each(values, function (i, bonito) {
-
-                    //console.log(cantidad_tomar_en_cuenta + ' cantidad_bonificar');
-                    //console.log(bonito.condicion_cantidad+ ' bonito.condicion_cantidad');
-                    var vecesbono = parseInt(cantidad_tomar_en_cuenta / parseFloat(bonito.condicion_cantidad));
-
-                    var newcantidad = vecesbono * parseFloat(bonito.bono_cantidad);
-                    cantidad_bonificar = cantidad_bonificar + newcantidad;
-                    console.log(cantidad_tomar_en_cuenta + 'cantidad_tomar_en_cuenta');
-                    console.log(newcantidad + ' newcantidad');
-                    console.log(vecesbono + ' vecesbono');
-
-                    if (((bonito.id_unidad != null && cantidad_tomar_en_cuenta >= bonito.condicion_cantidad && unidadseleccionada == bonito.id_unidad)
-                        || (bonito.id_unidad == null && cantidad_tomar_en_cuenta >= bonito.condicion_cantidad ))) {
-
-
-                        var elbonito = new Array();
-                        elbonito = bonito;
-                        elbonito.bono_cantidad = cantidad_bonificar;
-
-                        console.log(lst_bonos);
-
-                        /******busco para ver si el bono ya existe********/
-                        jQuery.each(lst_bonos, function (j, produt) {
-
-                            console.log(bonito);
-                            console.log(idprpod);
-                            if (produt != undefined && bonito.bono_id == idprpod) {
-                                produt.bono_cantidad = newcantidad;
-
-                                if (vecesbono > 1) { // SE CAMBIO A UNO PARA PROBAR
-                                    console.log('reduzco cantiddad');
-                                    console.log(newcantidad);
-                                    console.log(produt.bono_id);
-                                    $("#boni-" + produt.bono_id + "-" + produt.bono_unidad_id).remove();
-                                    lst_bonos.splice(j, 1);
-                                    lst_bonos.push(produt);
-                                } else {
-                                    if (produt.bono_id == idprpod) {
-                                        console.log('tengo que eliminarlo');
-                                        console.log(produt.bono_id);
-
-                                        console.log(produt);
-                                        console.log(j);
-                                        console.log(lst_bonos);
-                                        lst_bonos.splice(j, 1);
-
-                                        $("#boni-" + produt.bono_id + "-" + produt.bono_unidad_id).remove();
-
-                                    }
-                                }
-                            }
-
-
-                        });
-
-                        cantidad_tomar_en_cuenta = cantidad_tomar_en_cuenta - (vecesbono * parseFloat(bonito.condicion_cantidad));
-                        console.log('esta llegando aqui');
-
-
-                    }
-                    else {
-
-                        // Delete
-
-                        // console.log('voy a ver si elimino');
-
-                        var eliminar = true;
-
-                        console.log(values);
-                        //console.log(cantidad_tomar_en_cuenta);
-
-                        /*  jQuery.each(values, function (a, valuejj) {
-
-                         console.log(valuejj.bono_id);
-                         console.log(bonito.bono_id);
-                         console.log(cantidad_tomar_en_cuenta);
-                         console.log(valuejj.condicion_cantidad);
-                         console.log(values[0].condicion_cantidad);
-                         console.log(values.length);
-                         console.log(a);*/
-
-                        //console.log(idprpod);
-                        //console.log(bonito);
-                        var countarcoinci = 0;
-
-
-                        jQuery.each(lst_producto, function (mm, produtyy) {
-                            if (parseInt(produtyy.id_producto) === parseInt(bonito.bono_id)) {
-                                jQuery.each(bonito.bonificaciones_has_producto, function (oo, bonificicion_has_ppp) {
-                                    if (parseInt(bonificicion_has_ppp.producto_id) === parseInt(produtyy.id_producto) && produtyy.bono == 'false');
-                                    {
-                                        console.log(bonificicion_has_ppp);
-                                        console.log(produtyy);
-                                        countarcoinci++;
-
-                                    }
-                                });
-                            }
-
-
-                        });
-
-                        console.log('countarcoinci' + countarcoinci);
-                        console.log('lst_producto.length' + lst_producto.length);
-                        if (countarcoinci >= 1 && cantidad_tomar_en_cuenta < bonito.condicion_cantidad) {
-                            eliminar = false;
-                        }
-
-                        /*if (parseInt(valuejj.bono_id) == parseInt(bonito.bono_id) && values.length> 1 && a!=0&&  cantidad_tomar_en_cuenta<=valuejj.condicion_cantidad &&  parseInt(valuejj.condicion_cantidad) < parseInt(values[0].condicion_cantidad)) {
-                         eliminar = false;
-                         }*/
-
-
-                        /* });*/
-
-                        console.log(eliminar);
-
-                        jQuery.each(lst_bonos, function (j, produt) {
-
-
-                                if (produt != undefined && lacantidadcomprada == 0) {
-                                    // console.log(bonito);
-                                    //console.log(produt);
-                                    //bonito.id_bonificacion == produt.id_bonificacion &&  SI ESTO VUELVE A FALLATA HACER LA VALIDACION DE SI EXSTE ALGUN OTRO PRODUCTO QUE GENERE LA BONIFICAION NO SE DEBE ELIMINAR
-                                    if (bonito.bono_id == produt.bono_id && bonito.bono_unidad_id == produt.bono_unidad_id && produt.bono != 'false') {
-
-
-                                        jQuery.each(bonito.bonificaciones_has_producto, function (y, bonificicion_has_p) {
-                                            if (bonificicion_has_p.id_producto == idprpod && eliminar == true) {
-                                                lst_bonos.splice(j, 1);
-                                                $("#boni-" + bonito.bono_id + "-" + bonito.bono_unidad_id).remove();
-                                                console.log('elimino de una');
-                                                //        console.log(bonito.bono_id);
-                                            }
-                                        });
-                                    }
-                                }
-                            }
-                        );
-                    }
-                });
-                cantidad_tomar_en_cuenta = lacantidadcomprada;
-
-            });
-
-
-            // recorrerBonos();
-
-
-        }
-    );
-
-    console.log(lst_bonos);
-    recorrerBonos();
 }
 
 
@@ -1488,37 +1183,72 @@ function addBonosToTable(lacantidadcomprada, unidadseleccionada, idprpod, cantid
     var cantidad_tomar_en_cuenta_AUX = lacantidadcomprada;
 
 
-
     // /AQUI ESTOY RECORRIENDO LOS PRODUTOS COMPARANDOLOS CONTRA EL BONO PARA SUMAR LAS CANTIDADES DE PRODUCTO CONDICION
     var existeprod = false;
     var prodlista = new Array();
 
-    console.log(cantidad_tomar_en_cuenta + 'cantidad_tomar_en_cuenta ');
-    console.log(lacantidadcomprada + 'lacantidadcomprada');
+   // console.log(cantidad_tomar_en_cuenta + 'cantidad_tomar_en_cuenta ');
+    //console.log(lacantidadcomprada + 'lacantidadcomprada');
+   // console.log(bonos_arr);
     jQuery.each(bonos_arr, function (o, values) {
-        var agrego = false
-        jQuery.each(values, function (i, bonito) {
+            var agrego = false
+            jQuery.each(values, function (i, bonito) {
 
-            jQuery.each(bonito.bonificaciones_has_producto, function (h, bono_has_pro) {
-                jQuery.each(lst_producto, function (l, prod_lista) {
-                    //console.log(prod_lista);
-                    //console.log(bono_has_pro);
-                    // console.log(idprpod);
-                    // console.log(agrego);
-                    if (parseInt(prod_lista.id_producto) === parseInt(bono_has_pro.id_producto) && parseInt(prod_lista.id_producto) != parseInt(idprpod) && agrego === false)//
-                    {
-                        agrego = true;
-                        existeprod = true;
-                        prodlista = prod_lista;
-                        //  console.log(prodlista);
-                        console.log('sumo');
-                        cantidad_tomar_en_cuenta = cantidad_tomar_en_cuenta + prod_lista.cantidad;
-                        cantidad_tomar_en_cuenta_AUX = cantidad_tomar_en_cuenta_AUX + prod_lista.cantidad;
-                    }
+                jQuery.each(bonito.bonificaciones_has_producto, function (h, bono_has_pro) {
+                    jQuery.each(lst_producto, function (l, prod_lista) {
+                            //console.log(prod_lista);
+                            //console.log(bono_has_pro);
+                            // console.log(idprpod);
+                            // console.log(agrego);
+                            if (parseInt(prod_lista.id_producto) === parseInt(bono_has_pro.id_producto))//&& agrego === false
+                            {
+
+
+
+                                if (parseInt(prod_lista.id_producto) != parseInt(idprpod)) {
+
+                                    if (agrego === false) {
+                                     //   console.log('sumo');
+                                       // console.log(prod_lista);
+
+
+                                        cantidad_tomar_en_cuenta = cantidad_tomar_en_cuenta + prod_lista.cantidad;
+                                        cantidad_tomar_en_cuenta_AUX = cantidad_tomar_en_cuenta_AUX + prod_lista.cantidad;
+                                    }
+
+
+                                    jQuery.each(bonos_arr, function (oo, valuess) {
+
+                                        jQuery.each(valuess, function (ii, bonitoo) {
+                                          //  console.log(bonito);
+                                            jQuery.each(bonitoo.bonificaciones_has_producto, function (ff, bono_has_pro_d) {
+                                               // console.log(bono_has_pro_d);
+                                                if (parseInt(bono_has_pro_d.id_bonificacion) != parseInt(bonito.id_bonificacion)
+                                                    && parseInt(bono_has_pro_d.id_producto) == parseInt(bonito.bono_id)) {
+
+                                                    agrego = true;
+                                                    //console.log(agrego + 'agrego');
+                                                }
+                                            });
+                                        });
+                                    });
+
+                                    //console.log(agrego + 'agrego2');
+
+
+                                }
+
+
+                            }
+                        }
+                    );
                 });
+
+
             });
-        });
-    });
+        }
+    )
+    ;
 
     if (existeprod) {
 
@@ -1526,6 +1256,7 @@ function addBonosToTable(lacantidadcomprada, unidadseleccionada, idprpod, cantid
     }
 
     console.log(cantidad_tomar_en_cuenta);
+    console.log(cantidad_tomar_en_cuenta_AUX);
     jQuery.each(bonos_arr, function (o, values) {
 
         var cantidad_bonificar = 0;
@@ -1541,6 +1272,7 @@ function addBonosToTable(lacantidadcomprada, unidadseleccionada, idprpod, cantid
             //console.log(newcantidad+ ' newcantidad');
             //console.log(vecesbono+ ' vecesbono');
 
+            console.log(cantidad_tomar_en_cuenta);
             //console.log(bonito);
             if (((bonito.id_unidad != null && cantidad_tomar_en_cuenta >= parseInt(bonito.condicion_cantidad) && parseInt(unidadseleccionada) == parseInt(bonito.id_unidad))
                 || (bonito.id_unidad == null && parseInt(cantidad_tomar_en_cuenta) >= parseInt(bonito.condicion_cantidad) ))) {
@@ -1608,6 +1340,7 @@ function addBonosToTable(lacantidadcomprada, unidadseleccionada, idprpod, cantid
 
                 // console.log(vecesbono);
                 console.log('cantidad_tomar_en_cuentaaaa' + cantidad_tomar_en_cuenta);
+
                 console.log('vecesbono' + vecesbono);
                 console.log('bonito.condicion_cantidad' + bonito.condicion_cantidad);
                 //console.log(bonito.condicion_cantidad);
@@ -1629,7 +1362,8 @@ function addBonosToTable(lacantidadcomprada, unidadseleccionada, idprpod, cantid
                 console.log(bonito);
                 var countarcoinci = 0;
 
-                if(cantidadanterior!=undefined) {
+
+                if (cantidadanterior != undefined) {
                     var cantidad_tomar_en_cuenta_temp = cantidad_tomar_en_cuenta;
                     console.log(lst_producto);
                     jQuery.each(lst_producto, function (mm, produtyy) {
@@ -1641,6 +1375,7 @@ function addBonosToTable(lacantidadcomprada, unidadseleccionada, idprpod, cantid
                                 console.log(bonificicion_has_ppp);
                                 console.log(produtyy);
                                 countarcoinci++;
+
 
                                 if (bonificicion_has_ppp.id_producto != idprpod) {
                                     cantidad_tomar_en_cuenta_temp = cantidad_tomar_en_cuenta_temp + cantidadanterior;
@@ -1650,22 +1385,22 @@ function addBonosToTable(lacantidadcomprada, unidadseleccionada, idprpod, cantid
                         });
 
 
-
                     });
 
 
-
                     console.log('countarcoinci' + countarcoinci);
+                    console.log('cantidad_tomar_en_cuenta_AUX' + cantidad_tomar_en_cuenta_AUX);
                     console.log('cantidad_tomar_en_cuenta_temp' + cantidad_tomar_en_cuenta_temp);
                     console.log('bonito.condicion_cantidad' + bonito.condicion_cantidad);
-                    if ((lacantidadcomprada!=0 && countarcoinci >= 1 && parseFloat(cantidad_tomar_en_cuenta_temp) <= parseFloat(bonito.condicion_cantidad)) ||
-                        (lacantidadcomprada==0 && countarcoinci >= 1 && parseFloat(cantidad_tomar_en_cuenta_temp) < parseFloat(cantidad_tomar_en_cuenta_AUX)) ) {
+                    if ((lacantidadcomprada != 0 && countarcoinci >= 1 && parseFloat(cantidad_tomar_en_cuenta_temp) <= parseFloat(bonito.condicion_cantidad)) ||
+                        (lacantidadcomprada == 0 && countarcoinci >= 1 && parseFloat(cantidad_tomar_en_cuenta_temp) < parseFloat(cantidad_tomar_en_cuenta_AUX))) {
                         eliminar = false;
                     }
 
                     console.log(eliminar);
-                }else{
+                } else {
                     var cantidad_tomar_en_cuenta_temp = cantidad_tomar_en_cuenta;
+                    var cantidad_p = 0;
                     console.log(lst_producto);
                     jQuery.each(lst_producto, function (mm, produtyy) {
                         // if (parseInt(produtyy.id_producto) === parseInt(bonito.bono_id)) {
@@ -1678,25 +1413,28 @@ function addBonosToTable(lacantidadcomprada, unidadseleccionada, idprpod, cantid
                                 countarcoinci++;
 
 
-                               // if (bonificicion_has_ppp.id_producto != idprpod) {
-                                    console.log(produtyy.cantidad);
-                                    console.log(lacantidadcomprada);
-                                    cantidad_tomar_en_cuenta_temp = lacantidadcomprada + produtyy.cantidad;
-                               // }
+                                // if (bonificicion_has_ppp.id_producto != idprpod) {
+                                console.log(produtyy.cantidad);
+                                cantidad_p = parseFloat(produtyy.cantidad) + cantidad_p;
+                                console.log(lacantidadcomprada);
+                                cantidad_tomar_en_cuenta_temp = lacantidadcomprada + produtyy.cantidad;
+                                // }
 
                             }
                         });
 
-
-
                     });
 
-                   cantidad_tomar_en_cuenta_temp = cantidad_tomar_en_cuenta_temp-lacantidadcomprada;
+                    cantidad_tomar_en_cuenta_temp = cantidad_tomar_en_cuenta_temp - lacantidadcomprada;
+
+                    console.log('cantidad_p' + cantidad_p);
+                    console.log('cantidad_tomar_en_cuenta_AUX' + cantidad_tomar_en_cuenta_AUX);
                     console.log('countarcoinci' + countarcoinci);
                     console.log('cantidad_tomar_en_cuenta_temp' + cantidad_tomar_en_cuenta_temp);
                     console.log('cantidad_tomar_en_cuenta' + cantidad_tomar_en_cuenta);
                     console.log('bonito.condicion_cantidad' + bonito.condicion_cantidad);
-                    if (countarcoinci >= 1 && parseFloat(cantidad_tomar_en_cuenta_temp) >= parseFloat(bonito.condicion_cantidad)) {
+                    //parseFloat(cantidad_tomar_en_cuenta_temp) >= parseFloat(bonito.condicion_cantidad)
+                    if (countarcoinci >= 1 && parseFloat(cantidad_p) >= parseFloat(bonito.condicion_cantidad)) {
                         eliminar = false;
                     }
 
@@ -1705,18 +1443,18 @@ function addBonosToTable(lacantidadcomprada, unidadseleccionada, idprpod, cantid
 
                 jQuery.each(lst_bonos, function (j, produt) {
 
-                    console.log('lacantidadcomprada'+lacantidadcomprada);
+                        console.log('lacantidadcomprada' + lacantidadcomprada);
                         if (produt != undefined && lacantidadcomprada != 0) {
 
 
                             console.log(produt);
                             console.log(bonito); //parseInt(bonito.id_bonificacion) == parseInt(produt.id_bonificacion)&&
-                            if ( parseInt(bonito.bono_id) == parseInt(produt.bono_id)
+                            if (parseInt(bonito.bono_id) == parseInt(produt.bono_id)
                                 && parseInt(bonito.bono_unidad_id) == parseInt(produt.bono_unidad_id) && produt.bono != 'false') {
                                 console.log('distinto de cero');
 
                                 jQuery.each(bonito.bonificaciones_has_producto, function (y, bonificicion_has_p) {
-                                    if (parseInt(bonificicion_has_p.id_producto) == parseInt(idprpod)  && eliminar == true) {
+                                    if (parseInt(bonificicion_has_p.id_producto) == parseInt(idprpod) && eliminar == true) {
                                         lst_bonos.splice(j, 1);
                                         $("#boni-" + bonito.bono_id + "-" + bonito.bono_unidad_id).remove();
                                         console.log('elimino de una 1');
@@ -1979,7 +1717,7 @@ function putBonoshow() {
 function saveCantidadEdit(count, cantidad, porcentaje_impuesto, unidades, cualidad, unidad_id, producto_id) {
 
 
-    var cantidad_vieja= cantidad;
+    var cantidad_vieja = cantidad;
     // console.log(bonos);
     var newcantidad = parseFloat($("#cantidadedit").val());
     var precio_edit = parseFloat($("#precioedit").val());
@@ -1993,11 +1731,11 @@ function saveCantidadEdit(count, cantidad, porcentaje_impuesto, unidades, cualid
     var ventaStatus = $("#venta_status").val();
     var cantidad_total = (parseFloat(stockhidden.val()) - parseFloat(unidades) * newcantidad);
 
-   // console.log(cantidad_vieja);
+    // console.log(cantidad_vieja);
     //console.log(unidades * newcantidad);
     if (stockStatus == 0) {
-        if (ventaStatus != 'GENERADO' && ((cantidad_total > parseFloat(stockhidden.val()) && cantidad_total >=0 )
-            ||( cantidad_total < 0 && ( parseFloat(unidades * newcantidad)> cantidad_vieja)))) {
+        if (ventaStatus != 'GENERADO' && ((cantidad_total > parseFloat(stockhidden.val()) && cantidad_total >= 0 )
+            || ( cantidad_total < 0 && ( parseFloat(unidades * newcantidad) > cantidad_vieja)))) {
             alertModal('<h4>Stock Insuficiente!</h4> ', 'warning', false);
             return false;
         }
@@ -2070,14 +1808,14 @@ function saveCantidadEdit(count, cantidad, porcentaje_impuesto, unidades, cualid
                 newcantidad = parseFloat($("#cantidadedit").val());
 
                 //if (cumplescala == true) {
-                 //   value.precio = newprecio;
+                //   value.precio = newprecio;
                 //}
                 value.precio = parseFloat(precio_edit);
                 var subtotal = parseFloat(value.precio) * newcantidad;
 
-                console.log('newcantidad'+newcantidad);
-                console.log('subtotal'+subtotal);
-                console.log('parseFloat(value.precio)'+parseFloat(value.precio));
+                console.log('newcantidad' + newcantidad);
+                console.log('subtotal' + subtotal);
+                console.log('parseFloat(value.precio)' + parseFloat(value.precio));
                 calculatotales(value.id_producto, value.nombre, value.unidad_nombre, newcantidad, value.precio, subtotal, porcentaje_impuesto, countproducto, value.unidades, cualidad, value.unidad_medida, value.precio_sugerido, value.bono);
                 addProductoToArray(value.id_producto, value.nombre, value.unidad_medida, value.unidad_nombre, newcantidad, value.precio, value.precio_sugerido, subtotal, value.unidades, cualidad, porcentaje_impuesto, value.bono, value.venta_sin_stock);
 
@@ -2155,7 +1893,7 @@ function aplicarPrecioSugerido(count, cantidad, porcentaje_impuesto, cualidad, p
     recorrerBonos();
 }
 
-function confirmar_delete(count, porcentaje_impuesto, cualidad){
+function confirmar_delete(count, porcentaje_impuesto, cualidad) {
     $('#eliminar_item').attr('onclick', "deleteproducto(" + count + ", " + porcentaje_impuesto + ", \"" + cualidad + "\")");
     $('#confirmar_delete').modal('show');
 }

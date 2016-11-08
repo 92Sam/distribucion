@@ -1867,7 +1867,7 @@ class venta extends MY_Controller
             $select = 'venta.venta_id,venta.pagado, venta.id_cliente, venta.pagado,
              razon_social,fecha, total,var_credito_estado, dec_credito_montodebito, documento_venta.*,
             nombre_condiciones, confirmacion_monto_cobrado_caja, confirmacion_monto_cobrado_bancos,
-            (select SUM(historial_monto) from historial_pagos_clientes where historial_pagos_clientes.credito_id = venta.venta_id and historial_estatus="PENDIENTE" ) as confirmar, 
+            (select SUM(historial_monto) from historial_pagos_clientes where historial_pagos_clientes.credito_id = venta.venta_id and historial_estatus="PENDIENTE" ) as confirmar,
             usuario.nombre as vendedor';
             $from = "venta";
             $join = array('credito', 'cliente', 'documento_venta', 'condiciones_pago', 'consolidado_detalle', 'usuario');
