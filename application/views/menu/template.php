@@ -432,6 +432,12 @@ $primary_nav = array(
         'slug' => 'reportes',
         'sub' => array(
             array(
+                'name' => 'Reporte Cobranzas',
+                'url' => $ruta . 'reporte/cobranzas',
+                'icon' => 'fa fa-bar-chart',
+                'slug' => 'reporteutilidades'
+            ),
+            array(
                 'name' => 'Reporte utilidades',
                 'url' => $ruta . 'venta/reporteUtilidades',
                 'icon' => 'fa fa-bar-chart',
