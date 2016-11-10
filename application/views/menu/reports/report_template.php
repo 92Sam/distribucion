@@ -4,10 +4,11 @@
 </ul>
 <div class="block">
     <!-- Progress Bars Wizard Title -->
-    <div class="row">
+    <div class="box-body">
         <?= isset($reporte_filtro) ? $reporte_filtro : '' ?>
     </div>
 
+    <br>
 
     <div class="box-body">
         <div id="reporte_tabla" class="table-responsive">

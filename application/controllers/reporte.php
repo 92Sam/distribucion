@@ -7,6 +7,9 @@ class reporte extends MY_Controller
     {
         parent::__construct();
         $this->load->model('reporte/rcobranza_model');
+        $this->load->model('usuario/usuario_model');
+        $this->load->model('zona/zona_model');
+        $this->load->model('cliente/cliente_model');
     }
 
     function cobranzas($action = '')
@@ -30,7 +33,12 @@ class reporte extends MY_Controller
 
                 $data['cobranzas'] = $this->rcobranza_model->get_cobranzas(array());
 
-                $data['reporte_filtro'] = $this->load->view('menu/reports/cobranzas/filtros', $data, true);
+                $data['reporte_filtro'] = $this->load->view('menu/reports/cobranzas/filtros', array(
+                    'vendedores' => $this->usuario_model->select_all_by_roll('Vendedor'),
+                    'vendedor_zonas' => $this->db->get('usuario_has_zona')->result(),
+                    'zonas' => $this->zona_model->get_all(),
+                    'clientes' => $this->cliente_model->get_all(),
+            ), true);
                 $data['reporte_tabla'] = $this->load->view('menu/reports/cobranzas/tabla', $data, true);
                 $dataCuerpo['cuerpo'] = $this->load->view('menu/reports/report_template', $data, true);
                 if ($this->input->is_ajax_request()) {
