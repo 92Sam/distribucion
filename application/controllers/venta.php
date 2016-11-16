@@ -6,6 +6,7 @@ class venta extends MY_Controller
     function __construct()
     {
         parent::__construct();
+        $this->load->model('historial/historial_pedido_model');
         $this->load->model('venta/venta_model');
         $this->load->model('local/local_model');
         $this->load->model('cliente/cliente_model');
@@ -194,6 +195,12 @@ class venta extends MY_Controller
                     if (empty($id)) {
                         $resultado = $this->venta_model->insertar_venta($venta, $detalle, $montoboletas);
                         $id = $resultado;
+                        if ($resultado != false) {
+                            $this->historial_pedido_model->insertar_pedido(PROCESO_GENERAR, array(
+                                'pedido_id' => $resultado,
+                                'responsable_id' => $this->session->userdata('nUsuCodigo')
+                            ));
+                        }
                     } else {
                         if ($this->input->post('accion_resetear')) {
                             $venta['accion'] = $this->input->post('accion_resetear');
@@ -438,7 +445,7 @@ class venta extends MY_Controller
             $condicion['local_id'] = $this->input->post('id_local');
             $data['local'] = $this->input->post('id_local');
         }
-        if ($this->input->post('desde') != ""   ) {
+        if ($this->input->post('desde') != "") {
             $condicion['fecha >= '] = date('Y-m-d', strtotime($this->input->post('desde'))) . " " . date('H:i:s', strtotime('0:0:0'));
             $data['fecha_desde'] = date('Y-m-d', strtotime($this->input->post('desde'))) . " " . date('H:i:s', strtotime('0:0:0'));
         }
@@ -685,7 +692,7 @@ class venta extends MY_Controller
     }
 
 
-    function pdfReporteZona($zona, $desde='', $hasta='')
+    function pdfReporteZona($zona, $desde = '', $hasta = '')
     {
 
 
@@ -702,7 +709,7 @@ class venta extends MY_Controller
 
         if ($zona != "TODAS") {
 
-            $condicion['zona_id'] =$zona;
+            $condicion['zona_id'] = $zona;
             $data['zona'] = $this->input->post('id_zona');
 
 
@@ -1241,7 +1248,7 @@ class venta extends MY_Controller
     }
 
 
-    function excelReporteZona($zona, $desde='', $hasta='')
+    function excelReporteZona($zona, $desde = '', $hasta = '')
     {
 
         $condicion = array();
@@ -3199,7 +3206,7 @@ class venta extends MY_Controller
 
             $where['historial_fecha >='] = date('Y-m-d H:i:s', strtotime($this->input->post('fecha_ini') . " 00:00:00"));
             $where['historial_fecha <='] = date('Y-m-d H:i:s', strtotime($this->input->post('fecha_fin') . " 23:59:59"));
-            
+
             ////////////////////////
             $nombre_or = false;
             $where_or = false;

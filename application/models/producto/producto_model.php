@@ -26,11 +26,22 @@ class producto_model extends CI_Model
         parent::__construct();
     }
 
+    //DEVUELVE EL COSTO UNITARIO PROMEDIO DEL PRODUCTO SEGUN SUS INGRESOS
+    function get_costo_promedio($id)
+    {
+        $costo = $this->db->select('(sum(total_detalle) / sum(cantidad)) as costo_promedio')
+            ->from('detalleingreso')
+            ->where('id_producto', $id)
+            ->get()->row();
 
-    function get_all_by_local_producto($local,$precio)
+        return $costo->costo_promedio != NULL ? $costo->costo_promedio : 0;
+    }
+
+
+    function get_all_by_local_producto($local, $precio)
     {
         $this->db->distinct();
-        $this->db->select('unidades_has_precio.precio,producto.producto_nombre as nombre, '.$this->tabla . '.*, unidades_has_producto.id_unidad, unidades.nombre_unidad, inventario.id_inventario, inventario.id_local, inventario.cantidad, inventario.fraccion ,lineas.nombre_linea,
+        $this->db->select('unidades_has_precio.precio,producto.producto_nombre as nombre, ' . $this->tabla . '.*, unidades_has_producto.id_unidad, unidades.nombre_unidad, inventario.id_inventario, inventario.id_local, inventario.cantidad, inventario.fraccion ,lineas.nombre_linea,
 		 marcas.nombre_marca, familia.nombre_familia, grupos.nombre_grupo, proveedor.proveedor_nombre, impuestos.nombre_impuesto,grupos.id_grupo');
         $this->db->from($this->tabla);
         $this->db->join('unidades_has_precio', 'unidades_has_precio.id_producto=producto.producto_id', 'left');
@@ -38,26 +49,26 @@ class producto_model extends CI_Model
         $this->db->join('marcas', 'marcas.id_marca=producto.' . $this->marca, 'left');
         $this->db->join('familia', 'familia.id_familia=producto.' . $this->familia, 'left');
         $this->db->join('grupos', 'grupos.id_grupo=producto.' . $this->grupo, 'left');
-        $this->db->join('proveedor', 'proveedor.id_proveedor=producto.' . $this->proveedor,  'left');
+        $this->db->join('proveedor', 'proveedor.id_proveedor=producto.' . $this->proveedor, 'left');
         $this->db->join('impuestos', 'impuestos.id_impuesto=producto.' . $this->impuesto, 'left');
         $this->db->join('(SELECT DISTINCT inventario.id_producto, inventario.id_inventario, inventario.cantidad, inventario.fraccion, inventario.id_local FROM inventario WHERE inventario.id_local=' . $local . '  ORDER by id_inventario DESC ) as inventario', 'inventario.id_producto=producto.' . $this->id, 'left');
         $this->db->join('unidades_has_producto', 'unidades_has_producto.producto_id=producto.' . $this->id . ' and unidades_has_producto.orden=1', 'left');
         $this->db->join('unidades', 'unidades.id_unidad=unidades_has_producto.id_unidad', 'left');
 
         $this->db->group_by('producto_id');
-        $this->db->order_by('nombre_grupo','asc');
+        $this->db->order_by('nombre_grupo', 'asc');
 
-        $where_in=array('0','1');
-        $where=array(
-            $this->status=>1
+        $where_in = array('0', '1');
+        $where = array(
+            $this->status => 1
         );
-        $this->db->where_in($this->status,$where_in);
+        $this->db->where_in($this->status, $where_in);
         $this->db->where($where);
-        if($precio == 1 OR $precio == 2) {
+        if ($precio == 1 OR $precio == 2) {
             $this->db->where('precio > 0');
             $this->db->where('unidades_has_precio.id_unidad IS NOT NULL');
         }
-        if($precio == 0) {
+        if ($precio == 0) {
             $this->db->where('precio < 1');
             $this->db->where('precio < 1  OR unidades_has_precio.id_unidad ="" OR unidades_has_precio.id_unidad IS NULL');
         }
@@ -67,7 +78,7 @@ class producto_model extends CI_Model
     }
 
 
-    function insertar($pe, $medidas, $unidades,$metrosCubicos)
+    function insertar($pe, $medidas, $unidades, $metrosCubicos)
     {
 
         $validar_nombre = sizeof($this->get_by('producto_nombre', $pe['producto_nombre']));
@@ -134,11 +145,11 @@ class producto_model extends CI_Model
         }
     }
 
-    function update($producto, $medidas, $unidades,$metrosCubicos)
+    function update($producto, $medidas, $unidades, $metrosCubicos)
     {
-        $produc_exite=$this->get_by('producto_nombre', $producto['producto_nombre']);
+        $produc_exite = $this->get_by('producto_nombre', $producto['producto_nombre']);
         $validar_nombre = sizeof($produc_exite);
-        if ($validar_nombre < 1 or( $validar_nombre>0 and ($produc_exite ['producto_id']==$producto ['producto_id']))) {
+        if ($validar_nombre < 1 or ($validar_nombre > 0 and ($produc_exite ['producto_id'] == $producto ['producto_id']))) {
             $this->db->trans_start();
             $this->db->where($this->id, $producto['producto_id']);
             $this->db->update($this->tabla, $producto);
@@ -192,7 +203,7 @@ class producto_model extends CI_Model
 
                         foreach ($preciose as $pe) {
 
-                            if(isset($precios_id[$countprecio])){
+                            if (isset($precios_id[$countprecio])) {
                                 $unidad_has_precio = array(
                                     "id_precio" => $precios_id[$countprecio],
                                     "id_unidad" => $medidas[$countunidad],
@@ -266,7 +277,6 @@ class producto_model extends CI_Model
     }
 
 
-
     function get_by($campo, $valor)
     {
         $this->db->where($campo, $valor);
@@ -295,6 +305,7 @@ class producto_model extends CI_Model
         else
             return TRUE;
     }
+
     function estadoDelProducto($valor)
     {
 
@@ -305,7 +316,7 @@ class producto_model extends CI_Model
         LEFT JOIN unidades as unidadesV ON unidadesV.id_unidad=ventas.unidad_medida
         LEFT JOIN detalleingreso as ingreso ON ingreso.id_producto = ventas.id_producto
         LEFT JOIN unidades as unidadesI ON unidadesI.id_unidad=ingreso.unidad_medida
-        WHERE ventas.id_producto = ".$valor." ORDER BY id_detalle,detalleI DESC LIMIT 1");
+        WHERE ventas.id_producto = " . $valor . " ORDER BY id_detalle,detalleI DESC LIMIT 1");
         return $query->result_array();
     }
 
@@ -329,6 +340,7 @@ class producto_model extends CI_Model
         return $query->row_array();
 
     }
+
     function get_by_id($id)
     {
         $query = $this->db->where('producto_id', $id);
@@ -336,7 +348,7 @@ class producto_model extends CI_Model
         $this->db->join('marcas', 'marcas.id_marca=producto.' . $this->marca, 'left');
         $this->db->join('familia', 'familia.id_familia=producto.' . $this->familia, 'left');
         $this->db->join('grupos', 'grupos.id_grupo=producto.' . $this->grupo, 'left');
-        $this->db->join('subgrupo', 'subgrupo.id_subgrupo = producto.producto_subgrupo','left');
+        $this->db->join('subgrupo', 'subgrupo.id_subgrupo = producto.producto_subgrupo', 'left');
         $this->db->join('subfamilia', 'subfamilia.id_subfamilia = producto.producto_subfamilia', 'left');
         $this->db->join('proveedor', 'proveedor.id_proveedor=producto.' . $this->proveedor, 'left');
         $this->db->join('impuestos', 'impuestos.id_impuesto=producto.' . $this->impuesto, 'left');
@@ -365,8 +377,6 @@ class producto_model extends CI_Model
     }
 
 
-
-
     function get_all_by_local($local, $activo = false, $producto = false)
     {
         $this->db->distinct();
@@ -378,28 +388,29 @@ class producto_model extends CI_Model
         $this->db->join('marcas', 'marcas.id_marca=producto.' . $this->marca, 'left');
         $this->db->join('familia', 'familia.id_familia=producto.' . $this->familia, 'left');
         $this->db->join('grupos', 'grupos.id_grupo=producto.' . $this->grupo, 'left');
-        $this->db->join('proveedor', 'proveedor.id_proveedor=producto.' . $this->proveedor,  'left');
+        $this->db->join('proveedor', 'proveedor.id_proveedor=producto.' . $this->proveedor, 'left');
         $this->db->join('impuestos', 'impuestos.id_impuesto=producto.' . $this->impuesto, 'left');
-       $this->db->join('(SELECT DISTINCT inventario.id_producto, inventario.id_inventario, inventario.cantidad, inventario.fraccion, inventario.id_local FROM inventario WHERE inventario.id_local=' . $local . '  ORDER by id_inventario DESC ) as inventario', 'inventario.id_producto=producto.' . $this->id, 'left');
+        $this->db->join('(SELECT DISTINCT inventario.id_producto, inventario.id_inventario, inventario.cantidad, inventario.fraccion, inventario.id_local FROM inventario WHERE inventario.id_local=' . $local . '  ORDER by id_inventario DESC ) as inventario', 'inventario.id_producto=producto.' . $this->id, 'left');
         $this->db->join('unidades_has_producto', 'unidades_has_producto.producto_id=producto.' . $this->id . ' and unidades_has_producto.orden=1', 'left');
         $this->db->join('unidades', 'unidades.id_unidad=unidades_has_producto.id_unidad', 'left');
-        $this->db->join('subgrupo', 'subgrupo.id_subgrupo = producto.producto_subgrupo','left');
+        $this->db->join('subgrupo', 'subgrupo.id_subgrupo = producto.producto_subgrupo', 'left');
         $this->db->join('subfamilia', 'subfamilia.id_subfamilia = producto.producto_subfamilia', 'left');
         $this->db->group_by('producto_id');
 
-        $this->db->where($this->status,'1');
+        $this->db->where($this->status, '1');
 
-        if($activo){
-            $this->db->where($this->producto_activo,'1');
+        if ($activo) {
+            $this->db->where($this->producto_activo, '1');
         }
         if ($producto != false) {
             $this->db->where('producto.producto_id', $producto);
         }
 
         $query = $this->db->get();
-         //echo $this->db->last_query();
+        //echo $this->db->last_query();
         return $query->result_array();
     }
+
     public function count_all($filter = null)
     {
         // Filter
@@ -415,7 +426,7 @@ class producto_model extends CI_Model
     public function traer_by($select = false, $from = false, $join = false, $campos_join = false, $tipo_join, $where = false, $nombre_in, $where_in,
                              $nombre_or, $where_or,
                              $group = false,
-                             $order = false, $retorno = false, $limit=false, $start=0,$order_dir=false, $like=false,$where_custom)
+                             $order = false, $retorno = false, $limit = false, $start = 0, $order_dir = false, $like = false, $where_custom)
     {
         if ($select != false) {
             $this->db->select($select);
@@ -427,12 +438,12 @@ class producto_model extends CI_Model
 
                 if ($tipo_join != false) {
 
-                   // for ($t = 0; $t < count($tipo_join); $t++) {
+                    // for ($t = 0; $t < count($tipo_join); $t++) {
 
-                       // if ($tipo_join[$t] != "") {
+                    // if ($tipo_join[$t] != "") {
 
                     $this->db->join($join[$i], $campos_join[$i], $tipo_join[$i]);
-                        //}
+                    //}
 
                     //}
 
@@ -466,19 +477,19 @@ class producto_model extends CI_Model
         }
 
         if ($limit != false) {
-            $this->db->limit($limit,$start);
+            $this->db->limit($limit, $start);
         }
         if ($group != false) {
             $this->db->group_by($group);
         }
 
         if ($order != false) {
-            $this->db->order_by($order,$order_dir);
+            $this->db->order_by($order, $order_dir);
         }
 
         $query = $this->db->get();
 
-      // echo $this->db->last_query();
+        // echo $this->db->last_query();
         if ($retorno == "RESULT_ARRAY") {
 
             return $query->result_array();
@@ -490,7 +501,6 @@ class producto_model extends CI_Model
         }
 
     }
-
 
 
     function autocomplete_marca($term)

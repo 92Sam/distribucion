@@ -242,7 +242,7 @@
 
     function add_zona_template(zona) {
         var template = '<label style="cursor: pointer;">';
-        template += '<input type="checkbox" value="' + zona.id + '">' + zona.nombre;
+        template += '<input type="checkbox" value="' + zona.id + '"> ' + zona.nombre;
         template += '</label><br>';
         return template;
     }

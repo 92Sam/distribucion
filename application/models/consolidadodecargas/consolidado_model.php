@@ -7,6 +7,8 @@ class consolidado_model extends CI_Model
     {
         parent::__construct();
         $this->load->database();
+
+        $this->load->model('historial/historial_pedido_model');
     }
 
 
@@ -165,6 +167,7 @@ class consolidado_model extends CI_Model
         $query = $this->db->get();
         return $query->result_array();
     }
+
     function get_detalle_bk_by($where)
     {
         $this->db->select('distinct(documento_fiscal.venta_id), consolidado_detalle.*, carga.*, venta.*, documento_fiscal.documento_tipo');
@@ -224,7 +227,7 @@ class consolidado_model extends CI_Model
         return $query->result_array();
     }
 
-    function get_cantiad_vieja_by_product($product,$consolidado_id)
+    function get_cantiad_vieja_by_product($product, $consolidado_id)
     {
 
         $q = "select sum(cantidad) as cantidadnueva from detalle_venta join consolidado_detalle on consolidado_detalle.pedido_id=detalle_venta.id_venta where id_producto=" . $product . " and consolidado_id=" . $consolidado_id . " GROUP by id_producto ";
@@ -289,6 +292,7 @@ class consolidado_model extends CI_Model
         return $query->result_array();
 
     }
+
     function get_documentoVentaBackup_by_id($id, $in = false)
     {
         $q = "SELECT distinct(venta_backup.venta_id),  consolidado_detalle.liquidacion_monto_cobrado, documento_venta.*, venta_backup.venta_status, venta_backup.total, credito.var_credito_estado,  (select SUM(total) FROM consolidado_carga
@@ -347,6 +351,12 @@ class consolidado_model extends CI_Model
                     'fecha' => $date);
                 $this->db->insert('venta_estatus', $data);
 
+                $this->historial_pedido_model->insertar_pedido(PROCESO_ASIGNAR, array(
+                    'pedido_id' => $pedidos[$i],
+                    'responsable_id' => $this->session->userdata('nUsuCodigo'),
+                    'fecha_plan' => $datos['fecha']
+                ));
+
             }
         }
 
@@ -382,9 +392,20 @@ class consolidado_model extends CI_Model
 
     function updateStatus($status)
     {
+        $consolidado = $this->db->get_where('consolidado_carga', array('consolidado_id' => $status['consolidado_id']))->row();
+        if ($consolidado->status == 'ABIERTO') {
+            $detalles = $this->db->get_where('consolidado_detalle', array('consolidado_id' => $status['consolidado_id']))->result();
+            foreach ($detalles as $detalle) {
+                $this->historial_pedido_model->insertar_pedido(PROCESO_IMPRIMIR, array(
+                    'pedido_id' => $detalle->pedido_id,
+                    'responsable_id' => $this->session->userdata('nUsuCodigo'),
+                    'fecha_plan' => $consolidado->fecha
+                ));
+            }
+        }
+
         $this->db->where('consolidado_id', $status['consolidado_id']);
         $this->db->update('consolidado_carga', $status);
-
     }
 
     function updateStatusVenta($statusVenta)
@@ -447,6 +468,12 @@ class consolidado_model extends CI_Model
                 $data = array('venta_id' => $pedidosant[$i]['pedido_id'], 'vendedor_id' => $vendedor, 'estatus' => $estatus,
                     'fecha' => $date);
                 $this->db->insert('venta_estatus', $data);
+
+                $this->historial_pedido_model->insertar_pedido(PROCESO_ASIGNAR, array(
+                    'pedido_id' => $pedidosant[$i]['pedido_id'],
+                    'responsable_id' => $this->session->userdata('nUsuCodigo'),
+                    'fecha_plan' => $data['fecha']
+                ));
             }
         }
         //DELETE DE TABLA DETALLE
