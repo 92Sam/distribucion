@@ -4,6 +4,7 @@
         border: 1px solid #dae8e7;
         width: 300px;
         padding: 0 20px;
+        overflow-y: auto;
     }
 
     .tcharm-header {
@@ -67,13 +68,14 @@
 
             <div class="row">
                 <label class="control-label" style="cursor: pointer;">
-                    <input id="zonas_all" type="checkbox"> Zonas del Vendedor:
+                    <input id="zonas_all" type="checkbox" checked> Zonas del Vendedor:
                 </label><br>
                 <div id="zonas_content"
                      style="width: 100%; height: 100px; border: 1px solid #dae8e7; overflow-y: scroll;">
                     <?php foreach ($zonas as $zona): ?>
                         <label style="cursor: pointer;">
-                            <input type="checkbox" value="<?= $zona['zona_id'] ?>"> <?= $zona['zona_nombre'] ?>
+                            <input class="zona_check" type="checkbox" checked
+                                   value="<?= $zona['zona_id'] ?>"> <?= $zona['zona_nombre'] ?>
                         </label><br>
                     <?php endforeach; ?>
                 </div>
@@ -197,11 +199,16 @@
 
 
     $(document).ready(function () {
+
+        $("#vendedor_id, #cliente_id").chosen();
+
         $("#charm").tcharm({
             'position': 'right',
             'display': false,
             'top': '50px'
         });
+
+        add_checkbox_events();
 
         $("#vendedor_id").on('change', function () {
             var vendedor_id = $(this).val();
@@ -236,13 +243,58 @@
                     cliente_id.append(add_cliente_template(clientes[i]));
                 }
             }
+            $("#zonas_all").prop('checked', 'checked');
+            add_checkbox_events();
+
+            $("#cliente_id").val('0').trigger('chosen:updated');
         });
     });
 
+    function add_checkbox_events() {
+        $("#zonas_all").on('change', function () {
+            if ($("#zonas_all").prop('checked') == true) {
+                $('.zona_check').prop('checked', 'checked');
+            }
+            else {
+                $('.zona_check').removeAttr('checked');
+            }
+            $('.zona_check').trigger('change');
+        });
+
+
+
+        $('.zona_check').on('change', function () {
+            $('#cliente_id').html('<option value="0">Todos</option>');
+            var n = 0;
+            $('.zona_check').each(function () {
+                if ($(this).prop('checked')) {
+                    n++;
+                    select_cliente_by_zona($(this).val());
+                }
+            });
+
+            $("#cliente_id").val('0').trigger('chosen:updated');
+
+
+            if (n == $('.zona_check').length)
+                $('#zonas_all').prop('checked', 'checked');
+            else
+                $('#zonas_all').removeAttr('checked');
+        });
+    }
+
+    function select_cliente_by_zona(zona_id){
+
+        for (var i = 0; i < clientes.length; i++) {
+            if (clientes[i].zona_id == zona_id && (clientes[i].vendedor_id == $("#vendedor_id").val() || $("#vendedor_id").val() == 0)) {
+                $('#cliente_id').append(add_cliente_template(clientes[i]));
+            }
+        }
+    }
 
     function add_zona_template(zona) {
         var template = '<label style="cursor: pointer;">';
-        template += '<input type="checkbox" value="' + zona.id + '"> ' + zona.nombre;
+        template += '<input class="zona_check" type="checkbox" value="' + zona.id + '" checked> ' + zona.nombre;
         template += '</label><br>';
         return template;
     }
