@@ -175,7 +175,7 @@ class clientes extends REST_Controller
             $clientjson[1] = $data['razon_social'];
             $clientjson[2] = $data['identificacion'];
             $clientjson[3] = $data['representante'];
-            $clientjson[4] = $data['direccion2'];
+            $clientjson[4] = null; //$data['direccion2'];
             $clientjson[5] = $data['ciudad_nombre'];
             $clientjson[6] = $data['zona_nombre'];
             $clientjson[7] = $data['nombre'];

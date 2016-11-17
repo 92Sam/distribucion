@@ -9,6 +9,7 @@ class cliente extends MY_Controller
         //$this->very_sesion();
 
         $this->load->model('cliente/cliente_model');
+        $this->load->model('cliente_datos/cliente_datos_model');
         $this->load->model('clientesgrupos/clientes_grupos_model');
         $this->load->model('pais/pais_model');
         $this->load->model('estado/estado_model');
@@ -60,6 +61,7 @@ class cliente extends MY_Controller
         $data['ciudades'] = $this->ciudad_model->get_all();
         if ($id != FALSE) {
             $data['cliente'] = $this->cliente_model->get_by('id_cliente', $id);
+            $data['cliente_datos'] = $this->cliente_datos_model->get_all_by($id);
             $data['cliente_v'] = $this->usuario_model->get_all_u2($id);
         }
         $data['vendedores'] = $this->usuario_model->get_all_u();
@@ -70,38 +72,45 @@ class cliente extends MY_Controller
     function guardar()
     {
 
-        $id = $this->input->post('id');
 
-        $vendedor_id = $this->input->post('vendedor');
-        $zona = $this->input->post('zona');
+
+
+        $id = $_POST['formData'][0]['value'];
+
+        $vendedor_id = $_POST['formData'][9]['value'];
+        $zona = $_POST['formData'][8]['value'];
+
+        if($_POST['formData'][8]['value']=='on'){
+            $linea_libre = true;
+        }else{
+            $linea_libre = false;
+        }
+
         $cliente = array(
-            'ciudad_id' => $this->input->post('ciudad_id'),
-            'grupo_id' => $this->input->post('grupo_id'),
-            'codigo_postal' => $this->input->post('codigo_postal'),
-            'descuento' => $this->input->post('descuento'),
-            'direccion' => $this->input->post('direccion'),
-            'direccion2' => $this->input->post('direccion2'),
-            'email' => $this->input->post('email'),
-            'exento_impuesto' => $this->input->post('exento_impuesto'),
-            'representante' => $this->input->post('representante'),
-            'limite_credito' => $this->input->post('limite_credito'),
-            'razon_social' => $this->input->post('razon_social'),
-            'identificacion' => $this->input->post('identificacion'),
-            'pagina_web' => $this->input->post('pagina_web'),
-            'telefono1' => $this->input->post('telefono1'),
-            'telefono2' => $this->input->post('telefono2'),
-            'nota' => $this->input->post('nota'),
-            'latitud' => $this->input->post('latitud'),
-            'longitud' => $this->input->post('longitud'),
+            'tipo_cliente' => $_POST['formData'][1]['value'],
+            'ciudad_id' => $_POST['formData'][7]['value'],
+            'grupo_id' => $_POST['formData'][14]['value'],
+            'representante' => $_POST['formData'][4]['value'],
+            'razon_social' => $_POST['formData'][3]['value'],
+            'linea_credito_valor' => $_POST['formData'][10]['value'],
+
+            'agente_retencion' => $_POST['formData'][12]['value'],
+            'linea_credito_valor' => $_POST['formData'][13]['value'],
+            'linea_libre' => $linea_libre,
+            'linea_libre_valor' => $_POST['formData'][10]['value'],
+
+
+            'identificacion' => $_POST['formData'][2]['value'],
+            'latitud' => $_POST['formData'][18]['value'],
+            'longitud' => $_POST['formData'][19]['value'],
             'id_zona' => !empty($zona) ? $zona : null,
             'vendedor_a' => !empty($vendedor_id) ? $vendedor_id : null,
         );
-
         if (empty($id)) {
-            $resultado = $this->cliente_model->insertar($cliente);
+            $resultado = $this->cliente_model->insertar($cliente, $_POST['items']);
         } else {
             $cliente['id_cliente'] = $id;
-            $resultado = $this->cliente_model->update($cliente);
+            $resultado = $this->cliente_model->update($cliente, $_POST['items']);
         }
 
         if ($resultado == TRUE) {

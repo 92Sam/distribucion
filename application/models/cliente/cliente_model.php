@@ -59,7 +59,7 @@ class cliente_model extends CI_Model
         return $query->row_array();
     }
 
-    function insertar($cliente)
+    function insertar($cliente, $items)
     {
         $identificacion = $cliente['identificacion'];
         $validar_nombre = sizeof($this->get_by('identificacion', $identificacion));
@@ -80,16 +80,52 @@ class cliente_model extends CI_Model
             $this->db->insert('cliente_v', $ven);
 
 
-            $direccion = array(
+           /* $direccion = array(
                 'direccion' => $cliente['direccion'],
                 'cliente_id' => $id_usu,
                 'fecha' => $fech,
             );
             $this->db->insert('cliente_direccion', $direccion);
+            */
+            for ($i=0; $i < count($items); $i++) { 
+
+                if($items[$i][2] == 'true'){
+                    $principal = true;
+
+                }else{
+                    $principal = false;
+                }
+
+                $datos = array(
+                    'cliente_id' => $id_usu,
+                    'tipo' => $items[$i][0],
+                    'valor' => $items[$i][1],
+                    'principal' => $principal
+                    );
+                $this->db->insert('cliente_datos', $datos);
+
+
+                if($items[$i][0]==1){
+
+                    $direccion = array(
+                        'direccion' => $items[$i][1],
+                        'cliente_id' => $id_usu,
+                        'fecha' => $fech,
+                        );
+                    $this->db->insert('cliente_direccion', $direccion);
+                }
+
+
+
+
+            }
+
+
+
             try {
                 $this->db->trans_complete();
             } catch (Exception $e) {
-                return $this->db->_error_message();
+                return $this->db->_errosr_message();
             }
 
             if ($this->db->trans_status() === FALSE) {
