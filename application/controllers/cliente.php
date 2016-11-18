@@ -72,37 +72,34 @@ class cliente extends MY_Controller
     function guardar()
     {
 
+        $id = $_POST['cliente_id'];
 
+        $vendedor_id = $_POST['vendedor_a'];
+        $zona = $_POST['id_zona'];
 
-
-        $id = $_POST['formData'][0]['value'];
-
-        $vendedor_id = $_POST['formData'][9]['value'];
-        $zona = $_POST['formData'][8]['value'];
-
-        if($_POST['formData'][8]['value']=='on'){
+        if($_POST['linea_libre']=='on'){
             $linea_libre = true;
         }else{
             $linea_libre = false;
         }
 
         $cliente = array(
-            'tipo_cliente' => $_POST['formData'][1]['value'],
-            'ciudad_id' => $_POST['formData'][7]['value'],
-            'grupo_id' => $_POST['formData'][14]['value'],
-            'representante' => $_POST['formData'][4]['value'],
-            'razon_social' => $_POST['formData'][3]['value'],
-            'linea_credito_valor' => $_POST['formData'][10]['value'],
+            'tipo_cliente' => $_POST['tipo_cliente'],
+            'ciudad_id' => $_POST['ciudad_id'],
+            'grupo_id' => $_POST['grupo_id'],
+            'representante' => $_POST['representante'],
+            'razon_social' => $_POST['razon_social'],
 
-            'agente_retencion' => $_POST['formData'][12]['value'],
-            'linea_credito_valor' => $_POST['formData'][13]['value'],
+            'agente_retencion' => $_POST['agente_retencion'],
+            'linea_credito_valor' => $_POST['linea_credito_valor'],
             'linea_libre' => $linea_libre,
-            'linea_libre_valor' => $_POST['formData'][10]['value'],
+            'linea_libre_valor' => $_POST['linea_libre_valor'],
 
 
-            'identificacion' => $_POST['formData'][2]['value'],
-            'latitud' => $_POST['formData'][18]['value'],
-            'longitud' => $_POST['formData'][19]['value'],
+            'identificacion' => $_POST['identificacion'],
+            'latitud' => $_POST['latitud'],
+            'longitud' => $_POST['longitud'],
+            'importe_deuda' => $_POST['importe_deuda'],
             'id_zona' => !empty($zona) ? $zona : null,
             'vendedor_a' => !empty($vendedor_id) ? $vendedor_id : null,
         );

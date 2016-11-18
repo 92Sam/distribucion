@@ -1,7 +1,11 @@
 
 <script type="text/javascript">
     function validarFrm(){
+        $('#barloadermodal').modal('show');
 
+
+$('#tipo').attr('disabled', true)
+$('#valor').attr('disabled', true)
 var items = []
                   if ($("#razon_social").val() == '') {
                 var growlType = 'warning';
@@ -13,6 +17,7 @@ var items = []
                 });
 
                 $(this).prop('disabled', true);
+                $('#barloadermodal').modal('hide');
 
                 return false;
             }
@@ -27,6 +32,7 @@ var items = []
                 });
 
                 $(this).prop('disabled', true);
+                $('#barloadermodal').modal('hide');
 
                 return false;
             }
@@ -41,6 +47,7 @@ var items = []
                 });
 
                 $(this).prop('disabled', true);
+                $('#barloadermodal').modal('hide');
 
                 return false;
             }
@@ -55,9 +62,11 @@ var items = []
                 });
 
                 $(this).prop('disabled', true);
+                $('#barloadermodal').modal('hide');
 
                 return false;
             }
+
 
 
             if ($("#estado_id").val() == '') {
@@ -70,6 +79,7 @@ var items = []
                 });
 
                 $(this).prop('disabled', true);
+                $('#barloadermodal').modal('hide');
 
                 return false;
             }
@@ -85,6 +95,7 @@ var items = []
                 });
 
                 $(this).prop('disabled', true);
+                $('#barloadermodal').modal('hide');
 
                 return false;
             }
@@ -99,6 +110,7 @@ var items = []
                 });
 
                 $(this).prop('disabled', true);
+                $('#barloadermodal').modal('hide');
 
                 return false;
             }
@@ -113,55 +125,86 @@ var items = []
                 });
 
                 $(this).prop('disabled', true);
+                $('#barloadermodal').modal('hide');
 
                 return false;
             }
 
 
 
+              $(".fila").each(function(){
+
+            // items.push([organismo,dependencia,recibido_por,fecha_recepcion])
+
+
+
+                    if($(this).find('.principal').attr('id') == '1'){
+                       var principal = true
+                    }else{
+                       var principal = false
+                    }
+
+                    items.push([$(this).find('.tipo').attr('id'), $(this).find('.valor').attr('id'), principal])
+
+
+                })
              
 
 
-      $(".fila").each(function(){
-
-    // items.push([organismo,dependencia,recibido_por,fecha_recepcion])
-
-
-
-            if($(this).find('.principal').attr('id') == 'true'){
-               var principal = true
-            }else{
-               var principal = false
-            }
-
-            items.push([$(this).find('.tipo').attr('id'), $(this).find('.valor').attr('id'), principal])
-
-
-        })
 
          
         
     var formData = $("#formagregar").serializeArray()
 
-
+       
 
     $.ajax({
         url: '<?=base_url()?>cliente/guardar',
          type: "post",
         dataType: "json",
-        data: {'formData': formData, 'items': items},
-                    success: function(contenedor) {
+        data: {'cliente_id':$('#cliente_id').val(),
+                'tipo_cliente':$('#tipo_cliente').val(),
+                'ciudad_id':$('#estado_id').val(),
+                'grupo_id':$('#grupo_id').val(),
+                'representante':$('#representante_id').val(),
+                'razon_social':$('#razon_social').val(),
+                'linea_credito_valor':$('#retencion_id').val(),
+                'agente_retencion':$('#s_retencion').val(),
+                'linea_libre':$('#linea_libre').val(),
+                'linea_libre_valor':$('#linea_libre_valor').val(),
+                'identificacion':$('#dni_ruc').val(),
+                'latitud' :$('#latitud').val(),
+                'longitud':$('#longitud').val(),
+                'id_zona' :$('#zona').val(),
+                'vendedor_a':$('#vendedor').val(),
+                'importe_deuda':$('#importe_deuda').val(),
+                'items': items},
+                    success: function(data) {
 
-                        var salida = '';
-                        if ((contenedor != '')) {
-                            // for(var i=0; i<contenedor.length;i++){   
-                            //   alert(contenedor.length)
-                            //var cedu= ''+contenedor[0].cedu;
-                            //alert(contenedor)
-                          
+                    setTimeout(function () {
+                        $('#barloadermodal').modal('hide');
+                    }, 2000)
+                    if (data != '') {
+
+                        $.bootstrapGrowl('<h4>'+data[Object.keys(data)]+'</h4>', {
+                            type: Object.keys(data),
+                            delay: 2500,
+                            allow_dismiss: true
+                        });
+                        if(Object.keys(data) == 'success'){
+                $('#agregar').modal('toggle')
+
+                            setTimeout(function () {
+                                window.location.href ='<?=base_url()?>cliente/';
+                            }, 500)
+                        }else{
+                            return false
+                        
                         }
-                    }
 
+                    
+                    }
+                }
 
     });
 
@@ -188,8 +231,7 @@ fieldset {
     padding: 5px;
 }
     </style>
-    <?php var_dump($cliente_datos); ?>
-    <input type="hidden" name="id" id=""
+    <input type="hidden" name="id" id="cliente_id"
            value="<?php if (isset($cliente['id_cliente'])) echo $cliente['id_cliente']; ?>">
 
     <div class="modal-dialog modal-lg">
@@ -209,7 +251,7 @@ fieldset {
                                 <select name="tipo_cliente" id="tipo_cliente" required="true" class="form-control" >
                                       <option value="" >Seleccione</option>
                                       <option value="1" <?php if (isset($cliente['tipo_cliente']) and $cliente['tipo_cliente'] == 1) echo 'selected' ?>>Natural</option>
-                                      <option value="0" <?php if (isset($cliente['tipo_cliente']) and $cliente['tipo_cliente'] == 1) echo 'selected' ?>>Juridico</option>
+                                      <option value="0" <?php if (isset($cliente['tipo_cliente']) and $cliente['tipo_cliente'] == 0) echo 'selected' ?>>Juridico</option>
 
                                     </select>
                         </div>
@@ -240,7 +282,7 @@ fieldset {
                             <label>Representante</label>
                         </div>
                         <div class="col-md-4">
-                            <input type="text" name="representante" id="" class="form-control"
+                            <input type="text" name="representante" id="representante_id" class="form-control"
                                    value="<?php if (isset($cliente['representante'])) echo $cliente['representante']; ?>">
                         </div>
 
@@ -387,13 +429,13 @@ fieldset {
                             <label>L&iacute;nea de Cr&eacute;dito</label>
                         </div>
                         <div class="col-md-2">
-                            <input type="number" name="linea_credito" id="" class="form-control"
+                            <input type="number" name="linea_libre_valor" id="linea_libre_valor" class="form-control"
                                    value="<?php if (isset($cliente['linea_libre_valor'])) echo $cliente['linea_libre_valor']; ?>">
                             
                         </div>
 
                         <div class="col-md-2">
-                            <input type="checkbox" name="linea_libre" style="display: inline" <?php if (isset($cliente['linea_libre']) and $cliente['linea_libre'] == 1) echo 'checked' ?>>
+                            <input type="checkbox" id="linea_libre" name="linea_libre" style="display: inline" <?php if (isset($cliente['linea_libre']) and $cliente['linea_libre'] == 1) echo 'checked' ?>>
                             <label>Linea Libre</label>
                             
                         </div>
@@ -435,8 +477,16 @@ fieldset {
                             </select>
 
                         </div>
+                        <div class="col-md-2">
+                            <label>Importe Deuda</label>
+                        </div>
+                        
+                        <div class="col-md-2" id='' ?>
+                            <input type="number" name="importe_deuda" id="importe_deuda" class="form-control"
+                                   value="<?php if (isset($cliente['importe_deuda'])) echo $cliente['importe_deuda']; ?>">
+                            
+                        </div>
                     </div>
-                   
                 </div>
 
              
@@ -474,7 +524,7 @@ fieldset {
                         </div>
                         <div class="col-md-8" id='content_tabla' >
                             <table class="table table-striped" id="">
-                              <thead>
+                              <thead>   
                                 <tr>
                                   <th>Tipo</th>
                                   <th>Valor</th>
@@ -486,11 +536,31 @@ fieldset {
     <?php if (isset($cliente_datos)){ 
         for ($i=0; $i < count($cliente_datos) ; $i++) { ?>
             
-                        <tr>
-                            <td>$cliente_datos</td>
-                            <td>$cliente_datos</td>
-                            <td>$cliente_datos</td>
-                            <td><i id="editar_dato" title="Editar" class="editar_d gi gi-edit sidebar-nav-icon" style=""></i>&nbsp;&nbsp;<i id="eliminar_dato" onclick="eliminar_dato(this)" title="Eliminar" class="eliminar_d fa fa-trash sidebar-nav-icon" ></i></td>
+                        <tr class='fila'>
+                            <td id="<?php echo $cliente_datos[$i]['tipo'] ?>" class='tipo'>
+                            <?php 
+                                if($cliente_datos[$i]['tipo'] == '1'){
+                                    echo 'Direcci&oacute;n';
+                                }elseif ($cliente_datos[$i]['tipo'] == '2') {
+                                    echo 'Tel&eacute;fono';
+                                }elseif ($cliente_datos[$i]['tipo'] == '3') {
+                                    echo 'Correo';
+                                }elseif ($cliente_datos[$i]['tipo'] == '4') {
+                                    echo 'P&aacute;gina Web';
+                                }else {
+                                    echo 'Nota';
+                                }
+
+                            ?></td>
+                            <td id="<?php echo $cliente_datos[$i]['valor'] ?>" class="valor"><?php echo $cliente_datos[$i]['valor'] ?></td>
+                            <td id="<?php echo $cliente_datos[$i]['principal'] ?>" class="principal"><?php 
+                            if($cliente_datos[$i]['principal'] == 1 ){
+                                echo 'SI';
+                            }else{
+                                echo 'NO';
+                            }
+                            ?></td>
+                            <td><i id="editar_dato" title="Editar" onclick="editar_dato(this)" class="editar_d gi gi-edit sidebar-nav-icon" style=""></i>&nbsp;&nbsp;<i id="eliminar_dato" onclick="eliminar_dato(this)" title="Eliminar" class="eliminar_d fa fa-trash sidebar-nav-icon" ></i></td>
                         </tr>
 
     <?php } 
@@ -620,15 +690,15 @@ function agenteRetencion(){
             var principal = false;
             if($('#principal').is(':checked')){
                 principal = 'SI'
-                d_principal = true
+                d_principal = 1
             }else{
                 principal = 'NO'
-                d_principal = false
+                d_principal = 0
             }
 
 
 
-            $( "#cont_tabla" ).append('<tr class="fila"><td scope="row" id='+$('#tipo').val()+' class="tipo">'+$('#tipo :selected').html()+'</td><td id='+$('#valor').val()+' class="valor">'+$('#valor').val()+'</td><td id='+d_principal+' class="principal">'+principal+'</td><td><i id="editar_dato" title="Editar" class="editar_d gi gi-edit sidebar-nav-icon" style=""></i>&nbsp;&nbsp;<i id="eliminar_dato" title="Eliminar" class="eliminar_d fa fa-trash sidebar-nav-icon" ></i></td></tr>');
+            $( "#cont_tabla" ).append('<tr class="fila"><td scope="row" id='+$('#tipo').val()+' class="tipo">'+$('#tipo :selected').html()+'</td><td id="'+$('#valor').val()+'" class="valor">'+$('#valor').val()+'</td><td id='+d_principal+' class="principal">'+principal+'</td><td><i id="editar_dato" title="Editar" class="editar_d gi gi-edit sidebar-nav-icon" style=""></i>&nbsp;&nbsp;<i id="eliminar_dato" title="Eliminar" class="eliminar_d fa fa-trash sidebar-nav-icon" ></i></td></tr>');
 
             $(".eliminar_d").unbind().click(function() {
                 });
@@ -650,7 +720,7 @@ function agenteRetencion(){
                 $('#valor').val($(this).parent().parent().find('.valor').attr('id'))
                 
                 
-                if($(this).parent().parent().find('.principal').attr('id') == true){
+                if($(this).parent().parent().find('.principal').attr('id') == 1){
                     $('#principal').prop('checked', true)
                 }else{
                     $('#principal').prop('checked', false)
@@ -674,6 +744,25 @@ function agenteRetencion(){
 
             $(elem).parent().parent().remove()
         }
+    }
+
+    function editar_dato(elem){
+
+                $('#tipo').val($(elem).parent().parent().find('.tipo').attr('id')).trigger('chosen:updated');
+
+                
+                $('#valor').val($(elem).parent().parent().find('.valor').attr('id'))
+                
+                
+                if($(elem).parent().parent().find('.principal').attr('id') == 1){
+                    $('#principal').prop('checked', true)
+                }else{
+                    $('#principal').prop('checked', false)
+
+                }
+
+                $(elem).parent().parent().remove();
+        
     }
 
     if ($('#latitud').val() == '0') {

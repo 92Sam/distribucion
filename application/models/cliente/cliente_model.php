@@ -104,9 +104,7 @@ class cliente_model extends CI_Model
                     );
                 $this->db->insert('cliente_datos', $datos);
 
-
                 if($items[$i][0]==1){
-
                     $direccion = array(
                         'direccion' => $items[$i][1],
                         'cliente_id' => $id_usu,
@@ -114,10 +112,6 @@ class cliente_model extends CI_Model
                         );
                     $this->db->insert('cliente_direccion', $direccion);
                 }
-
-
-
-
             }
 
 
@@ -138,7 +132,7 @@ class cliente_model extends CI_Model
         }
     }
 
-    function update($cliente)
+    function update($cliente, $items)
     {
         $produc_exite = $this->get_by('identificacion', $cliente['identificacion']);
         $validar_nombre = sizeof($produc_exite);
@@ -174,7 +168,45 @@ class cliente_model extends CI_Model
             $query = $this->db->get('cliente_direccion', 1);
             $direcc = $query->row_array();
 
-            if (isset($direcc['direccion']) or sizeof($direcc)!=0) {
+
+
+            if(count($items)>0){
+
+                $this->db->where('cliente_id', $cliente['id_cliente']);
+                $this->db->delete('cliente_datos'); 
+
+
+                for ($i=0; $i < count($items); $i++) { 
+
+                    if($items[$i][2] == 'true'){
+                        $principal = true;
+
+                    }else{
+                        $principal = false;
+                    }
+
+                    $datos = array(
+                        'cliente_id' => $cliente['id_cliente'],
+                        'tipo' => $items[$i][0],
+                        'valor' => $items[$i][1],
+                        'principal' => $principal
+                        );
+                    $this->db->insert('cliente_datos', $datos);
+
+                    if($items[$i][0]==1){
+                        $direccion = array(
+                            'direccion' => $items[$i][1],
+                            'cliente_id' => $cliente['id_cliente'],
+                            'fecha' => $fech,
+                            );
+                        $this->db->insert('cliente_direccion', $direccion);
+                    }
+                }
+
+            }
+
+
+       /*     if (isset($direcc['direccion']) or sizeof($direcc)!=0) {
                 if ($direcc['direccion'] != $cliente['direccion']) {
                     $direccion = array(
                         'direccion' => $cliente['direccion'],
@@ -183,7 +215,7 @@ class cliente_model extends CI_Model
                     );
                     $this->db->insert('cliente_direccion', $direccion);
                 }
-            }
+            }*/
 
 
             $this->db->trans_complete();
