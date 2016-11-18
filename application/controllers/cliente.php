@@ -71,18 +71,16 @@ class cliente extends MY_Controller
 
     function guardar()
     {
-
         $id = $_POST['cliente_id'];
 
         $vendedor_id = $_POST['vendedor_a'];
         $zona = $_POST['id_zona'];
 
-        if($_POST['linea_libre']=='on'){
+        if($_POST['linea_libre']== 1){
             $linea_libre = true;
         }else{
             $linea_libre = false;
         }
-
         $cliente = array(
             'tipo_cliente' => $_POST['tipo_cliente'],
             'ciudad_id' => $_POST['ciudad_id'],
@@ -91,15 +89,15 @@ class cliente extends MY_Controller
             'razon_social' => $_POST['razon_social'],
 
             'agente_retencion' => $_POST['agente_retencion'],
-            'linea_credito_valor' => $_POST['linea_credito_valor'],
+            'linea_credito_valor' => !empty($_POST['linea_credito_valor']) ? $_POST['linea_credito_valor'] : null,
             'linea_libre' => $linea_libre,
-            'linea_libre_valor' => $_POST['linea_libre_valor'],
+            'linea_libre_valor' => !empty($_POST['linea_libre_valor']) ? $_POST['linea_libre_valor'] : null,
 
 
             'identificacion' => $_POST['identificacion'],
             'latitud' => $_POST['latitud'],
             'longitud' => $_POST['longitud'],
-            'importe_deuda' => $_POST['importe_deuda'],
+            'importe_deuda' => !empty($_POST['importe_deuda']) ? $_POST['importe_deuda'] : null,
             'id_zona' => !empty($zona) ? $zona : null,
             'vendedor_a' => !empty($vendedor_id) ? $vendedor_id : null,
         );

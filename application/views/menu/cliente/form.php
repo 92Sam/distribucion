@@ -4,10 +4,13 @@
         $('#barloadermodal').modal('show');
 
 
-$('#tipo').attr('disabled', true)
-$('#valor').attr('disabled', true)
 var items = []
-                  if ($("#razon_social").val() == '') {
+                if(validar_ruc_dni() == false){
+                    $('#barloadermodal').modal('hide');
+                    return false
+                }
+
+                if ($("#razon_social").val() == '') {
                 var growlType = 'warning';
 
                 $.bootstrapGrowl('<h4>Debe ingresar la raz&oacute;n social</h4>', {
@@ -152,9 +155,14 @@ var items = []
 
 
 
-         
+        if($('#linea_libre').is(':checked')){
+            var linea_libre = 1 
+        }else{
+            var linea_libre = 0
+        }
         
-    var formData = $("#formagregar").serializeArray()
+$('#tipo').attr('disabled', true)
+$('#valor').attr('disabled', true)
 
        
 
@@ -170,7 +178,7 @@ var items = []
                 'razon_social':$('#razon_social').val(),
                 'linea_credito_valor':$('#retencion_id').val(),
                 'agente_retencion':$('#s_retencion').val(),
-                'linea_libre':$('#linea_libre').val(),
+                'linea_libre':linea_libre,
                 'linea_libre_valor':$('#linea_libre_valor').val(),
                 'identificacion':$('#dni_ruc').val(),
                 'latitud' :$('#latitud').val(),
@@ -259,7 +267,7 @@ fieldset {
                             <label>DNI / RUC</label>
                         </div>
                         <div class="col-md-4">
-                            <input type="text" name="dni_ruc" id="dni_ruc" required="true" class="form-control" value="<?php if (isset($cliente['identificacion'])) echo $cliente['identificacion']; ?>">
+                            <input type="number" name="dni_ruc" id="dni_ruc" required="true" class="form-control" value="<?php if (isset($cliente['identificacion'])) echo $cliente['identificacion']; ?>">
                         </div>
 
 
@@ -482,7 +490,7 @@ fieldset {
                         </div>
                         
                         <div class="col-md-2" id='' ?>
-                            <input type="number" name="importe_deuda" id="importe_deuda" class="form-control"
+                            <input disabled type="number" name="importe_deuda" id="importe_deuda" class="form-control"
                                    value="<?php if (isset($cliente['importe_deuda'])) echo $cliente['importe_deuda']; ?>">
                             
                         </div>
@@ -640,6 +648,13 @@ fieldset {
             agenteRetencion()
         })
 
+        validarLineaCredito()
+
+        $('#linea_libre').change(function(){
+            validarLineaCredito()
+        })
+
+
         $('#dni_ruc').blur(function(){
             validar_ruc_dni()
         })
@@ -656,6 +671,19 @@ function agenteRetencion(){
                 $('#retencion_id').val('')
 
             }
+}
+
+function validarLineaCredito(){
+
+            if($('#linea_libre').is(':checked')){
+                $('#linea_libre_valor').prop( "disabled", true )
+                $('#linea_libre_valor').val('')
+
+            }else{
+                $('#linea_libre_valor').prop( "disabled", false )
+            }
+
+
 }
 
     function validar_ruc_dni(){
@@ -688,6 +716,34 @@ function agenteRetencion(){
             $('#content_tabla').show()
             var principal ='';
             var principal = false;
+
+ 
+
+            if ($('#tipo').val() == '') {
+                var growlType = 'warning';
+
+                $.bootstrapGrowl('<h4>Debe seleccionar el tipo de datos adicional</h4>', {
+                    type: growlType,
+                    delay: 2500,
+                    allow_dismiss: true
+                });
+
+                $(this).prop('disabled', true);
+                return false
+            }else if ($('#valor').val().length == 0) {
+                var growlType = 'warning';
+
+                $.bootstrapGrowl('<h4>Debe ingresar '+$('#tipo :selected').html()+'</h4>', {
+                    type: growlType,
+                    delay: 2500,
+                    allow_dismiss: true
+                });
+
+                $(this).prop('disabled', true);
+                return false
+            }
+
+
             if($('#principal').is(':checked')){
                 principal = 'SI'
                 d_principal = 1
