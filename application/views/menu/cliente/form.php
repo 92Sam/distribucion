@@ -519,17 +519,13 @@ fieldset {
                     <div class="col-md-4">
                             <input type="text" name="valor" id="valor" class="form-control">
                     </div>
-                     <div class="col-md-2" style="padding:5px 0px">
-                            <div class="col-md-1" style="border:1px">
-                                <i id='agregar_dato' title='Agregar' class="gi gi-plus sidebar-nav-icon" onclick="agregar_dato()"></i>
-                            </div>
-                            <div class="col-md-1" style="border:1px">
+                    <div class="col-md-2" style="padding-left: 1%; width:12%">
                                 <input type="checkbox" name="principal" id='principal' style="display: inline">
-                            </div>
-                            <div class="col-md-1">
-                                <label>principal</label>
-                            </div>                            
-                        </div>
+                                <label>Principal</label>
+                    </div>
+                    <div class="col-md-1" onclick="agregar_dato()">
+                                <a class="btn btn-default"><i id='agregar_dato' title='Agregar' class="gi gi-plus sidebar-nav-icon"></i></a>
+                    </div>
                         <div class="col-md-8" id='content_tabla' >
                             <table class="table table-striped" id="">
                               <thead>   
@@ -544,7 +540,7 @@ fieldset {
     <?php if (isset($cliente_datos)){ 
         for ($i=0; $i < count($cliente_datos) ; $i++) { ?>
             
-                        <tr class='fila'>
+                        <tr id="<?php echo $i+1?>" class='fila'>
                             <td id="<?php echo $cliente_datos[$i]['tipo'] ?>" class='tipo'>
                             <?php 
                                 if($cliente_datos[$i]['tipo'] == '1'){
@@ -568,7 +564,7 @@ fieldset {
                                 echo 'NO';
                             }
                             ?></td>
-                            <td><i id="editar_dato" title="Editar" onclick="editar_dato(this)" class="editar_d gi gi-edit sidebar-nav-icon" style=""></i>&nbsp;&nbsp;<i id="eliminar_dato" onclick="eliminar_dato(this)" title="Eliminar" class="eliminar_d fa fa-trash sidebar-nav-icon" ></i></td>
+                            <td><i id="editar_dato" title="Editar" onclick="editar_dato(this)" class="editar_d gi gi-edit sidebar-nav-icon" style=""></i>&nbsp;&nbsp;<i id="eliminar_dato" title="Eliminar" onclick="modalEliminarDato(this)" class="eliminar_d fa fa-trash sidebar-nav-icon" ></i></td>
                         </tr>
 
     <?php } 
@@ -636,6 +632,24 @@ fieldset {
 </form>
 
 
+
+<div class="modal-content" id="modal_eliminar_dato" style="width:30%; position: absolute; top:40%;left: 30%; display:none">
+                <div class="modal-header">
+                    <h5 class="modal-title">Eliminar Dato</h5>
+                </div>
+                <div class="modal-body">
+                    <p>Está seguro que desea eliminar el dato seleccionado?</p>
+                    <input type="hidden" name="id" id="id_borrar">
+                    <input type="hidden" name="nombre" id="nom_borrar">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="rm_dato" class="btn btn-primary">Confirmar</button>
+                    <button type="button" class="btn btn-default" id='cancelar_rm' >Cancelar</button>
+
+            </div>
+</div>
+
+
 <script type="text/javascript">
     $(document).ready(function () {
         $("select").chosen({'width': '100%'});
@@ -660,7 +674,76 @@ fieldset {
         })
 
 
+        $('#tipo_cliente').change(function(){
+            if($('#tipo_cliente').val()==1){
+                $('#dni_ruc').mask('00000000');
+                }
+            if($('#tipo_cliente').val()==0){
+                $('#dni_ruc').mask('00000000000'); 
+            }
+        
+        })
+
+        $('#tipo').change(function(){
+            if($('#tipo').val()==2){
+                $('#valor').attr('type', 'number');
+            }else{
+                $('#valor').attr('type', 'text');
+            }
+       
+        
+        })
+
+
     });
+
+
+function verificarDatos(){
+    var retorno = true
+    $(".fila").each(function(){
+
+        
+        if($('#tipo').val() == $(this).find('.tipo').attr('id') && $('#valor').val().toUpperCase() == $(this).find('.valor').attr('id').toUpperCase()){
+
+
+                $.bootstrapGrowl('<h4>¡Este dato ya ha sido cargado!</h4>', {
+                    type: 'warning',
+                    delay: 2500,
+                    allow_dismiss: true
+                });
+
+            $(this).prop('disabled', true);
+
+            retorno = false
+        }
+    })
+    return retorno
+}
+
+
+function verificarDatosPrincipal(){
+    var retorno = true
+    $(".fila").each(function(){
+
+        if($('#principal').is(':checked')){
+            if($('#tipo').val() == $(this).find('.tipo').attr('id') && $(this).find('.principal').attr('id') == 1){
+
+
+                    $.bootstrapGrowl('<h4>¡Este dato ya no puede ser principal!</h4>', {
+                        type: 'warning',
+                        delay: 2500,
+                        allow_dismiss: true
+                    });
+
+                $(this).prop('disabled', true);
+
+                retorno = false
+            }
+        }
+    })
+    return retorno
+}
+
 
 function agenteRetencion(){
 
@@ -713,6 +796,21 @@ function validarLineaCredito(){
     }
 
         function agregar_dato(){
+            var indice = 0
+            if($('.fila').size()==0){
+                indice = 1
+            }else{
+                indice = parseInt($( ".fila" ).last().attr('id'))+1
+            }
+
+            if(verificarDatos() == false){
+                return false
+            }
+
+            if(verificarDatosPrincipal() == false){
+                return false
+            }
+
             $('#content_tabla').show()
             var principal ='';
             var principal = false;
@@ -754,18 +852,9 @@ function validarLineaCredito(){
 
 
 
-            $( "#cont_tabla" ).append('<tr class="fila"><td scope="row" id='+$('#tipo').val()+' class="tipo">'+$('#tipo :selected').html()+'</td><td id="'+$('#valor').val()+'" class="valor">'+$('#valor').val()+'</td><td id='+d_principal+' class="principal">'+principal+'</td><td><i id="editar_dato" title="Editar" class="editar_d gi gi-edit sidebar-nav-icon" style=""></i>&nbsp;&nbsp;<i id="eliminar_dato" title="Eliminar" class="eliminar_d fa fa-trash sidebar-nav-icon" ></i></td></tr>');
+            $( "#cont_tabla" ).append('<tr id='+indice+' class="fila"><td scope="row" id='+$('#tipo').val()+' class="tipo">'+$('#tipo :selected').html()+'</td><td id="'+$('#valor').val()+'" class="valor">'+$('#valor').val()+'</td><td id='+d_principal+' class="principal">'+principal+'</td><td><i id="editar_dato" title="Editar" class="editar_d gi gi-edit sidebar-nav-icon" style=""></i>&nbsp;&nbsp;<i id="eliminar_dato" title="Eliminar" onclick="modalEliminarDato(this)" class="eliminar_d fa fa-trash sidebar-nav-icon" ></i></td></tr>');
 
-            $(".eliminar_d").unbind().click(function() {
-                });
-
-            $('.eliminar_d').bind('click', function () {
-                if (confirm("¿Desea eliminar el registro?")) {
-                    var id = $(this).parent().parent().attr('id');
-                    $(this).parent().parent().remove();
-                }
-             })
-
+           
             $(".editar_d").unbind().click(function() {
                 });
 
@@ -788,18 +877,33 @@ function validarLineaCredito(){
 
 
 
-
-                //    var id = $(this).parent().parent().attr('id');
-                  //  $(this).parent().parent().remove();
              })
 
+
+            
+            $('#tipo').val('').trigger('chosen:updated');
+            $('#valor').val('')
+            $('#principal').prop('checked', false)
+
+
+
+
         }
 
-    function eliminar_dato(elem){
-        if (confirm("¿Desea eliminar el registro?")) {
+    function modalEliminarDato(elem){
+        $('#rm_dato').attr('onclick', 'eliminar_dato('+$(elem).parent().parent().attr('id')+')')
+        $('#cancelar_rm').click(function () {
+            $('#modal_eliminar_dato').hide()
 
-            $(elem).parent().parent().remove()
-        }
+        })
+        $('#modal_eliminar_dato').show()
+    }
+
+    function eliminar_dato(id){
+
+        $('#'+id).remove()
+        $('#modal_eliminar_dato').hide()
+
     }
 
     function editar_dato(elem){
@@ -941,3 +1045,4 @@ function validarLineaCredito(){
 
     }
 </script>
+<script type="text/javascript" src="<?php echo base_url() ?>recursos/js/jquery.mask.min.js"></script>
