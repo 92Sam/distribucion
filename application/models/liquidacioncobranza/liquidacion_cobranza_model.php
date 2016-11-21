@@ -86,7 +86,7 @@ class liquidacion_cobranza_model extends CI_Model
 
         $this->db->trans_begin();
 
-            $this->db->insert($this->tabla, $lista);
+        $this->db->insert($this->tabla, $lista);
         $id=$this->db->insert_id();
         $this->db->trans_complete();
 

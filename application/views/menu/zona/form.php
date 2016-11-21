@@ -79,7 +79,91 @@
                                    class="form-control"
                                    value="<?php if (isset($zona->zona_nombre)) echo $zona->zona_nombre; ?>">
                         </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group">
+                        <div class="col-md-3">
+                            <label>Zona D&iacute;as Semana</label>
+                        </div>
+                        <div class="col-md-9">
+                            <table class="table table-bordered table-condensed">
+                                <tr style="background-color:#55c862;">
+                                    <th><label class="label remove-padding ">Lunes</th>
+                                    <th><label class="label remove-padding">Martes</th>
+                                    <th><label class="label remove-padding">Miercoles</th>
+                                    <th><label class="label remove-padding">Jueves</th>
+                                    <th><label class="label remove-padding">Viernes</th>
+                                    <th><label class="label remove-padding">S&aacute;bado</th>
+                                    <th><label class="label remove-padding">Domingo</th>
+                                </tr>
+                                <tr>
+                                    <td id=clunes align="center"><input type="checkbox" name="zonadias[]" value="1" id="zlunes" onclick="paintcell('lunes')"></td>
+                                    <td id=cmartes align="center"><input type="checkbox" name="zonadias[]" value="2" id="zmartes" onclick="paintcell('martes')"></td>
+                                    <td id=cmiercoles align="center"><input type="checkbox" name="zonadias[]" value="3" id="zmiercoles" onclick="paintcell('miercoles')"></td>
+                                    <td id=cjueves align="center"><input type="checkbox" name="zonadias[]" value="4" id="zjueves" onclick="paintcell('jueves')"></td>
+                                    <td id=cviernes align="center"><input type="checkbox" name="zonadias[]" value="5" id="zviernes" onclick="paintcell('viernes')"></td>
+                                    <td id=csabado align="center"><input type="checkbox" name="zonadias[]" value="6" id="zsabado" onclick="paintcell('sabado')"></td>
+                                    <td id=cdomingo align="center"><input type="checkbox" name="zonadias[]" value="7" id="zdomingo" onclick="paintcell('domingo')"></td>
 
+                                    <?php if (isset($zona->zona_id)){ ?>
+                                        <?php $count = count($dias);?>
+                                        <?php for ($i=0; $i<$count; $i++) {?>
+                                            <?php foreach ($dias[$i] as $dia): ?>
+                                                <?php
+                                                switch($dia)
+                                                {
+                                                    case 1: ?>
+                                                        <script>
+                                                            //document.getElementById("zlunes").checked = true;
+                                                            $("#zlunes").prop('checked', true);
+                                                            $("#clunes").attr('bgcolor', "#adff2f");
+                                                        </script>
+                                                        <?php break;
+                                                    case 2: ?>
+                                                        <script>
+                                                            $("#zmartes").prop('checked', true);
+                                                            $("#cmartes").attr('bgcolor', "#adff2f");
+                                                        </script>
+                                                        <?php break;
+                                                    case 3: ?>
+                                                        <script>
+                                                            $("#zmiercoles").prop('checked', true);
+                                                            $("#cmiercoles").attr('bgcolor', "#adff2f");
+                                                        </script>
+                                                        <?php break;
+                                                    case 4: ?>
+                                                        <script>
+                                                            $("#zjueves").prop('checked', true);
+                                                            $("#cjueves").attr('bgcolor', "#adff2f");
+                                                        </script>
+                                                        <?php break;
+                                                    case 5: ?>
+                                                        <script>
+                                                            $("#zviernes").prop('checked', true);
+                                                            $("#cviernes").attr('bgcolor', "#adff2f");
+                                                        </script>
+                                                        <?php break;
+                                                    case 6: ?>
+                                                        <script>
+                                                            $("#zsabado").prop('checked', true);
+                                                            $("#csabado").attr('bgcolor', "#adff2f");
+                                                        </script>
+                                                        <?php break;
+                                                    case 7: ?>
+                                                        <script>
+                                                            $("#zdomingo").prop('checked', true);
+                                                            $("#cdomingo").attr('bgcolor', "#adff2f");
+                                                        </script>
+                                                        <?php break;
+                                                }
+                                                ?>
+                                            <?php endforeach ?>
+                                        <?php };?>
+                                    <?php };?>
+                                </tr>
+                            </table>
+                        </div>
                     </div>
                 </div>
                 <div class="row">
@@ -103,6 +187,24 @@
         </div>
         <!-- /.modal-content -->
 </form>
+
+<script type="text/javascript">
+
+    function paintcell(cell) {
+
+        var clr_green_yellow = "#adff2f";
+        var clr_white = "#ffffff";
+
+        if ($("#z"+cell).prop('checked')) {
+            //alert('check' + ' c'+cell);
+            $("#c"+cell).attr('bgcolor', clr_green_yellow);
+        } else {
+            //alert('uncheck' + ' c'+cell);
+            $("#c"+cell).attr('bgcolor', clr_white);
+        }
+    }
+
+</script
 
 
 
