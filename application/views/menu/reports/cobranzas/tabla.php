@@ -29,7 +29,7 @@
             <td><?= $cobranza->atraso ?></td>
         </tr>
 
-        <tr>
+        <tr class="tabla_detalles">
             <td colspan="3"><?= $cobranza->generado->tipo_pago_nombre ?></td>
             <td><?= date('d/m/Y', strtotime($cobranza->generado->fecha)) ?></td>
             <td></td>
@@ -38,7 +38,7 @@
             <td><?= MONEDA . ' ' . number_format($cobranza->total_deuda - $actual_desglose, 2) ?></td>
         </tr>
 
-        <tr>
+        <tr class="tabla_detalles">
             <td colspan="3"><?= $cobranza->liquidacion->tipo_pago_nombre ?></td>
             <td><?= date('d/m/Y', strtotime($cobranza->liquidacion->fecha)) ?></td>
             <td></td>
@@ -48,7 +48,7 @@
         </tr>
 
         <? foreach ($cobranza->detalles as $detalle): ?>
-            <tr>
+            <tr class="tabla_detalles">
                 <td colspan="3"><?= $detalle->tipo_pago_nombre ?></td>
                 <td><?= date('d/m/Y', strtotime($detalle->fecha)) ?></td>
                 <td></td>

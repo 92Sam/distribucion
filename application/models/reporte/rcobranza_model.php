@@ -36,6 +36,51 @@ class rcobranza_model extends CI_Model
             ->where('historial_pedido_proceso.proceso_id', PROCESO_LIQUIDAR)
             ->where_in('credito.var_credito_estado', array(CREDITO_DEBE, CREDITO_ACUENTA));
 
+        if (isset($params['fecha_ini']) && isset($params['fecha_fin']) && $params['fecha_flag'] == 1) {
+            $this->db->where('historial_pedido_proceso.created_at >=', date('Y-m-d H:i:s', strtotime($params['fecha_ini'] . ' 00:00:00')));
+            $this->db->where('historial_pedido_proceso.created_at <=', date('Y-m-d H:i:s', strtotime($params['fecha_fin'] . ' 23:59:59')));
+        }
+
+        if (isset($params['vendedor_id']) && $params['vendedor_id'] != 0)
+            $this->db->where('usuario.nUsuCodigo', $params['vendedor_id']);
+
+        if (isset($params['cliente_id']) && $params['cliente_id'] != 0)
+            $this->db->where('cliente.id_cliente', $params['cliente_id']);
+
+        if (isset($params['zonas_id']) && count($params['zonas_id']))
+            $this->db->where_in('cliente.id_zona', $params['zonas_id']);
+
+        if (isset($params['dif_deuda']) && isset($params['dif_deuda_value']) && $params['dif_deuda_value'] > 0) {
+            if ($params['dif_deuda'] == 1)
+                $this->db->where('venta.total >=', $params['dif_deuda_value']);
+            elseif ($params['dif_deuda'] == 2)
+                $this->db->where('venta.total <=', $params['dif_deuda_value']);
+        }
+
+        if (isset($params['atraso']) && $params['atraso'] != 0) {
+            switch ($params['atraso']) {
+                case 1: {
+                    $this->db->where('DATEDIFF(CURDATE(), (historial_pedido_proceso.created_at)) <= 7');
+                    break;
+                }
+                case 2: {
+                    $this->db->where('DATEDIFF(CURDATE(), (historial_pedido_proceso.created_at)) > 7');
+                    $this->db->where('DATEDIFF(CURDATE(), (historial_pedido_proceso.created_at)) <= 15');
+                    break;
+                }
+                case 3: {
+                    $this->db->where('DATEDIFF(CURDATE(), (historial_pedido_proceso.created_at)) > 15');
+                    $this->db->where('DATEDIFF(CURDATE(), (historial_pedido_proceso.created_at)) <= 30');
+                    break;
+                }
+                case 4: {
+                    $this->db->where('DATEDIFF(CURDATE(), (historial_pedido_proceso.created_at)) > 30');
+                    break;
+                }
+            }
+        }
+
+
         $cobranzas = $this->db->get()->result();
 
         foreach ($cobranzas as $cobranza) {
