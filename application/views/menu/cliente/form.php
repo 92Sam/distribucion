@@ -172,7 +172,7 @@ $('#valor').attr('disabled', true)
         dataType: "json",
         data: {'cliente_id':$('#cliente_id').val(),
                 'tipo_cliente':$('#tipo_cliente').val(),
-                'ciudad_id':$('#estado_id').val(),
+                'ciudad_id':$('#ciudad_id').val(),
                 'grupo_id':$('#grupo_id').val(),
                 'representante':$('#representante_id').val(),
                 'razon_social':$('#razon_social').val(),
