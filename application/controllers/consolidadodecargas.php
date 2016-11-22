@@ -371,13 +371,6 @@ class consolidadodecargas extends MY_Controller
 
         }
 
-        if($result != FALSE){
-            $this->historial_pedido_model->insertar_pedido(PROCESO_LIQUIDAR, array(
-                'pedido_id' => $id_pedido,
-                'responsable_id' => $this->session->userdata('nUsuCodigo')
-            ));
-        }
-
         if ($result != FALSE) {
 
             $json['success'] = 'Solicitud Procesada con exito';
@@ -396,6 +389,14 @@ class consolidadodecargas extends MY_Controller
         }
         $estatus = 'CERRADO';
         $cerrar = $this->consolidado_model->cambiarEstatus($id, $estatus);
+
+        $c_detalles = $this->db->get_where('consolidado_detalle', array('consolidado_id' => $id))->result();
+        foreach ($c_detalles as $detalle){
+            $this->historial_pedido_model->insertar_pedido(PROCESO_LIQUIDAR, array(
+                'pedido_id' => $detalle->pedido_id,
+                'responsable_id' => $this->session->userdata('nUsuCodigo')
+            ));
+        }
         if ($cerrar != FALSE) {
             $json['success'] = 'Solicitud Procesada con exito';
         } else {

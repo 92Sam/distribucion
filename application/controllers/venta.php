@@ -213,11 +213,6 @@ class venta extends MY_Controller
                     if ($resultado != false) {
                         if ($this->input->post('devolver') == 'true') {
                             $this->consolidado_model->updateDetalle(array('pedido_id' => $id, 'liquidacion_monto_cobrado' => $this->input->post('importe', true)));
-
-                            $this->historial_pedido_model->insertar_pedido(PROCESO_LIQUIDAR, array(
-                                'pedido_id' => $id,
-                                'responsable_id' => $this->session->userdata('nUsuCodigo')
-                            ));
                         }
                         $this->ventaEstatus($id, $this->input->post('venta_status', true));
 

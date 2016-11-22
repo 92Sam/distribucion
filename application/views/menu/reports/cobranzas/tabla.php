@@ -1,3 +1,9 @@
+<style>
+    .tabla_detalles {
+        display: <?=$mostrar_detalles == 1? 'block-inline;': 'none;'?>
+    }
+</style>
+
 <table class="table table-striped dataTable table-bordered">
     <thead>
     <tr>
@@ -15,7 +21,7 @@
     </thead>
     <tbody>
     <?php foreach ($cobranzas as $cobranza): ?>
-        <?php $actual_desglose = 0?>
+        <?php $actual_desglose = 0 ?>
         <tr>
             <td><?= $cobranza->documento_nombre == 'NOTA DE ENTREGA' ? 'NE' : $cobranza->documento_nombre ?></td>
             <td><?= $cobranza->documento_serie . '-' . $cobranza->documento_numero ?></td>
@@ -34,7 +40,7 @@
             <td><?= date('d/m/Y', strtotime($cobranza->generado->fecha)) ?></td>
             <td></td>
             <td><?= MONEDA . ' ' . number_format($cobranza->generado->monto, 2) ?></td>
-            <?php $actual_desglose += $cobranza->generado->monto ;?>
+            <?php $actual_desglose += $cobranza->generado->monto; ?>
             <td><?= MONEDA . ' ' . number_format($cobranza->total_deuda - $actual_desglose, 2) ?></td>
         </tr>
 
@@ -43,7 +49,7 @@
             <td><?= date('d/m/Y', strtotime($cobranza->liquidacion->fecha)) ?></td>
             <td></td>
             <td><?= MONEDA . ' ' . number_format($cobranza->liquidacion->monto, 2) ?></td>
-            <?php $actual_desglose += $cobranza->liquidacion->monto ;?>
+            <?php $actual_desglose += $cobranza->liquidacion->monto; ?>
             <td><?= MONEDA . ' ' . number_format($cobranza->total_deuda - $actual_desglose, 2) ?></td>
         </tr>
 
@@ -53,7 +59,7 @@
                 <td><?= date('d/m/Y', strtotime($detalle->fecha)) ?></td>
                 <td></td>
                 <td><?= MONEDA . ' ' . number_format($detalle->monto, 2) ?></td>
-                <?php $actual_desglose += $detalle->monto ;?>
+                <?php $actual_desglose += $detalle->monto; ?>
                 <td><?= MONEDA . ' ' . number_format($cobranza->total_deuda - $actual_desglose, 2) ?></td>
             </tr>
         <?php endforeach; ?>

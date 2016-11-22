@@ -34,6 +34,7 @@ class rcobranza_model extends CI_Model
             ->join('usuario', 'venta.id_vendedor = usuario.nUsuCodigo')
             ->join('zonas', 'cliente.id_zona = zonas.zona_id')
             ->where('historial_pedido_proceso.proceso_id', PROCESO_LIQUIDAR)
+            ->where('venta.venta_status !=', 'RECHAZADO')
             ->where_in('credito.var_credito_estado', array(CREDITO_DEBE, CREDITO_ACUENTA));
 
         if (isset($params['fecha_ini']) && isset($params['fecha_fin']) && $params['fecha_flag'] == 1) {

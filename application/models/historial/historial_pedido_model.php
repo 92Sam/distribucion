@@ -39,6 +39,7 @@ class historial_pedido_model extends CI_Model
                 'id' => $pedido_proceso->id
             ));
             $this->db->update('historial_pedido_proceso', $array);
+            $pedido_proceso_id = $pedido_proceso->id;
         }
 
         $detalles = $this->db->get_where('detalle_venta', array('id_venta' => $campos['pedido_id']))->result();

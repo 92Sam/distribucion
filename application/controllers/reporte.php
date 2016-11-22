@@ -30,6 +30,8 @@ class reporte extends MY_Controller
                     'dif_deuda_value' => $this->input->post('dif_deuda_value')
                 ));
 
+                $data['mostrar_detalles'] = $this->input->post('mostrar_detalles');
+
                 echo $this->load->view('menu/reports/cobranzas/tabla', $data, true);
                 break;
             }
@@ -45,10 +47,12 @@ class reporte extends MY_Controller
             default: {
 
                 $data['cobranzas'] = $this->rcobranza_model->get_cobranzas(array(
-                    'fecha_ini' => date('Y-m-d H:i:s'),
-                    'fecha_fin' => date('Y-m-d H:i:s'),
+                    'fecha_ini' => date('Y-m-d'),
+                    'fecha_fin' => date('Y-m-d'),
                     'fecha_flag' => 1
                 ));
+
+                $data['mostrar_detalles'] = 0;
 
                 $data['reporte_filtro'] = $this->load->view('menu/reports/cobranzas/filtros', array(
                     'vendedores' => $this->usuario_model->select_all_by_roll('Vendedor'),

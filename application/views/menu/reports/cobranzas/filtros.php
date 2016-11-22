@@ -142,7 +142,7 @@
                 Incluir Filtro de Fecha
             </label>
 <br>
-            <input type="checkbox" id="mostrar_detalles" checked>
+            <input type="checkbox" id="mostrar_detalles">
             <label for="mostrar_detalles"
                    class="control-label"
                    style="cursor: pointer;">
@@ -301,6 +301,11 @@
             data.fecha_flag = 1;
         else
             data.fecha_flag = 0;
+
+        if($(this).prop('checked'))
+            data.mostrar_detalles = 1;
+        else
+            data.mostrar_detalles = 0;
 
         data.zonas_id = [];
         $('.zona_check').each(function () {
