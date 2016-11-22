@@ -90,9 +90,9 @@ class clientes extends REST_Controller
         if(!empty($search['value'])){
             $where_custom="(cliente.id_cliente LIKE '%".$buscar."%' or cliente.razon_social LIKE '%".$buscar."%'
             or cliente.representante LIKE '%".$buscar."%'
-            or cliente.identificacion LIKE '%".$buscar."%' or cliente.direccion LIKE '%".$buscar."%'
+            or cliente.identificacion LIKE '%".$buscar."%'
             or ciudad_nombre LIKE '%".$buscar."%' or zona_nombre LIKE '%".$buscar."%'
-            or telefono1 LIKE '%".$buscar."%' or nombre LIKE '%".$buscar."%')";
+            or nombre LIKE '%".$buscar."%')";
         }
       //  var_dump($like);
 
@@ -125,7 +125,7 @@ class clientes extends REST_Controller
                 $order='representante';
             }
             if($ordenar[0]['column']==4){
-                $order='direccion2';
+                $order= null; //'direccion2';
             }
             if($ordenar[0]['column']==5){
                 $order='ciudad_nombre';

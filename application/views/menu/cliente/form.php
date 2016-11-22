@@ -4,153 +4,155 @@
         $('#barloadermodal').modal('show');
 
 
-var items = []
-                if(validar_ruc_dni() == false){
-                    $('#barloadermodal').modal('hide');
-                    return false
-                }
+        var items = []
 
-                if ($("#razon_social").val() == '') {
-                var growlType = 'warning';
 
-                $.bootstrapGrowl('<h4>Debe ingresar la raz&oacute;n social</h4>', {
-                    type: growlType,
-                    delay: 2500,
-                    allow_dismiss: true
-                });
+        if(validar_ruc_dni() == false){
+            $('#barloadermodal').modal('hide');
+            return false
+        }
 
-                $(this).prop('disabled', true);
-                $('#barloadermodal').modal('hide');
+        if ($("#razon_social").val() == '') {
+        var growlType = 'warning';
 
-                return false;
+        $.bootstrapGrowl('<h4>Debe ingresar la raz&oacute;n social</h4>', {
+        type: growlType,
+        delay: 2500,
+        allow_dismiss: true
+        });
+
+        $(this).prop('disabled', true);
+        $('#barloadermodal').modal('hide');
+
+        return false;
+        }
+
+        if ($("#dni_ruc").val() == '') {
+        var growlType = 'warning';
+
+        $.bootstrapGrowl('<h4>Debe ingresar la identificaci&oacute;n</h4>', {
+            type: growlType,
+            delay: 2500,
+            allow_dismiss: true
+        });
+
+        $(this).prop('disabled', true);
+        $('#barloadermodal').modal('hide');
+
+        return false;
+        }
+
+        if ($("#grupo_id").val() == '') {
+        var growlType = 'warning';
+
+        $.bootstrapGrowl('<h4>Debe seleccionar el grupo</h4>', {
+            type: growlType,
+            delay: 2500,
+            allow_dismiss: true
+        });
+
+        $(this).prop('disabled', true);
+        $('#barloadermodal').modal('hide');
+
+        return false;
+        }
+
+        if ($("#id_pais").val() == '') {
+        var growlType = 'warning';
+
+        $.bootstrapGrowl('<h4>Debe seleccionar el pais</h4>', {
+            type: growlType,
+            delay: 2500,
+            allow_dismiss: true
+        });
+
+        $(this).prop('disabled', true);
+        $('#barloadermodal').modal('hide');
+
+        return false;
+        }
+
+
+
+        if ($("#estado_id").val() == '') {
+        var growlType = 'warning';
+
+        $.bootstrapGrowl('<h4>Debe seleccionar la ciudad</h4>', {
+            type: growlType,
+            delay: 2500,
+            allow_dismiss: true
+        });
+
+        $(this).prop('disabled', true);
+        $('#barloadermodal').modal('hide');
+
+        return false;
+        }
+
+
+        if ($("#ciudad_id").val() == '') {
+        var growlType = 'warning';
+
+        $.bootstrapGrowl('<h4>Debe seleccionar el distrito</h4>', {
+            type: growlType,
+            delay: 2500,
+            allow_dismiss: true
+        });
+
+        $(this).prop('disabled', true);
+        $('#barloadermodal').modal('hide');
+
+        return false;
+        }
+
+        if ($("#zona").val() == '') {
+        var growlType = 'warning';
+
+        $.bootstrapGrowl('<h4>Debe seleccionar la zona</h4>', {
+            type: growlType,
+            delay: 2500,
+            allow_dismiss: true
+        });
+
+        $(this).prop('disabled', true);
+        $('#barloadermodal').modal('hide');
+
+        return false;
+        }
+
+        if ($("#vendedor").val() == '') {
+        var growlType = 'warning';
+        $("#vendedor").focus()
+        $.bootstrapGrowl('<h4>Debe seleccionar un Vendedor</h4>', {
+            type: growlType,
+            delay: 2500,
+            allow_dismiss: true
+        });
+
+        $(this).prop('disabled', true);
+        $('#barloadermodal').modal('hide');
+
+        return false;
+        }
+
+
+
+        $(".fila").each(function(){
+
+        // items.push([organismo,dependencia,recibido_por,fecha_recepcion])
+
+
+
+            if($(this).find('.principal').attr('id') == '1'){
+               var principal = true
+            }else{
+               var principal = false
             }
 
-            if ($("#dni_ruc").val() == '') {
-                var growlType = 'warning';
-
-                $.bootstrapGrowl('<h4>Debe ingresar la identificaci&oacute;n</h4>', {
-                    type: growlType,
-                    delay: 2500,
-                    allow_dismiss: true
-                });
-
-                $(this).prop('disabled', true);
-                $('#barloadermodal').modal('hide');
-
-                return false;
-            }
-
-            if ($("#grupo_id").val() == '') {
-                var growlType = 'warning';
-
-                $.bootstrapGrowl('<h4>Debe seleccionar el grupo</h4>', {
-                    type: growlType,
-                    delay: 2500,
-                    allow_dismiss: true
-                });
-
-                $(this).prop('disabled', true);
-                $('#barloadermodal').modal('hide');
-
-                return false;
-            }
-
-            if ($("#id_pais").val() == '') {
-                var growlType = 'warning';
-
-                $.bootstrapGrowl('<h4>Debe seleccionar el pais</h4>', {
-                    type: growlType,
-                    delay: 2500,
-                    allow_dismiss: true
-                });
-
-                $(this).prop('disabled', true);
-                $('#barloadermodal').modal('hide');
-
-                return false;
-            }
+            items.push([$(this).find('.tipo').attr('id'), $(this).find('.valor').attr('id'), principal])
 
 
-
-            if ($("#estado_id").val() == '') {
-                var growlType = 'warning';
-
-                $.bootstrapGrowl('<h4>Debe seleccionar la ciudad</h4>', {
-                    type: growlType,
-                    delay: 2500,
-                    allow_dismiss: true
-                });
-
-                $(this).prop('disabled', true);
-                $('#barloadermodal').modal('hide');
-
-                return false;
-            }
-
-
-            if ($("#ciudad_id").val() == '') {
-                var growlType = 'warning';
-
-                $.bootstrapGrowl('<h4>Debe seleccionar el distrito</h4>', {
-                    type: growlType,
-                    delay: 2500,
-                    allow_dismiss: true
-                });
-
-                $(this).prop('disabled', true);
-                $('#barloadermodal').modal('hide');
-
-                return false;
-            }
-
-            if ($("#zona").val() == '') {
-                var growlType = 'warning';
-
-                $.bootstrapGrowl('<h4>Debe seleccionar la zona</h4>', {
-                    type: growlType,
-                    delay: 2500,
-                    allow_dismiss: true
-                });
-
-                $(this).prop('disabled', true);
-                $('#barloadermodal').modal('hide');
-
-                return false;
-            }
-
-            if ($("#vendedor").val() == '') {
-                var growlType = 'warning';
-                $("#vendedor").focus()
-                $.bootstrapGrowl('<h4>Debe seleccionar un Vendedor</h4>', {
-                    type: growlType,
-                    delay: 2500,
-                    allow_dismiss: true
-                });
-
-                $(this).prop('disabled', true);
-                $('#barloadermodal').modal('hide');
-
-                return false;
-            }
-
-
-
-              $(".fila").each(function(){
-
-            // items.push([organismo,dependencia,recibido_por,fecha_recepcion])
-
-
-
-                    if($(this).find('.principal').attr('id') == '1'){
-                       var principal = true
-                    }else{
-                       var principal = false
-                    }
-
-                    items.push([$(this).find('.tipo').attr('id'), $(this).find('.valor').attr('id'), principal])
-
-
-                })
+        })
              
 
 
@@ -191,7 +193,7 @@ $('#valor').attr('disabled', true)
 
                     setTimeout(function () {
                         $('#barloadermodal').modal('hide');
-                    }, 2000)
+                    }, 1000)
                     if (data != '') {
 
                         $.bootstrapGrowl('<h4>'+data[Object.keys(data)]+'</h4>', {
@@ -200,7 +202,7 @@ $('#valor').attr('disabled', true)
                             allow_dismiss: true
                         });
                         if(Object.keys(data) == 'success'){
-                $('#agregar').modal('toggle')
+                        $('#agregar').modal('toggle')
 
                             setTimeout(function () {
                                 window.location.href ='<?=base_url()?>cliente/';
@@ -266,8 +268,8 @@ fieldset {
                         <div class="col-md-2">
                             <label>DNI / RUC</label>
                         </div>
-                        <div class="col-md-4">
-                            <input type="number" name="dni_ruc" id="dni_ruc" required="true" class="form-control" value="<?php if (isset($cliente['identificacion'])) echo $cliente['identificacion']; ?>">
+                        <div class="col-md-4" id='dni_ruc_cont'>
+                            <input type="text" name="dni_ruc" id="dni_ruc" required="true" class="form-control" value="<?php if (isset($cliente['identificacion'])) echo $cliente['identificacion']; ?>">
                         </div>
 
 
@@ -673,15 +675,10 @@ fieldset {
             validar_ruc_dni()
         })
 
-
+        verificarRucDni()
         $('#tipo_cliente').change(function(){
-            if($('#tipo_cliente').val()==1){
-                $('#dni_ruc').mask('00000000');
-                }
-            if($('#tipo_cliente').val()==0){
-                $('#dni_ruc').mask('00000000000'); 
-            }
-        
+            $('#dni_ruc').val('')
+            verificarRucDni()
         })
 
         $('#tipo').change(function(){
@@ -698,38 +695,24 @@ fieldset {
     });
 
 
-function verificarDatos(){
-    var retorno = true
-    $(".fila").each(function(){
+    function verificarRucDni(){
+                if($('#tipo_cliente').val()==1){
+                    $('#dni_ruc').mask('99999999');
+                    }
+                if($('#tipo_cliente').val()==0){
+                    $('#dni_ruc').mask('99999999999'); 
+                }
+    }
 
-        
-        if($('#tipo').val() == $(this).find('.tipo').attr('id') && $('#valor').val().toUpperCase() == $(this).find('.valor').attr('id').toUpperCase()){
+    function verificarDatos(){
+        var retorno = true
+        $(".fila").each(function(){
 
-
-                $.bootstrapGrowl('<h4>¡Este dato ya ha sido cargado!</h4>', {
-                    type: 'warning',
-                    delay: 2500,
-                    allow_dismiss: true
-                });
-
-            $(this).prop('disabled', true);
-
-            retorno = false
-        }
-    })
-    return retorno
-}
+            
+            if($('#tipo').val() == $(this).find('.tipo').attr('id') && $('#valor').val().toUpperCase() == $(this).find('.valor').attr('id').toUpperCase()){
 
 
-function verificarDatosPrincipal(){
-    var retorno = true
-    $(".fila").each(function(){
-
-        if($('#principal').is(':checked')){
-            if($('#tipo').val() == $(this).find('.tipo').attr('id') && $(this).find('.principal').attr('id') == 1){
-
-
-                    $.bootstrapGrowl('<h4>¡Este dato ya no puede ser principal!</h4>', {
+                    $.bootstrapGrowl('<h4>¡Este dato ya ha sido cargado!</h4>', {
                         type: 'warning',
                         delay: 2500,
                         allow_dismiss: true
@@ -739,37 +722,94 @@ function verificarDatosPrincipal(){
 
                 retorno = false
             }
-        }
-    })
-    return retorno
-}
+        })
+        return retorno
+    }
 
 
-function agenteRetencion(){
+    function verificarDatosPrincipal(){
+        var retorno = true
+        $(".fila").each(function(){
 
-            if($('#s_retencion').val()==1){
-                $('#div_retencion').show()
-            }else{
-                $('#div_retencion').hide()
-                $('#retencion_id').val('')
+            if($('#principal').is(':checked')){
+                if($('#tipo').val() == $(this).find('.tipo').attr('id') && $(this).find('.principal').attr('id') == 1){
 
+
+                        $.bootstrapGrowl('<h4>¡Este dato ya no puede ser principal!</h4>', {
+                            type: 'warning',
+                            delay: 2500,
+                            allow_dismiss: true
+                        });
+
+                    $(this).prop('disabled', true);
+
+                    retorno = false
+                }
             }
-}
-
-function validarLineaCredito(){
-
-            if($('#linea_libre').is(':checked')){
-                $('#linea_libre_valor').prop( "disabled", true )
-                $('#linea_libre_valor').val('')
-
-            }else{
-                $('#linea_libre_valor').prop( "disabled", false )
-            }
+        })
+        return retorno
+    }
 
 
-}
+    function agenteRetencion(){
+
+                if($('#s_retencion').val()==1){
+                    $('#div_retencion').show()
+                }else{
+                    $('#div_retencion').hide()
+                    $('#retencion_id').val('')
+
+                }
+    }
+
+    function validarLineaCredito(){
+
+                if($('#linea_libre').is(':checked')){
+                    $('#linea_libre_valor').prop( "disabled", true )
+                    $('#linea_libre_valor').val('')
+
+                }else{
+                    $('#linea_libre_valor').prop( "disabled", false )
+                }
+
+
+    }
+
+    function DniRucEnBd(){
+
+      $.ajax({
+            url: '<?=base_url()?>cliente/DniRucEnBd',
+             type: "post",
+            dataType: "json",
+            data: {'dni_ruc': $('#dni_ruc').val(), 'cliente_id': $('#cliente_id').val()},
+                        success: function(data) {
+                        if (data != '') {
+
+                            if(Object.keys(data) == 'success'){
+                               return true
+                            }else{
+                                $.bootstrapGrowl('<h4>'+data[Object.keys(data)]+'</h4>', {
+                                    type: Object.keys(data),
+                                    delay: 2500,
+                                    allow_dismiss: true
+                                });
+                                return false
+                            
+                            }
+
+                        
+                        }
+                    }
+
+        });
+
+
+    }
 
     function validar_ruc_dni(){
+        if(DniRucEnBd() == false){
+            return false
+        }
         if($('#tipo_cliente').val() == 0 && $('#dni_ruc').val().length != 11){
                 $.bootstrapGrowl('<h4>¡EL campo DNI/RUC debe contener 11 digitos!</h4>', {
                     type: 'warning',
@@ -1045,4 +1085,4 @@ function validarLineaCredito(){
 
     }
 </script>
-<script type="text/javascript" src="<?php echo base_url() ?>recursos/js/jquery.mask.min.js"></script>
+<script type="text/javascript" src="<?php echo base_url() ?>recursos/js/jquery.maskedinput.js"></script>

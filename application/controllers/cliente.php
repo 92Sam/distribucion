@@ -88,7 +88,7 @@ class cliente extends MY_Controller
             'representante' => $_POST['representante'],
             'razon_social' => $_POST['razon_social'],
 
-            'agente_retencion' => $_POST['agente_retencion'],
+            'agente_retencion' => !empty($_POST['agente_retencion']) ? $_POST['agente_retencion'] : null,
             'linea_credito_valor' => !empty($_POST['linea_credito_valor']) ? $_POST['linea_credito_valor'] : null,
             'linea_libre' => $linea_libre,
             'linea_libre_valor' => !empty($_POST['linea_libre_valor']) ? $_POST['linea_libre_valor'] : null,
@@ -370,5 +370,23 @@ $html .= "<td>" .$familia['zona_nombre']. "</td>";
 
     }
 
+
+  function recuperarDirecciones()
+    {
+        $this->cliente_model->recuperarDirecciones();
+    }
+
+  function DniRucEnBd()
+    {
+        $resultado = $this->cliente_model->DniRucEnBd($this->input->post('dni_ruc'), !empty($_POST['cliente_id']) ? $_POST['cliente_id'] : null);
+
+         if ($resultado == true) {
+            $json['warning'] = 'El dato DNI/RUC ya existe';
+        } else {
+            $json['success']='DNI/RUC admitida';
+        }
+        echo json_encode($json);
+
+    }
 
 }
