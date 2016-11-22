@@ -371,10 +371,6 @@ $html .= "<td>" .$familia['zona_nombre']. "</td>";
     }
 
 
-  function recuperarDirecciones()
-    {
-        $this->cliente_model->recuperarDirecciones();
-    }
 
   function DniRucEnBd()
     {
