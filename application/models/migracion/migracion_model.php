@@ -18,7 +18,7 @@ class migracion_model extends CI_Model
 
 
         for ($i=0; $i < count($aa) ; $i++) {
-            if ($aa[$i]['direccion']!='') {
+            if ($aa[$i]['direccion2']!='') {
                 $cliente_direccion1 = array(
                     'cliente_id' => $aa[$i]['id_cliente'],
                     'tipo' => 1,
@@ -28,7 +28,6 @@ class migracion_model extends CI_Model
                 $this->db->insert('cliente_datos', $cliente_direccion1);
 
             }
-
 
 
             if ($aa[$i]['telefono1']!='') {

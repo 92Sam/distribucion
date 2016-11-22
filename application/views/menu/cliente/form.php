@@ -136,12 +136,13 @@
         }
 
 
+        var direccion = false
 
         $(".fila").each(function(){
 
-        // items.push([organismo,dependencia,recibido_por,fecha_recepcion])
-
-
+            if($(this).find('.tipo').attr('id') == '1'){
+                direccion = true
+            }
 
             if($(this).find('.principal').attr('id') == '1'){
                var principal = true
@@ -151,10 +152,22 @@
 
             items.push([$(this).find('.tipo').attr('id'), $(this).find('.valor').attr('id'), principal])
 
-
         })
-             
+        if(direccion == false){
+            var growlType = 'warning';
+            $("#vendedor").focus()
+            $.bootstrapGrowl('<h4>Debe ingresar una direccion</h4>', {
+                type: growlType,
+                delay: 2500,
+                allow_dismiss: true
+            });
 
+            $(this).prop('disabled', true);
+            $('#barloadermodal').modal('hide');
+
+
+                return false
+        }
 
 
         if($('#linea_libre').is(':checked')){
@@ -776,32 +789,34 @@ fieldset {
     }
 
     function DniRucEnBd(){
+        if($('#dni_ruc').val() != ''){
 
-      $.ajax({
-            url: '<?=base_url()?>cliente/DniRucEnBd',
-             type: "post",
-            dataType: "json",
-            data: {'dni_ruc': $('#dni_ruc').val(), 'cliente_id': $('#cliente_id').val()},
-                        success: function(data) {
-                        if (data != '') {
+            $.ajax({
+                url: '<?=base_url()?>cliente/DniRucEnBd',
+                 type: "post",
+                dataType: "json",
+                data: {'dni_ruc': $('#dni_ruc').val(), 'cliente_id': $('#cliente_id').val()},
+                            success: function(data) {
+                            if (data != '') {
 
-                            if(Object.keys(data) == 'success'){
-                               return true
-                            }else{
-                                $.bootstrapGrowl('<h4>'+data[Object.keys(data)]+'</h4>', {
-                                    type: Object.keys(data),
-                                    delay: 2500,
-                                    allow_dismiss: true
-                                });
-                                return false
+                                if(Object.keys(data) == 'success'){
+                                   return true
+                                }else{
+                                    $.bootstrapGrowl('<h4>'+data[Object.keys(data)]+'</h4>', {
+                                        type: Object.keys(data),
+                                        delay: 2500,
+                                        allow_dismiss: true
+                                    });
+                                    return false
+                                
+                                }
+
                             
                             }
-
-                        
                         }
-                    }
 
-        });
+            });
+        }
 
 
     }

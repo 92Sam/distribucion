@@ -358,7 +358,6 @@ class cliente_model extends CI_Model
 
   function DniRucEnBd($identificacion, $cliente_id)
     {
-
         $this->db->where('identificacion', $identificacion);
         $this->db->where('id_cliente <>', $cliente_id);
         $sql = $this->db->get('cliente');

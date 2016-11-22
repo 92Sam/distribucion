@@ -374,7 +374,7 @@ $html .= "<td>" .$familia['zona_nombre']. "</td>";
 
   function DniRucEnBd()
     {
-        $resultado = $this->cliente_model->DniRucEnBd($this->input->post('dni_ruc'), !empty($_POST['cliente_id']) ? $_POST['cliente_id'] : null);
+        $resultado = $this->cliente_model->DniRucEnBd($this->input->post('dni_ruc'), !empty($_POST['cliente_id']) ? $_POST['cliente_id'] : '');
 
          if ($resultado == true) {
             $json['warning'] = 'El dato DNI/RUC ya existe';

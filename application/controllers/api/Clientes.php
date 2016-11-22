@@ -91,6 +91,7 @@ class clientes extends REST_Controller
             $where_custom="(cliente.id_cliente LIKE '%".$buscar."%' or cliente.razon_social LIKE '%".$buscar."%'
             or cliente.representante LIKE '%".$buscar."%'
             or cliente.identificacion LIKE '%".$buscar."%'
+            or cli_dat.valor LIKE '%".$buscar."%'
             or ciudad_nombre LIKE '%".$buscar."%' or zona_nombre LIKE '%".$buscar."%'
             or nombre LIKE '%".$buscar."%')";
         }
@@ -100,11 +101,11 @@ class clientes extends REST_Controller
         $where_or = false;
         $nombre_in = false;
         $where_in = false;
-        $select = 'distinct(cliente.id_cliente),cliente.*, ciudades.*,estados.*,pais.*, grupos_cliente.*, zonas.*, usuario.nombre';
+        $select = 'distinct(cliente.id_cliente),cliente.*,cli_dat.*, ciudades.*,estados.*,pais.*, grupos_cliente.*, zonas.*, usuario.nombre';
         $from = "cliente";
-        $join = array('ciudades', 'estados', 'pais', 'grupos_cliente', 'zonas','usuario');
+        $join = array('ciudades', 'estados', 'pais', 'grupos_cliente', 'zonas','usuario', '(SELECT DISTINCT(c.cliente_id), c.valor, c.principal FROM cliente_datos c WHERE c.tipo=1 ) cli_dat');
         $campos_join = array('ciudades.ciudad_id=cliente.ciudad_id', 'ciudades.estado_id=estados.estados_id',
-            'pais.id_pais=estados.pais_id', 'grupos_cliente.id_grupos_cliente=cliente.grupo_id', 'zonas.zona_id=cliente.id_zona', 'usuario.nUsuCodigo=cliente.vendedor_a');
+            'pais.id_pais=estados.pais_id', 'grupos_cliente.id_grupos_cliente=cliente.grupo_id', 'zonas.zona_id=cliente.id_zona', 'usuario.nUsuCodigo=cliente.vendedor_a', 'cli_dat.cliente_id = cliente.id_cliente' );
         $tipo_join = false;
 
         $ordenar=$this->input->get('order');
@@ -125,7 +126,7 @@ class clientes extends REST_Controller
                 $order='representante';
             }
             if($ordenar[0]['column']==4){
-                $order= null; //'direccion2';
+                $order= 'valor'; //'direccion2';
             }
             if($ordenar[0]['column']==5){
                 $order='ciudad_nombre';
@@ -175,7 +176,7 @@ class clientes extends REST_Controller
             $clientjson[1] = $data['razon_social'];
             $clientjson[2] = $data['identificacion'];
             $clientjson[3] = $data['representante'];
-            $clientjson[4] = null; //$data['direccion2'];
+            $clientjson[4] = $data['valor'];
             $clientjson[5] = $data['ciudad_nombre'];
             $clientjson[6] = $data['zona_nombre'];
             $clientjson[7] = $data['nombre'];
