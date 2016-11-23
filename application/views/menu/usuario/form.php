@@ -294,15 +294,13 @@
                         </div>
                     </div>
 
-
                     <div class="row">
                         <div class="form-group">
-                            <div class="col-md-2">
-                                <label>Zona D&iacute;as Semana</label>
-                            </div>
-                            <div class="col-md-10">
-                                <table class="table table-bordered table-condensed">
+
+                            <div class="col-md-12">
+                                <table class="table table-bordered table-condensed" id="tcalendar">
                                     <tr style="background-color:#55c862;">
+                                        <th><label class="label remove-padding">Zona Nombre</th>
                                         <th><label class="label remove-padding">Lunes</th>
                                         <th><label class="label remove-padding">Martes</th>
                                         <th><label class="label remove-padding">Miercoles</th>
@@ -310,16 +308,6 @@
                                         <th><label class="label remove-padding">Viernes</th>
                                         <th><label class="label remove-padding">S&aacute;bado</th>
                                         <th><label class="label remove-padding">Domingo</th>
-                                    </tr>
-                                    <tr>
-                                        <td id=clunes align="center"><input type="checkbox" name="zonadias[]" value="1" id="zlunes" disabled="true"></td>
-                                        <td id=cmartes align="center"><input type="checkbox" name="zonadias[]" value="2" id="zmartes" disabled="true"></td>
-                                        <td id=cmiercoles align="center"><input type="checkbox" name="zonadias[]" value="3" id="zmiercoles" disabled="true"></td>
-                                        <td id=cjueves align="center"><input type="checkbox" name="zonadias[]" value="4" id="zjueves" disabled="true"></td>
-                                        <td id=cviernes align="center"><input type="checkbox" name="zonadias[]" value="5" id="zviernes" disabled="true"></td>
-                                        <td id=csabado align="center"><input type="checkbox" name="zonadias[]" value="6" id="zsabado" disabled="true"></td>
-                                        <td id=cdomingo align="center"><input type="checkbox" name="zonadias[]" value="7" id="zdomingo" disabled="true"></td>
-                                    </tr>
                                 </table>
                             </div>
                         </div>
@@ -371,91 +359,143 @@
 
     $(document).ready(function () {
 
+        loadCalendar();
+
         $("#zonas").on('change', function () {
 
-            //var id_zona = $(this).closest('select').find('option').filter(':selected:last').val();
-            //alert(id_zona);
-            var values = [];
+            loadCalendar();
 
-            $("#zonas option:selected").each(function(i, selectedElement) {
-                values[i] = $(selectedElement).val();
-                alert($(selectedElement).val());
+        });
+
+        function loadCalendar() {
+            var id_zona = "",
+                zona_name = "";
+
+            $("#tcalendar").find("tr:not(:first)").remove();
+
+            $("#zonas option:selected").each(function(){
+                //alert('opcion '+$(this).text()+' valor '+ $(this).attr('value'))
+                id_zona = $(this).attr('value');
+                zona_name = $(this).text();
+
+                appendRow(id_zona,zona_name);
+
+                checkCells(id_zona);
             });
+        }
 
+        function appendRow(id_zona,zona_name) {
+            var tbl = document.getElementById('tcalendar'),
+                row = tbl.insertRow(tbl.rows.length),
+                dia,
+                i;
+
+                for (i = 0; i < tbl.rows[0].cells.length; i++) {
+                    switch (i) {
+                        case 1:
+                            dia = 'lunes';
+                            break;
+
+                        case 2:
+                            dia = 'martes';
+                            break;
+
+                        case 3:
+                            dia = 'miercoles';
+                            break;
+
+                        case 4:
+                            dia = 'jueves';
+                            break;
+
+                        case 5:
+                            dia = 'viernes';
+                            break;
+
+                        case 6:
+                            dia = 'sabado';
+                            break;
+
+                        case 7:
+                            dia = 'domingo';
+                            break;
+                    }
+
+                    createCell(row.insertCell(i), id_zona, dia, i, zona_name);
+                }
+        }
+
+        function createCell(cell, id_zona, dia, i, zona_name) {
+            var div = document.createElement('div'),
+                text = document.createTextNode(zona_name),
+                checkbox = document.createElement('input');
+
+            if (i == 0) {
+                div.appendChild(text);
+                cell.setAttribute('bgcolor', '#eeeeee');
+
+            } else {
+
+                checkbox.setAttribute('type', 'checkbox');
+                checkbox.setAttribute('name', 'zonadias[]');
+                checkbox.setAttribute('value', id_zona);
+                checkbox.setAttribute('id', 'z'+dia+id_zona);
+                checkbox.setAttribute('disabled', 'true');
+
+                div.appendChild(checkbox);
+
+                cell.setAttribute('id', 'c'+dia+id_zona);
+            }
+
+
+            cell.appendChild(div);
+        }
+
+        function checkCells(id_zona) {
             var clr_green_yellow = "#adff2f";
-
-            uncheckAll();
 
             for (var i= 0; i < zona_dias.length; i++) {
                 if (zona_dias[i].id_zona == id_zona) {
                     var dia = parseInt(zona_dias[i].dia_semana);
                     switch (dia) {
                         case 1:
-                            $("#zlunes").prop('checked', true);
-                            $("#clunes").attr('bgcolor', clr_green_yellow);
+                            $("#zlunes"+id_zona).prop('checked', true);
+                            $("#clunes"+id_zona).attr('bgcolor', clr_green_yellow);
                             break;
 
                         case 2:
-                            $("#zmartes").prop('checked', true);
-                            $("#cmartes").attr('bgcolor', clr_green_yellow);
+                            $("#zmartes"+id_zona).prop('checked', true);
+                            $("#cmartes"+id_zona).attr('bgcolor', clr_green_yellow);
                             break;
 
                         case 3:
-                            $("#zmiercoles").prop('checked', true);
-                            $("#cmiercoles").attr('bgcolor', clr_green_yellow);
+                            $("#zmiercoles"+id_zona).prop('checked', true);
+                            $("#cmiercoles"+id_zona).attr('bgcolor', clr_green_yellow);
                             break;
 
                         case 4:
-                            $("#zjueves").prop('checked', true);
-                            $("#cjueves").attr('bgcolor', clr_green_yellow);
+                            $("#zjueves"+id_zona).prop('checked', true);
+                            $("#cjueves"+id_zona).attr('bgcolor', clr_green_yellow);
                             break;
 
                         case 5:
-                            $("#zviernes").prop('checked', true);
-                            $("#cviernes").attr('bgcolor', clr_green_yellow);
+                            $("#zviernes"+id_zona).prop('checked', true);
+                            $("#cviernes"+id_zona).attr('bgcolor', clr_green_yellow);
                             break;
 
                         case 6:
-                            $("#zsabado").prop('checked', true);
-                            $("#csabado").attr('bgcolor', clr_green_yellow);
+                            $("#zsabado"+id_zona).prop('checked', true);
+                            $("#csabado"+id_zona).attr('bgcolor', clr_green_yellow);
                             break;
 
                         case 7:
-                            $("#zdomingo").prop('checked', true);
-                            $("#cdomingo").attr('bgcolor', clr_green_yellow);
+                            $("#zdomingo"+id_zona).prop('checked', true);
+                            $("#cdomingo"+id_zona).attr('bgcolor', clr_green_yellow);
                             break;
                     }
                 }
             }
-        });
-
-
-        function uncheckAll()
-        {
-            var clr_white = "#ffffff";
-
-            $("#zlunes").prop('checked', false);
-            $("#clunes").attr('bgcolor', clr_white);
-
-            $("#zmartes").prop('checked', false);
-            $("#cmartes").attr('bgcolor', clr_white);
-
-            $("#zmiercoles").prop('checked', false);
-            $("#cmiercoles").attr('bgcolor', clr_white);
-
-            $("#zjueves").prop('checked', false);
-            $("#cjueves").attr('bgcolor', clr_white);
-
-            $("#zviernes").prop('checked', false);
-            $("#cviernes").attr('bgcolor', clr_white);
-
-            $("#zsabado").prop('checked', false);
-            $("#csabado").attr('bgcolor', clr_white);
-
-            $("#zdomingo").prop('checked', false);
-            $("#cdomingo").attr('bgcolor', clr_white);
         }
-
     });
 
     $(".fecha").datepicker({format: 'dd-mm-yyyy'});

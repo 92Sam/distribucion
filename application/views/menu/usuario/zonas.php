@@ -20,7 +20,7 @@
                     <?php foreach ($usuario_has_zona as $zona): ?>
                         <tr style="">
                             <td><input type="radio" name="name<?php echo $zona['id_zona']; ?>"
-                                       id="id<?php echo $zona['id_zona']; ?>"
+                                       id="id<?php $zona['id_zona']; ?>"
                                        value="<?php echo $zona['id_zona']; ?>"
                                        class="radios"></td>
                             <td><?php echo $zona['zona_nombre']; ?></td>
@@ -29,7 +29,6 @@
                             <td><?php echo $zona['nombre_pais']; ?></td>
 
                         </tr>
-
                     <?php endforeach;
                 } ?>
                 <tr>
@@ -77,19 +76,31 @@
 
     $(document).ready(function () {
 
-        $(".radios").on('change', function () {
-            var id_zona = $(this).attr('value');
-            //alert(id_zona);
+        if (document.querySelectorAll('[type="radio"]')[0] != undefined) {
 
-            $(".radios").each(function () {
+            document.querySelectorAll('[type="radio"]')[0].checked = true;
+
+            var radio = $("input[type=radio]:checked").val();
+            loadCalendar(radio);
+        }
+
+        $('.radios').on('change', function () {
+            var id_zona = $(this).attr('value');
+
+            $('.radios').each(function () {
                 if ($(this).attr('value') != id_zona) {
-                    $(this).attr('checked', false);
+                    $(this).prop('checked', false);
                 }
             });
 
-            var clr_green_yellow = "#adff2f";
-
             uncheckAll();
+
+            loadCalendar(id_zona);
+        });
+
+
+        function loadCalendar(id_zona) {
+            var clr_green_yellow = "#adff2f";
 
             for (var i= 0; i < zona_dias.length; i++) {
                 if (zona_dias[i].id_zona == id_zona) {
@@ -132,11 +143,9 @@
                     }
                 }
             }
-        });
+        }
 
-
-        function uncheckAll()
-        {
+        function uncheckAll() {
             var clr_white = "#ffffff";
 
             $("#zlunes").prop('checked', false);
