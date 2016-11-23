@@ -62,6 +62,8 @@ class usuario extends MY_Controller
             $data['usuario_has_zona'] = $this->zona_model->get_all_by_user($id);
         }
         $data['zonas'] = $this->zona_model->get_all();
+        $data['zona_dias'] = $this->zona_model->get_all_dias();
+
         $this->load->view('menu/usuario/form', $data);
     }
 
@@ -71,6 +73,7 @@ class usuario extends MY_Controller
         $data = array();
         $data['usuario_has_zona'] = $this->zona_model->get_all_by_user($id);
         $data['zonas'] = $this->zona_model->get_all();
+        $data['zona_dias'] = $this->zona_model->get_all_dias();
         $this->load->view('menu/usuario/zonas', $data);
     }
 

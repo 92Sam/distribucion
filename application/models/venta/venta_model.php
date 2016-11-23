@@ -2621,6 +2621,7 @@ WHERE detalle_venta.id_venta='$id' group by detalle_venta.id_detalle");
         }
 
         $query = $this->db->get();
+        //echo $this->db->last_query();
 
         if ($retorno == "RESULT_ARRAY") {
 

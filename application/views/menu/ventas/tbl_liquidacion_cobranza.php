@@ -1,13 +1,13 @@
 <?php $ruta = base_url(); ?>
 
-<form name="form" method="post" id="form" action="<?= $ruta ?>venta/guardar_liquidar">
+<form name="form" method="post" id="form">
     <div class="btn-group" align="center">
-        <button type="button" onclick="liquidar()"
+        <button type="button" id="btn_liquidar" onclick="liquidar()"
                 class='btn btn-primary'>Liquidar
         </button>
     </div>
     <div class="btn-group" align="center">
-        <button type="button" onclick="anular()"
+        <button type="button" id="btn_anular" onclick="anular()"
                 class='btn btn-primary'>Anular
         </button>
     </div>
@@ -38,7 +38,7 @@
             </th>
             <th>ID</th>
             <th>Nro Venta</th>
-
+            <th>Cliente</th>
             <th>Vendedor</th>
             <th class='tip' title="Fecha Registro">Fecha de pago</th>
             <th class='tip' title="Monto Credito Solicitado">M&eacute;todo de Pago</th>
@@ -64,7 +64,7 @@
                     </td>
                     <td style="text-align: center;"><?php echo $v['venta_id']; ?></td>
                     <td style="text-align: center;"><?php echo $v['documento_Serie'] . "-" . $v['documento_Numero']; ?></td>
-
+                    <td><?php echo $v['razon_social']; ?></td>
                     <td><?php echo $v['nombre']; ?></td>
                     <td><?php echo date("d-m-Y H:i:s", strtotime($v['historial_fecha'])) ?></td>
                     <td><?php echo $v['nombre_metodo']; ?></td>
@@ -300,33 +300,5 @@
 
 
     });
-
-
-    function liquidar() {
-        var total = $('input[name="historial[]"]:checked').length;
-
-        if (total < 1) {
-            var growlType = 'warning';
-
-            $.bootstrapGrowl('<h4>Debe seleccionar al menos una opci&oacute;n</h4>', {
-                type: growlType,
-                delay: 2500,
-                allow_dismiss: true
-            });
-
-            $(this).prop('disabled', true);
-
-            return false;
-
-        }
-
-        $("#borrar_cantidad").remove();
-
-
-        $("#mostrar_cantidad").append('<p id="borrar_cantidad">' + total + ' Pagos</p>')
-        $('#liquidar').modal('show');
-        //$("#id").attr('value', id);
-    }
-
 
 </script>
