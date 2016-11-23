@@ -217,9 +217,9 @@ $('#valor').attr('disabled', true)
                         if(Object.keys(data) == 'success'){
                         $('#agregar').modal('toggle')
 
-                            setTimeout(function () {
-                                window.location.href ='<?=base_url()?>cliente/';
-                            }, 500)
+                             $("#example").dataTable().fnDestroy();
+
+                                TablesDatatablesJson.init('<?php echo base_url()?>api/Clientes', 0, 'example');
                         }else{
                             return false
                         

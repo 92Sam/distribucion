@@ -103,7 +103,7 @@ class clientes extends REST_Controller
         $where_in = false;
         $select = 'distinct(cliente.id_cliente),cliente.*,cli_dat.*, ciudades.*,estados.*,pais.*, grupos_cliente.*, zonas.*, usuario.nombre';
         $from = "cliente";
-        $join = array('ciudades', 'estados', 'pais', 'grupos_cliente', 'zonas','usuario', '(SELECT DISTINCT(c.cliente_id), c.valor, c.principal FROM cliente_datos c WHERE c.tipo=1 ) cli_dat');
+        $join = array('ciudades', 'estados', 'pais', 'grupos_cliente', 'zonas','usuario', '(SELECT c.cliente_id, c.tipo, c.valor, c.principal, COUNT(*) FROM cliente_datos c WHERE c.tipo =1 GROUP BY c.cliente_id, c.tipo ) cli_dat');
         $campos_join = array('ciudades.ciudad_id=cliente.ciudad_id', 'ciudades.estado_id=estados.estados_id',
             'pais.id_pais=estados.pais_id', 'grupos_cliente.id_grupos_cliente=cliente.grupo_id', 'zonas.zona_id=cliente.id_zona', 'usuario.nUsuCodigo=cliente.vendedor_a', 'cli_dat.cliente_id = cliente.id_cliente' );
         $tipo_join = false;
