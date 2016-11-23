@@ -438,6 +438,12 @@ $primary_nav = array(
                 'slug' => 'reporteutilidades'
             ),
             array(
+                'name' => 'Reporte Clientes',
+                'url' => $ruta . 'reporte/cliente_estado',
+                'icon' => 'fa fa-bar-chart',
+                'slug' => 'reporteutilidades'
+            ),
+            array(
                 'name' => 'Reporte utilidades',
                 'url' => $ruta . 'venta/reporteUtilidades',
                 'icon' => 'fa fa-bar-chart',
