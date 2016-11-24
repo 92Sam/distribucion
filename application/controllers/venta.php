@@ -2332,8 +2332,8 @@ class venta extends MY_Controller
 
             $select = '*';
             $from = "venta";
-            $join = array('cliente', 'documento_venta');
-            $campos_join = array('cliente.id_cliente=venta.id_cliente', 'venta.numero_documento=documento_venta.id_tipo_documento');
+            $join = array('cliente', 'documento_venta', '(SELECT c.cliente_id, c.tipo, c.valor as direccion, c.principal, COUNT(*) FROM cliente_datos c WHERE c.tipo =1 GROUP BY c.cliente_id, c.tipo ) cli_dat', '(SELECT c1.cliente_id, c1.tipo, c1.valor as telefono1, c1.principal, COUNT(*) FROM cliente_datos c1 WHERE c1.tipo =2 GROUP BY c1.cliente_id, c1.tipo  ) cli_dat2');
+            $campos_join = array('cliente.id_cliente=venta.id_cliente', 'venta.numero_documento=documento_venta.id_tipo_documento', 'cli_dat.cliente_id = cliente.id_cliente', 'cli_dat2.cliente_id = cliente.id_cliente');
             $where = array(
                 'venta_id' => $id_venta
             );
@@ -2354,7 +2354,6 @@ class venta extends MY_Controller
             $from = "historial_pagos_clientes";
             $order = "historial_fecha desc";
             $buscar_restante = $this->venta_model->traer_by($select, $from, false, false, false, $where, false, false, false, false, false, $order, "RESULT_ARRAY");
-
 
             $result['restante'] = $buscar_restante[0]['monto_restante'];
             //var_dump($result);
@@ -3267,13 +3266,12 @@ class venta extends MY_Controller
         documento_Serie, documento_Numero, usuario.nombre,liquidacion_fecha, ,cajero.nombre as cajero,
           metodos_pago.*';
         $from = "historial_pagos_clientes";
-        $join = array('venta', 'cliente', 'documento_venta', 'metodos_pago', 'liquidacion_cobranza_detalle', 'usuario',
-            'liquidacion_cobranza', 'usuario as cajero');
+        $join = array('venta', 'cliente', 'documento_venta', 'metodos_pago', 'liquidacion_cobranza_detalle', 'usuario','liquidacion_cobranza', 'usuario as cajero' ,'(SELECT c.cliente_id, c.tipo, c.valor as direccion, c.principal, COUNT(*) FROM cliente_datos c WHERE c.tipo =1 GROUP BY c.cliente_id, c.tipo ) cli_dat', '(SELECT c1.cliente_id, c1.tipo, c1.valor as telefono1, c1.principal, COUNT(*) FROM cliente_datos c1 WHERE c1.tipo =2 GROUP BY c1.cliente_id, c1.tipo  ) cli_dat2');
         $campos_join = array('historial_pagos_clientes.credito_id=venta.venta_id', 'cliente.id_cliente=venta.id_cliente',
             'documento_venta.id_tipo_documento=venta.numero_documento', 'metodos_pago.id_metodo=historial_pagos_clientes.historial_tipopago',
             'liquidacion_cobranza_detalle.pago_id=historial_pagos_clientes.historial_id',
             'usuario.nUsuCodigo=historial_pagos_clientes.historial_usuario',
-            'liquidacion_cobranza.liquidacion_id=liquidacion_cobranza_detalle.liquidacion_id', 'cajero.nUsuCodigo=liquidacion_cobranza.liquidacion_cajero');
+            'liquidacion_cobranza.liquidacion_id=liquidacion_cobranza_detalle.liquidacion_id', 'cajero.nUsuCodigo=liquidacion_cobranza.liquidacion_cajero', 'cli_dat.cliente_id = cliente.id_cliente', 'cli_dat2.cliente_id = cliente.id_cliente');
 
         $group_by = "nombre_metodo";
         $order = "nombre_metodo";
@@ -3401,10 +3399,10 @@ class venta extends MY_Controller
         documento_Serie, documento_Numero,
           metodos_pago.*';
         $from = "historial_pagos_clientes";
-        $join = array('venta', 'cliente', 'documento_venta', 'metodos_pago', 'liquidacion_cobranza_detalle');
+        $join = array('venta', 'cliente', 'documento_venta', 'metodos_pago', 'liquidacion_cobranza_detalle','(SELECT c.cliente_id, c.tipo, c.valor as direccion, c.principal, COUNT(*) FROM cliente_datos c WHERE c.tipo =1 GROUP BY c.cliente_id, c.tipo ) cli_dat', '(SELECT c1.cliente_id, c1.tipo, c1.valor as telefono1, c1.principal, COUNT(*) FROM cliente_datos c1 WHERE c1.tipo =2 GROUP BY c1.cliente_id, c1.tipo  ) cli_dat2');
         $campos_join = array('historial_pagos_clientes.credito_id=venta.venta_id', 'cliente.id_cliente=venta.id_cliente',
             'documento_venta.id_tipo_documento=venta.numero_documento', 'metodos_pago.id_metodo=historial_pagos_clientes.historial_tipopago',
-            'liquidacion_cobranza_detalle.pago_id=historial_pagos_clientes.historial_id');
+            'liquidacion_cobranza_detalle.pago_id=historial_pagos_clientes.historial_id', 'cli_dat.cliente_id = cliente.id_cliente', 'cli_dat2.cliente_id = cliente.id_cliente');
 
 
         $group_by = "nombre_metodo";
