@@ -24,7 +24,7 @@ class venta extends MY_Controller
         $this->load->model('liquidacioncobranza/liquidacion_cobranza_model');
         $this->load->model('ingreso/ingreso_model');
         $this->load->model('gastos/gastos_model');
-        $this->load->library('phpword');
+        //$this->load->library('phpword');
 
         $this->load->library('Pdf');
         $this->load->library('session');
@@ -2458,7 +2458,7 @@ class venta extends MY_Controller
                     $table1->addCell(4000)->addText(htmlspecialchars('USUA: ' . strtoupper($ventas[0]['vendedor'])), 'rBasicos');
 
                     $table1->addRow(150, array('exactHeight' => true))->addCell(566)->addText(htmlspecialchars('DIRECCION: '), 'rBasicos');
-                    $table1->addCell(7000, array('gridSpan' => 2))->addText(htmlspecialchars((isset($ventas[0]['clienteDireccionAlt'])) ? strtoupper($ventas[0]['clienteDireccionAlt']) : ''), 'rBasicos');
+                    $table1->addCell(7000, array('gridSpan' => 2))->addText(htmlspecialchars((isset($ventas[0]['clienteDireccion'])) ? strtoupper($ventas[0]['clienteDireccion']) : ''), 'rBasicos');
 
                     $table1->addCell(4000)->addText(htmlspecialchars('F. VENC.: ' . (isset($result['detalleC'][0]) ? date('Y-m-d', strtotime($result['detalleC'][0]['fecha'])) : '')), 'rBasicos');
                     $table1->addCell(4000)->addText(htmlspecialchars('HORA: ' . (isset($result['detalleC'][0]) ? date('H:i:s', strtotime($result['detalleC'][0]['fecha'])) : '')), 'rBasicos');
