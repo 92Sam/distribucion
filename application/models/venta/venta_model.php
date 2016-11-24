@@ -2988,11 +2988,11 @@ LEFT JOIN ingreso ON ingreso.id_ingreso = detalleingreso.id_ingreso WHERE id_pro
     function obtener_venta($id_venta)
     {
         $querystring = "select v.venta_id,v.total as montoTotal,v.subtotal  as subTotal, v.confirmacion_usuario as confirmacion_usuario_pago_adelantado,
- v.total_impuesto as impuesto, v.pagado,c.direccion as clienteDireccion, c.direccion2 as clienteDireccionAlt, pd.producto_nombre as nombre,pd.costo_unitario,pd.presentacion,tr.bono,
+ v.total_impuesto as impuesto, v.pagado,cli_dat.valor as clienteDireccion, pd.producto_nombre as nombre,pd.costo_unitario,pd.presentacion,tr.bono,
  pd.producto_cualidad, pd.producto_id as producto_id, pd.venta_sin_stock, tr.precio_sugerido, tr.cantidad as cantidad ,tr.precio as preciounitario, tr.id_detalle,
 tr.detalle_importe as importe, v.fecha as fechaemision, cre.dec_credito_montodeuda,
 p.nombre as vendedor,p.nUsuCodigo as id_vendedor,t.nombre_tipo_documento as descripcion, t.documento_Serie as serie, t.documento_Numero as numero, t.nombre_tipo_documento,df.documento_tipo,
-c.razon_social as cliente, c.id_cliente as cliente_id, c.direccion as direccion_cliente,c.representante as representanteCliente,c.telefono1 as telefonoC1,
+c.razon_social as cliente, c.id_cliente as cliente_id, cli_dat.valor as direccion_cliente,c.representante as representanteCliente,cli_dat2.valor as telefonoC1,
  c.identificacion as documento_cliente, cp.id_condiciones, cp.nombre_condiciones, v.venta_status,v.venta_tipo, u.id_unidad, u.nombre_unidad, u.abreviatura,
  i.porcentaje_impuesto, up.unidades, up.orden,
  (select config_value from configuraciones where config_key='" . EMPRESA_NOMBRE . "') as RazonSocialEmpresa,
@@ -3011,6 +3011,8 @@ inner join condiciones_pago cp on cp.id_condiciones = v.condicion_pago
 inner join unidades u on u.id_unidad = tr.unidad_medida
 inner join impuestos i on i.id_impuesto = pd.producto_impuesto
 inner join unidades_has_producto up on up.producto_id = pd.producto_id and up.id_unidad=tr.unidad_medida
+join (SELECT c.cliente_id, c.tipo, c.valor, c.principal, COUNT(*) FROM cliente_datos c WHERE c.tipo =1 GROUP BY c.cliente_id, c.tipo  ) cli_dat on cli_dat.cliente_id = c.id_cliente
+left join (SELECT c1.cliente_id, c1.tipo, c1.valor, c1.principal, COUNT(*) FROM cliente_datos c1 WHERE c1.tipo =2 GROUP BY c1.cliente_id, c1.tipo  ) cli_dat2 on cli_dat2.cliente_id = c.id_cliente
 left join credito cre on cre.id_venta=v.venta_id
 where v.venta_id=" . $id_venta . " group by tr.id_detalle order by 1 ";
 
@@ -3023,11 +3025,11 @@ where v.venta_id=" . $id_venta . " group by tr.id_detalle order by 1 ";
     function obtener_venta_backup($id_venta)
     {
         $querystring = "select v.venta_id,v.total as montoTotal,v.subtotal  as subTotal,
- v.total_impuesto as impuesto, v.pagado,c.direccion as clienteDireccion,  c.direccion2 as clienteDireccionAlt, pd.producto_nombre as nombre,pd.costo_unitario,pd.presentacion,tr.bono,
+ v.total_impuesto as impuesto, v.pagado,cli_dat.valor as clienteDireccion, pd.producto_nombre as nombre,pd.costo_unitario,pd.presentacion,tr.bono,
  pd.producto_cualidad, pd.producto_id as producto_id, pd.venta_sin_stock, tr.precio_sugerido, tr.cantidad as cantidad ,tr.precio as preciounitario, tr.id_detalle,
 tr.detalle_importe as importe, v.fecha as fechaemision, cre.dec_credito_montodeuda,
 p.nombre as vendedor,p.nUsuCodigo as id_vendedor,t.nombre_tipo_documento as descripcion, t.documento_Serie as serie, t.documento_Numero as numero, t.nombre_tipo_documento,df.documento_tipo,
-c.razon_social as cliente, c.id_cliente as cliente_id, c.direccion as direccion_cliente,c.representante as representanteCliente,c.telefono1 as telefonoC1,
+c.razon_social as cliente, c.id_cliente as cliente_id, cli_dat.valor as direccion_cliente,c.representante as representanteCliente,cli_dat2.valor as telefonoC1,
  c.identificacion as documento_cliente, cp.id_condiciones, cp.nombre_condiciones, v.venta_status,v.venta_tipo, u.id_unidad, u.nombre_unidad, u.abreviatura,
  i.porcentaje_impuesto, up.unidades, up.orden,
  (select config_value from configuraciones where config_key='" . EMPRESA_NOMBRE . "') as RazonSocialEmpresa,
@@ -3046,6 +3048,8 @@ inner join condiciones_pago cp on cp.id_condiciones = v.condicion_pago
 inner join unidades u on u.id_unidad = tr.unidad_medida
 inner join impuestos i on i.id_impuesto = pd.producto_impuesto
 inner join unidades_has_producto up on up.producto_id = pd.producto_id and up.id_unidad=tr.unidad_medida
+join (SELECT c.cliente_id, c.tipo, c.valor, c.principal, COUNT(*) FROM cliente_datos c WHERE c.tipo =1 GROUP BY c.cliente_id, c.tipo  ) cli_dat on cli_dat.cliente_id = c.id_cliente
+left join (SELECT c1.cliente_id, c1.tipo, c1.valor, c1.principal, COUNT(*) FROM cliente_datos c1 WHERE c1.tipo =2 GROUP BY c1.cliente_id, c1.tipo  ) cli_dat2 on cli_dat2.cliente_id = c.id_cliente
 left join credito cre on cre.id_venta=v.venta_id
 where v.venta_id=" . $id_venta . " group by tr.id_detalle order by 1 ";
 
@@ -3098,7 +3102,7 @@ where v.venta_id=" . $id_venta . " group by tr.id_detalle order by 1 ";
 				" . $ventaCol . "
 				c.razon_social as cliente, 
 				c.id_cliente as cliente_id, 
-				c.direccion as direccion_cliente,
+				cli_dat.valor as direccion_cliente,
 				c.identificacion as documento_cliente, 
 				cp.id_condiciones, 
 				cp.nombre_condiciones,
@@ -3115,6 +3119,7 @@ where v.venta_id=" . $id_venta . " group by tr.id_detalle order by 1 ";
 				inner join condiciones_pago cp on cp.id_condiciones = v.condicion_pago
 				left join credito cre on cre.id_venta = v.venta_id
 				left join camiones cami on cami.id_trabajadores = p.nUsuCodigo
+                left join (SELECT c.cliente_id, c.tipo, c.valor, c.principal, COUNT(*) FROM cliente_datos c WHERE c.tipo =1 GROUP BY c.cliente_id, c.tipo  ) cli_dat on cli_dat.cliente_id = c.id_cliente
 
 			where
 				v.venta_id = " . $id_venta . " order by 1");

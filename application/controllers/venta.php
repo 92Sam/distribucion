@@ -2496,13 +2496,16 @@ class venta extends MY_Controller
 
             $select = '*';
             $from = "venta";
-            $join = array('cliente', 'documento_venta');
-            $campos_join = array('cliente.id_cliente=venta.id_cliente', 'venta.numero_documento=documento_venta.id_tipo_documento');
+            $join = array('cliente', 'documento_venta', '(SELECT c.cliente_id, c.tipo, c.valor as direccion, c.principal, COUNT(*) FROM cliente_datos c WHERE c.tipo =1 GROUP BY c.cliente_id, c.tipo ) cli_dat', '(SELECT c1.cliente_id, c1.tipo, c1.valor as telefono1, c1.principal, COUNT(*) FROM cliente_datos c1 WHERE c1.tipo =2 GROUP BY c1.cliente_id, c1.tipo  ) cli_dat2');
+            $campos_join = array('cliente.id_cliente=venta.id_cliente', 'venta.numero_documento=documento_venta.id_tipo_documento', 'cli_dat.cliente_id = cliente.id_cliente', 'cli_dat2.cliente_id = cliente.id_cliente');
             $where = array(
                 'venta_id' => $id_venta
             );
 
-            $result['cliente'] = $this->venta_model->traer_by($select, $from, $join, $campos_join, false, $where, false, false, false, false, false, false, "ROW_ARRAY");
+            $tipo_join = array(null, null, null, 'left');
+
+
+            $result['cliente'] = $this->venta_model->traer_by($select, $from, $join, $campos_join, $tipo_join, $where, false, false, false, false, false, false, "ROW_ARRAY");
             $result['metodo_pago'] = $this->metodos_pago_model->get_by('id_metodo', $result['credito'][0]['historial_tipopago']);
             // var_dump($result['credito']);
             $result['cuota'] = $result['credito'][0]['historial_monto'];
@@ -2518,7 +2521,6 @@ class venta extends MY_Controller
             $from = "historial_pagos_clientes";
             $order = "historial_fecha desc";
             $buscar_restante = $this->venta_model->traer_by($select, $from, false, false, false, $where, false, false, false, false, false, $order, "RESULT_ARRAY");
-
 
             $result['restante'] = $buscar_restante[0]['monto_restante'];
             //var_dump($result);
@@ -2620,7 +2622,7 @@ class venta extends MY_Controller
                     $table1->addCell(4000)->addText(htmlspecialchars('USUA: ' . strtoupper($ventas[0]['vendedor'])), 'rBasicos');
 
                     $table1->addRow(150, array('exactHeight' => true))->addCell(566)->addText(htmlspecialchars('DIRECCION: '), 'rBasicos');
-                    $table1->addCell(7000, array('gridSpan' => 2))->addText(htmlspecialchars((isset($ventas[0]['clienteDireccionAlt'])) ? strtoupper($ventas[0]['clienteDireccionAlt']) : ''), 'rBasicos');
+                    $table1->addCell(7000, array('gridSpan' => 2))->addText(htmlspecialchars((isset($ventas[0]['clienteDireccion'])) ? strtoupper($ventas[0]['clienteDireccion']) : ''), 'rBasicos');
 
                     $table1->addCell(4000)->addText(htmlspecialchars('F. VENC.: ' . (isset($result['detalleC'][0]) ? date('Y-m-d', strtotime($result['detalleC'][0]['fecha'])) : '')), 'rBasicos');
                     $table1->addCell(4000)->addText(htmlspecialchars('HORA: ' . (isset($result['detalleC'][0]) ? date('H:i:s', strtotime($result['detalleC'][0]['fecha'])) : '')), 'rBasicos');
@@ -3431,17 +3433,18 @@ class venta extends MY_Controller
         documento_Serie, documento_Numero, usuario.nombre,liquidacion_fecha, ,cajero.nombre as cajero,
           metodos_pago.*';
         $from = "historial_pagos_clientes";
-        $join = array('venta', 'cliente', 'documento_venta', 'metodos_pago', 'liquidacion_cobranza_detalle', 'usuario',
-            'liquidacion_cobranza', 'usuario as cajero');
+        $join = array('venta', 'cliente', 'documento_venta', 'metodos_pago', 'liquidacion_cobranza_detalle', 'usuario','liquidacion_cobranza', 'usuario as cajero' ,'(SELECT c.cliente_id, c.tipo, c.valor as direccion, c.principal, COUNT(*) FROM cliente_datos c WHERE c.tipo =1 GROUP BY c.cliente_id, c.tipo ) cli_dat', '(SELECT c1.cliente_id, c1.tipo, c1.valor as telefono1, c1.principal, COUNT(*) FROM cliente_datos c1 WHERE c1.tipo =2 GROUP BY c1.cliente_id, c1.tipo  ) cli_dat2');
         $campos_join = array('historial_pagos_clientes.credito_id=venta.venta_id', 'cliente.id_cliente=venta.id_cliente',
             'documento_venta.id_tipo_documento=venta.numero_documento', 'metodos_pago.id_metodo=historial_pagos_clientes.historial_tipopago',
             'liquidacion_cobranza_detalle.pago_id=historial_pagos_clientes.historial_id',
             'usuario.nUsuCodigo=historial_pagos_clientes.historial_usuario',
-            'liquidacion_cobranza.liquidacion_id=liquidacion_cobranza_detalle.liquidacion_id', 'cajero.nUsuCodigo=liquidacion_cobranza.liquidacion_cajero');
+            'liquidacion_cobranza.liquidacion_id=liquidacion_cobranza_detalle.liquidacion_id', 'cajero.nUsuCodigo=liquidacion_cobranza.liquidacion_cajero', 'cli_dat.cliente_id = cliente.id_cliente', 'cli_dat2.cliente_id = cliente.id_cliente');
+
+        $tipo_join = array(null, null, null, null, null, null, null, null, null, 'left');
 
         $group_by = "nombre_metodo";
         $order = "nombre_metodo";
-        $result['resultado'] = $this->venta_model->traer_by($select, $from, $join, $campos_join, false,
+        $result['resultado'] = $this->venta_model->traer_by($select, $from, $join, $campos_join, $tipo_join,
             $where, $nombre_in, $where_in, $nombre_or, $where_or, $group_by, $order, "RESULT_ARRAY");
 
         $result['historial'] = true;
@@ -3565,25 +3568,22 @@ class venta extends MY_Controller
             'historial_estatus' => "CONFIRMADO"
         );
 
-        /*$select = 'SUM(historial_monto) AS suma, historial_caja_id, historial_banco_id, cliente.razon_social, direccion,telefono1,
+        $select = 'SUM(historial_monto) AS suma, historial_caja_id, historial_banco_id, cliente.razon_social, direccion,telefono1,
         documento_Serie, documento_Numero,
           metodos_pago.*';
         $from = "historial_pagos_clientes";
-        $join = array('venta', 'cliente', 'documento_venta', 'metodos_pago', 'liquidacion_cobranza_detalle');
+        $join = array('venta', 'cliente', 'documento_venta', 'metodos_pago', 'liquidacion_cobranza_detalle','(SELECT c.cliente_id, c.tipo, c.valor as direccion, c.principal, COUNT(*) FROM cliente_datos c WHERE c.tipo =1 GROUP BY c.cliente_id, c.tipo ) cli_dat', '(SELECT c1.cliente_id, c1.tipo, c1.valor as telefono1, c1.principal, COUNT(*) FROM cliente_datos c1 WHERE c1.tipo =2 GROUP BY c1.cliente_id, c1.tipo  ) cli_dat2');
         $campos_join = array('historial_pagos_clientes.credito_id=venta.venta_id', 'cliente.id_cliente=venta.id_cliente',
             'documento_venta.id_tipo_documento=venta.numero_documento', 'metodos_pago.id_metodo=historial_pagos_clientes.historial_tipopago',
-            'liquidacion_cobranza_detalle.pago_id=historial_pagos_clientes.historial_id');*/
+            'liquidacion_cobranza_detalle.pago_id=historial_pagos_clientes.historial_id', 'cli_dat.cliente_id = cliente.id_cliente', 'cli_dat2.cliente_id = cliente.id_cliente');
+        
+        $tipo_join = array(null, null, null, null, null, null, 'left');
 
-        $select = 'documento_Serie, documento_Numero, cliente.razon_social, historial_monto, metodos_pago.*';
-        $from = "historial_pagos_clientes";
-        $join = array('venta', 'cliente', 'documento_venta', 'metodos_pago', 'liquidacion_cobranza_detalle');
-        $campos_join = array('historial_pagos_clientes.credito_id=venta.venta_id', 'cliente.id_cliente=venta.id_cliente',
-            'documento_venta.id_tipo_documento=venta.numero_documento', 'metodos_pago.id_metodo=historial_pagos_clientes.historial_tipopago',
-            'liquidacion_cobranza_detalle.pago_id=historial_pagos_clientes.historial_id');
 
-        $result['resultado'] = $this->venta_model->traer_by($select, $from, $join, $campos_join, false,
-            $where, $nombre_in, $where_in, $nombre_or, $where_or, false, false, "RESULT_ARRAY");
-        //echo $this->db->last_query();
+        $group_by = "nombre_metodo";
+        $order = "nombre_metodo";
+        $result['resultado'] = $this->venta_model->traer_by($select, $from, $join, $campos_join, $tipo_join,
+            $where, $nombre_in, $where_in, $nombre_or, $where_or, $group_by, $order, "RESULT_ARRAY");
 
         //Cajero
         ///////////////////
