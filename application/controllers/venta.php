@@ -2338,7 +2338,10 @@ class venta extends MY_Controller
                 'venta_id' => $id_venta
             );
 
-            $result['cliente'] = $this->venta_model->traer_by($select, $from, $join, $campos_join, false, $where, false, false, false, false, false, false, "ROW_ARRAY");
+            $tipo_join = array(null, null, null, 'left');
+
+
+            $result['cliente'] = $this->venta_model->traer_by($select, $from, $join, $campos_join, $tipo_join, $where, false, false, false, false, false, false, "ROW_ARRAY");
             $result['metodo_pago'] = $this->metodos_pago_model->get_by('id_metodo', $result['credito'][0]['historial_tipopago']);
             // var_dump($result['credito']);
             $result['cuota'] = $result['credito'][0]['historial_monto'];
@@ -3273,9 +3276,11 @@ class venta extends MY_Controller
             'usuario.nUsuCodigo=historial_pagos_clientes.historial_usuario',
             'liquidacion_cobranza.liquidacion_id=liquidacion_cobranza_detalle.liquidacion_id', 'cajero.nUsuCodigo=liquidacion_cobranza.liquidacion_cajero', 'cli_dat.cliente_id = cliente.id_cliente', 'cli_dat2.cliente_id = cliente.id_cliente');
 
+        $tipo_join = array(null, null, null, null, null, null, null, null, null, 'left');
+
         $group_by = "nombre_metodo";
         $order = "nombre_metodo";
-        $result['resultado'] = $this->venta_model->traer_by($select, $from, $join, $campos_join, false,
+        $result['resultado'] = $this->venta_model->traer_by($select, $from, $join, $campos_join, $tipo_join,
             $where, $nombre_in, $where_in, $nombre_or, $where_or, $group_by, $order, "RESULT_ARRAY");
 
         $result['historial'] = true;
@@ -3403,11 +3408,13 @@ class venta extends MY_Controller
         $campos_join = array('historial_pagos_clientes.credito_id=venta.venta_id', 'cliente.id_cliente=venta.id_cliente',
             'documento_venta.id_tipo_documento=venta.numero_documento', 'metodos_pago.id_metodo=historial_pagos_clientes.historial_tipopago',
             'liquidacion_cobranza_detalle.pago_id=historial_pagos_clientes.historial_id', 'cli_dat.cliente_id = cliente.id_cliente', 'cli_dat2.cliente_id = cliente.id_cliente');
+        
+        $tipo_join = array(null, null, null, null, null, null, 'left');
 
 
         $group_by = "nombre_metodo";
         $order = "nombre_metodo";
-        $result['resultado'] = $this->venta_model->traer_by($select, $from, $join, $campos_join, false,
+        $result['resultado'] = $this->venta_model->traer_by($select, $from, $join, $campos_join, $tipo_join,
             $where, $nombre_in, $where_in, $nombre_or, $where_or, $group_by, $order, "RESULT_ARRAY");
 
         // var_dump($result);

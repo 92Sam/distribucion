@@ -3011,7 +3011,7 @@ inner join unidades u on u.id_unidad = tr.unidad_medida
 inner join impuestos i on i.id_impuesto = pd.producto_impuesto
 inner join unidades_has_producto up on up.producto_id = pd.producto_id and up.id_unidad=tr.unidad_medida
 join (SELECT c.cliente_id, c.tipo, c.valor, c.principal, COUNT(*) FROM cliente_datos c WHERE c.tipo =1 GROUP BY c.cliente_id, c.tipo  ) cli_dat on cli_dat.cliente_id = c.id_cliente
-join (SELECT c1.cliente_id, c1.tipo, c1.valor, c1.principal, COUNT(*) FROM cliente_datos c1 WHERE c1.tipo =2 GROUP BY c1.cliente_id, c1.tipo  ) cli_dat2 on cli_dat2.cliente_id = c.id_cliente
+left join (SELECT c1.cliente_id, c1.tipo, c1.valor, c1.principal, COUNT(*) FROM cliente_datos c1 WHERE c1.tipo =2 GROUP BY c1.cliente_id, c1.tipo  ) cli_dat2 on cli_dat2.cliente_id = c.id_cliente
 left join credito cre on cre.id_venta=v.venta_id
 where v.venta_id=" . $id_venta . " group by tr.id_detalle order by 1 ";
 
@@ -3048,7 +3048,7 @@ inner join unidades u on u.id_unidad = tr.unidad_medida
 inner join impuestos i on i.id_impuesto = pd.producto_impuesto
 inner join unidades_has_producto up on up.producto_id = pd.producto_id and up.id_unidad=tr.unidad_medida
 join (SELECT c.cliente_id, c.tipo, c.valor, c.principal, COUNT(*) FROM cliente_datos c WHERE c.tipo =1 GROUP BY c.cliente_id, c.tipo  ) cli_dat on cli_dat.cliente_id = c.id_cliente
-join (SELECT c1.cliente_id, c1.tipo, c1.valor, c1.principal, COUNT(*) FROM cliente_datos c1 WHERE c1.tipo =2 GROUP BY c1.cliente_id, c1.tipo  ) cli_dat2 on cli_dat2.cliente_id = c.id_cliente
+left join (SELECT c1.cliente_id, c1.tipo, c1.valor, c1.principal, COUNT(*) FROM cliente_datos c1 WHERE c1.tipo =2 GROUP BY c1.cliente_id, c1.tipo  ) cli_dat2 on cli_dat2.cliente_id = c.id_cliente
 left join credito cre on cre.id_venta=v.venta_id
 where v.venta_id=" . $id_venta . " group by tr.id_detalle order by 1 ";
 
