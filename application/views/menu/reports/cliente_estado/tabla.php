@@ -1,11 +1,10 @@
 <style>
-    .tabla_detalles {
-        display: <?=$mostrar_detalles == 1? 'block-inline;': 'none;'?>
+    table th{
+        background-color: #f4f4f4;
     }
 </style>
-
 <?php foreach ($clientes as $cliente): ?>
-    <table class="table table-striped dataTable table-bordered">
+    <table class="table table-condensed table-bordered">
         <tbody>
         <tr>
             <th>Cliente</th>
@@ -26,9 +25,9 @@
             <th>Saldo</th>
             <th>Estado</th>
         </tr>
+        <?php $actual_desglose = 0 ?>
         <?php foreach ($cliente->cobranzas as $cobranza): ?>
-            <?php $actual_desglose = 0 ?>
-            <tr>
+            <tr style="background-color: #dae8e7;">
                 <td><?= date('d/m/Y', strtotime($cobranza->fecha_venta)) ?></td>
                 <td>
                     <?= $cobranza->documento_nombre == 'NOTA DE ENTREGA' ? 'NE' : $cobranza->documento_nombre ?>
@@ -37,40 +36,47 @@
                 </td>
                 <td>NOTA DE PEDIDO</td>
                 <td><?= MONEDA . ' ' . number_format($cobranza->total_deuda, 2) ?></td>
-                <td></td>
+                <td><?= MONEDA . ' ' . number_format($actual_desglose, 2) ?></td>
                 <?php $actual_desglose += $cobranza->total_deuda; ?>
-                <td><?= MONEDA . ' ' . number_format($cobranza->total_deuda - $actual_desglose, 2) ?></td>
-                <td><?= $cobranza->cliente_zona_nombre ?></td>
-                <td><?= $cobranza->vendedor_nombre ?></td>
-                <td><?= $cobranza->atraso ?></td>
+                <td><?= MONEDA . ' ' . number_format($actual_desglose, 2) ?></td>
+                <td><?= $cobranza->credito > 0 ? 'Pendiente' : 'Cancelado'?></td>
             </tr>
 
-            <tr class="tabla_detalles">
-                <td><?= $cobranza->generado->tipo_pago_nombre ?></td>
-                <td><?= date('d/m/Y', strtotime($cobranza->generado->fecha)) ?></td>
-                <td></td>
-                <td><?= MONEDA . ' ' . number_format($cobranza->generado->monto, 2) ?></td>
-                <?php $actual_desglose += $cobranza->generado->monto; ?>
-                <td><?= MONEDA . ' ' . number_format($cobranza->total_deuda - $actual_desglose, 2) ?></td>
-            </tr>
-
-            <tr>
-                <td colspan="3"><?= $cobranza->liquidacion->tipo_pago_nombre ?></td>
-                <td><?= date('d/m/Y', strtotime($cobranza->liquidacion->fecha)) ?></td>
-                <td></td>
-                <td><?= MONEDA . ' ' . number_format($cobranza->liquidacion->monto, 2) ?></td>
-                <?php $actual_desglose += $cobranza->liquidacion->monto; ?>
-                <td><?= MONEDA . ' ' . number_format($cobranza->total_deuda - $actual_desglose, 2) ?></td>
-            </tr>
+            <?php if ($cobranza->generado->monto != 0): ?>
+                <tr>
+                    <td><?= date('d/m/Y', strtotime($cobranza->generado->fecha)) ?></td>
+                    <td></td>
+                    <td><?= $cobranza->generado->tipo_pago_nombre ?></td>
+                    <td></td>
+                    <td><?= MONEDA . ' ' . number_format($cobranza->generado->monto, 2) ?></td>
+                    <?php $actual_desglose -= $cobranza->generado->monto; ?>
+                    <td><?= MONEDA . ' ' . number_format($actual_desglose, 2) ?></td>
+                    <td></td>
+                </tr>
+            <?php endif; ?>
+            <?php if ($cobranza->liquidacion->monto != 0): ?>
+                <tr>
+                    <td><?= date('d/m/Y', strtotime($cobranza->liquidacion->fecha)) ?></td>
+                    <td></td>
+                    <td><?= $cobranza->liquidacion->tipo_pago_nombre ?></td>
+                    <td></td>
+                    <td><?= MONEDA . ' ' . number_format($cobranza->liquidacion->monto, 2) ?></td>
+                    <?php $actual_desglose -= $cobranza->liquidacion->monto; ?>
+                    <td><?= MONEDA . ' ' . number_format($actual_desglose, 2) ?></td>
+                    <td></td>
+                </tr>
+            <?php endif; ?>
 
             <? foreach ($cobranza->detalles as $detalle): ?>
-                <tr class="tabla_detalles">
-                    <td><?= $detalle->tipo_pago_nombre ?></td>
+                <tr>
                     <td><?= date('d/m/Y', strtotime($detalle->fecha)) ?></td>
                     <td></td>
+                    <td><?= $detalle->tipo_pago_nombre ?></td>
+                    <td></td>
                     <td><?= MONEDA . ' ' . number_format($detalle->monto, 2) ?></td>
-                    <?php $actual_desglose += $detalle->monto; ?>
-                    <td><?= MONEDA . ' ' . number_format($cobranza->total_deuda - $actual_desglose, 2) ?></td>
+                    <?php $actual_desglose -= $detalle->monto; ?>
+                    <td><?= MONEDA . ' ' . number_format($actual_desglose, 2) ?></td>
+                    <td></td>
                 </tr>
             <?php endforeach; ?>
         <?php endforeach; ?>

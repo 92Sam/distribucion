@@ -50,7 +50,7 @@ class reporte extends MY_Controller
                 $data['cobranzas'] = $this->rcobranza_model->get_cobranzas(array(
                     'fecha_ini' => date('Y-m-d'),
                     'fecha_fin' => date('Y-m-d'),
-                    'fecha_flag' => 1
+                    'fecha_flag' => 0
                 ));
 
                 $data['mostrar_detalles'] = 0;
@@ -84,9 +84,12 @@ class reporte extends MY_Controller
                     'fecha_ini' => date('Y-m-d', strtotime($this->input->post('fecha_ini'))),
                     'fecha_fin' => date('Y-m-d', strtotime($this->input->post('fecha_fin'))),
                     'fecha_flag' => $this->input->post('fecha_flag'),
+                    'vendedor_id' => $this->input->post('vendedor_id'),
+                    'cliente_id' => $this->input->post('cliente_id'),
+                    'zonas_id' => json_decode($this->input->post('zonas_id')),
+                    'estado' => $this->input->post('estado')
                 ));
 
-                $data['mostrar_detalles'] = $this->input->post('mostrar_detalles');
 
                 echo $this->load->view('menu/reports/cliente_estado/tabla', $data, true);
                 break;
@@ -105,10 +108,9 @@ class reporte extends MY_Controller
                 $data['clientes'] = $this->rcliente_estado_model->get_estado_cuenta(array(
                     'fecha_ini' => date('Y-m-d'),
                     'fecha_fin' => date('Y-m-d'),
-                    'fecha_flag' => 1
+                    'fecha_flag' => 0
                 ));
 
-                $data['mostrar_detalles'] = 0;
 
                 $data['reporte_filtro'] = $this->load->view('menu/reports/cliente_estado/filtros', array(
                     'vendedores' => $this->usuario_model->select_all_by_roll('Vendedor'),
