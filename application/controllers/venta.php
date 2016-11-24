@@ -6,6 +6,7 @@ class venta extends MY_Controller
     function __construct()
     {
         parent::__construct();
+        $this->load->model('historial/historial_pedido_model');
         $this->load->model('venta/venta_model');
         $this->load->model('local/local_model');
         $this->load->model('cliente/cliente_model');
@@ -194,6 +195,12 @@ class venta extends MY_Controller
                     if (empty($id)) {
                         $resultado = $this->venta_model->insertar_venta($venta, $detalle, $montoboletas);
                         $id = $resultado;
+                        if ($resultado != false) {
+                            $this->historial_pedido_model->insertar_pedido(PROCESO_GENERAR, array(
+                                'pedido_id' => $resultado,
+                                'responsable_id' => $this->session->userdata('nUsuCodigo')
+                            ));
+                        }
                     } else {
                         if ($this->input->post('accion_resetear')) {
                             $venta['accion'] = $this->input->post('accion_resetear');
@@ -218,6 +225,7 @@ class venta extends MY_Controller
                 } else {
                     $dataresult['msj'] = "no guardo";
                 }
+
                 echo json_encode($dataresult);
             endif;
         } else {
@@ -438,7 +446,7 @@ class venta extends MY_Controller
             $condicion['local_id'] = $this->input->post('id_local');
             $data['local'] = $this->input->post('id_local');
         }
-        if ($this->input->post('desde') != ""   ) {
+        if ($this->input->post('desde') != "") {
             $condicion['fecha >= '] = date('Y-m-d', strtotime($this->input->post('desde'))) . " " . date('H:i:s', strtotime('0:0:0'));
             $data['fecha_desde'] = date('Y-m-d', strtotime($this->input->post('desde'))) . " " . date('H:i:s', strtotime('0:0:0'));
         }
@@ -685,7 +693,7 @@ class venta extends MY_Controller
     }
 
 
-    function pdfReporteZona($zona, $desde='', $hasta='')
+    function pdfReporteZona($zona, $desde = '', $hasta = '')
     {
 
 
@@ -702,7 +710,7 @@ class venta extends MY_Controller
 
         if ($zona != "TODAS") {
 
-            $condicion['zona_id'] =$zona;
+            $condicion['zona_id'] = $zona;
             $data['zona'] = $this->input->post('id_zona');
 
 
@@ -1010,6 +1018,162 @@ class venta extends MY_Controller
 
     }
 
+    function pdfResumenLiquidacion($_id_vend, $_vendedor, $_id_liquidacion, $_fecha, $_montototal)
+    {
+        $id_vendedor = $_id_vend;
+        $vendedor = $_vendedor;
+        $id_liquidacion = $_id_liquidacion;
+        $fecha = $_fecha;
+        $montototal = $_montototal;
+
+        //Tabla
+        //////////////////////
+        $nombre_or = false;
+        $where_or = false;
+        $nombre_in = false;
+        $where_in = false;
+
+        $where = array(
+            'historial_usuario' => $id_vendedor,
+            'liquidacion_id' => $id_liquidacion,
+            'historial_estatus' => "CONFIRMADO"
+        );
+
+        $select = 'documento_Serie, documento_Numero, cliente.razon_social, historial_monto, metodos_pago.*';
+        $from = "historial_pagos_clientes";
+        $join = array('venta', 'cliente', 'documento_venta', 'metodos_pago', 'liquidacion_cobranza_detalle');
+        $campos_join = array('historial_pagos_clientes.credito_id=venta.venta_id', 'cliente.id_cliente=venta.id_cliente',
+            'documento_venta.id_tipo_documento=venta.numero_documento', 'metodos_pago.id_metodo=historial_pagos_clientes.historial_tipopago',
+            'liquidacion_cobranza_detalle.pago_id=historial_pagos_clientes.historial_id');
+
+        $resultado = $this->venta_model->traer_by($select, $from, $join, $campos_join, false,
+            $where, $nombre_in, $where_in, $nombre_or, $where_or, false, false, "RESULT_ARRAY");
+
+        //PDF
+        //////////////////
+        $pdf = new Pdf('P', 'mm', 'A4', true, 'UTF-8', false);
+        $pdf->setPageOrientation('P');
+        $pdf->SetTitle('Hoja de Liquidacion');
+        $pdf->SetPrintHeader(false);
+        $pdf->setFooterData($tc = array(0, 64, 0), $lc = array(0, 64, 128));
+        $pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
+        $pdf->SetMargins(PDF_MARGIN_LEFT, 0, PDF_MARGIN_RIGHT);
+        $pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
+        $pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
+        $pdf->setFontSubsetting(true);
+        $pdf->SetFont('helvetica', '', 14, '', true);
+        $pdf->SetFontSize(8);
+
+        $pdf->AddPage();
+
+        $html = '';
+        $html .= "<style type=text/css>";
+        $html .= "th{color: #000; font-weight: bold; background-color: #CED6DB; }";
+        $html .= "td{color: #222; font-weight: bold; background-color: #fff;}";
+        $html .= "table{border:0.2px}";
+        $html .= "body{font-size:15px}";
+        $html .= "</style>";
+        $count = 0;
+
+        $html .= "<br><br><b><u>HOJA DE LIQUIDACION</u></b><br><br>";
+        if (isset($zona_nombre)) {
+            $html .= "<br><b>" . $zona_nombre['zona_nombre'] . ":</b> " . "<br>";
+        } else {
+
+            $html .= "<br><b>Liquidacion:</b> " . "<br>";
+        }
+
+        $html .= "<table><tr><th>No.</th><th>N&uacute;mero Documento</th><th>Cliente</th><th>Vendedor</th>";
+        $html .= "<th>M&eacute;todo</th><th>Fecha</th><th>Monto</th></tr>";
+
+        foreach ($resultado as $row) {
+            $documento = $row['documento_Serie'] . "-" . $row['documento_Numero'];
+            $cliente = $row['razon_social'];
+            $metodo = $row['tipo_metodo'];
+            $monto = $row['historial_monto'];
+            $count++;
+
+            $html .=   "<tr>
+                            <td>" . $count . "</td>
+                            <td>" . $documento . "</td>
+                            <td>" . $cliente . "</td>
+                            <td>" . urldecode($vendedor) . "</td>
+                            <td>" . $metodo . "</td>
+                            <td>" . urldecode($fecha) . "</td>
+                            <td>" . $monto . "</td>
+                        </tr>";
+        }
+        $html .= "<tr><td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>TOTAL: " . $montototal . "</td></tr>";
+
+        $html .= "<tr><td>CHEQUE:</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td></tr>";
+
+        $html .= "<tr><td>DEPOSITO BBVA:</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td></tr>";
+
+        $html .= "<tr><td>DEPOSITO BCP:</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td></tr>";
+
+        $html .= "<tr><td>DEPOSITO V&M:</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td></tr>";
+
+        $html .= "<tr><td>BILLETE:</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td></tr>";
+
+        $html .= "<tr><td>MONEDA:</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td></tr>";
+
+        $html .= "<tr><td>TOTAL:</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td></tr>";
+
+        $html .= "</table>";
+
+        $pdf->writeHTML($html, true, 0, true, 0);
+        $pdf->lastPage();
+        $pdf->output('HojaLiquidacion.pdf', 'D');
+    }
+
     function excel($local, $fecha_desde, $fecha_hasta, $estatus, $totalventas)
     {
 
@@ -1241,7 +1405,7 @@ class venta extends MY_Controller
     }
 
 
-    function excelReporteZona($zona, $desde='', $hasta='')
+    function excelReporteZona($zona, $desde = '', $hasta = '')
     {
 
         $condicion = array();
@@ -3201,7 +3365,7 @@ class venta extends MY_Controller
 
             $where['historial_fecha >='] = date('Y-m-d H:i:s', strtotime($this->input->post('fecha_ini') . " 00:00:00"));
             $where['historial_fecha <='] = date('Y-m-d H:i:s', strtotime($this->input->post('fecha_fin') . " 23:59:59"));
-            
+
             ////////////////////////
             $nombre_or = false;
             $where_or = false;
@@ -3351,12 +3515,14 @@ class venta extends MY_Controller
             $where_in = false;
             ///////////////////////
             $select = 'usuario.nUsuCodigo, usuario.nombre, credito.dec_credito_montodeuda, historial_pagos_clientes.*,
-                 metodos_pago.*, documento_venta.documento_Serie, documento_Numero, venta.venta_id';
+                 metodos_pago.*, documento_venta.documento_Serie, documento_Numero, venta.venta_id,
+                 cliente.razon_social';
             $from = "historial_pagos_clientes";
-            $join = array('usuario', 'metodos_pago', 'venta', 'documento_venta', 'credito');
+            $join = array('usuario', 'metodos_pago', 'venta', 'cliente', 'documento_venta', 'credito');
             $campos_join = array('usuario.nUsuCodigo=historial_pagos_clientes.historial_usuario',
                 'metodos_pago.id_metodo=historial_pagos_clientes.historial_tipopago',
                 'venta.venta_id=historial_pagos_clientes.credito_id',
+                'venta.id_cliente=cliente.id_cliente',
                 'venta.numero_documento=documento_venta.id_tipo_documento',
                 'credito.id_venta=historial_pagos_clientes.credito_id');
             $tipo_join = false;
@@ -3375,20 +3541,22 @@ class venta extends MY_Controller
 
     function guardar_liquidar()
     {
-
         $id = $this->input->post('historial');
         $vendedor = $this->input->post('vendedor');
+        $result['id_vend'] = $vendedor;
 
         $liquidacion = array(
             'liquidacion_cajero' => $this->session->userdata('nUsuCodigo'),
             'liquidacion_fecha' => date('Y-m-d H:i:s'),
             'liquidacion_vendedor' => $vendedor,
         );
+
         $id_liquidacion = $this->liquidacion_cobranza_model->guardar_liquidacion($liquidacion);
+        $result['liquidacion'] = $id_liquidacion;
         $data['resultado'] = $this->historial_pagos_clientes_model->update_historial($id, $id_liquidacion);
 
-
-        ///////////////////////////////////////////////
+        //Tabla
+        //////////////////////
         $nombre_or = false;
         $where_or = false;
         $nombre_in = false;
@@ -3417,8 +3585,8 @@ class venta extends MY_Controller
         $result['resultado'] = $this->venta_model->traer_by($select, $from, $join, $campos_join, $tipo_join,
             $where, $nombre_in, $where_in, $nombre_or, $where_or, $group_by, $order, "RESULT_ARRAY");
 
-        // var_dump($result);
-        ///////////////////////////
+        //Cajero
+        ///////////////////
         $select = 'nombre';
         $from = "usuario";
         $where = array(
@@ -3427,7 +3595,8 @@ class venta extends MY_Controller
         $result['cajero'] = $this->usuario_model->traer_by($select, $from, false, false, false,
             $where, false, false, false, false, false, false, "ROW_ARRAY");
 
-
+        //Vendedor
+        ///////////////////
         $select = 'nombre';
         $from = "usuario";
         $where = array(
@@ -3435,9 +3604,8 @@ class venta extends MY_Controller
         );
         $result['vendedor'] = $this->usuario_model->traer_by($select, $from, false, false, false,
             $where, false, false, false, false, false, false, "ROW_ARRAY");
+
         $this->load->view('menu/ventas/visualizarLiquidacion', $result);
-
-
     }
 
     function editar_historialcobranza()

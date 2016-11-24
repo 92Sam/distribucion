@@ -141,7 +141,9 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
 
             })
         },
+
         guardar: function () {
+
             if ($("#id_estado").val() == '') {
                 var growlType = 'warning';
 
@@ -184,6 +186,26 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
 
                 return false;
             }
+
+            var tot = $('input[name="zonadias[]"]:checked').length;
+            if (tot < 1) {
+                var growlType = 'warning';
+
+                $.bootstrapGrowl('<h4>Debe seleccionar al menos un d&iacute;a</h4>', {
+                    type: growlType,
+                    delay: 2500,
+                    allow_dismiss: true
+                });
+
+                $(this).prop('disabled', true);
+
+                return false;
+
+            }
+
+            /*var value = $('input[name="zonadias[]"]:checked').val();
+            alert(value);
+*/
             App.formSubmitAjax($("#formagregar").attr('action'), this.ajaxgrupo, 'agregar', 'formagregar');
         }
 

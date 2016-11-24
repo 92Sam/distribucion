@@ -129,3 +129,9 @@ define('PEDIDO_DEVUELTO', 'DEVUELTO PARCIALMENTE');
 define('INGRESO_DEVUELTO', 'DEVUELTO');
 
 define('URL_CURL_GCM', 'http://teayudo.pe/distribucion/api/gcm_push/enviar');
+
+define('PROCESO_GENERAR', 1);
+define('PROCESO_MODIFICAR', 5);
+define('PROCESO_ASIGNAR', 2);
+define('PROCESO_IMPRIMIR', 3);
+define('PROCESO_LIQUIDAR', 4);

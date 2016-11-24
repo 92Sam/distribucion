@@ -114,6 +114,13 @@
             url: '<?php echo base_url();?>' + 'venta/lst_liquidaciones',
             success: function (data) {
                 $("#lstTabla").html(data);
+                if($("#vendedor").val() == -1){
+                    $("#btn_liquidar").attr('disabled', 'disabled');
+                    $("#btn_anular").attr('disabled', 'disabled');
+                } else {
+                    $("#btn_liquidar").removeAttr('disabled');
+                    $("#btn_anular").removeAttr('disabled');
+                }
             },
             error: function(){
                 $("#lstTabla").html('');
@@ -147,6 +154,7 @@
 
         $('#visualizarliquidacion').modal('hide');
         $('#liquidar').modal('hide');
+        $(".modal-backdrop").remove();
         buscar();
     }
 
@@ -181,7 +189,7 @@
 
         $.ajax({	//create an ajax request to load_page.php
             type: "POST",
-            url: '<?php echo base_url()?>inicio/very_sesion',
+            url: '<?php echo base_url();?>' + 'inicio/very_sesion',
             dataType: "json",	//expect html to be returned
             success: function (sesion) {
 
@@ -199,27 +207,18 @@
                         success: function (data) {
                             $('#barloadermodal').modal('hide');
                             if (data.exito) {
-
                                 $('#anular').modal('hide');
-                                buscar();
                                 var growlType = 'success';
-
                                 $.bootstrapGrowl('<h4>Los pagos se han anulado con exito</h4>', {
                                     type: growlType,
                                     delay: 2500,
                                     allow_dismiss: true
                                 });
-
-                                $(this).prop('disabled', true);
-
-                                return false;
+                                buscar();
                             }
 
-
                             if (data.error) {
-
                                 var growlType = 'warning';
-
                                 $.bootstrapGrowl('<h4>Ha ocurrido un error</h4>', {
                                     type: growlType,
                                     delay: 2500,
@@ -227,8 +226,6 @@
                                 });
 
                                 $(this).prop('disabled', true);
-
-                                return false;
                             }
 
                         },
@@ -243,8 +240,9 @@
                             });
 
                             $(this).prop('disabled', true);
-
-                            return false;
+                        },
+                        complete: function () {
+                            $(".modal-backdrop").remove();
                         }
                     });
                 }
@@ -308,7 +306,6 @@
                         allow_dismiss: true
                     });
                     buscar();
-                    return false;
                 }
 
             },
@@ -320,10 +317,38 @@
                     allow_dismiss: true
                 });
                 $(this).prop('disabled', true);
-                return false;
+            },
+            complete: function () {
+                $(".modal-backdrop").remove();
             }
         });
 
+    }
+
+    function liquidar() {
+        var total = $('input[name="historial[]"]:checked').length;
+
+        if (total < 1) {
+            var growlType = 'warning';
+
+            $.bootstrapGrowl('<h4>Debe seleccionar al menos una opci&oacute;n</h4>', {
+                type: growlType,
+                delay: 2500,
+                allow_dismiss: true
+            });
+
+            $(this).prop('disabled', true);
+
+            return false;
+
+        }
+
+        $("#borrar_cantidad").remove();
+
+
+        $("#mostrar_cantidad").append('<p id="borrar_cantidad">' + total + ' Pagos</p>')
+        $('#liquidar').modal('show');
+        //$("#id").attr('value', id);
     }
 
     function guardar() {
@@ -331,13 +356,14 @@
             show: true,
             backdrop: 'static'
         });
+        /*console.log($('#form').serialize() + '&vendedor=' + $("#vendedor").val());
+        return false;*/
 
         $.ajax({	//create an ajax request to load_page.php
             type: "POST",
-            url: '<?php echo base_url()?>inicio/very_sesion',
+            url: '<?php echo base_url();?>' + 'inicio/very_sesion',
             dataType: "json",	//expect html to be returned
             success: function (sesion) {
-
                 if (sesion == "false")	//if no errors
                 {
                     $('#barloadermodal').modal('hide');
@@ -347,13 +373,11 @@
                     $.ajax({
                         type: 'POST',
                         data: $('#form').serialize() + '&vendedor=' + $("#vendedor").val(),
-                        // dataType: "json",
                         url: '<?php echo base_url();?>' + 'venta/guardar_liquidar',
                         success: function (data) {
                             $('#barloadermodal').modal('hide');
                             $("#visualizarliquidacion").html(data);
                             $('#visualizarliquidacion').modal('show');
-
 
                         },
                         error: function () {

@@ -4,6 +4,7 @@
         border: 1px solid #dae8e7;
         width: 300px;
         padding: 0 20px;
+        overflow-y: auto;
     }
 
     .tcharm-header {
@@ -38,7 +39,7 @@
 
             <div class="row">
                 <div class="col-md-4" style="text-align: center;">
-                    <button type="button" class="btn btn-default btn_filter_save">
+                    <button type="button" class="btn btn-default btn_buscar">
                         <i class="fa fa-search"></i>
                     </button>
                 </div>
@@ -67,13 +68,14 @@
 
             <div class="row">
                 <label class="control-label" style="cursor: pointer;">
-                    <input id="zonas_all" type="checkbox"> Zonas del Vendedor:
+                    <input id="zonas_all" type="checkbox" checked> Zonas del Vendedor:
                 </label><br>
                 <div id="zonas_content"
                      style="width: 100%; height: 100px; border: 1px solid #dae8e7; overflow-y: scroll;">
                     <?php foreach ($zonas as $zona): ?>
                         <label style="cursor: pointer;">
-                            <input type="checkbox" value="<?= $zona['zona_id'] ?>"> <?= $zona['zona_nombre'] ?>
+                            <input class="zona_check" type="checkbox" checked
+                                   value="<?= $zona['zona_id'] ?>"> <?= $zona['zona_nombre'] ?>
                         </label><br>
                     <?php endforeach; ?>
                 </div>
@@ -91,10 +93,10 @@
 
             <div class="row">
                 <label class="control-label">Dias de Atraso:</label>
-                <select class="form-control">
+                <select id="atraso" class="form-control">
                     <option value="0">Todos</option>
                     <option value="1">Menor que 7 Dias</option>
-                    <option value="2">Entre 8 y 5 Dias</option>
+                    <option value="2">Entre 8 y 15 Dias</option>
                     <option value="3">Entre 16 y 30 Dias</option>
                     <option value="4">Mayor que 30 Dias</option>
                 </select>
@@ -104,13 +106,13 @@
                 <label class="control-label">Deudas:</label>
                 <br>
                 <div class="col-md-6">
-                    <select class="form-control">
+                    <select id="dif_deuda" class="form-control">
                         <option value="1">Mayor</option>
                         <option value="2">Menor</option>
                     </select>
                 </div>
                 <div class="col-md-6">
-                    <input type="number" class="form-control" value="0">
+                    <input id="dif_deuda_value" type="number" class="form-control" value="0">
                 </div>
 
             </div>
@@ -118,29 +120,39 @@
     </div>
 
     <div class="row">
+        <div class="col-md-2">
+            <label class="control-label" style="padding-top: 8px;">Fecha de Venta:</label>
+        </div>
+        <div class="col-md-2">
+            <input id="fecha_ini" type="text" class="form-control input-datepicker" value="<?= date('d-m-Y') ?>"
+                   style="cursor: pointer;" readonly>
+        </div>
+
+
+        <div class="col-md-2">
+            <input id="fecha_fin" type="text" class="form-control input-datepicker" value="<?= date('d-m-Y') ?>"
+                   style="cursor: pointer;" readonly>
+        </div>
+
         <div class="col-md-3">
-            <label class="control-label">Tipo de Fecha:</label>
-            <select class="form-control">
-                <option value="0">Venta</option>
-                <option value="0">Documento</option>
-            </select>
+            <input type="checkbox" id="incluir_fecha" checked>
+            <label for="incluir_fecha"
+                   class="control-label"
+                   style="cursor: pointer;">
+                Incluir Filtro de Fecha
+            </label>
+<br>
+            <input type="checkbox" id="mostrar_detalles">
+            <label for="mostrar_detalles"
+                   class="control-label"
+                   style="cursor: pointer;">
+                Mostrar Detalles
+            </label>
         </div>
-
-        <div class="col-md-2">
-            <label class="control-label">Desde:</label>
-            <input type="text" class="form-control" value="<?= date('d/m/Y') ?>" style="cursor: pointer;" readonly>
-        </div>
-
-        <div class="col-md-2">
-            <label class="control-label">Hasta:</label>
-            <input type="text" class="form-control" value="<?= date('d/m/Y') ?>" style="cursor: pointer;" readonly>
-        </div>
-
-        <div class="col-md-3"></div>
 
         <div class="col-md-1">
             <br>
-            <button type="button" class="btn btn-default form-control">
+            <button type="button" class="btn btn-default form-control btn_buscar">
                 <i class="fa fa-search"></i>
             </button>
         </div>
@@ -197,10 +209,40 @@
 
 
     $(document).ready(function () {
+
+        $("#vendedor_id, #cliente_id").chosen();
+
         $("#charm").tcharm({
             'position': 'right',
             'display': false,
             'top': '50px'
+        });
+
+        add_checkbox_events();
+
+        $('.btn_buscar').on('click', function () {
+            filter_cobranzas();
+        });
+
+        $("#incluir_fecha").on('change', function () {
+            filter_cobranzas();
+        });
+
+        $("#mostrar_detalles").on('change', function(){
+            if($(this).prop('checked'))
+                $('.tabla_detalles').show();
+            else
+                $('.tabla_detalles').hide();
+        });
+
+        $("#btn_filter_reset").on('click', function(){
+            $('#vendedor_id').val('0').trigger('chosen:updated');
+            $('#vendedor_id').change();
+            $('#atraso').val('0');
+            $('#dif_deuda').val('1');
+            $('#dif_deuda_value').val('0');
+            filter_cobranzas();
+            //$("#cliente_id").val('0').trigger('chosen:updated');
         });
 
         $("#vendedor_id").on('change', function () {
@@ -236,13 +278,98 @@
                     cliente_id.append(add_cliente_template(clientes[i]));
                 }
             }
+            $("#zonas_all").prop('checked', 'checked');
+            add_checkbox_events();
+
+            $("#cliente_id").val('0').trigger('chosen:updated');
         });
     });
 
+    function filter_cobranzas() {
+        $("#charm").tcharm('hide');
+        var data = {
+            'fecha_ini': $("#fecha_ini").val(),
+            'fecha_fin': $("#fecha_fin").val(),
+            'vendedor_id': $("#vendedor_id").val(),
+            'cliente_id': $("#cliente_id").val(),
+            'atraso': $("#atraso").val(),
+            'dif_deuda': $("#dif_deuda").val(),
+            'dif_deuda_value': $("#dif_deuda_value").val()
+        };
+
+        if ($("#incluir_fecha").prop('checked'))
+            data.fecha_flag = 1;
+        else
+            data.fecha_flag = 0;
+
+        if($(this).prop('checked'))
+            data.mostrar_detalles = 1;
+        else
+            data.mostrar_detalles = 0;
+
+        data.zonas_id = [];
+        $('.zona_check').each(function () {
+            if ($(this).prop('checked')) {
+                data.zonas_id.push($(this).val());
+            }
+        });
+
+        data.zonas_id = JSON.stringify(data.zonas_id);
+
+        $.ajax({
+            url: '<?php echo base_url('reporte/cobranzas/filter')?>',
+            data: data,
+            type: 'post',
+            success: function (data) {
+                $("#reporte_tabla").html(data);
+            }
+        });
+    }
+
+    function add_checkbox_events() {
+        $("#zonas_all").on('change', function () {
+            if ($("#zonas_all").prop('checked') == true) {
+                $('.zona_check').prop('checked', 'checked');
+            }
+            else {
+                $('.zona_check').removeAttr('checked');
+            }
+            $('.zona_check').trigger('change');
+        });
+
+
+        $('.zona_check').on('change', function () {
+            $('#cliente_id').html('<option value="0">Todos</option>');
+            var n = 0;
+            $('.zona_check').each(function () {
+                if ($(this).prop('checked')) {
+                    n++;
+                    select_cliente_by_zona($(this).val());
+                }
+            });
+
+            $("#cliente_id").val('0').trigger('chosen:updated');
+
+
+            if (n == $('.zona_check').length)
+                $('#zonas_all').prop('checked', 'checked');
+            else
+                $('#zonas_all').removeAttr('checked');
+        });
+    }
+
+    function select_cliente_by_zona(zona_id) {
+
+        for (var i = 0; i < clientes.length; i++) {
+            if (clientes[i].zona_id == zona_id && (clientes[i].vendedor_id == $("#vendedor_id").val() || $("#vendedor_id").val() == 0)) {
+                $('#cliente_id').append(add_cliente_template(clientes[i]));
+            }
+        }
+    }
 
     function add_zona_template(zona) {
         var template = '<label style="cursor: pointer;">';
-        template += '<input type="checkbox" value="' + zona.id + '">' + zona.nombre;
+        template += '<input class="zona_check" type="checkbox" value="' + zona.id + '" checked> ' + zona.nombre;
         template += '</label><br>';
         return template;
     }

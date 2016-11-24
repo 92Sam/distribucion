@@ -389,6 +389,14 @@ class consolidadodecargas extends MY_Controller
         }
         $estatus = 'CERRADO';
         $cerrar = $this->consolidado_model->cambiarEstatus($id, $estatus);
+
+        $c_detalles = $this->db->get_where('consolidado_detalle', array('consolidado_id' => $id))->result();
+        foreach ($c_detalles as $detalle){
+            $this->historial_pedido_model->insertar_pedido(PROCESO_LIQUIDAR, array(
+                'pedido_id' => $detalle->pedido_id,
+                'responsable_id' => $this->session->userdata('nUsuCodigo')
+            ));
+        }
         if ($cerrar != FALSE) {
             $json['success'] = 'Solicitud Procesada con exito';
         } else {
@@ -610,12 +618,8 @@ class consolidadodecargas extends MY_Controller
                     'consolidado_id' => $id,
                     'status' => 'IMPRESO'
                 );
-                $statusVenta = array(
-                    'venta_id' => $id,
-                    'venta_status' => 'ENVIADO'
-                );
+
                 $this->consolidado_model->updateStatus($status);
-                $this->consolidado_model->updateStatusVenta($statusVenta);
             }
         }
 
@@ -957,8 +961,8 @@ class consolidadodecargas extends MY_Controller
 
 
             $cantidad = floatval($cantidadvieja) - floatval($cantidadnueva);
-            if($campoProducto['venta_status']==PEDIDO_RECHAZADO  ){
-                $cantidad=$cantidadvieja;
+            if ($campoProducto['venta_status'] == PEDIDO_RECHAZADO) {
+                $cantidad = $cantidadvieja;
             }
 
             if ($cantidad > 0 || $campoProducto['venta_status'] == PEDIDO_RECHAZADO) {

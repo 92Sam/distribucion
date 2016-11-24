@@ -289,7 +289,7 @@
                             </div>
 
                             <?php if (isset($venta[0])) { ?>
-                               <div class="row" id="pagadodiv">
+                                <div class="row" id="pagadodiv">
                                     <div class="form-group">
                                         <div class="col-md-3">
                                             <label for="importe" class="control-label">A cuenta:</label>
@@ -324,7 +324,7 @@
                                                                                                        value="0.0"
                                                                                                        name="importe"
                                                                                                        id="importe"
-<?php if(isset($devolver)) echo 'readonly';?>
+                                                <?php if(isset($devolver)) echo 'readonly';?>
                                                                                                        onkeydown="return soloDecimal(this, event);"
                                                                                                        onkeyup="calcular_importe();">
                                         </div>
@@ -507,6 +507,31 @@
             </div>
         </div>
     </div>
+</div>
+
+<div class="modal fade" id="confirmar_delete" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">Confirmaci&oacute;n</h4>
+            </div>
+
+            <div class="modal-body">
+
+                <h3>Estas seguro que deseas eliminar este producto?</h3>
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" id="eliminar_item" class="btn btn-primary">Confirmar</button>
+                <button type="button" class="btn btn-default" onclick="$('#confirmar_delete').modal('hide');">Cancelar</button>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+
 </div>
 
 

@@ -51,14 +51,16 @@ class zona extends MY_Controller
         $data['paises'] = $this->pais_model->get_all();
         if ($id != FALSE) {
             $data['zona'] = $this->zona_model->buscar_id($id);
+            $data['dias'] = $this->zona_model->get_dias($id);
         }
+
         $this->load->view('menu/zona/form', $data);
     }
 
     function guardar()
     {
-
         $id = $this->input->post('id');
+        $zdias = $this->input->post('zonadias');
 
         $zona = array(
 
@@ -68,11 +70,28 @@ class zona extends MY_Controller
         );
 
         if (empty($id)) {
-            $resultado = $this->zona_model->insertar($zona);
+            $id_result = $this->zona_model->insertar($zona);
+
+            if (empty($id_result)) {
+                $resultado = FALSE;
+
+            } else {
+                $resultado = TRUE;
+                $count = count($zdias);
+                for ($i = 0; $i < $count; $i++) {
+                    $this->zona_model->insertar_zona_dias($id_result, $zdias[$i]);
+                }
+            }
 
         } else {
             $zona['zona_id'] = $id;
             $resultado = $this->zona_model->update($zona);
+
+            $this->zona_model->delete_zona_dias($id);
+            $count = count($zdias);
+            for ($i = 0; $i < $count; $i++) {
+                $this->zona_model->insertar_zona_dias($id, $zdias[$i]);
+            }
         }
 
         if ($resultado == TRUE) {
@@ -97,12 +116,12 @@ class zona extends MY_Controller
         );
 
         $data['resultado'] = $this->zona_model->update($zona);
-
+        $this->zona_model->delete_zona_dias($id);
+        $this->zona_model->delete_usuario_has_zona($id);
 
         if ($data['resultado'] != FALSE) {
 
             $json['success'] = 'Se ha Eliminado exitosamente';
-
 
         } else {
 
