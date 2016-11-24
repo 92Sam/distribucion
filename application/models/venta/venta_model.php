@@ -3101,7 +3101,7 @@ where v.venta_id=" . $id_venta . " group by tr.id_detalle order by 1 ";
 				" . $ventaCol . "
 				c.razon_social as cliente, 
 				c.id_cliente as cliente_id, 
-				c.direccion as direccion_cliente,
+				cli_dat.valor as direccion_cliente,
 				c.identificacion as documento_cliente, 
 				cp.id_condiciones, 
 				cp.nombre_condiciones,
@@ -3118,6 +3118,7 @@ where v.venta_id=" . $id_venta . " group by tr.id_detalle order by 1 ";
 				inner join condiciones_pago cp on cp.id_condiciones = v.condicion_pago
 				left join credito cre on cre.id_venta = v.venta_id
 				left join camiones cami on cami.id_trabajadores = p.nUsuCodigo
+                left join (SELECT c.cliente_id, c.tipo, c.valor, c.principal, COUNT(*) FROM cliente_datos c WHERE c.tipo =1 GROUP BY c.cliente_id, c.tipo  ) cli_dat on cli_dat.cliente_id = c.id_cliente
 
 			where
 				v.venta_id = " . $id_venta . " order by 1");
