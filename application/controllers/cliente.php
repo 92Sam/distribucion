@@ -154,25 +154,7 @@ class cliente extends MY_Controller
     function pdf()
     {
 
-
-        $nombre_or = false;
-        $where_or = false;
-        $nombre_in = false;
-        $where_in = false;
-
-        $where = false;
-
-        $select = '*';
-        $from = "cliente";
-        $join = array('(SELECT c.cliente_id, c.tipo, c.valor as direccion, c.principal, COUNT(*) FROM cliente_datos c WHERE c.tipo =1 GROUP BY c.cliente_id, c.tipo ) cli_dat', '(SELECT c1.cliente_id, c1.tipo, c1.valor as telefono1, c1.principal, COUNT(*) FROM cliente_datos c1 WHERE c1.tipo =2 GROUP BY c1.cliente_id, c1.tipo  ) cli_dat2');
-        $campos_join = array('cli_dat.cliente_id = cliente.id_cliente', 'cli_dat2.cliente_id = cliente.id_cliente');
-
-        $tipo_join = array( null, 'left');
-
-        $group_by = false;
-        $order = false;
-        $clientes = $this->cliente_model->traer_by($select, $from, $join, $campos_join, $tipo_join, $where,
-            $nombre_in, $where_in, $nombre_or, $where_or, false, $order, "RESULT_ARRAY", false, false,false,false,false);
+        $clientes = $this->cliente_model->get_all();
         //var_dump($miembro);
         $pdf = new Pdf('P', 'mm', 'A4', true, 'UTF-8', false);
         $pdf->setPageOrientation('L');
@@ -287,25 +269,8 @@ $html .= "<td>" .$familia['zona_nombre']. "</td>";
 
 
 
+        $clientes = $this->cliente_model->get_all();
 
-        $nombre_or = false;
-        $where_or = false;
-        $nombre_in = false;
-        $where_in = false;
-
-        $where = false;
-
-        $select = '*';
-        $from = "cliente";
-        $join = array('(SELECT c.cliente_id, c.tipo, c.valor as direccion, c.principal, COUNT(*) FROM cliente_datos c WHERE c.tipo =1 GROUP BY c.cliente_id, c.tipo ) cli_dat', '(SELECT c1.cliente_id, c1.tipo, c1.valor as telefono1, c1.principal, COUNT(*) FROM cliente_datos c1 WHERE c1.tipo =2 GROUP BY c1.cliente_id, c1.tipo  ) cli_dat2');
-        $campos_join = array('cli_dat.cliente_id = cliente.id_cliente', 'cli_dat2.cliente_id = cliente.id_cliente');
-
-        $tipo_join = array( null, 'left');
-
-        $group_by = false;
-        $order = false;
-        $clientes = $this->cliente_model->traer_by($select, $from, $join, $campos_join, $tipo_join, $where,
-            $nombre_in, $where_in, $nombre_or, $where_or, false, $order, "RESULT_ARRAY", false, false,false,false,false);
 
         $columna_pdf[0] = "ID";
         $columna_pdf[1] = "Razón social";
