@@ -144,12 +144,11 @@ class consolidado_model extends CI_Model
     function get_details_by($where)
     {
 
-
-        $this->db->select('venta.*,consolidado_detalle.pedido_id,consolidado_detalle.detalle_id, consolidado_detalle.consolidado_id,
+       $this->db->select('venta.*,consolidado_detalle.pedido_id,consolidado_detalle.detalle_id, consolidado_detalle.consolidado_id,
          consolidado_detalle.confirmacion_caja_id, consolidado_detalle.confirmacion_banco_id, consolidado_detalle.liquidacion_monto_cobrado,
          consolidado_detalle.confirmacion_monto_cobrado_bancos,consolidado_detalle.confirmacion_monto_cobrado_caja, cliente.*,documento_venta.*,banco.*,
          liquidacion_monto_cobrado as montocobradoliquidacion,venta_backup.total as totalbackup
-        ,(select count(id_producto) from detalle_venta where id_venta = venta.venta_id ) as cantidad_prductos');
+        ,(select SUM(cantidad) from detalle_venta where id_venta = venta.venta_id ) as bulto');
         $this->db->from('consolidado_detalle');
         $this->db->join('venta', 'venta.venta_id=consolidado_detalle.pedido_id', 'left');
         $this->db->join('venta_backup', 'venta_backup.venta_id=venta.venta_id', 'left');
@@ -160,6 +159,7 @@ class consolidado_model extends CI_Model
         $this->db->where($where);
         $query = $this->db->get();
         return $query->result_array();
+
     }
 
     function get_detalle_by($where)

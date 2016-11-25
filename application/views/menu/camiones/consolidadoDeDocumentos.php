@@ -13,12 +13,12 @@
                     <tr>
 
                         <th>ID</th>
-                        <th>Tipo de documento</th>
-                        <th>Serie</th>
-                        <th>Numero</th>
-                        <th>Cantidad productos</th>
+                        <th>Representante</th>
+                        <th>Documento</th>
+                        <th>N° Doc</th>
+                        <th>Cantidad Bultos</th>
                         <th>Total</th>
-                        <th>Status</th>
+                        <th>Estado</th>
                         <th>Acciones</th>
 
                     </tr>
@@ -28,10 +28,10 @@
                         <tr>
 
                             <td><?php echo $detalle['venta_id']; ?></td>
-                            <td><?php echo $detalle['nombre_tipo_documento']; ?></td>
-                            <td><?php echo $detalle['documento_Serie']; ?></td>
+                            <td><?php echo $detalle['representante']; ?></td>
+                            <td>NE</td>
                             <td><?php echo $detalle['documento_Numero']; ?></td>
-                            <td><?php echo $detalle['cantidad_prductos']; ?></td>
+                            <td><?php echo $detalle['bulto']; ?></td>
                             <td><?php echo $detalle['total']; ?></td>
                             <td><?php echo $detalle['venta_status']; ?> </td>
                             <td>

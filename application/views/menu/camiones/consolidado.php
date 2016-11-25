@@ -34,14 +34,14 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                     </select>
                 </div>
       
-                <div class="col-md-1">
+                <div class="col-md-2">
                     <label class="control-label panel-admin-text">Desde:</label>
              
                     <input type="text" name="fecha_ini" id="fecha_ini" value=""
                            required="true" readonly style="cursor: pointer;"
                            class="form-control fecha input-datepicker filter-input">
                 </div>
-                <div class="col-md-1">
+                <div class="col-md-2">
                     <label class="control-label panel-admin-text">Hasta:</label>
              
                     <input type="text" name="fecha_fin" id="fecha_fin" value=""
@@ -49,7 +49,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                            class="form-control fecha input-datepicker filter-input">
                 </div>
 
-                <div class="col-md-2" style="padding:1.5% 1%">
+                <div class="col-md-3" style="padding:1.5% 1%">
                 <input type="checkbox" name="limpiar_fecha" id="limpiar_f">
                     <label for="habilitar_f" class="control-label panel-admin-text">Limpiar Fechas</label>
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -59,7 +59,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                 </div>
 
 
-                <div class="col-md-6 text-right" style="padding:2% 1%">
+                <div class="col-md-3 text-right" style="padding:2% 1%">
                     <label class="control-label badge b-default">ABIERTO</label>
                     <label class="control-label badge btn-other">IMPRESO</label>
                     <label class="control-label badge b-primary">CERRADO</label>
