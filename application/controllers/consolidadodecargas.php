@@ -50,11 +50,10 @@ class consolidadodecargas extends MY_Controller
     function lst_consolidado()
     {
         if ($this->input->is_ajax_request()) {
-            if ($this->input->post('estado') != '-1')
-                $where['estado'] = $this->input->post('estado');
+            $where['estado'] = $this->input->post('estado');
 
-            $where['fecha_ini'] = $this->input->post('fecha_ini');
-            $where['fecha_fin'] = $this->input->post('fecha_fin');
+            $where['fecha_ini'] = !empty($_POST['fecha_ini']) ? $_POST['fecha_ini'] : null;
+            $where['fecha_fin'] = !empty($_POST['fecha_fin']) ? $_POST['fecha_fin'] : null;
 
             $data['consolidado'] = $this->consolidado_model->getData($where);
 

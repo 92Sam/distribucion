@@ -39,13 +39,19 @@ class consolidado_model extends CI_Model
         $this->db->join('usuario', 'usuario.nUsuCodigo=camiones.id_trabajadores', 'left');
         $this->db->join('consolidado_detalle', 'consolidado_detalle.consolidado_id=consolidado_carga.consolidado_id', 'left');
 
-        if (isset($where['estado']))
+        if ($where['estado'] == -1){
+            $this->db->where('status <>', 'CONFIRMADO');
+        }else{
             $this->db->where('status', $where['estado']);
-
-        if (isset($where['fecha_ini']) && isset($where['fecha_fin'])) {
-            $this->db->where('fecha >=', date('Y-m-d H:i:s', strtotime($where['fecha_ini'] . " 00:00:00")));
-            $this->db->where('fecha <=', date('Y-m-d H:i:s', strtotime($where['fecha_fin'] . " 23:59:59")));
         }
+
+          if ($where['fecha_ini'] != null && $where['fecha_fin'] != null) {
+            if (isset($where['fecha_ini']) && isset($where['fecha_fin'])) {
+                $this->db->where('fecha >=', date('Y-m-d H:i:s', strtotime($where['fecha_ini'] . " 00:00:00")));
+                $this->db->where('fecha <=', date('Y-m-d H:i:s', strtotime($where['fecha_fin'] . " 23:59:59")));
+            }
+          }
+
         $this->db->group_by('consolidado_id');
         $query = $this->db->get();
         return $query->result_array();

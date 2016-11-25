@@ -18,22 +18,16 @@
     }
 </style>
 
-    <div class="col-md-12 text-right">
-        <label class="control-label badge b-default">ABIERTO</label>
-        <label class="control-label badge btn-other">IMPRESO</label>
-        <label class="control-label badge b-primary">CERRADO</label>
-    </div>
-
 <table class="table table-striped dataTable table-bordered" id="example">
     <thead>
     <tr>
 
-        <th>N° de Consolidado Guía Carga</th>
-        <th>Fecha</th>
-        <th>Camion</th>
-        <th>Chofer</th>
-        <th>Estado</th>
-        <th>Acciones</th>
+        <th style="text-align: center;">N° de Consolidado Guía Carga</th>
+        <th style="text-align: center;">Fecha</th>
+        <th style="text-align: center;">Camion</th>
+        <th style="text-align: center;">Chofer</th>
+        <th style="text-align: center;">Estado</th>
+        <th style="text-align: center;">Acciones</th>
 
 
     </tr>
@@ -43,7 +37,7 @@
 
         foreach ($consolidado as $campoConsolidado) {
             ?>
-            <tr>
+            <tr style="text-align: center;">
 
                 <td class="center"><?= $campoConsolidado['consolidado_id'] ?></td>
                 <td><span

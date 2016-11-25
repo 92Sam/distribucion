@@ -19,15 +19,11 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
 <div class="span12">
     <div class="block">
         <form id="frmBuscar">
-            <div class="block-title">
-                <h3>CONSOLIDADO DE CARGA</h3>
-            </div>
 
             <div class="row">
                 <div class="col-md-2">
                     <label class="control-label panel-admin-text">Estado:</label>
-                </div>
-                <div class="col-md-3">
+    
 
 
                     <select name="estado" id="estado" class='cho form-control filter-input'>
@@ -37,26 +33,37 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                         <option value="CERRADO">CERRADO</option>
                     </select>
                 </div>
-            </div>
-            <br>
-            <div class="row">
-                <div class="col-md-2">
+      
+                <div class="col-md-1">
                     <label class="control-label panel-admin-text">Desde:</label>
-                </div>
-                <div class="col-md-3">
-                    <input type="text" name="fecha_ini" id="fecha_ini" value="<?= date('d-m-Y') ?>"
+             
+                    <input type="text" name="fecha_ini" id="fecha_ini" value=""
                            required="true" readonly style="cursor: pointer;"
                            class="form-control fecha input-datepicker filter-input">
                 </div>
-                <div class="col-md-1"></div>
-                <div class="col-md-2">
+                <div class="col-md-1">
                     <label class="control-label panel-admin-text">Hasta:</label>
-                </div>
-                <div class="col-md-3">
-                    <input type="text" name="fecha_fin" id="fecha_fin" value="<?= date('d-m-Y') ?>"
+             
+                    <input type="text" name="fecha_fin" id="fecha_fin" value=""
                            required="true" readonly style="cursor: pointer;"
                            class="form-control fecha input-datepicker filter-input">
                 </div>
+
+                <div class="col-md-2" style="padding:1.5% 1%">
+                <input type="checkbox" name="limpiar_fecha" id="limpiar_f">
+                    <label for="habilitar_f" class="control-label panel-admin-text">Limpiar Fechas</label>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <a class="btn btn-default" id="btn_buscar">
+                        <i class="fa fa-search"> </i>
+                    </a>
+                </div>
+
+
+                <div class="col-md-6 text-right" style="padding:2% 1%">
+                    <label class="control-label badge b-default">ABIERTO</label>
+                    <label class="control-label badge btn-other">IMPRESO</label>
+                    <label class="control-label badge b-primary">CERRADO</label>
+                </div>  
 
             </div>
             <br>
@@ -64,7 +71,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
     </div>
 </div>
 <div class="block">
-    <!-- Progress Bars Wizard Title -->
+    <!-- Progress btn-defaultrs Wizard Title -->
     <div class="row" id="loading" style="display: none;">
         <div class="col-md-12 text-center">
             <div class="loading-icon"></div>
@@ -90,11 +97,40 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
             $(this).next().css("display", "none");
         });
 
-        $(".filter-input").on('change', function () {
+        $("#btn_buscar").click(function () {
+            if($('#fecha_ini').val() != '' || $('#fecha_fin').val() != ''){
+                $('#limpiar_f').prop('checked', false)
+
+                if($('#fecha_ini').val() == '' || $('#fecha_fin').val() == ''){
+
+                    $.bootstrapGrowl('<h4>Debe completar ambos campos del rango de fechas</h4>', {
+                        type: 'warning',
+                        delay: 2500,
+                        allow_dismiss: true
+                    });
+                    return false
+                }
+            }
+
             buscar();
         });
 
         buscar();
+        $('#limpiar_f').click(function(){
+             if($('#limpiar_f').is(':checked')){
+                    $('#fecha_ini').val('')
+                    $('#fecha_fin').val('')
+
+                }
+        })
+
+        $('.fecha').change(function(){
+            if($('#fecha_ini').val() != '' || $('#fecha_fin').val() != ''){
+                $('#limpiar_f').prop('checked', false)
+            }
+        })
+
+
 
     });
 
@@ -107,6 +143,8 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
             url: '<?php echo base_url();?>' + 'consolidadodecargas/lst_consolidado',
             success: function (data) {
                 $("#lstTabla").html(data);
+                $('#limpiar_f').prop('checked', false)
+
             },
             error: function(){
                 $("#lstTabla").html('');
