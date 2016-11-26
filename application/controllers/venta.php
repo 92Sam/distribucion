@@ -2565,7 +2565,6 @@ class venta extends MY_Controller
                 }
             }
         }
-
         //$html = $this->load->view('menu/reportes/rtfNotaDeEntrega', $result,true);
         $notasdentrega = $result['notasdentrega'];
 

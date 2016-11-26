@@ -1,6 +1,6 @@
 <?php $ruta = base_url(); ?>
 
-<table class="table table-striped dataTable table-bordered">
+<table id='example' class="table table-striped dataTable table-bordered">
 
 
     <thead>

@@ -24,14 +24,18 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <?php foreach ($consolidadoDetalles as $detalle) { ?>
+                    <?php 
+$total_bultos =0;
+                    foreach ($consolidadoDetalles as $detalle) { ?>
                         <tr>
 
                             <td><?php echo $detalle['venta_id']; ?></td>
                             <td><?php echo $detalle['representante']; ?></td>
                             <td>NE</td>
                             <td><?php echo $detalle['documento_Numero']; ?></td>
-                            <td><?php echo $detalle['bulto']; ?></td>
+                            <td><?php echo $detalle['bulto']; 
+                                $total_bultos += $detalle['bulto'];
+                            ?></td>
                             <td><?php echo $detalle['total']; ?></td>
                             <td><?php echo $detalle['venta_status']; ?> </td>
                             <td>
@@ -44,8 +48,19 @@
 
                         </tr>
                         <?php
-                    }
-                    ?>
+                    }?>
+                    
+                        <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td><?php echo '<strong>Totales = '.$total_bultos.'<strong>'; ?></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+
+                        </tr>
                     </tbody>
                 </table>
             </div>

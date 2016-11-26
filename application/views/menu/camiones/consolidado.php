@@ -130,8 +130,13 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
             }
         })
 
-
-
+        $('#estado').change(function(){
+            var table = $('#example').DataTable();
+ 
+            table
+                .clear()
+                .draw();
+            })
     });
 
     function buscar() {

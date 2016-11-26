@@ -27,10 +27,22 @@
                         </thead>
                         <tbody>
 
-                        <?php foreach ($columnas as $columna) { ?>
+                        <?php 
+                        foreach ($columnas as $columna) { ?>
                             <tr>
                                 <input type="hidden" name="columna_id[]" value="<?php echo $columna->id_columna ?>">
-                                <td><?php echo $columna->nombre_mostrar; ?></td>
+                                <td><?php 
+                                        if($columna->nombre_mostrar == 'Sub Grupo'){
+                                            echo 'Linea';
+                                        }elseif($columna->nombre_mostrar == 'Familia') {
+                                            echo 'Sub Linea';
+                                        }elseif($columna->nombre_mostrar == 'Linea') {
+                                            echo 'Talla';
+                                        }else{
+                                            echo $columna->nombre_mostrar; 
+                                        }
+                                    ?>
+                                </td>
                                 <td>
                                     <input type="checkbox" name="activo_<?= $columna->id_columna ?>"
                                         <?php if ($columna->activo == TRUE or ($columna->nombre_columna == 'producto_id' or $columna->nombre_columna == 'producto_nombre' or

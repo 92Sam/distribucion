@@ -121,7 +121,7 @@
                         <?php if ($columna->nombre_columna == 'producto_linea' and $columna->activo == 1) { ?>
                             <div class="form-group">
                                 <div class="col-md-3">
-                                    <label for="producto_linea" class="control-label">L&iacute;nea:</label>
+                                    <label for="producto_linea" class="control-label">Talla:</label>
                                 </div>
                                 <div class="col-md-8">
                                     <select name="producto_linea" id="producto_linea" class='cho form-control'>
@@ -139,7 +139,7 @@
                         <?php if ($columna->nombre_columna == 'producto_familia' and $columna->activo == 1) { ?>
                             <div class="form-group">
                                 <div class="col-md-3">
-                                    <label for="producto_familia" class="control-label">Familia:</label>
+                                    <label for="producto_familia" class="control-label">Sub L&iacute;nea:</label>
                                 </div>
                                 <div class="col-md-8">
                                     <select name="producto_familia" id="producto_familia" class='cho form-control'>
@@ -198,7 +198,7 @@
                         <?php if ($columna->nombre_columna == 'producto_subgrupo' and $columna->activo == 1) { ?>
                             <div class="form-group">
                                 <div class="col-md-3">
-                                    <label for="subgrupo" class="control-label">Sub Grupo:</label>
+                                    <label for="subgrupo" class="control-label">L&iacute;nea:</label>
                                 </div>
                                 <div class="col-md-8">
                                     <select name="producto_subgrupo" id="producto_subgrupo" class='cho form-control'>
@@ -564,10 +564,10 @@
                         <tr>
 
                             <th>Unidad</th>
-                            <th>Familia</th>
+                            <th>Sub L&iacute;nea</th>
                             <th>Grupo</th>
                             <th>Marca</th>
-                            <th>Linea</th>
+                            <th>Talla</th>
                             <th>Cantidad</th>
                             <th>Bono unidad</th>
                             <th>Bono producto</th>

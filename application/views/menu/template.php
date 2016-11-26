@@ -100,7 +100,7 @@ $primary_nav = array(
                         'slug' => 'gruposproductos'
                     ),
                     array(
-                        'name' => 'Subgrupos',
+                        'name' => 'Linea',
                         'url' => $ruta . 'subgrupo',
                         'icon' => 'fa fa-cubes',
                         'slug' => 'subgruposproductos'
@@ -108,7 +108,7 @@ $primary_nav = array(
 
 
                     array(
-                        'name' => 'Familias',
+                        'name' => 'Sub-Linea',
                         'url' => $ruta . 'familia',
                         'icon' => 'fa fa-laptop',
                         'slug' => 'familias'
@@ -121,7 +121,7 @@ $primary_nav = array(
                     ),
 
                     array(
-                        'name' => 'Lineas',
+                        'name' => 'Talla',
                         'url' => $ruta . 'linea',
                         'icon' => 'fa fa-th-large',
                         'slug' => 'lineas'
