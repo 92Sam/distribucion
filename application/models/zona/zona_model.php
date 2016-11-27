@@ -32,6 +32,23 @@ class zona_model extends CI_Model
         return $query->row();
     }
 
+    function get_dias($id)
+    {
+        $this->db->select('dia_semana');
+        $this->db->from('zona_dias');
+        $this->db->where('zona_dias.id_zona', $id);
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+
+    function get_all_dias()
+    {
+        $this->db->select('*');
+        $this->db->from('zona_dias');
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+
     function get_all_by_user($id)
     {
         $query = $this->db->select('*');
@@ -73,6 +90,27 @@ class zona_model extends CI_Model
 
         $this->db->trans_start();
         $this->db->insert('zonas', $zona);
+        $id=$this->db->insert_id();
+
+        $this->db->trans_complete();
+
+        if ($this->db->trans_status() === FALSE)
+            return FALSE;
+        else
+            return $id;
+
+        $this->db->trans_off();
+    }
+
+    function insertar_zona_dias($id_zona, $dia)
+    {
+        $data = array(
+            'id_zona' => $id_zona,
+            'dia_semana' => $dia,
+        );
+
+        $this->db->trans_start();
+        $this->db->insert('zona_dias', $data);
 
         $this->db->trans_complete();
 
@@ -97,5 +135,32 @@ class zona_model extends CI_Model
             return TRUE;
     }
 
+    function delete_zona_dias($id)
+    {
+        $this->db->trans_start();
+        $this->db->where('id_zona', $id);
+        $this->db->delete('zona_dias');
+
+        $this->db->trans_complete();
+
+        if ($this->db->trans_status() == FALSE)
+            return FALSE;
+        else
+            return TRUE;
+    }
+
+    function  delete_usuario_has_zona($id)
+    {
+        $this->db->trans_start();
+        $this->db->where('id_zona', $id);
+        $this->db->delete('usuario_has_zona');
+
+        $this->db->trans_complete();
+
+        if ($this->db->trans_status() == FALSE)
+            return FALSE;
+        else
+            return TRUE;
+    }
 
 }

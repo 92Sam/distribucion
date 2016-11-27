@@ -43,7 +43,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
 
             </tr>
             </thead>
-            <tbody>
+            <tbody id="xxxx">
 
 
             </tbody>
@@ -83,10 +83,9 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
 <script type="text/javascript">
 
     function borrar(id, nom) {
-
         $('#borrar').modal('show');
-        $("#id_borrar").attr('value', id);
-        $("#nom_borrar").attr('value', nom);
+        $("#id_borrar").val(id);
+        $("#nom_borrar").val(nom);
     }
 
 
@@ -231,9 +230,47 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
 
     }
     function eliminar() {
+        $('#barloadermodal').modal('show');
 
-        App.formSubmitAjax($("#formeliminar").attr('action'), grupo.ajaxgrupo, 'borrar', 'formeliminar');
+         $.ajax({
+                url: '<?=base_url()?>cliente/eliminar',
+                 type: "post",
+                dataType: "json",
+                data: { 'id': $('#id_borrar').val()},
+                            success: function(data) {
+                            if (data != '') {
+
+                                $.bootstrapGrowl('<h4>'+data[Object.keys(data)]+'</h4>', {
+                                    type: Object.keys(data),
+                                    delay: 2500,
+                                    allow_dismiss: true
+                                });
+                                $('#borrar').modal('toggle')
+
+                                $("#example").dataTable().fnDestroy();
+
+                                TablesDatatablesJson.init('<?php echo base_url()?>api/Clientes', 0, 'example');
+                                setTimeout(function () {
+                                    $('#barloadermodal').modal('hide');
+                                }, 500)
+
+                                if(Object.keys(data) == 'success'){
+
+                                   return true
+                                }else{
+                                    return false
+                                
+                                }
+
+
+                            }
+                        }
+
+            });
+        //App.formSubmitAjax($("#formeliminar").attr('action'), grupo.ajaxgrupo, 'borrar', 'formeliminar');
     }
+
+
 </script>
 
 <div class="modal fade" id="agregar" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
@@ -244,7 +281,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
 
 <div class="modal fade" id="borrar" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
      aria-hidden="true">
-    <form name="formeliminar" id="formeliminar" method="post" action="<?= $ruta ?>cliente/eliminar">
+    <form name="formeliminar" id="formeliminar" method="post" >
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -272,7 +309,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
 <script>
     $(function () {
 
-       TablesDatatablesJson.init('<?php echo base_url()?>api/Clientes',0);
+       TablesDatatablesJson.init('<?php echo base_url()?>api/Clientes',0, 'example');
 
 
 

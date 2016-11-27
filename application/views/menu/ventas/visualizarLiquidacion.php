@@ -23,220 +23,131 @@
     #tabla_resumen_productos thead tr th {
         font-size: 85%;
     }
-
 </style>
+
+<?php $ruta = base_url(); ?>
 <div class="modal-dialog" style="width: 70%">
     <div class="modal-content">
 
         <div class="modal-header">
 
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-            <h4 class="modal-title">Resumen</h4>
+            <h4 class="modal-title">Hoja de Liquidaci&oacute;n</h4>
         </div>
         <div class="modal-body">
+            <? $totalCount = 0; ?>
+            <? $num = 1; ?>
+            <? $fecha = date('d-m-Y H:m:s'); ?>
+            <? $vend = $vendedor['nombre'];?>
+            <table class="table table-striped dataTable table-bordered">
+                <thead>
+                <tr>
+                    <th>No.</th>
+                    <th>N&uacute;mero Documento</th>
+                    <th>Cliente</th>
+                    <th>Vendedor</th>
+                    <th>M&eacute;todo</th>
+                    <th>Fecha</th>
+                    <th>Monto</th>
+                </tr>
+                </thead>
+                <tbody>
+                <?php foreach ($resultado as $res): ?>
+                    <tr>
+                        <td><?= $num++; ?></td>
+                        <td><?= $res['documento_Serie'] . "-" . $res['documento_Numero']; ?></td>
+                        <td><?= $res['razon_social']; ?></td>
+                        <td><?= $vend; ?></td>
+                        <td><?= $res['tipo_metodo']; ?></td>
+                        <td><?= $fecha; ?></td>
+                        <td><?= $res['historial_monto']; ?></td>
+                        <? $totalCount += floatval($res['historial_monto']); ?>
+                    </tr>
+                <?php endforeach; ?>
+                <tr>
+                    <td><?= ''?></td>
+                    <td><?= ''?></td>
+                    <td><?= ''?></td>
+                    <td><?= ''?></td>
+                    <td><?= ''?></td>
+                    <td><?= ''?></td>
+                    <td><strong><?= 'TOTAL: ' . MONEDA . $totalCount; ?></strong></td>
+                </tr>
+                <tr>
+                    <td><strong><?= 'CHEQUE: '; ?></strong></td>
+                    <td><?= ''?></td>
+                    <td><?= ''?></td>
+                    <td><?= ''?></td>
+                    <td><?= ''?></td>
+                    <td><?= ''?></td>
+                    <td><?= ''?></td>
+                </tr>
+                <tr>
+                    <td><strong><?= 'DEPOSITO BBVA: '; ?></strong></td>
+                    <td><?= ''?></td>
+                    <td><?= ''?></td>
+                    <td><?= ''?></td>
+                    <td><?= ''?></td>
+                    <td><?= ''?></td>
+                    <td><?= ''?></td>
+                </tr>
+                <tr>
+                    <td><strong><?= 'DEPOSITO BCP: '; ?></strong></td>
+                    <td><?= ''?></td>
+                    <td><?= ''?></td>
+                    <td><?= ''?></td>
+                    <td><?= ''?></td>
+                    <td><?= ''?></td>
+                    <td><?= ''?></td>
+                </tr>
+                <tr>
+                    <td><strong><?= 'DEPOSITO V&M: '; ?></strong></td>
+                    <td><?= ''?></td>
+                    <td><?= ''?></td>
+                    <td><?= ''?></td>
+                    <td><?= ''?></td>
+                    <td><?= ''?></td>
+                    <td><?= ''?></td>
+                </tr>
+                <tr>
+                    <td><strong><?= 'BILLETE: '; ?></strong></td>
+                    <td><?= ''?></td>
+                    <td><?= ''?></td>
+                    <td><?= ''?></td>
+                    <td><?= ''?></td>
+                    <td><?= ''?></td>
+                    <td><?= ''?></td>
+                </tr>
+                <tr>
+                    <td><strong><?= 'MONEDA: '; ?></strong></td>
+                    <td><?= ''?></td>
+                    <td><?= ''?></td>
+                    <td><?= ''?></td>
+                    <td><?= ''?></td>
+                    <td><?= ''?></td>
+                    <td><?= ''?></td>
+                </tr>
+                <tr>
+                    <td><strong><?= 'TOTAL: '; ?></strong></td>
+                    <td><?= ''?></td>
+                    <td><?= ''?></td>
+                    <td><?= ''?></td>
+                    <td><?= ''?></td>
+                    <td><?= ''?></td>
+                    <td><?= ''?></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
 
-            <div class="panel" class="text-center" id="panel_documento">
-                <?php if (isset($resultado[0])) {
-                    ?>
-                    <div id="resumen_venta">
-                        <div>
-                            <div class="row ">
-                                <div class="col-xs-12">
-                                    <h3 class="text-center">
-                                        <span
-                                            id="titulo_emp"><?= $resultado[0]['razon_social'] ?></span>
-                                    </h3>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-xs-12">
-                                    <h4 class="text-center">
-                                        <span
-                                            id="titulo_emp"><?= $resultado[0]['direccion'] ?></span>
-                                    </h4>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-xs-12">
-                                    <h5 class="text-center">
-                                        Telf: <span
-                                            id="titulo_emp"><?= $resultado[0]['telefono1'] ?></span>
-                                    </h5>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="block-content-mini-padding">
-                                    <div class="col-xs-3">
-                                        Venta#:
-                                    </div>
-                                    <div class="col-xs-9">
-                                        <?= $resultado[0]['documento_Serie'] . "-" . $resultado[0]['documento_Numero'] ?>
-                                    </div>
-
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="block-content-mini-padding">
-                                    <div class="col-xs-1">
-                                        Fecha:
-
-                                    </div>
-                                    <div class="col-xs-2">
-
-                                        <?php
-
-                                        echo date('d-m-y');
-                                        ?>
-                                    </div>
-                                    <div class="col-xs-1">
-                                        Hora:
-
-                                    </div>
-                                    <div class="col-xs-2">
-
-                                        <?php
-
-                                        echo date('H:i:s');
-                                        ?>
-                                    </div>
-
-
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="block-content-mini-padding">
-                                    <div class="col-xs-3">
-                                        Vendedor:
-
-                                    </div>
-                                    <div class="col-xs-4">
-
-                                        <?php echo $vendedor['nombre'];
-                                        ?>
-                                    </div>
-
-
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="block-content-mini-padding">
-
-                                    <div class="col-xs-3">
-                                        Cajero:
-
-                                    </div>
-                                    <div class="col-xs-4">
-
-                                        <?php echo $cajero['nombre'];
-                                        ?>
-                                    </div>
-
-
-                                </div>
-                            </div>
-                            <!-- info row -->
-
-
-                            <!-- /.col -->
-                        </div>
-                        <!-- /.row -->
-                        <!-- Table row -->
-                        <div>
-                        </div>
-                        <br>
-                        <!-- END TABLA DE PRODUCTOS -->
-                        <div>
-
-                            <div class="col-xs-12 col-lg-12">
-                                <table class="table" id="totales_">
-                                    <!--<tr>
-                                    <td>
-                                        <strong>Subtotal</strong>
-                                    </td>
-                                    <td>
-                                        $. <span id="subtotalR"><span id="totalR"><?php //echo $ventas[0]['subTotal']?></span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <strong>IMPUESTO</strong>
-                                    </td>
-                                    <td>
-                                        <!--<label id="igvR">12</label>%-->
-                                    <?php //echo $ventas[0]['impuesto']?>
-                                    <!--  </td>
-                                  </tr>-->
-                                    <tr style="border-bottom:0px #000 dashed">
-                                        <td style="border-top: 1px #000 dashed">
-
-                                            <strong>Total Caja</strong>
-                                        </td>
-                                        <td style="border-top: 1px #000 dashed">
-                                            <?php echo MONEDA ?> <span
-                                                id="totalR"><?php if ($resultado[0]['tipo_metodo'] != null and $resultado[0]['tipo_metodo'] == "CAJA") {
-                                                    echo number_format($resultado[0]['suma'],2);
-                                                } else {
-                                                    if (isset($resultado[1]) and $resultado[1]['tipo_metodo'] != null and $resultado[1]['tipo_metodo'] == "CAJA") {
-                                                        echo number_format($resultado[1]['suma'],2);
-                                                    } else {
-                                                        echo "0";
-                                                    }
-                                                }
-
-
-                                                ?></span>
-                                        </td>
-                                    </tr>
-                                    <tr style="border-bottom:0px #000 dashed">
-                                        <td style="border-top: 0px #000 dashed">
-                                            <strong>Total Banco</strong>
-                                        </td>
-                                        <td style="border-top: 0px #000 dashed">
-                                            <?php echo MONEDA ?> <span id="totalR"><?php
-                                                if (isset($resultado[1]) and $resultado[1]['tipo_metodo'] != null and $resultado[1]['tipo_metodo'] == "BANCO") {
-                                                    echo number_format($resultado[1]['suma'],2);
-                                                } else {
-                                                    if ($resultado[0]['tipo_metodo'] != null and $resultado[0]['tipo_metodo'] == "BANCO") {
-                                                        echo number_format($resultado[0]['suma'],2);
-                                                    } else {
-                                                        echo "0";
-                                                    }
-
-                                                }
-                                                ?></span>
-                                        </td>
-                                    </tr>
-                                    <tr style="border-bottom:0px #000 dashed">
-                                        <td style="border-top: 0px #000 dashed">
-                                            <strong>Total Banco + Total Caja</strong>
-                                        </td>
-                                        <td style="border-top: 0px #000 dashed">
-                                            <?php echo MONEDA ?> <span id="totalR"><?php
-                                                if (isset($resultado[1])) {
-                                                    echo number_format($resultado[1]['suma'] + $resultado[0]['suma'],2);
-                                                } else {
-                                                    echo number_format($resultado[0]['suma'],2);
-                                                }
-                                                ?></span>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-                            <div class="row text-center">
-                            </div>
-                        </div>
-
-                    </div>
-                <?php } ?>
+        <div class="row">
+            <div class="col-md-12"  align="left" style="padding-left:40px;">
+                <a target="_blank" href="<?= $ruta?>venta/pdfResumenLiquidacion/<?php echo $id_vend;?>/<?php echo $vend;?>/<?php echo $liquidacion;?>/<?php echo $fecha;?>/<?php echo $totalCount;?>/" class="btn btn-default" data-toggle="tooltip" title="Exportar a PDF" data-original-title="fa fa-file-pdf-o"><i class="fa fa-file-pdf-o fa-fw"></i></a>
             </div>
         </div>
         <div class="modal-footer">
             <a href="#" class="btn btn-default" id="cerrar_visualizar" onclick="cerrar()">Cerrar</a>
-            <a href="#" tabindex="0" type="button" id="imprimir" class="btn btn-primary"> <i
-                    class="fa fa-print"></i>Imprimir</a>
+            <a href="#" tabindex="0" type="button" id="imprimir" class="btn btn-primary"> <i class="fa fa-print"></i>Imprimir</a>
         </div>
     </div>
 

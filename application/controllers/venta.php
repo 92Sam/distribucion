@@ -1018,6 +1018,162 @@ class venta extends MY_Controller
 
     }
 
+    function pdfResumenLiquidacion($_id_vend, $_vendedor, $_id_liquidacion, $_fecha, $_montototal)
+    {
+        $id_vendedor = $_id_vend;
+        $vendedor = $_vendedor;
+        $id_liquidacion = $_id_liquidacion;
+        $fecha = $_fecha;
+        $montototal = $_montototal;
+
+        //Tabla
+        //////////////////////
+        $nombre_or = false;
+        $where_or = false;
+        $nombre_in = false;
+        $where_in = false;
+
+        $where = array(
+            'historial_usuario' => $id_vendedor,
+            'liquidacion_id' => $id_liquidacion,
+            'historial_estatus' => "CONFIRMADO"
+        );
+
+        $select = 'documento_Serie, documento_Numero, cliente.razon_social, historial_monto, metodos_pago.*';
+        $from = "historial_pagos_clientes";
+        $join = array('venta', 'cliente', 'documento_venta', 'metodos_pago', 'liquidacion_cobranza_detalle');
+        $campos_join = array('historial_pagos_clientes.credito_id=venta.venta_id', 'cliente.id_cliente=venta.id_cliente',
+            'documento_venta.id_tipo_documento=venta.numero_documento', 'metodos_pago.id_metodo=historial_pagos_clientes.historial_tipopago',
+            'liquidacion_cobranza_detalle.pago_id=historial_pagos_clientes.historial_id');
+
+        $resultado = $this->venta_model->traer_by($select, $from, $join, $campos_join, false,
+            $where, $nombre_in, $where_in, $nombre_or, $where_or, false, false, "RESULT_ARRAY");
+
+        //PDF
+        //////////////////
+        $pdf = new Pdf('P', 'mm', 'A4', true, 'UTF-8', false);
+        $pdf->setPageOrientation('P');
+        $pdf->SetTitle('Hoja de Liquidacion');
+        $pdf->SetPrintHeader(false);
+        $pdf->setFooterData($tc = array(0, 64, 0), $lc = array(0, 64, 128));
+        $pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
+        $pdf->SetMargins(PDF_MARGIN_LEFT, 0, PDF_MARGIN_RIGHT);
+        $pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
+        $pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
+        $pdf->setFontSubsetting(true);
+        $pdf->SetFont('helvetica', '', 14, '', true);
+        $pdf->SetFontSize(8);
+
+        $pdf->AddPage();
+
+        $html = '';
+        $html .= "<style type=text/css>";
+        $html .= "th{color: #000; font-weight: bold; background-color: #CED6DB; }";
+        $html .= "td{color: #222; font-weight: bold; background-color: #fff;}";
+        $html .= "table{border:0.2px}";
+        $html .= "body{font-size:15px}";
+        $html .= "</style>";
+        $count = 0;
+
+        $html .= "<br><br><b><u>HOJA DE LIQUIDACION</u></b><br><br>";
+        if (isset($zona_nombre)) {
+            $html .= "<br><b>" . $zona_nombre['zona_nombre'] . ":</b> " . "<br>";
+        } else {
+
+            $html .= "<br><b>Liquidacion:</b> " . "<br>";
+        }
+
+        $html .= "<table><tr><th>No.</th><th>N&uacute;mero Documento</th><th>Cliente</th><th>Vendedor</th>";
+        $html .= "<th>M&eacute;todo</th><th>Fecha</th><th>Monto</th></tr>";
+
+        foreach ($resultado as $row) {
+            $documento = $row['documento_Serie'] . "-" . $row['documento_Numero'];
+            $cliente = $row['razon_social'];
+            $metodo = $row['tipo_metodo'];
+            $monto = $row['historial_monto'];
+            $count++;
+
+            $html .=   "<tr>
+                            <td>" . $count . "</td>
+                            <td>" . $documento . "</td>
+                            <td>" . $cliente . "</td>
+                            <td>" . urldecode($vendedor) . "</td>
+                            <td>" . $metodo . "</td>
+                            <td>" . urldecode($fecha) . "</td>
+                            <td>" . $monto . "</td>
+                        </tr>";
+        }
+        $html .= "<tr><td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>TOTAL: " . $montototal . "</td></tr>";
+
+        $html .= "<tr><td>CHEQUE:</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td></tr>";
+
+        $html .= "<tr><td>DEPOSITO BBVA:</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td></tr>";
+
+        $html .= "<tr><td>DEPOSITO BCP:</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td></tr>";
+
+        $html .= "<tr><td>DEPOSITO V&M:</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td></tr>";
+
+        $html .= "<tr><td>BILLETE:</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td></tr>";
+
+        $html .= "<tr><td>MONEDA:</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td></tr>";
+
+        $html .= "<tr><td>TOTAL:</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td>";
+        $html .= "<td>" . " " . "</td></tr>";
+
+        $html .= "</table>";
+
+        $pdf->writeHTML($html, true, 0, true, 0);
+        $pdf->lastPage();
+        $pdf->output('HojaLiquidacion.pdf', 'D');
+    }
+
     function excel($local, $fecha_desde, $fecha_hasta, $estatus, $totalventas)
     {
 
@@ -2340,13 +2496,16 @@ class venta extends MY_Controller
 
             $select = '*';
             $from = "venta";
-            $join = array('cliente', 'documento_venta');
-            $campos_join = array('cliente.id_cliente=venta.id_cliente', 'venta.numero_documento=documento_venta.id_tipo_documento');
+            $join = array('cliente', 'documento_venta', '(SELECT c.cliente_id, c.tipo, c.valor as direccion, c.principal, COUNT(*) FROM cliente_datos c WHERE c.tipo =1 GROUP BY c.cliente_id, c.tipo ) cli_dat', '(SELECT c1.cliente_id, c1.tipo, c1.valor as telefono1, c1.principal, COUNT(*) FROM cliente_datos c1 WHERE c1.tipo =2 GROUP BY c1.cliente_id, c1.tipo  ) cli_dat2');
+            $campos_join = array('cliente.id_cliente=venta.id_cliente', 'venta.numero_documento=documento_venta.id_tipo_documento', 'cli_dat.cliente_id = cliente.id_cliente', 'cli_dat2.cliente_id = cliente.id_cliente');
             $where = array(
                 'venta_id' => $id_venta
             );
 
-            $result['cliente'] = $this->venta_model->traer_by($select, $from, $join, $campos_join, false, $where, false, false, false, false, false, false, "ROW_ARRAY");
+            $tipo_join = array(null, null, null, 'left');
+
+
+            $result['cliente'] = $this->venta_model->traer_by($select, $from, $join, $campos_join, $tipo_join, $where, false, false, false, false, false, false, "ROW_ARRAY");
             $result['metodo_pago'] = $this->metodos_pago_model->get_by('id_metodo', $result['credito'][0]['historial_tipopago']);
             // var_dump($result['credito']);
             $result['cuota'] = $result['credito'][0]['historial_monto'];
@@ -2362,7 +2521,6 @@ class venta extends MY_Controller
             $from = "historial_pagos_clientes";
             $order = "historial_fecha desc";
             $buscar_restante = $this->venta_model->traer_by($select, $from, false, false, false, $where, false, false, false, false, false, $order, "RESULT_ARRAY");
-
 
             $result['restante'] = $buscar_restante[0]['monto_restante'];
             //var_dump($result);
@@ -2464,7 +2622,7 @@ class venta extends MY_Controller
                     $table1->addCell(4000)->addText(htmlspecialchars('USUA: ' . strtoupper($ventas[0]['vendedor'])), 'rBasicos');
 
                     $table1->addRow(150, array('exactHeight' => true))->addCell(566)->addText(htmlspecialchars('DIRECCION: '), 'rBasicos');
-                    $table1->addCell(7000, array('gridSpan' => 2))->addText(htmlspecialchars((isset($ventas[0]['clienteDireccionAlt'])) ? strtoupper($ventas[0]['clienteDireccionAlt']) : ''), 'rBasicos');
+                    $table1->addCell(7000, array('gridSpan' => 2))->addText(htmlspecialchars((isset($ventas[0]['clienteDireccion'])) ? strtoupper($ventas[0]['clienteDireccion']) : ''), 'rBasicos');
 
                     $table1->addCell(4000)->addText(htmlspecialchars('F. VENC.: ' . (isset($result['detalleC'][0]) ? date('Y-m-d', strtotime($result['detalleC'][0]['fecha'])) : '')), 'rBasicos');
                     $table1->addCell(4000)->addText(htmlspecialchars('HORA: ' . (isset($result['detalleC'][0]) ? date('H:i:s', strtotime($result['detalleC'][0]['fecha'])) : '')), 'rBasicos');
@@ -3275,17 +3433,18 @@ class venta extends MY_Controller
         documento_Serie, documento_Numero, usuario.nombre,liquidacion_fecha, ,cajero.nombre as cajero,
           metodos_pago.*';
         $from = "historial_pagos_clientes";
-        $join = array('venta', 'cliente', 'documento_venta', 'metodos_pago', 'liquidacion_cobranza_detalle', 'usuario',
-            'liquidacion_cobranza', 'usuario as cajero');
+        $join = array('venta', 'cliente', 'documento_venta', 'metodos_pago', 'liquidacion_cobranza_detalle', 'usuario','liquidacion_cobranza', 'usuario as cajero' ,'(SELECT c.cliente_id, c.tipo, c.valor as direccion, c.principal, COUNT(*) FROM cliente_datos c WHERE c.tipo =1 GROUP BY c.cliente_id, c.tipo ) cli_dat', '(SELECT c1.cliente_id, c1.tipo, c1.valor as telefono1, c1.principal, COUNT(*) FROM cliente_datos c1 WHERE c1.tipo =2 GROUP BY c1.cliente_id, c1.tipo  ) cli_dat2');
         $campos_join = array('historial_pagos_clientes.credito_id=venta.venta_id', 'cliente.id_cliente=venta.id_cliente',
             'documento_venta.id_tipo_documento=venta.numero_documento', 'metodos_pago.id_metodo=historial_pagos_clientes.historial_tipopago',
             'liquidacion_cobranza_detalle.pago_id=historial_pagos_clientes.historial_id',
             'usuario.nUsuCodigo=historial_pagos_clientes.historial_usuario',
-            'liquidacion_cobranza.liquidacion_id=liquidacion_cobranza_detalle.liquidacion_id', 'cajero.nUsuCodigo=liquidacion_cobranza.liquidacion_cajero');
+            'liquidacion_cobranza.liquidacion_id=liquidacion_cobranza_detalle.liquidacion_id', 'cajero.nUsuCodigo=liquidacion_cobranza.liquidacion_cajero', 'cli_dat.cliente_id = cliente.id_cliente', 'cli_dat2.cliente_id = cliente.id_cliente');
+
+        $tipo_join = array(null, null, null, null, null, null, null, null, null, 'left');
 
         $group_by = "nombre_metodo";
         $order = "nombre_metodo";
-        $result['resultado'] = $this->venta_model->traer_by($select, $from, $join, $campos_join, false,
+        $result['resultado'] = $this->venta_model->traer_by($select, $from, $join, $campos_join, $tipo_join,
             $where, $nombre_in, $where_in, $nombre_or, $where_or, $group_by, $order, "RESULT_ARRAY");
 
         $result['historial'] = true;
@@ -3356,12 +3515,14 @@ class venta extends MY_Controller
             $where_in = false;
             ///////////////////////
             $select = 'usuario.nUsuCodigo, usuario.nombre, credito.dec_credito_montodeuda, historial_pagos_clientes.*,
-                 metodos_pago.*, documento_venta.documento_Serie, documento_Numero, venta.venta_id';
+                 metodos_pago.*, documento_venta.documento_Serie, documento_Numero, venta.venta_id,
+                 cliente.razon_social';
             $from = "historial_pagos_clientes";
-            $join = array('usuario', 'metodos_pago', 'venta', 'documento_venta', 'credito');
+            $join = array('usuario', 'metodos_pago', 'venta', 'cliente', 'documento_venta', 'credito');
             $campos_join = array('usuario.nUsuCodigo=historial_pagos_clientes.historial_usuario',
                 'metodos_pago.id_metodo=historial_pagos_clientes.historial_tipopago',
                 'venta.venta_id=historial_pagos_clientes.credito_id',
+                'venta.id_cliente=cliente.id_cliente',
                 'venta.numero_documento=documento_venta.id_tipo_documento',
                 'credito.id_venta=historial_pagos_clientes.credito_id');
             $tipo_join = false;
@@ -3380,20 +3541,22 @@ class venta extends MY_Controller
 
     function guardar_liquidar()
     {
-
         $id = $this->input->post('historial');
         $vendedor = $this->input->post('vendedor');
+        $result['id_vend'] = $vendedor;
 
         $liquidacion = array(
             'liquidacion_cajero' => $this->session->userdata('nUsuCodigo'),
             'liquidacion_fecha' => date('Y-m-d H:i:s'),
             'liquidacion_vendedor' => $vendedor,
         );
+
         $id_liquidacion = $this->liquidacion_cobranza_model->guardar_liquidacion($liquidacion);
+        $result['liquidacion'] = $id_liquidacion;
         $data['resultado'] = $this->historial_pagos_clientes_model->update_historial($id, $id_liquidacion);
 
-
-        ///////////////////////////////////////////////
+        //Tabla
+        //////////////////////
         $nombre_or = false;
         $where_or = false;
         $nombre_in = false;
@@ -3409,19 +3572,21 @@ class venta extends MY_Controller
         documento_Serie, documento_Numero,
           metodos_pago.*';
         $from = "historial_pagos_clientes";
-        $join = array('venta', 'cliente', 'documento_venta', 'metodos_pago', 'liquidacion_cobranza_detalle');
+        $join = array('venta', 'cliente', 'documento_venta', 'metodos_pago', 'liquidacion_cobranza_detalle','(SELECT c.cliente_id, c.tipo, c.valor as direccion, c.principal, COUNT(*) FROM cliente_datos c WHERE c.tipo =1 GROUP BY c.cliente_id, c.tipo ) cli_dat', '(SELECT c1.cliente_id, c1.tipo, c1.valor as telefono1, c1.principal, COUNT(*) FROM cliente_datos c1 WHERE c1.tipo =2 GROUP BY c1.cliente_id, c1.tipo  ) cli_dat2');
         $campos_join = array('historial_pagos_clientes.credito_id=venta.venta_id', 'cliente.id_cliente=venta.id_cliente',
             'documento_venta.id_tipo_documento=venta.numero_documento', 'metodos_pago.id_metodo=historial_pagos_clientes.historial_tipopago',
-            'liquidacion_cobranza_detalle.pago_id=historial_pagos_clientes.historial_id');
+            'liquidacion_cobranza_detalle.pago_id=historial_pagos_clientes.historial_id', 'cli_dat.cliente_id = cliente.id_cliente', 'cli_dat2.cliente_id = cliente.id_cliente');
+        
+        $tipo_join = array(null, null, null, null, null, null, 'left');
 
 
         $group_by = "nombre_metodo";
         $order = "nombre_metodo";
-        $result['resultado'] = $this->venta_model->traer_by($select, $from, $join, $campos_join, false,
+        $result['resultado'] = $this->venta_model->traer_by($select, $from, $join, $campos_join, $tipo_join,
             $where, $nombre_in, $where_in, $nombre_or, $where_or, $group_by, $order, "RESULT_ARRAY");
 
-        // var_dump($result);
-        ///////////////////////////
+        //Cajero
+        ///////////////////
         $select = 'nombre';
         $from = "usuario";
         $where = array(
@@ -3430,7 +3595,8 @@ class venta extends MY_Controller
         $result['cajero'] = $this->usuario_model->traer_by($select, $from, false, false, false,
             $where, false, false, false, false, false, false, "ROW_ARRAY");
 
-
+        //Vendedor
+        ///////////////////
         $select = 'nombre';
         $from = "usuario";
         $where = array(
@@ -3438,9 +3604,8 @@ class venta extends MY_Controller
         );
         $result['vendedor'] = $this->usuario_model->traer_by($select, $from, false, false, false,
             $where, false, false, false, false, false, false, "ROW_ARRAY");
+
         $this->load->view('menu/ventas/visualizarLiquidacion', $result);
-
-
     }
 
     function editar_historialcobranza()

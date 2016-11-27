@@ -22,7 +22,7 @@ class cliente_model extends CI_Model
 
     function get_all($id_vendedor = null, $filter = null, $page = 0, $limit = 0)
     {
-        $this->db->select('distinct(cliente.id_cliente),cliente.*, ciudades.*,estados.*,pais.*, grupos_cliente.*,  zonas.* , usuario.nombre');
+        $this->db->select('distinct(cliente.id_cliente),cliente.*, cli_dat.*, cli_dat2.*, ciudades.*,estados.*,pais.*, grupos_cliente.*,  zonas.* , usuario.nombre');
         $this->db->from('cliente');
         $this->db->join('ciudades', 'ciudades.ciudad_id=cliente.ciudad_id');
         $this->db->join('estados', 'ciudades.estado_id=estados.estados_id');
@@ -30,7 +30,9 @@ class cliente_model extends CI_Model
         $this->db->join('grupos_cliente', 'grupos_cliente.id_grupos_cliente=cliente.grupo_id');
         $this->db->join('zonas', 'zonas.zona_id=cliente.id_zona');
         $this->db->join('usuario', 'usuario.nUsuCodigo=cliente.vendedor_a');
-        // Status
+        $this->db->join('(SELECT c.cliente_id, c.tipo, c.valor as direccion, c.principal, COUNT(*) FROM cliente_datos c WHERE c.tipo =1 GROUP BY c.cliente_id, c.tipo) cli_dat', 'cli_dat.cliente_id = cliente.id_cliente');
+        $this->db->join('(SELECT c1.cliente_id, c1.tipo, c1.valor as telefono1, c1.principal, COUNT(*) FROM cliente_datos c1 WHERE c1.tipo =2 GROUP BY c1.cliente_id, c1.tipo  ) cli_dat2', 'cli_dat2.cliente_id = cliente.id_cliente', 'left');
+
         $this->db->where('cliente.cliente_status', 1);
 
         // Vendedor ID
@@ -59,7 +61,7 @@ class cliente_model extends CI_Model
         return $query->row_array();
     }
 
-    function insertar($cliente)
+    function insertar($cliente, $items)
     {
         $identificacion = $cliente['identificacion'];
         $validar_nombre = sizeof($this->get_by('identificacion', $identificacion));
@@ -80,16 +82,46 @@ class cliente_model extends CI_Model
             $this->db->insert('cliente_v', $ven);
 
 
-            $direccion = array(
+           /* $direccion = array(
                 'direccion' => $cliente['direccion'],
                 'cliente_id' => $id_usu,
                 'fecha' => $fech,
             );
             $this->db->insert('cliente_direccion', $direccion);
+            */
+            for ($i=0; $i < count($items); $i++) { 
+
+                if($items[$i][2] == 'true'){
+                    $principal = true;
+
+                }else{
+                    $principal = false;
+                }
+
+                $datos = array(
+                    'cliente_id' => $id_usu,
+                    'tipo' => $items[$i][0],
+                    'valor' => $items[$i][1],
+                    'principal' => $principal
+                    );
+                $this->db->insert('cliente_datos', $datos);
+
+                if($items[$i][0]==1){
+                    $direccion = array(
+                        'direccion' => $items[$i][1],
+                        'cliente_id' => $id_usu,
+                        'fecha' => $fech,
+                        );
+                    $this->db->insert('cliente_direccion', $direccion);
+                }
+            }
+
+
+
             try {
                 $this->db->trans_complete();
             } catch (Exception $e) {
-                return $this->db->_error_message();
+                return $this->db->_errosr_message();
             }
 
             if ($this->db->trans_status() === FALSE) {
@@ -102,7 +134,7 @@ class cliente_model extends CI_Model
         }
     }
 
-    function update($cliente)
+    function update($cliente, $items)
     {
         $produc_exite = $this->get_by('identificacion', $cliente['identificacion']);
         $validar_nombre = sizeof($produc_exite);
@@ -138,7 +170,45 @@ class cliente_model extends CI_Model
             $query = $this->db->get('cliente_direccion', 1);
             $direcc = $query->row_array();
 
-            if (isset($direcc['direccion']) or sizeof($direcc)!=0) {
+
+
+            if(count($items)>0){
+
+                $this->db->where('cliente_id', $cliente['id_cliente']);
+                $this->db->delete('cliente_datos'); 
+
+
+                for ($i=0; $i < count($items); $i++) { 
+
+                    if($items[$i][2] == 'true'){
+                        $principal = true;
+
+                    }else{
+                        $principal = false;
+                    }
+
+                    $datos = array(
+                        'cliente_id' => $cliente['id_cliente'],
+                        'tipo' => $items[$i][0],
+                        'valor' => $items[$i][1],
+                        'principal' => $principal
+                        );
+                    $this->db->insert('cliente_datos', $datos);
+
+                    if($items[$i][0]==1){
+                        $direccion = array(
+                            'direccion' => $items[$i][1],
+                            'cliente_id' => $cliente['id_cliente'],
+                            'fecha' => $fech,
+                            );
+                        $this->db->insert('cliente_direccion', $direccion);
+                    }
+                }
+
+            }
+
+
+       /*     if (isset($direcc['direccion']) or sizeof($direcc)!=0) {
                 if ($direcc['direccion'] != $cliente['direccion']) {
                     $direccion = array(
                         'direccion' => $cliente['direccion'],
@@ -147,7 +217,7 @@ class cliente_model extends CI_Model
                     );
                     $this->db->insert('cliente_direccion', $direccion);
                 }
-            }
+            }*/
 
 
             $this->db->trans_complete();
@@ -214,7 +284,7 @@ class cliente_model extends CI_Model
     {
         if ($select != false) {
             $this->db->select($select);
-            $this->db->from($from);
+            $this->db->from('cliente');
         }
         if ($join != false and $campos_join != false) {
 
@@ -283,6 +353,23 @@ class cliente_model extends CI_Model
         } else {
             return $query->row_array();
         }
+
+    }
+
+
+
+  function DniRucEnBd($identificacion, $cliente_id)
+    {
+        $this->db->where('identificacion', $identificacion);
+        $this->db->where('id_cliente <>', $cliente_id);
+        $sql = $this->db->get('cliente');
+        $data = $sql->row_array();
+
+        if(count($data) > 0){
+            return true;
+        }else{
+            return false;   
+        }   
 
     }
 

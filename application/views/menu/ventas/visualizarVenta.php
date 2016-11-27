@@ -104,7 +104,7 @@
 
 
                                     <div class="col-xs-8">DIRECION:
-                                        <span><?php if (isset($ventas[0]['clienteDireccionAlt'])) echo strtoupper($ventas[0]['clienteDireccionAlt']); ?></span>
+                                        <span><?php if (isset($ventas[0]['clienteDireccion'])) echo strtoupper($ventas[0]['clienteDireccion']); ?></span>
                                     </div>
 
                                     <div class="col-xs-2"> F. VENC.:
