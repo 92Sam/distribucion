@@ -48,9 +48,9 @@ class reporte extends MY_Controller
             default: {
 
                 $data['cobranzas'] = $this->rcobranza_model->get_cobranzas(array(
-                    'fecha_ini' => date('Y-m-d'),
+                    'fecha_ini' => date('Y-m-01'),
                     'fecha_fin' => date('Y-m-d'),
-                    'fecha_flag' => 0
+                    'fecha_flag' => 1
                 ));
 
                 $data['mostrar_detalles'] = 0;
@@ -106,9 +106,9 @@ class reporte extends MY_Controller
             default: {
 
                 $data['clientes'] = $this->rcliente_estado_model->get_estado_cuenta(array(
-                    'fecha_ini' => date('Y-m-d'),
+                    'fecha_ini' => date('Y-m-01'),
                     'fecha_fin' => date('Y-m-d'),
-                    'fecha_flag' => 0
+                    'fecha_flag' => 1
                 ));
 
 

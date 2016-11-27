@@ -124,7 +124,7 @@
             <label class="control-label" style="padding-top: 8px;">Fecha de Venta:</label>
         </div>
         <div class="col-md-2">
-            <input id="fecha_ini" type="text" class="form-control input-datepicker" value="<?= date('d-m-Y') ?>"
+            <input id="fecha_ini" type="text" class="form-control input-datepicker" value="<?= date('01-m-Y') ?>"
                    style="cursor: pointer;" readonly>
         </div>
 

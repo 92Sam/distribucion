@@ -16,15 +16,36 @@ class rcliente_estado_model extends CI_Model
             cliente.razon_social as cliente_nombre,
             zonas.zona_nombre as cliente_zona_nombre,
             usuario.nombre as vendedor_nombre, 
+            SUM(venta.total) as subtotal_venta,
+            SUM(credito.dec_credito_montodebito) as subtotal_pago
         ")
             ->from('cliente')
             ->join('venta', 'venta.id_cliente = cliente.id_cliente')
+            ->join('credito', 'credito.id_venta = venta.venta_id')
             ->join('historial_pedido_proceso', 'historial_pedido_proceso.pedido_id = venta.venta_id')
             ->join('zonas', 'cliente.id_zona = zonas.zona_id')
             ->join('usuario', 'venta.id_vendedor = usuario.nUsuCodigo')
             ->where('cliente.cliente_status', 1)
             ->where('historial_pedido_proceso.proceso_id', PROCESO_LIQUIDAR)
             ->group_by('cliente.id_cliente');
+
+        if (isset($params['fecha_ini']) && isset($params['fecha_fin']) && $params['fecha_flag'] == 1) {
+            $this->db->where('historial_pedido_proceso.created_at >=', date('Y-m-d H:i:s', strtotime($params['fecha_ini'] . ' 00:00:00')));
+            $this->db->where('historial_pedido_proceso.created_at <=', date('Y-m-d H:i:s', strtotime($params['fecha_fin'] . ' 23:59:59')));
+        }
+
+        if (isset($params['estado']) && $params['estado'] != 0) {
+            switch ($params['estado']) {
+                case 1: {
+                    $this->db->where('(venta.total - credito.dec_credito_montodebito) <= 0');
+                    break;
+                }
+                case 2: {
+                    $this->db->where('(venta.total - credito.dec_credito_montodebito) > 0');
+                    break;
+                }
+            }
+        }
 
         if (isset($params['cliente_id']) && $params['cliente_id'] != 0)
             $this->db->where('cliente.id_cliente', $params['cliente_id']);
@@ -54,6 +75,7 @@ class rcliente_estado_model extends CI_Model
             documento_venta.documento_Numero as documento_numero, 
             historial_pedido_proceso.created_at as fecha_venta, 
             venta.total as total_deuda, 
+            credito.dec_credito_montodebito as actual,
             (venta.total - credito.dec_credito_montodebito)  as credito,
             venta.venta_status as venta_estado
         ")
