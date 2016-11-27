@@ -7,8 +7,7 @@
 <div class="col-md-3"><label>Total Pagado: </label> <?= MONEDA ?> <span id="total_pago"></span></div>
 <div class="col-md-3"><label>Total Saldo: </label> <?= MONEDA ?> <span id="total_saldo"></span></div>
 
-<table class="table table-striped dataTable table-bordered">
-    <thead>
+<table class="table table-striped table-bordered">
     <tr>
         <th>DOC</th>
         <th># Documento</th>
@@ -21,8 +20,6 @@
         <th>Vendedor</th>
         <th>Atraso</th>
     </tr>
-    </thead>
-    <tbody>
     <?php
     $total_venta = 0;
     $total_pago = 0;
@@ -74,7 +71,6 @@
             </tr>
         <?php endforeach; ?>
     <?php endforeach; ?>
-    </tbody>
 </table>
 <input type="hidden" id="input_venta" value="<?= number_format($total_venta, 2) ?>">
 <input type="hidden" id="input_pago" value="<?= number_format($total_pago, 2) ?>">

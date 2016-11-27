@@ -444,6 +444,12 @@ $primary_nav = array(
                 'slug' => 'reporteutilidades'
             ),
             array(
+                'name' => 'Stock Comprometido',
+                'url' => $ruta . 'reporte/stock_transito',
+                'icon' => 'fa fa-bar-chart',
+                'slug' => 'reporteutilidades'
+            ),
+            array(
                 'name' => 'Reporte utilidades',
                 'url' => $ruta . 'venta/reporteUtilidades',
                 'icon' => 'fa fa-bar-chart',
