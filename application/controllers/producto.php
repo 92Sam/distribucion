@@ -182,6 +182,7 @@ class producto extends MY_Controller
         $total = $this->producto_model->count_all();
         $start = 0;
         $limit = false;
+        $search=$this->input->get('search');
 
         $draw = $this->input->get('draw');
         if (!empty($draw)) {
@@ -189,10 +190,10 @@ class producto extends MY_Controller
             $start = $this->input->get('start');
             $limit = $this->input->get('length');
         }
-        if (!empty($local)) {
+        if(!empty($search['value'])){
 
             $where = array();
-            $where['producto_activo'] = 1;
+          //  $where['producto_activo'] = 1;
             $where['producto_estatus'] = 1;
             $nombre_or = false;
             $where_or = false;
@@ -202,8 +203,13 @@ class producto extends MY_Controller
 		 marcas.nombre_marca, familia.nombre_familia, grupos.nombre_grupo, proveedor.proveedor_nombre, impuestos.nombre_impuesto, impuestos.porcentaje_impuesto,
          subfamilia.nombre_subfamilia,subgrupo.nombre_subgrupo';
             $from = "producto";
-            $join = array('lineas', 'marcas', 'familia', 'grupos', 'proveedor', 'impuestos', '(SELECT DISTINCT inventario.id_producto, inventario.id_inventario, inventario.cantidad, inventario.fraccion, inventario.id_local FROM inventario WHERE inventario.id_local=' . $local . '  ORDER by id_inventario DESC ) as inventario',
+            $join = array('lineas', 'marcas', 'familia', 'grupos', 'proveedor', 'impuestos', '(SELECT DISTINCT inventario.id_producto, inventario.id_inventario, inventario.cantidad, inventario.fraccion, inventario.id_local FROM inventario  ORDER by id_inventario DESC ) as inventario',
                 'unidades_has_producto', 'unidades', 'subgrupo', 'subfamilia');
+
+            /*
+$join = array('lineas', 'marcas', 'familia', 'grupos', 'proveedor', 'impuestos', '(SELECT DISTINCT inventario.id_producto, inventario.id_inventario, inventario.cantidad, inventario.fraccion, inventario.id_local FROM inventario WHERE inventario.id_local=' . $local . '  ORDER by id_inventario DESC ) as inventario',
+                'unidades_has_producto', 'unidades', 'subgrupo', 'subfamilia');
+            */
 
             $campos_join = array('lineas.id_linea=producto.producto_linea', 'marcas.id_marca=producto.producto_marca',
                 'familia.id_familia=producto.producto_familia', 'grupos.id_grupo=producto.produto_grupo',
@@ -265,7 +271,6 @@ class producto extends MY_Controller
             }
 
             $group = 'producto_id';
-
 
             $productos = $this->producto_model->traer_by($select, $from, $join, $campos_join, $tipo_join, $where,
                 $nombre_in, $where_in, $nombre_or, $where_or, $group, $order, "RESULT_ARRAY", $limit, $start, $order_dir, false, $where_custom);

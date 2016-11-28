@@ -87,20 +87,17 @@
 
                 <?php if ($col->mostrar == TRUE && $col->nombre_columna != 'producto_activo'){
                         if($col->nombre_mostrar == "Sub Grupo"){
-                            echo $col->nombre_mostrar.'<th>Linea</th>';
+                            echo '<th>Linea</th>';
                         }elseif($col->nombre_mostrar == 'Familia') {
-                            echo $col->nombre_mostrar.'<th>Sub Linea</th>';
+                            echo '<th>Sub Linea</th>';
                         }elseif($col->nombre_mostrar == 'Linea') {
-                            echo $col->nombre_mostrar.'<th>Talla</th>';
+                            echo '<th>Talla</th>';
                         }else{
                             echo " <th>" .$col->nombre_mostrar. "</th>";
                         }
                     }
-                ?>
+                ?>  
                 <?php endforeach; ?>
-                <th>UM</th>
-                <th>Cantidad</th>
-                <th>Fracci&oacute;n</th>
                 <th>Estado</th>
 
 

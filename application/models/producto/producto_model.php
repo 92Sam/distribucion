@@ -370,7 +370,7 @@ class producto_model extends CI_Model
         $this->db->join('impuestos', 'impuestos.id_impuesto=producto.' . $this->impuesto, 'left');
         $this->db->join('unidades_has_producto', 'unidades_has_producto.producto_id=producto.' . $this->id . ' and unidades_has_producto.orden=1', 'left');
         $this->db->where($this->status . ' !=', '0');
-        $this->db->where($this->producto_activo . ' !=', '0');
+        //$this->db->where($this->producto_activo . ' !=', '0');
         $this->db->order_by($this->nombre, 'asc');
         $query = $this->db->get();
         return $query->result_array();
@@ -399,9 +399,7 @@ class producto_model extends CI_Model
 
         $this->db->where($this->status, '1');
 
-        if ($activo) {
-            $this->db->where($this->producto_activo, '1');
-        }
+       
         if ($producto != false) {
             $this->db->where('producto.producto_id', $producto);
         }

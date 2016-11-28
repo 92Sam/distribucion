@@ -64,8 +64,20 @@
         <table class='table table-striped dataTable table-bordered'  id="table">
             <thead>
             <tr>
-                <?php foreach ($columnas as $col): ?>
-                    <?php if ($col->mostrar == TRUE && $col->nombre_columna != 'producto_activo') echo " <th>" . $col->nombre_mostrar . "</th>" ?>
+                 <?php foreach ($columnas as $col): ?>
+
+                <?php if ($col->mostrar == TRUE && $col->nombre_columna != 'producto_activo'){
+                        if($col->nombre_mostrar == "Sub Grupo"){
+                            echo '<th>Linea</th>';
+                        }elseif($col->nombre_mostrar == 'Familia') {
+                            echo '<th>Sub Linea</th>';
+                        }elseif($col->nombre_mostrar == 'Linea') {
+                            echo '<th>Talla</th>';
+                        }else{
+                            echo " <th>" .$col->nombre_mostrar. "</th>";
+                        }
+                    }
+                ?>  
                 <?php endforeach; ?>
                 <th>UM</th>
                 <th>Cantidad</th>
