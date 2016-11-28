@@ -4,24 +4,24 @@
     <table class="table table-striped dataTable table-bordered table-condensed table-hover" id="tablaresultado">
         <thead>
         <tr>
-            <th>ID</th>
-            <th>Documento</th>
-            <th>Num. Doc</th>
-            <th>Cliente</th>
-            <th>Vendedor</th>
-            <th>Fecha Venta</th>
+            <th style="text-align: center;">ID</th>
+            <th style="text-align: center;">Documento</th>
+            <th style="text-align: center;">Num. Doc</th>
+            <th style="text-align: center;">Cliente</th>
+            <th style="text-align: center;">Vendedor</th>
+            <th style="text-align: center;">Fecha Venta</th>
 
-            <th>Estado</th>
-            <th>Zona</th>
-            <th>Condici&oacute;n Pago</th>
-            <th>Total</th>
-            <th>Acciones</th>
-            <th>Cargar Todos <input type="checkbox" id="seleccionTodo"/></th>
+            <th style="text-align: center;">Estado</th>
+            <th style="text-align: center;">Zona</th>
+            <th style="text-align: center;">Condici&oacute;n Pago</th>
+            <th style="text-align: center;">Total</th>
+            <th style="text-align: center;">Acciones</th>
+            <th style="text-align: center;">Cargar Todos <input type="checkbox" id="seleccionTodo"/></th>
 
 
         </tr>
         </thead>
-        <tbody>
+        <tbody style="text-align: center;">
 
         <?php if (isset($productos_cons)) {
             if (count($productos_cons) > 0) {

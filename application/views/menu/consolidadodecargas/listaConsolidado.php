@@ -7,7 +7,7 @@
     <tr>
 
         <th>N° de Consolidado Guía Carga</th>
-        <th>Fecha</th>
+        <th>Fecha Entrega</th>
         <th>Camion</th>
         <th>Chofer</th>
         <th>Estado</th>
@@ -39,7 +39,7 @@
                         $color = 'primary';
                     if ($campoConsolidado['status'] == 'IMPRESO')
                         $color = 'other';
-                    
+
                     if ($campoConsolidado['status'] == "IMPRESO"){
                     $status = TRUE;
                     ?>
