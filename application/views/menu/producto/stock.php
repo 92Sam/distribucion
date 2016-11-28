@@ -78,7 +78,7 @@
                         }
                     }
                 ?>  
-                <?php endforeach; ?>
+                <?php endforeach; ?>    
                 <th>UM</th>
                 <th>Cantidad</th>
                 <th>Fracci&oacute;n</th>
@@ -136,7 +136,7 @@
 
 <script>$(function () {
         $("select").chosen();
-        TablesDatatablesJsonProdcutos.init('<?php echo base_url()?>producto/get_by_json',0,false,true);
+        TablesDatatablesJsonProdcutos.init('<?php echo base_url()?>producto/get_by_json_stock',0,false,true);
         $("#tbody").selectable({
             stop: function () {
 

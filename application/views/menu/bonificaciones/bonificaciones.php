@@ -39,10 +39,10 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                 <th>Productos</th>
                 <th>Marca Condición</th>
                 <th>Grupo Condición</th>
-                <th>Sub Grupo Condición</th>
-                <th>Familia Condición</th>
+                <th>Linea</th>
+                <th>Sub Linea</th>
                 <th>Sub Familia Condición</th>
-                <th>Línea Condición</th>
+                <th>Talla</th>
                 <th>Unidad Condición</th>
 
 

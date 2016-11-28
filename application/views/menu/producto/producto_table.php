@@ -35,18 +35,7 @@
 
                 ?>
             <?php endforeach; ?>
-            <td>
-                <?php echo $pd['nombre_unidad']; ?>
-
-            </td>
-            <td>
-                <?php echo $pd['cantidad']; ?>
-
-            </td>
-            <td>
-                <?php echo $pd['fraccion']; ?>
-
-            </td>
+       
             <td>
                 <?php
                 if ($pd['producto_activo'] == 1) echo "Activo"; else  echo "Inactivo";

@@ -3970,3 +3970,9 @@ only screen and (min-device-pixel-ratio: 1.5) {
 .select2-container .select2-selection--single{height: 35px}
 .select2-container--default .select2-selection--single{border: 1px solid #dae8e7;}
 .select2-results__option{cursor: pointer}
+
+.panel-admin-text {
+    margin-top: 8px;
+    text-align: right;
+    padding-right: 0px;
+}

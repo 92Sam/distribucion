@@ -190,17 +190,150 @@ class producto extends MY_Controller
             $start = $this->input->get('start');
             $limit = $this->input->get('length');
         }
-        if(!empty($search['value'])){
 
             $where = array();
-          //  $where['producto_activo'] = 1;
+            $where['producto_estatus'] = 1;
+            $nombre_or = false;
+            $where_or = false;
+            $nombre_in = false;
+            $where_in = false;
+            $select = 'producto.*, marcas.nombre_marca, familia.nombre_familia, grupos.nombre_grupo, proveedor.proveedor_nombre, impuestos.nombre_impuesto, impuestos.porcentaje_impuesto,
+         subfamilia.nombre_subfamilia,subgrupo.nombre_subgrupo';
+            $from = "producto";
+            $join = array('lineas', 'marcas', 'familia', 'grupos', 'proveedor', 'impuestos', 'subgrupo', 'subfamilia');
+
+
+            $campos_join = array('lineas.id_linea=producto.producto_linea', 'marcas.id_marca=producto.producto_marca',
+                'familia.id_familia=producto.producto_familia', 'grupos.id_grupo=producto.produto_grupo',
+                'proveedor.id_proveedor=producto.producto_proveedor', 'impuestos.id_impuesto=producto.producto_impuesto',  'subgrupo.id_subgrupo = producto.producto_subgrupo',
+                'subfamilia.id_subfamilia = producto.producto_subfamilia');
+            $tipo_join = array('left', 'left', 'left', 'left', 'left', 'left', 'left', 'left');
+
+
+            $search = $this->input->get('search');
+            $columns = $this->input->get('columns');
+            $buscar = $search['value'];
+            $where_custom = false;
+            if (!empty($search['value'])) {
+
+                $buscarcod = $buscar;
+                if (is_numeric($buscar)) {
+                    $buscarcod = restCod($buscar);
+                }
+
+                $where_custom = "(producto.producto_id = '" . $buscarcod . "' or producto.producto_nombre LIKE '%" . $buscar . "%'
+            or marcas.nombre_marca LIKE '%" . $buscar . "%' or grupos.nombre_grupo LIKE '%" . $buscar . "%'
+            or subgrupo.nombre_subgrupo LIKE '%" . $buscar . "%' or familia.nombre_familia LIKE '%" . $buscar . "%'
+            or subfamilia.nombre_subfamilia LIKE '%" . $buscar . "%' or lineas.nombre_linea LIKE '%" . $buscar . "%'
+            or producto.presentacion LIKE '%" . $buscar . "%' or producto.producto_activo LIKE '%" . $buscar . "%')";
+            }
+
+
+            $ordenar = $this->input->get('order');
+            $order = false;
+            $order_dir = 'asc';
+            if (!empty($ordenar)) {
+                $order_dir = $ordenar[0]['dir'];
+                if ($ordenar[0]['column'] == 0) {
+                    $order = 'producto.producto_id';
+                }
+                if ($ordenar[0]['column'] == 1) {
+                    $order = 'producto.producto_nombre';
+                }
+                if ($ordenar[0]['column'] == 2) {
+                    $order = 'marcas.nombre_marca ';
+                }
+                if ($ordenar[0]['column'] == 3) {
+                    $order = 'familia.nombre_familia';
+                }
+                if ($ordenar[0]['column'] == 4) {
+                    $order = 'subfamilia.nombre_subfamilia';
+                }
+               
+                
+
+            }
+
+            $group = 'producto_id';
+
+            $productos = $this->producto_model->traer_by($select, $from, $join, $campos_join, $tipo_join, $where,
+                $nombre_in, $where_in, $nombre_or, $where_or, $group, $order, "RESULT_ARRAY", $limit, $start, $order_dir, false, $where_custom);
+
+
+       
+
+        foreach ($productos as $producto) {
+            $PRODUCTOjson = array();
+            foreach ($columnas as $col) {
+                if (array_key_exists($col->nombre_columna, $producto) and $col->mostrar == TRUE) {
+
+                    if ($col->nombre_columna != 'producto_activo') {
+
+                        $unidades = $this->unidades_model->get_by_producto($producto['producto_id']);
+                        $producto['existencia'] = 0;
+                        if (isset($unidades[0]) && isset($producto['cantidad'])) {
+                            $maxima_unidades = $unidades[0]['unidades'];
+                            $cantidad_total = ($producto['cantidad'] * $maxima_unidades) + $producto['fraccion'];
+                            $producto['existencia'] = $cantidad_total;
+                        }
+
+                        if ($col->nombre_columna == 'producto_id') {
+                            $PRODUCTOjson[] = sumCod($producto['producto_id']);
+                        } else {
+
+                            $PRODUCTOjson[] = isset($producto[$col->nombre_join]) ? $producto[$col->nombre_join] : '';
+                        }
+
+
+                    }
+                }
+
+            }
+
+
+            $PRODUCTOjson[] = ($producto['producto_activo'] == 1) ? "Activo" : "Inactivo";
+
+            $array['productosjson'][] = $PRODUCTOjson;
+        }
+
+        $array['data'] = $array['productosjson'];
+        $array['draw'] = $draw;//esto debe venir por post
+        $array['recordsTotal'] = $total;
+        $array['recordsFiltered'] = $total; // esto dbe venir por post
+
+        echo json_encode($array);
+    }
+
+
+    function get_by_json_stock()
+    {
+        $datas = array();
+        $columnas = $this->columnas;
+
+        // Pagination Result
+        $array = array();
+        $array['productosjson'] = array();
+
+        $total = $this->producto_model->count_all();
+        $start = 0;
+        $limit = false;
+        $search=$this->input->get('search');
+
+        $draw = $this->input->get('draw');
+        if (!empty($draw)) {
+
+            $start = $this->input->get('start');
+            $limit = $this->input->get('length');
+        }
+
+            $where = array();
             $where['producto_estatus'] = 1;
             $nombre_or = false;
             $where_or = false;
             $nombre_in = false;
             $where_in = false;
             $select = 'producto.*, unidades_has_producto.id_unidad, unidades.nombre_unidad, inventario.id_inventario, inventario.id_local, inventario.cantidad, inventario.fraccion ,lineas.nombre_linea,
-		 marcas.nombre_marca, familia.nombre_familia, grupos.nombre_grupo, proveedor.proveedor_nombre, impuestos.nombre_impuesto, impuestos.porcentaje_impuesto,
+         marcas.nombre_marca, familia.nombre_familia, grupos.nombre_grupo, proveedor.proveedor_nombre, impuestos.nombre_impuesto, impuestos.porcentaje_impuesto,
          subfamilia.nombre_subfamilia,subgrupo.nombre_subgrupo';
             $from = "producto";
             $join = array('lineas', 'marcas', 'familia', 'grupos', 'proveedor', 'impuestos', '(SELECT DISTINCT inventario.id_producto, inventario.id_inventario, inventario.cantidad, inventario.fraccion, inventario.id_local FROM inventario  ORDER by id_inventario DESC ) as inventario',
@@ -272,14 +405,9 @@ $join = array('lineas', 'marcas', 'familia', 'grupos', 'proveedor', 'impuestos',
 
             $group = 'producto_id';
 
-            $productos = $this->producto_model->traer_by($select, $from, $join, $campos_join, $tipo_join, $where,
-                $nombre_in, $where_in, $nombre_or, $where_or, $group, $order, "RESULT_ARRAY", $limit, $start, $order_dir, false, $where_custom);
+            $productos = $this->producto_model->traer_by($select, $from, $join, $campos_join, $tipo_join, $where, $nombre_in, $where_in, $nombre_or, $where_or, false, $order, "RESULT_ARRAY", $limit, $start,$order_dir,false,$where_custom);
 
 
-        } else {
-            $productos = $this->producto_model->select_all_producto();
-
-        }
 
         foreach ($productos as $producto) {
             $PRODUCTOjson = array();
@@ -325,6 +453,7 @@ $join = array('lineas', 'marcas', 'familia', 'grupos', 'proveedor', 'impuestos',
 
         echo json_encode($array);
     }
+
 
     function agregar($id = FALSE)
     {
