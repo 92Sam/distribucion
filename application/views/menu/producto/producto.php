@@ -57,8 +57,9 @@
             </a>
         </div>
     </div>
-    <br>
 
+
+    <!--
     <div class="row">
         <div class="form-group">
             <div class="col-md-1">
@@ -75,6 +76,7 @@
             </div>
         </div>
     </div>
+    -->
     <br>
 
     <div class="table-responsive" id="productostable">
@@ -82,27 +84,24 @@
             <thead>
             <tr>
                 <?php foreach ($columnas as $col): ?>
-                    <?php if ($col->mostrar == TRUE && $col->nombre_columna != 'producto_activo'){
 
-
-                            if($col->nombre_mostrar == 'Sub Grupo'){
-                                echo $col->nombre_mostrar.'<th>Linea</th>';
-                            }elseif($col->nombre_mostrar == 'Familia') {
-                                echo $col->nombre_mostrar.'<th>Sub Linea</th>';
-                            }elseif($col->nombre_mostrar == 'Linea') {
-                                echo $col->nombre_mostrar.'<th>Talla</th>';
-                            }else{
-                                echo " <th>" .$col->nombre_mostrar. "</th>"; 
-                            }
-
-
+                <?php if ($col->mostrar == TRUE && $col->nombre_columna != 'producto_activo'){
+                        if($col->nombre_mostrar == "Sub Grupo"){
+                            echo $col->nombre_mostrar.'<th>Linea</th>';
+                        }elseif($col->nombre_mostrar == 'Familia') {
+                            echo $col->nombre_mostrar.'<th>Sub Linea</th>';
+                        }elseif($col->nombre_mostrar == 'Linea') {
+                            echo $col->nombre_mostrar.'<th>Talla</th>';
+                        }else{
+                            echo " <th>" .$col->nombre_mostrar. "</th>";
                         }
-                          ?>
+                    }
+                ?>
                 <?php endforeach; ?>
                 <th>UM</th>
                 <th>Cantidad</th>
                 <th>Fracci&oacute;n</th>
-                <th>Activo</th>
+                <th>Estado</th>
 
 
             </tr>

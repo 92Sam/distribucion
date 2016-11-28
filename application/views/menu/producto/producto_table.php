@@ -10,12 +10,13 @@
     <thead>
     <tr>
         <?php foreach ($columnas as $col): ?>
+
             <?php if ($col->mostrar == TRUE && $col->nombre_columna != 'producto_activo') echo " <th>" . $col->nombre_mostrar . "</th>" ?>
         <?php endforeach; ?>
         <th>UM</th>
         <th>Cantidad</th>
         <th>Fracci&oacute;n</th>
-        <th>Activo</th>
+        <th>Estado</th>
 
     </tr>
     </thead>

@@ -3,7 +3,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title">Nuevo Subgrupo</h4>
+                <h4 class="modal-title">Nueva L&iacute;nea</h4>
             </div>
             <div class="modal-body">
                 <div class="form-group">

@@ -2,7 +2,7 @@
 
 <ul class="breadcrumb breadcrumb-top">
     <li>Productos</li>
-    <li><a href="">Agregar y editar Subgrupos</a></li>
+    <li><a href="">Agregar o editar L&iacute;nea</a></li>
 </ul>
 
 <div class="row">
@@ -30,14 +30,9 @@
 <div class="block">
     <!-- Progress Bars Wizard Title -->
 
-    <div class="block-title">
-        <h3>Subgrupos de productos</h3>
-    </div>
-
     <a class="btn btn-primary" onclick="agregargrupo();">
-        <i class="fa fa-plus "> Nuevo</i>
+        <i class="fa fa-plus "> Nueva</i>
     </a>
-    <br>
 
 
     <?php
@@ -48,8 +43,8 @@
             <thead>
             <tr>
 
-                <th>ID</th>
-                <th>Nombre</th>
+                <th>Codigo</th>
+                <th>Nombre Linea</th>
 
                 <th class="desktop">Acciones</th>
 
@@ -70,12 +65,12 @@
                             <div class="btn-group">
                                 <?php
 
-                                echo '<a class="btn btn-default btn-default btn-default" data-toggle="tooltip"
+                                echo '<a class="btn btn-primary" data-toggle="tooltip"
                                             title="Editar" data-original-title="Editar"
                                             href="#" onclick="editargrupo(' . $grupo['id_subgrupo'] . ');">'; ?>
                                 <i class="fa fa-edit"></i>
                                 </a>
-                                <?php echo '<a class="btn btn-default btn-default btn-default" data-toggle="tooltip"
+                                <?php echo '<a style="margin-left: 10px;" class="btn btn-danger" data-toggle="tooltip"
                                      title="Eliminar" data-original-title="Eliminar" onclick="borrargrupo(' . $grupo['id_subgrupo'] . ',\'' . $grupo['nombre_subgrupo'] . '\');">'; ?>
                                 <i class="fa fa-trash-o"></i>
                                 </a>
@@ -164,16 +159,16 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title">Eliminar Subgrupo</h4>
+                    <h4 class="modal-title">Eliminar L&iacute;nea</h4>
                 </div>
                 <div class="modal-body">
-                    <p>Est&aacute; seguro que desea eliminar el subgrupo seleccionado?</p>
+                    <h4>¿Est&aacute; seguro que desea eliminar la l&iacute;nea seleccionada?</h4>
                     <input type="hidden" name="id" id="id_borrar">
                     <input type="hidden" name="nombre" id="nom_borrar">
                 </div>
                 <div class="modal-footer">
                     <button type="button" id="confirmar" class="btn btn-primary" onclick="eliminar()">Confirmar</button>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-warning" data-dismiss="modal">Cancelar</button>
 
                 </div>
             </div>
