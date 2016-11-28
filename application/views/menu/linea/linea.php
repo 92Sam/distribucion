@@ -2,8 +2,8 @@
 
 
 <ul class="breadcrumb breadcrumb-top">
-    <li>L&iacute;neas</li>
-    <li><a href="">Agregar y editar l&iacute;neas</a></li>
+    <li>Categorias</li>
+    <li><a href="">Agregar y editar Talla</a></li>
 </ul>
 
 <div class="row">
@@ -45,8 +45,8 @@
             <thead>
             <tr>
 
-                <th>ID</th>
-                <th>Nombre</th>
+                <th>Código</th>
+                <th>Nombre Talla</th>
 
                 <th class="desktop">Acciones</th>
 
@@ -72,7 +72,7 @@
                                             href="#" onclick="editargrupo(' . $linea['id_linea'] . ');">'; ?>
                             <i class="fa fa-edit"></i>
                             </a>
-                            <?php echo '<a class="btn btn-default" data-toggle="tooltip"
+                            <?php echo '<a style="margin-left: 10px;"class="btn btn-danger" data-toggle="tooltip"
                                      title="Eliminar" data-original-title="fa fa-comment-o"
                                      onclick="borrargrupo(' . $linea['id_linea'] . ',\'' . $linea['nombre_linea'] . '\');">'; ?>
                             <i class="fa fa-trash-o"></i>
@@ -87,7 +87,7 @@
             </tbody>
         </table>
         <br>
-        <a href="<?= $ruta?>linea/pdf" class="btn  btn-default btn-lg" data-toggle="tooltip" title="Exportar a PDF" data-original-title="fa fa-file-pdf-o"><i class="fa fa-file-pdf-o fa-fw"></i></a>
+        <a href="<?= $ruta?>linea/pdf" class="btn  btn-danger btn-lg" data-toggle="tooltip" title="Exportar a PDF" data-original-title="fa fa-file-pdf-o"><i class="fa fa-file-pdf-o fa-fw"></i></a>
         <a href="<?= $ruta?>linea/excel" class="btn btn-default btn-lg" data-toggle="tooltip" title="Exportar a Excel" data-original-title="fa fa-file-excel-o"><i class="fa fa-file-excel-o fa-fw"></i></a>
     </div>
 </div>
@@ -163,10 +163,10 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title">Eliminar L&iacute;nea</h4>
+                    <h4 class="modal-title">Eliminar Talla</h4>
                 </div>
                 <div class="modal-body">
-                    <p>Est&aacute; seguro que desea eliminar la l&iacute;nea seleccionada</p>
+                    <h4>¿Est&aacute; seguro que desea eliminar la talla seleccionada?</h4>
                     <input type="hidden" name="id" id="id_borrar">
                     <input type="hidden" name="nombre" id="nom_borrar">
                 </div>

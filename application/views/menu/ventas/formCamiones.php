@@ -11,7 +11,7 @@
                                 <div class="col-md-3">
                                     Camiones
                                 </div>
-                                <div class="col-md-9">
+                                <div class="col-md-6">
                                     <select id="camion" class="form-control campos" name="camion">
                                     <option value=""> SELECCIONE</option>
                                    <?php
@@ -60,7 +60,7 @@
                                            } else {
                                                date('d-m-Y');
                                            } ?>" required="true"
-                                           class="form-control fecha campos input-datepicker ">
+                                           class="form-control fecha campos input-datepicker " readonly="readonly">
                                 </div>
 
                             </div>
@@ -75,8 +75,9 @@
 
                         ?>
                         <div class="modal-footer">
-                            <button type="button" id="btnconfirmar" class="btn btn-primary" onclick="grupo.guardar()" >Confirmar</button>
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                            <button type="button" id="btnconfirmar" class="btn btn-primary" onclick="grupo.guardar()" ><li class="glyphicon glyphicon-thumbs-up"></li> Confirmar</button>
+                            <button type="button" class="btn btn-warning" data-dismiss="modal">
+                            <li class="glyphicon glyphicon-thumbs-down"></li> Cancelar</button>
 
                         </div>
                     </div>
@@ -103,4 +104,4 @@
                     });
                  });
                 </script>
-       
+

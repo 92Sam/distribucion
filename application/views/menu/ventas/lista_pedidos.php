@@ -5,13 +5,13 @@
         <thead>
         <tr>
             <th>ID</th>
-            <th>Tipo de Documento</th>
-            <th>N&uacute;mero de Venta</th>
+            <th>Documento</th>
+            <th>Num. Doc</th>
             <th>Cliente</th>
             <th>Vendedor</th>
-            <th>Fecha</th>
+            <th>Fecha Venta</th>
 
-            <th>Estatus</th>
+            <th>Estado</th>
             <th>Zona</th>
             <th>Condici&oacute;n Pago</th>
             <th>Total</th>
@@ -41,7 +41,7 @@
 
                                 <?= $prod_con->razon_social ?></label></td>
                         <td><?= $prod_con->nombre ?></td>
-                        <td><?= date('d-m-Y H:i:s', strtotime($prod_con->fecha)) ?></td>
+                        <td><?= date('d-m-Y H:i', strtotime($prod_con->fecha)) ?></td>
 
                         <td><?= $venta_status; ?></td>
                         <td><?= $prod_con->zona_nombre ?></td>
@@ -68,7 +68,7 @@
                                     <a onclick="precioSugerido(<?php echo $venta->venta_id; ?>)"
                                        class="btn <?php echo (isset($venta->preciosugerido) and $venta->preciosugerido > 0) ? 'btn-warning' : 'btn-default' ?>"
                                        data-toggle='tooltip' data-original-title='Editar Pedido'
-                                       title="Precio Sugerido"><i class="fa fa-edit"></i> </a>
+                                       title="Precio Sugerido"><i class="glyphicon glyphicon-edit"></i> </a>
                                 </div>
 
                             <?php } ?>
@@ -95,7 +95,7 @@
                 ?>
                 <tr>
                     <td><?= $venta->venta_id ?></td>
-                    <td><?= $venta->nombre_tipo_documento ?></td>
+                    <td>NE</td>
                     <td><?= $venta->documento_Serie . "-" . $venta->documento_Numero ?></td>
                     <td><label class=" <?php
                     if (isset($venta->deudor)) {
@@ -105,7 +105,7 @@
 
                             <?= $venta->razon_social ?></label></td>
                     <td><?= $venta->nombre ?></td>
-                    <td><?= date('d-m-Y H:i:s', strtotime($venta->fecha)) ?></td>
+                    <td><?= date('d-m-Y H:i', strtotime($venta->fecha)) ?></td>
 
                     <?php if ($venta_status == PEDIDO_GENERADO) { ?>
                         <td><a href="javascript:void(0)" class="edit_estatus_pedido"
@@ -134,7 +134,7 @@
                                 <a onclick="precioSugerido(<?php echo $venta->venta_id; ?>)"
                                    class="btn <?php echo (isset($venta->preciosugerido) and $venta->preciosugerido > 0) ? 'btn-warning' : 'btn-default' ?>"
                                    data-toggle='tooltip' data-original-title='Editar Pedido'
-                                   title="Precio Sugerido"><i class="fa fa-edit"></i> </a>
+                                   title="Precio Sugerido"><i class="glyphicon glyphicon-edit"></i> </a>
                             </div>
 
                         <?php } ?>
@@ -143,9 +143,9 @@
 
                             <div class="btn-group">
                                 <a onclick="anular(<?php echo $venta->venta_id; ?>)"
-                                   class="btn <?php echo (isset($venta->preciosugerido) and $venta->preciosugerido > 0) ? 'btn-warning' : 'btn-default' ?>"
+                                   class="btn <?php echo (isset($venta->preciosugerido) and $venta->preciosugerido > 0) ? 'btn-danger' : 'btn-danger' ?>"
                                    data-toggle='tooltip' data-original-title='Anular Pedido'
-                                   title="Anular"><i class="fa fa-trash"></i> </a>
+                                   title="Anular"><i class="glyphicon glyphicon-trash"></i> </a>
                             </div>
 
                         <?php } ?>
@@ -171,7 +171,7 @@
 
 <a href="<?= $ruta; ?>venta/pdf/<?php if (isset($local)) echo $local; else echo 0; ?>/<?php if (isset($fecha_desde)) echo $fecha_desde; else echo 0; ?>
  /<?php if (isset($fecha_hasta)) echo $fecha_hasta; else echo 0; ?> / <?php if (isset($estatus)) echo $estatus; else echo 0; ?>/0"
-   class="btn  btn-default btn-lg" data-toggle="tooltip" title="Exportar a PDF"
+   class="btn  btn-danger btn-lg" data-toggle="tooltip" title="Exportar a PDF"
    data-original-title="fa fa-file-pdf-o"><i class="fa fa-file-pdf-o fa-fw"></i></a>
 <a href="<?= $ruta; ?>venta/excel/<?php if (isset($local)) echo $local; else echo 0; ?>/<?php if (isset($fecha_desde)) echo $fecha_desde; else echo 0; ?>
  /<?php if (isset($fecha_hasta)) echo $fecha_hasta; else echo 0; ?> / <?php if (isset($estatus)) echo $estatus; else echo 0; ?>/0"
@@ -229,8 +229,10 @@
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" id="" class="btn btn-primary" onclick="anularfunction.guardar()" >Confirmar</button>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                    <button type="button" id="" class="btn btn-primary" onclick="anularfunction.guardar()">
+                    <li class="glyphicon glyphicon-thumbs-up"></li> Confirmar</button>
+                    <button type="button" class="btn btn-warning" data-dismiss="modal">
+                    <li class="glyphicon glyphicon-thumbs-down"></li> Cancelar</button>
 
                 </div>
             </div>

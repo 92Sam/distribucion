@@ -1,7 +1,7 @@
 <?php $ruta = base_url(); ?>
 
 <ul class="breadcrumb breadcrumb-top">
-    <li>Productos</li>
+    <li>Categorias</li>
     <li><a href="">Agregar o editar L&iacute;nea</a></li>
 </ul>
 
@@ -43,7 +43,7 @@
             <thead>
             <tr>
 
-                <th>Codigo</th>
+                <th>Código</th>
                 <th>Nombre Linea</th>
 
                 <th class="desktop">Acciones</th>
@@ -65,7 +65,7 @@
                             <div class="btn-group">
                                 <?php
 
-                                echo '<a class="btn btn-primary" data-toggle="tooltip"
+                                echo '<a class="btn btn-default" data-toggle="tooltip"
                                             title="Editar" data-original-title="Editar"
                                             href="#" onclick="editargrupo(' . $grupo['id_subgrupo'] . ');">'; ?>
                                 <i class="fa fa-edit"></i>
@@ -84,7 +84,7 @@
             </tbody>
         </table>
         <br>
-        <a href="<?= $ruta ?>subgrupo/pdf" id="generarpdf" class="btn  btn-default btn-lg" data-toggle="tooltip"
+        <a href="<?= $ruta ?>subgrupo/pdf" id="generarpdf" class="btn  btn-danger btn-lg" data-toggle="tooltip"
            title="Exportar a PDF" data-original-title="fa fa-file-pdf-o"><i class="fa fa-file-pdf-o fa-fw"></i></a>
         <a href="<?= $ruta ?>subgrupo/excel" class="btn btn-default btn-lg" data-toggle="tooltip"
            title="Exportar a Excel"

@@ -23,7 +23,7 @@
                 </li>
 
                 <li role="presentation">
-                    <a href="#precios" data-toggle="tab"> Unidades y Precios</a>
+                    <a href="#precios" data-toggle="tab"> UM y Precios</a>
                 </li>
 
 
@@ -31,7 +31,7 @@
                     <a href="#promocion" data-toggle="tab">Bonificaciones</a>
                 </li>
                 <li role="presentation">
-                    <a href="#descuento" data-toggle="tab">Descuento</a>
+                    <a href="#descuento" data-toggle="tab">Descuentos</a>
                 </li>
                 <!--<li role="presentation">
                     <a href="#imagenes" data-toggle="tab">Im&aacute;genes</a>
@@ -412,8 +412,8 @@
                 <div class="tab-pane" role="tabpanel" id="precios" role="tabpanel">
                     <div class="panel">
                         <div class="col-md-3">
-                            <a class="btn btn-default" onclick="agregarprecio();">
-                                <i class="fa fa-plus "> Nuevo Precio (F4)</i>
+                            <a class="btn btn-info" onclick="agregarprecio();">
+                                <i class="fa fa-plus "> Nuevo Precio</i>
                             </a>
                         </div>
 
@@ -436,14 +436,9 @@
 
                         <table class="table block table-striped dataTable table-bordered">
                             <thead>
-                            <th>Descripci&oacute;n</th>
-                            <th>Unidades</th>
+                            <th>UM</th>
+                            <th>Cantidad</th>
                             <th>Metro Cubicos</th>
-
-
-
-
-
 
 
                             <?php foreach ($precios as $precio):
@@ -537,7 +532,7 @@
 
                                         } ?>
 
-                                        <td width='13%'><a href="#" class='btn btn-default'
+                                        <td width='13%'><a href="#" class="btn btn-danger"
                                                            id="eliminar<?= $countunidad ?>"
                                                            onclick="eliminarunidad(<?= $countunidad ?>);"><i
                                                     class="fa fa-remove"></i> </a><a class='btn btn-default'
@@ -563,16 +558,16 @@
                         <thead>
                         <tr>
 
-                            <th>Unidad</th>
-                            <th>Sub L&iacute;nea</th>
+                            <th>UM</th>
+
                             <th>Grupo</th>
                             <th>Marca</th>
-                            <th>Talla</th>
+
                             <th>Cantidad</th>
-                            <th>Bono unidad</th>
-                            <th>Bono producto</th>
-                            <th>Bono cantidad</th>
-                            <th>Fecha</th>
+                            <th>Bono UM</th>
+                            <th>Bono Producto</th>
+                            <th>Bono Cantidad</th>
+                            <th>Fecha Vencimiento</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -581,18 +576,14 @@
                             <td>
                                 <?php if (isset($promocion['id_unidad'])) echo $promocion['nombre_unidad']; ?>
                             </td>
-                            <td>
-                                <?php if (isset($promocion['id_familia'])) echo $promocion['nombre_familia']; ?>
-                            </td>
+
                             <td>
                                 <?php if (isset($promocion['id_grupo'])) echo $promocion['nombre_grupo']; ?>
                             </td>
                             <td>
                                 <?php if (isset($promocion['id_marca'])) echo $promocion['nombre_marca']; ?>
                             </td>
-                            <td>
-                                <?php if (isset($promocion['id_linea'])) echo $promocion['nombre_linea']; ?>
-                            </td>
+
                             <td>
                                 <?php if (isset($promocion['cantidad_condicion'])) echo $promocion['cantidad_condicion']; ?>
                             </td>
@@ -625,7 +616,7 @@
                                 <th>Regla descuento</th>
                                 <th>Cantidades</th>
                                 <th>Nombre producto</th>
-                                <th>Unidad</th>
+                                <th>UM</th>
                                 <th>Precio</th>
 
 
@@ -688,10 +679,17 @@
         </div>
         <div class="modal-footer">
             <div class="text-right">
-                <button class="btn btn-default" type="button" onclick="guardarproducto()" id="btnGuardar"><i
-                        class="fa fa-save"></i> Guardar
+                <button class="btn btn-primary" type="button" onclick="guardarproducto()" id="btnGuardar">
+                    <li class="glyphicon glyphicon-thumbs-up"></li> Guardar
                 </button>
-                <input type="reset" class='btn btn-default' value="Cancelar" data-dismiss="modal">
+
+               <!-- <input type="reset" class='btn btn-warning' value="Cancelar" data-dismiss="modal"> -->
+
+                <button type="button" class="btn btn-warning" data-dismiss="modal">
+                    <li class="glyphicon glyphicon-thumbs-down"></li> Cancelar
+
+                </button>
+
             </div>
         </div>
 
@@ -900,7 +898,7 @@
 
         <?php $preciocount++;
          endforeach ?>
-        "<td width='13%'><a class='btn btn-default' href='#' id='eliminar" + unidadcount + "' onclick='eliminarunidad(" + unidadcount + ");'><i class='fa fa-remove'></i> </a> <a style='cursor: move' class='btn btn-default' href='#' data-toggle='tooltip'" +
+        "<td width='13%'><a class='btn btn-danger' href='#' id='eliminar" + unidadcount + "' onclick='eliminarunidad(" + unidadcount + ");'><i class='fa fa-remove'></i> </a> <a style='cursor: move' class='btn btn-default' href='#' data-toggle='tooltip'" +
         " title='Mover' data-original-title='Mover' ><i class='fa fa-arrows-v'></i> </a>  </td>" +
         "</tr>");
         unidadcount++;

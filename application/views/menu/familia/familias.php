@@ -2,8 +2,8 @@
 
 
 <ul class="breadcrumb breadcrumb-top">
-    <li>Familias</li>
-    <li><a href="">Agregar y editar Familias</a></li>
+    <li>Categorias</li>
+    <li><a href="">Agregar y editar Sub Linea</a></li>
 </ul>
 
 <div class="row">
@@ -46,8 +46,8 @@
             <thead>
             <tr>
 
-                <th>ID</th>
-                <th>Nombre</th>
+                <th>Código</th>
+                <th>Nombre Sub Línea </th>
 
                 <th class="desktop">Acciones</th>
 
@@ -73,7 +73,7 @@
                                             href="#" onclick="editargrupo(' . $familia['id_familia'] . ');">'; ?>
                                 <i class="fa fa-edit"></i>
                                 </a>
-                                <?php echo '<a class="btn btn-default" data-toggle="tooltip"
+                                <?php echo '<a style="margin-left: 10px;" class="btn btn-danger" data-toggle="tooltip"
                                      title="Eliminar" data-original-title="fa fa-comment-o" onclick="borrargrupo(' . $familia['id_familia'] . ',\'' . $familia['nombre_familia'] . '\');">'; ?>
                                 <i class="fa fa-trash-o"></i>
                                 </a>
@@ -87,7 +87,7 @@
             </tbody>
         </table>
         <br>
-        <a href="<?= $ruta ?>familia/pdf" class="btn  btn-default btn-lg" data-toggle="tooltip" title="Exportar a PDF"
+        <a href="<?= $ruta ?>familia/pdf" class="btn  btn-danger btn-lg" data-toggle="tooltip" title="Exportar a PDF"
            data-original-title="fa fa-file-pdf-o"><i class="fa fa-file-pdf-o fa-fw"></i></a>
         <a href="<?= $ruta ?>familia/excel" class="btn btn-default btn-lg" data-toggle="tooltip"
            title="Exportar a Excel" data-original-title="fa fa-file-excel-o"><i
@@ -164,16 +164,16 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title">Eliminar Familia</h4>
+                    <h4 class="modal-title">Eliminar Sub Línea</h4>
                 </div>
                 <div class="modal-body">
-                    <p>Est&aacute; seguro que desea eliminar la familia seleccionada</p>
+                    <h4>¿Est&aacute; seguro que desea eliminar la Sub Línea seleccionada?</h4>
                     <input type="hidden" name="id" id="id_borrar">
                     <input type="hidden" name="nombre" id="nom_borrar">
                 </div>
                 <div class="modal-footer">
                     <button type="button" id="confirmar" class="btn btn-primary" onclick="eliminar()">Confirmar</button>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-warning" data-dismiss="modal">Cancelar</button>
 
                 </div>
             </div>
@@ -185,8 +185,6 @@
 </div>
 
 <script>$(function () {
-
-
 
         TablesDatatables.init();
     });</script>

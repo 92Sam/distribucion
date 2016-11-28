@@ -17,9 +17,6 @@
 <div class="block">
 
     <!-- Progress Bars Wizard Title -->
-    <div class="block-title">
-        <h2><strong>Generar</strong> Venta</h2>
-    </div>
 
     <form method="post" id="frmVenta" action="#" class=''>
         <input type="hidden" name="url_refresh" id="url_refresh" value="">
@@ -71,7 +68,7 @@
                 </div>
                 <div class="col-md-1">
                     <?php if (!isset($devolver)): ?>
-                        <button type="button" id="refrescarstock" class="btn btn-default"><i class="fa fa-refresh"></i>
+                        <button type="button" id="refrescarstock" class="btn btn-primary"><i class="fa fa-refresh"></i>
                             Refrescar
                         </button>
                     <?php endif ?>
@@ -85,7 +82,7 @@
                     <div id="" class="table-responsive" style="height: 400px;    overflow-y: auto;">
                         <table class="table dataTable dataTables_filter table-bordered">
                             <thead>
-                            <tr style="background-color: #B1AEAE;;">
+                            <tr style="background-color: #B1AEAE; color:white;">
                                 <th style="padding-top: 0px; padding-bottom: 0px; ">#</th>
                                 <th style="padding-top: 0px; padding-bottom: 0px">ID</th>
                                 <th style="padding-top: 0px; padding-bottom: 0px">Nombre</th>
@@ -333,37 +330,20 @@
                             </div>
 
 
-                            <!--<div class="row" id="vueltodiv">
-                                <div class="form-group" id="monto_vuelto">
-                                    <div class="col-md-3">
-                                        <label for="vuelto" class="control-label">Vuelto:</label>
-                                    </div>
-                                    <div class="col-md-9">
-                                        <div class="input-prepend input-append input-group">
-                                            <span class="input-group-addon"><?= MONEDA ?></span><input type="text"
-                                                                                                       value="0"
-                                                                                                       class='input-square input-small form-control'
-                                                                                                       name="vuelto" id="vuelto"
-                                                                                                       readonly>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>-->
+
                         </div>
                         <div class="modal-footer">
 
                             <div class="row">
                                 <div class="col-md-12">
-                                    <button class="btn btn-default" type="button" id="realizarventa"
-                                            onclick="javascript:hacerventa(0);"><i
-                                            class="fa fa-save"></i>Guardar
+                                    <button class="btn btn-primary" type="button" id="realizarventa"
+                                            onclick="javascript:hacerventa(0);"><li class="glyphicon glyphicon-thumbs-up"></li> Guardar
                                     </button>
-                                    <a href="#" class="btn btn-default" id="btnRealizarVentaAndView"
-                                       onclick="javascript:hacerventa(1);" type="button"><i
-                                            class="fa fa-print"></i> (F6)Guardar e imprimir
+                                    <a href="#" class="btn btn-primary" id="btnRealizarVentaAndView"
+                                       onclick="javascript:hacerventa(1);" type="button"><li class="glyphicon glyphicon-thumbs-up"></li> (F6)Guardar e imprimir
                                     </a>
-                                    <button class="btn btn-default closegenerarventa" type="button"><i
-                                            class="fa fa-close"></i> Cancelar
+                                    <button class="btn btn-warning closegenerarventa" type="button">
+                                    <li class="glyphicon glyphicon-thumbs-down"></li> Cancelar
                                     </button>
                                 </div>
                             </div>
@@ -407,7 +387,7 @@
                             <div class="row">
                                 <table class="table datatable table-bordered">
                                     <thead>
-                                    <th>Descripcion</th>
+                                    <th>Presentacion</th>
                                     <th>Unidades</th>
                                     <th id="tituloprecio"></th>
                                     </thead>
@@ -427,7 +407,7 @@
                         </div>
                         <div class="modal-footer">
                             <a href="#" class="btn btn-primary" id="agregarproducto">Agregar Producto</a>
-                            <a href="#" class="btn btn-default closeseleccionunidades">Salir</a>
+                            <a href="#" class="btn btn-warning closeseleccionunidades">Salir</a>
                         </div>
                     </div>
                 </div>
@@ -496,11 +476,11 @@
             <div class="modal-footer">
                 <div class="row">
                     <div class="col-md-12">
-                        <button class="btn btn-default" type="button" id="guardarcantidad">
-                            <i class="fa fa-save"></i>Guardar
+                        <button class="btn btn-primary" type="button" id="guardarcantidad">
+                            <li class="glyphicon glyphicon-thumbs-up"></li> Guardar
                         </button>
-                        <button class="btn btn-default closemodificarcantidad" type="button">
-                            <i class="fa fa-close"></i> Cancelar
+                        <button class="btn btn-warning closemodificarcantidad" type="button">
+                            <li class="glyphicon glyphicon-thumbs-down"></li> Cancelar
                         </button>
                     </div>
                 </div>
@@ -520,13 +500,17 @@
 
             <div class="modal-body">
 
-                <h3>Estas seguro que deseas eliminar este producto?</h3>
+                <h4>¿Estas seguro que deseas eliminar este producto?</h4>
 
             </div>
 
             <div class="modal-footer">
-                <button type="button" id="eliminar_item" class="btn btn-primary">Confirmar</button>
-                <button type="button" class="btn btn-default" onclick="$('#confirmar_delete').modal('hide');">Cancelar</button>
+                <button type="button" id="eliminar_item" class="btn btn-primary">
+                    <li class="glyphicon glyphicon-thumbs-up"></li> Confirmar
+                </button>
+                <button type="button" class="btn btn-warning" onclick="$('#confirmar_delete').modal('hide');">
+                    <li class="glyphicon glyphicon-thumbs-down"></li> Cancelar
+                </button>
             </div>
         </div>
         <!-- /.modal-content -->

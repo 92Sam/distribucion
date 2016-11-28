@@ -27,11 +27,11 @@
                         </thead>
                         <tbody>
 
-                        <?php 
+                        <?php
                         foreach ($columnas as $columna) { ?>
                             <tr>
                                 <input type="hidden" name="columna_id[]" value="<?php echo $columna->id_columna ?>">
-                                <td><?php 
+                                <td><?php
                                         if($columna->nombre_mostrar == 'Sub Grupo'){
                                             echo 'Linea';
                                         }elseif($columna->nombre_mostrar == 'Familia') {
@@ -39,7 +39,7 @@
                                         }elseif($columna->nombre_mostrar == 'Linea') {
                                             echo 'Talla';
                                         }else{
-                                            echo $columna->nombre_mostrar; 
+                                            echo $columna->nombre_mostrar;
                                         }
                                     ?>
                                 </td>
@@ -67,9 +67,12 @@
 
             <div class="modal-footer">
                 <button type="button" id="submitcolumnas" class="btn btn-primary" onclick="columna.guardarCol()">
-                    Confirmar
+                    <li class="glyphicon glyphicon-thumbs-up"></li> Guardar
                 </button>
-                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-warning" data-dismiss="modal">
+                    <li class="glyphicon glyphicon-thumbs-down"></li> Cancelar
+
+                </button>
 
             </div>
 

@@ -2,7 +2,7 @@
 
 
 <ul class="breadcrumb breadcrumb-top">
-    <li>Marcas</li>
+    <li>Categorias</li>
     <li><a href="">Agregar y editar Marcas</a></li>
 </ul>
 
@@ -46,8 +46,8 @@
             <thead>
             <tr>
 
-                <th>ID</th>
-                <th>Nombre</th>
+                <th>Código</th>
+                <th>Nombre Marca</th>
 
                 <th class="desktop">Acciones</th>
 
@@ -71,11 +71,11 @@
                             echo '<a class="btn btn-default" data-toggle="tooltip"
                                             title="Editar" data-original-title="fa fa-comment-o"
                                             href="#" onclick="editargrupo(' . $marca['id_marca'] . ');">'; ?>
-                            <i class="fa fa-edit"></i>
+                            <i class="glyphicon glyphicon-edit"></i>
                             </a>
-                            <?php echo '<a class="btn btn-default" data-toggle="tooltip"
+                            <?php echo '<a style="margin-left: 10px;" class="btn btn-danger" data-toggle="tooltip"
                                      title="Eliminar" data-original-title="fa fa-comment-o" onclick="borrargrupo(' . $marca['id_marca'] . ',\'' . $marca['nombre_marca'] . '\');">'; ?>
-                            <i class="fa fa-trash-o"></i>
+                            <i class="glyphicon glyphicon-trash"></i>
                             </a>
                             </div>
 
@@ -87,7 +87,7 @@
             </tbody>
         </table>
         <br>
-        <a href="<?= $ruta?>marca/pdf" class="btn  btn-default btn-lg" data-toggle="tooltip" title="Exportar a PDF" data-original-title="fa fa-file-pdf-o"><i class="fa fa-file-pdf-o fa-fw"></i></a>
+        <a href="<?= $ruta?>marca/pdf" class="btn  btn-danger btn-lg" data-toggle="tooltip" title="Exportar a PDF" data-original-title="fa fa-file-pdf-o"><i class="fa fa-file-pdf-o fa-fw"></i></a>
         <a href="<?= $ruta?>marca/excel" class="btn btn-default btn-lg" data-toggle="tooltip" title="Exportar a Excel" data-original-title="fa fa-file-excel-o"><i class="fa fa-file-excel-o fa-fw"></i></a>
     </div>
 </div>
@@ -178,16 +178,16 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title">Eliminar Grupo</h4>
+                    <h4 class="modal-title">Eliminar Marca</h4>
                 </div>
                 <div class="modal-body">
-                    <p>Est&aacute; seguro que desea eliminar la marca seleccionada</p>
+                    <h4>¿Est&aacute; seguro que desea eliminar la marca seleccionada?</h4>
                     <input type="hidden" name="id" id="id_borrar">
                     <input type="hidden" name="nombre" id="nom_borrar">
                 </div>
                 <div class="modal-footer">
                     <button type="button" id="confirmar" class="btn btn-primary" onclick="eliminar()">Confirmar</button>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-warning" data-dismiss="modal">Cancelar</button>
 
                 </div>
             </div>

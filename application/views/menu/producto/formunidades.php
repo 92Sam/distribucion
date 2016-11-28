@@ -31,28 +31,14 @@
                 <li role="presentation">
                     <a href="#descuento" data-toggle="tab">Descuento</a>
                 </li>
-                <!--<li role="presentation">
-                    <a href="#imagenes" data-toggle="tab">Im&aacute;genes</a>
-                </li>-->
+
             </ul>
 
             <div class="tab-content row" style="height: auto">
 
 
                 <div class="tab-pane active" role="tabpanel" id="precios" role="tabpanel">
-                   <!-- <div class="panel">
 
-
-                        <div class="col-md-2">
-                            <label>Costo Unitario:</label>
-                        </div>
-
-                        <div class="col-md-2">
-                            <input type="number" disabled name="costo_unitario" id="costo_unitario" class="form-control" required
-                                   value="<?php if (isset($producto['costo_unitario'])) echo $producto['costo_unitario'] ?>"/>
-                        </div>
-                    </div>
-                    <br> -->
 
                     <div class="table-responsive ">
 
@@ -61,13 +47,9 @@
 
                         <table class="table block table-striped dataTable table-bordered">
                             <thead>
-                            <th>Descripci&oacute;n</th>
-                            <th>Unidades</th>
-                            <th>Metro Cubicos</th>
-
-
-
-
+                            <th>UM</th>
+                            <th>Cantidad</th>
+                            <th>Metros Cubicos</th>
 
 
 
@@ -179,16 +161,14 @@
                         <thead>
                         <tr>
 
-                            <th>Unidad</th>
-                            <th>Familia</th>
+                            <th>UM</th>
                             <th>Grupo</th>
                             <th>Marca</th>
-                            <th>Linea</th>
                             <th>Cantidad</th>
-                            <th>Bono unidad</th>
-                            <th>Bono producto</th>
-                            <th>Bono cantidad</th>
-                            <th>Fecha</th>
+                            <th>Bono UM</th>
+                            <th>Bono Producto</th>
+                            <th>Bono Cantidad</th>
+                            <th>Fecha Vencimiento</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -197,18 +177,14 @@
                             <td>
                                 <?php if (isset($promocion['id_unidad'])) echo $promocion['nombre_unidad']; ?>
                             </td>
-                            <td>
-                                <?php if (isset($promocion['id_familia'])) echo $promocion['nombre_familia']; ?>
-                            </td>
+
                             <td>
                                 <?php if (isset($promocion['id_grupo'])) echo $promocion['nombre_grupo']; ?>
                             </td>
                             <td>
                                 <?php if (isset($promocion['id_marca'])) echo $promocion['nombre_marca']; ?>
                             </td>
-                            <td>
-                                <?php if (isset($promocion['id_linea'])) echo $promocion['nombre_linea']; ?>
-                            </td>
+
                             <td>
                                 <?php if (isset($promocion['cantidad_condicion'])) echo $promocion['cantidad_condicion']; ?>
                             </td>
@@ -241,7 +217,7 @@
                                 <th>Regla descuento</th>
                                 <th>Cantidades</th>
                                 <th>Nombre producto</th>
-                                <th>Unidad</th>
+                                <th>UM</th>
                                 <th>Precio</th>
 
 
@@ -279,33 +255,12 @@
             </div>
 
 
-            <!--<div class="tab-pane" role="tabpanel" id="imagenes" role="tabpanel">
-
-                <div class="form-group">
-
-                    <div class="col-md-2">
-
-
-                        <img src="<?= base_url() ?>recursos/img/placeholders/avatars/avatar.jpg">
-                    </div>
-                    <div class="col-md-8">
-
-                        <div class="input-prepend input-append input-group">
-                            <span class="input-group-addon"><i class="fa fa-folder"></i> </span>
-                            <input type="file" class="form-control">
-                        </div>
-
-                    </div>
-                </div>
-
-        </div>-->
-
 
         </div>
         <div class="modal-footer">
             <div class="text-right">
 
-                <input type="reset" class='btn btn-default' value="Cancelar" data-dismiss="modal">
+                <input type="reset" class='btn btn-warning' value="Salir" data-dismiss="modal">
             </div>
         </div>
 
@@ -315,249 +270,6 @@
 
 </div>
 
-
-<script>
-    //$("select").chosen();
-
-    function guardarproducto() {
-
-        var nombre = $("#producto_nombre");
-        var producto_impuesto = $("#producto_impuesto");
-        if (nombre.val() == '') {
-            var growlType = 'warning';
-
-            $.bootstrapGrowl('<h4>Debe ingresar el nombre del producto</h4>', {
-                type: growlType,
-                delay: 2500,
-                allow_dismiss: true
-            });
-
-            $(this).prop('disabled', true);
-
-            return false;
-        }
-
-        if (producto_impuesto.val() == '') {
-            var growlType = 'warning';
-
-            $.bootstrapGrowl('<h4>Debe seleccionar el impuesto</h4>', {
-                type: growlType,
-                delay: 2500,
-                allow_dismiss: true
-            });
-
-            $(this).prop('disabled', true);
-
-            return false;
-        }
-
-        if ($("#producto_cualidad").val() == '') {
-            var growlType = 'warning';
-
-            $.bootstrapGrowl('<h4>Debe seleccionar la cualidad del producto</h4>', {
-                type: growlType,
-                delay: 2500,
-                allow_dismiss: true
-            });
-
-            $(this).prop('disabled', true);
-
-            return false;
-        }
-
-
-        if ($("#unidadescontainer tr").length == 0) {
-            var growlType = 'warning';
-
-            $.bootstrapGrowl('<h4>Debe Seleccionar al menos una unidad de medida</h4>', {
-                type: growlType,
-                delay: 2500,
-                allow_dismiss: true
-            });
-
-            $(this).prop('disabled', true);
-
-            return false;
-        }
-
-
-        var vacios = false;
-        var nan = false;
-        var negativo = false;
-        $("#unidadescontainer input[type='number']").each(function () {
-            var txt = $(this).val();
-
-            //console.log(txt);
-            if (txt == '') {
-                vacios = true;
-            }
-            /// console.log(isNaN(txt));
-            if (!isNaN(txt)) {
-                nan = true;
-            }
-
-            if (parseInt(txt) < 0) {
-                negativo = true;
-            }
-
-        });
-
-        if (vacios) {
-            var growlType = 'warning';
-
-            $.bootstrapGrowl('<h4>Los campos precios ,unidades y metros cúbicos  no pueden estar vac&iacute;os y deben contener solo n&uacute;meros</h4>', {
-                type: growlType,
-                delay: 2500,
-                allow_dismiss: true
-            });
-
-            $(this).prop('disabled', true);
-
-            return false;
-        }
-        if (negativo) {
-            var growlType = 'warning';
-
-            $.bootstrapGrowl('<h4>Los campos precios, unidades y metros cúbicos no pueden estar vac&iacute;os y deben contener solo n&uacute;meros positivos</h4>', {
-                type: growlType,
-                delay: 2500,
-                allow_dismiss: true
-            });
-
-            $(this).prop('disabled', true);
-
-            return false;
-        }
-
-
-        var repetidas = false;
-
-        var seen = {};
-        $("#unidadescontainer select[id^='medida']").each(function () {
-            var txt = $(this).val();
-            //console.log(txt);
-            if (seen[txt]) {
-                repetidas = true;
-            }
-            else {
-                seen[txt] = true;
-            }
-        });
-
-        if (repetidas) {
-
-            var growlType = 'warning';
-
-            $.bootstrapGrowl('<h4>Las unidades de medida no deben repetirse!</h4>', {
-                type: growlType,
-                delay: 2500,
-                allow_dismiss: true
-            });
-
-            $(this).prop('disabled', true);
-
-            return false;
-
-        }
-        var length = $("#unidadescontainer input[id^='unidad']").length;
-        var is_last_item;
-        $("#unidadescontainer input[id^='unidad']").each(function (index) {
-
-
-            if ((index == (length - 1))) {
-
-                is_last_item = $(this).val();
-
-            }
-
-
-        });
-
-
-        if (is_last_item != '1') {
-            $.bootstrapGrowl('<h4>La unidad minima no puede ser mayor  a uno(1) !</h4>', {
-                type: 'warning',
-                delay: 2500,
-                allow_dismiss: true
-            });
-
-            $(this).prop('disabled', true);
-
-            return false;
-
-        }
-
-        App.formSubmitAjax($("#formguardar").attr('action'), getproductosbylocal, 'productomodal', 'formguardar');
-
-    }
-    var unidadcount = <?= $countunidad ?>;
-    function agregarprecio() {
-
-
-        $("#unidadescontainer").append("<tr id='trunidad" + unidadcount + "'>" +
-            "<td><select name='medida[" + unidadcount + "]' id='medida" + unidadcount + "' class='form-control'>" +
-            <?php foreach ($unidades as $unidad):
-                      ?>
-            "<option value='<?= $unidad['id_unidad']?>' ><?= $unidad['nombre_unidad']?></option>" +
-
-            <?php endforeach ?>"</select></td>" +
-            "<td><input type='number' class='form-control' required name='unidad[" + unidadcount + "]' id='unidad" + unidadcount + "'></td>" +
-            "<td><input type='number' value='0' class='form-control' required name='metros_cubicos[" + unidadcount + "]' id='metros_cubicos" + unidadcount + "'></td>" +
-
-
-            <?php $preciocount = 0;
-             foreach ($precios as $precio):
-                      if ($precio['mostrar_precio']):?>
-            "<td><input class='form-control' type='hidden' value='<?= $precio['id_precio'] ?>' name='precio_id_" + unidadcount + "[<?= $preciocount ?>]' id='precio_id" + unidadcount + "'>" +
-            "<input class='form-control' type='number' required name='precio_valor_" + unidadcount + "[<?= $preciocount ?>]' id='precio_valor" + unidadcount + "'></td>" +
-            <?php endif?>
-
-            <?php $preciocount++;
-             endforeach ?>
-            "<td width='13%'><a class='btn btn-default' href='#' id='eliminar" + unidadcount + "' onclick='eliminarunidad(" + unidadcount + ");'><i class='fa fa-remove'></i> </a> <a style='cursor: move' class='btn btn-default' href='#' data-toggle='tooltip'" +
-            " title='Mover' data-original-title='Mover' ><i class='fa fa-arrows-v'></i> </a>  </td>" +
-            "</tr>");
-        unidadcount++;
-    }
-
-    function eliminarunidad(unidadcount) {
-        // console.log(unidadcount);
-        $("#trunidad" + unidadcount).remove();
-        var count = 0;
-        $("tr[id^='trunidad']").each(function () {
-            $(this).attr('id', 'trunidad' + count);
-
-            $("#trunidad" + count + " select[name^='medida']").attr('name', 'medida[' + count + ']');
-            $("#trunidad" + count + " select[name^='medida']").attr('id', 'medida' + count + '');
-
-            $("#trunidad" + count + " input[name^='unidad']").attr('name', 'unidad[' + count + ']');
-            $("#trunidad" + count + " input[name^='unidad']").attr('id', 'unidad' + count + '');
-
-            var countprecio=0;
-            $("#trunidad"+count+" input[name^='precio_id_']").each(function(){
-                $(this).attr('name', 'precio_id_'+count+'['+countprecio+']');
-                countprecio++;
-            });
-            $("#trunidad"+count+" input[name^='precio_id_']").attr('id', 'precio_id'+count);
-
-            var countprecio=0;
-            $("#trunidad"+count+" input[name^='precio_valor_']").each(function(){
-                $(this).attr('name', 'precio_valor_'+count+'['+countprecio+']');
-                countprecio++;
-            })
-
-            $("#trunidad" + count + " input[name^='precio_valor_']").attr('id', 'precio_valor' + count);
-
-
-            $("#trunidad" + count + " a[id^='eliminar']").attr('id', 'eliminar' + count);
-            $("#trunidad" + count + " a[id^='eliminar']").attr('onclick', 'eliminarunidad(' + count + ')');
-
-            count++;
-        })
-    }
-
-
-</script>
 
 <script src="<?php echo base_url() ?>recursos/js/pages/uiDraggable.js"></script>
 <script>

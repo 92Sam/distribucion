@@ -1,7 +1,7 @@
 <?php $ruta = base_url(); ?>
 
 <ul class="breadcrumb breadcrumb-top">
-    <li>Productos</li>
+    <li>Categorias</li>
     <li><a href="">Agregar y editar Grupos</a></li>
 </ul>
 
@@ -30,10 +30,6 @@
 <div class="block">
     <!-- Progress Bars Wizard Title -->
 
-    <div class="block-title">
-        <h3>Grupos de productos</h3>
-    </div>
-
     <a class="btn btn-primary" onclick="agregargrupo();">
         <i class="fa fa-plus "> Nuevo</i>
     </a>
@@ -48,8 +44,8 @@
             <thead>
             <tr>
 
-                <th>ID</th>
-                <th>Nombre</th>
+                <th>Código</th>
+                <th>Nombre Grupo</th>
 
                 <th class="desktop">Acciones</th>
 
@@ -75,7 +71,7 @@
                                             href="#" onclick="editargrupo(' . $grupo['id_grupo'] . ');">'; ?>
                                 <i class="fa fa-edit"></i>
                                 </a>
-                                <?php echo '<a class="btn btn-default btn-default btn-default" data-toggle="tooltip"
+                                <?php echo '<a style="margin-left: 10px;" class="btn btn-danger" data-toggle="tooltip"
                                      title="Eliminar" data-original-title="Eliminar" onclick="borrargrupo(' . $grupo['id_grupo'] . ',\'' . $grupo['nombre_grupo'] . '\');">'; ?>
                                 <i class="fa fa-trash-o"></i>
                                 </a>
@@ -89,7 +85,7 @@
             </tbody>
         </table>
         <br>
-        <a href="<?= $ruta ?>grupo/pdf" id="generarpdf" class="btn  btn-default btn-lg" data-toggle="tooltip"
+        <a href="<?= $ruta ?>grupo/pdf" id="generarpdf" class="btn  btn-danger btn-lg" data-toggle="tooltip"
            title="Exportar a PDF" data-original-title="fa fa-file-pdf-o"><i class="fa fa-file-pdf-o fa-fw"></i></a>
         <a href="<?= $ruta ?>grupo/excel" class="btn btn-default btn-lg" data-toggle="tooltip" title="Exportar a Excel"
            data-original-title="fa fa-file-excel-o"><i class="fa fa-file-excel-o fa-fw"></i></a>
@@ -166,13 +162,13 @@
                     <h4 class="modal-title">Eliminar Grupo</h4>
                 </div>
                 <div class="modal-body">
-                    <p>Est&aacute; seguro que desea eliminar el grupo seleccionado?</p>
+                    <h4>¿Est&aacute; seguro que desea eliminar el grupo seleccionado?</h4>
                     <input type="hidden" name="id" id="id_borrar">
                     <input type="hidden" name="nombre" id="nom_borrar">
                 </div>
                 <div class="modal-footer">
                     <button type="button" id="confirmar" class="btn btn-primary" onclick="eliminar()">Confirmar</button>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-warning" data-dismiss="modal">Cancelar</button>
 
                 </div>
             </div>

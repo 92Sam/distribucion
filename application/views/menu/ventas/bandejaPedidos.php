@@ -4,31 +4,11 @@
 
 
 <ul class="breadcrumb breadcrumb-top">
-    <li>Venta</li>
+    <li>Flujo de Trabajo</li>
     <li><a href="">Bandeja de pedidos</a></li>
 </ul>
 <div class="block">
-    <!-- Progress Bars Wizard Title -->
 
-   <!-- <div class="form-group row">
-        <div class="col-md-2">
-            Ubicaci&oacute;n
-        </div>
-        <div class="col-md-3">
-            <select id="locales" class=" campos" name="locales">
-                <option value=""> Seleccione</option>
-                <?php if (isset($locales)) {
-                    foreach ($locales as $local) {
-                        ?>
-                        <option selected value="<?= $local['int_local_id']; ?>"> <?= $local['local_nombre'] ?> </option>
-
-                    <?php }
-                } ?>
-
-            </select>
-
-        </div>
-    </div>-->
 
     <div class="form-group row">
         <div class="col-md-2">
@@ -36,14 +16,14 @@
         </div>
         <div class="col-md-4">
             <input type="text" name="fecha_desde" id="fecha_desde" value="<?= date('d-m-Y') ?>" required="true"
-                   class="form-control fecha campos input-datepicker ">
+                   class="form-control fecha campos input-datepicker" readonly="readonly">
         </div>
         <div class="col-md-2">
             Hasta
         </div>
         <div class="col-md-4">
             <input type="text" name="fecha_hasta" id="fecha_hasta" value="<?= date('d-m-Y') ?>" required="true"
-                   class="form-control fecha campos input-datepicker">
+                   class="form-control fecha campos input-datepicker" readonly="readonly">
         </div>
 
     </div>
@@ -131,9 +111,9 @@
 
 
         <div class="col-md-3">
-            <button type="button" id="añadircamion" onclick="agregarPedidos();" class="btn btn-success"><i
+            <button type="button" id="añadircamion" onclick="agregarPedidos();" class="btn btn-info"><i
                     class="fa fa-truck"></i>
-                Añadir a camión
+                Asignar a camión
             </button>
         </div>
         <div class="col-md-4">
@@ -210,33 +190,7 @@
 <input type="hidden" name="listar" id="listar" value="pedidos">
 
 <div class="block" id="tabla">
-    <div class="table-responsive">
-        <table class="table table-striped dataTable table-bordered" id="tablaresultado">
-            <thead>
-            <tr>
 
-                <th>N&uacute;mero de Venta</th>
-                <th>Cliente</th>
-                <th>Vendedor</th>
-                <th>Fecha</th>
-                <th>Tipo de Documento</th>
-                <th>Estatus</th>
-                <th>Local</th>
-                <th>Condici&oacute;n Pago</th>
-                <th> Total</th>
-
-                <th>Acciones</th>
-                <th>Cargar</th>
-
-
-            </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-
-    </div>
-
-    <br>
 
 </div>
 
@@ -258,9 +212,9 @@
 
             <div class="modal-footer">
                 <button type="button" id="btnguardarconsolidado" class="btn btn-primary" onclick="grupo.guardarconsolidado()">
-                    Confirmar
+                   <li class="glyphicon glyphicon-thumbs-up"></li> Guardar
                 </button>
-                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-warning" data-dismiss="modal"> <li class="glyphicon glyphicon-thumbs-down"></li> Cancelar</button>
 
             </div>
         </div>

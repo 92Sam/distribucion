@@ -11,17 +11,14 @@
     var countproducto = 0;
 </script>
 <ul class="breadcrumb breadcrumb-top">
-    <li>Pedidos</li>
-    <li><a href="">Generar pedidos de ventas</a></li>
+    <li>Flujo de Trabajo</li>
+    <li><a href="">Generar pedidos</a></li>
 </ul>
 
 <!-- END Datatables Header -->
 <div class="block">
 
     <!-- Progress Bars Wizard Title -->
-    <div class="block-title">
-        <h2><strong>Generar</strong> Pedidos de Ventas</h2>
-    </div>
 
     <form method="post" id="frmVenta" action="#" class="">
         <input type="hidden" name="url_refresh" id="url_refresh" value="<?php echo isset($preciosugerido) ? '//consultar?buscar=pedidos' : '/pedidos'; ?>">
@@ -165,7 +162,7 @@
                             <div id="" class="table-responsive" style="height: 400px; overflow-y: auto;">
                                 <table class="table dataTable dataTables_filter table-bordered">
                                     <thead>
-                                    <tr style="background-color: #B1AEAE;;">
+                                    <tr style="background-color: #B1AEAE; color:white;">
                                         <th style="padding-top: 0px; padding-bottom: 0px; ">#</th>
                                         <th style="padding-top: 0px; padding-bottom: 0px">ID</th>
                                         <th style="padding-top: 0px; padding-bottom: 0px">Nombre</th>
@@ -387,12 +384,12 @@
                     <div class="modal-footer">
                         <div class="row">
                             <div class="col-md-12">
-                                <button class="btn btn-default" type="button" id="realizarventa"
+                                <button class="btn btn-primary" type="button" id="realizarventa"
                                         onclick="javascript:hacerventa(0);">
-                                    <i class="fa fa-save"></i> Guardar
+                                    <li class="glyphicon glyphicon-thumbs-up"></li> Guardar
                                 </button>
-                                <button class="btn btn-default closegenerarventa" type="button">
-                                    <i class="fa fa-close"></i> Cancelar
+                                <button class="btn btn-warning closegenerarventa" type="button">
+                                    <li class="glyphicon glyphicon-thumbs-down"></li> Cancelar
                                 </button>
                             </div>
                         </div>
@@ -436,7 +433,7 @@
                     <div class="row">
                         <table class="table datatable table-bordered">
                             <thead>
-                            <th>Descripcion</th>
+                            <th>Presentacion</th>
                             <th>Unidades</th>
                             <th id="tituloprecio"></th>
                             </thead>
@@ -474,7 +471,7 @@
                 </div>
                 <div class="modal-footer">
                     <a href="#" class="btn btn-primary" id="agregarproducto">Agregar Producto</a>
-                    <a href="#" class="btn btn-default closeseleccionunidades">Salir</a>
+                    <a href="#" class="btn btn-warning closeseleccionunidades">Salir</a>
                 </div>
             </div>
         </div>
@@ -491,13 +488,15 @@
 
                 <div class="modal-body">
 
-                    <h3>Estas seguro que deseas eliminar este producto?</h3>
+                    <h4>¿Estas seguro que deseas eliminar este producto?</h4>
 
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" id="eliminar_item" class="btn btn-primary">Confirmar</button>
-                    <button type="button" class="btn btn-default" onclick="$('#confirmar_delete').modal('hide');">Cancelar</button>
+                    <button type="button" id="eliminar_item" class="btn btn-primary">
+                    <li class="glyphicon glyphicon-thumbs-up"></li> Confirmar</button>
+                    <button type="button" class="btn btn-warning" onclick="$('#confirmar_delete').modal('hide');">
+                    <li class="glyphicon glyphicon-thumbs-down"></li> Cancelar</button>
                 </div>
             </div>
             <!-- /.modal-content -->
@@ -707,13 +706,13 @@
             </div>
 
             <div class="modal-body">Al cambiar el estado el pedido regresara a su estado original,
-                esta seguro que desea realizar esta acción?
+                ¿esta seguro que desea realizar esta acción?
             </div>
             <div class="modal-footer">
                 <button type="button" id="buscar_backup" class="btn btn-primary"
                         onclick="buscar_backup(<?= $venta_id ?>)">Si
                 </button>
-                <button type="button" class="btn btn-default" onclick="ocultar_confirmacion()">No</button>
+                <button type="button" class="btn btn-warning" onclick="ocultar_confirmacion()">No</button>
 
             </div>
         </div>
@@ -768,11 +767,11 @@
             <div class="modal-footer">
                 <div class="row">
                     <div class="col-md-12">
-                        <button class="btn btn-default" type="button" id="guardarcantidad">
-                            <i class="fa fa-save"></i>Guardar
+                        <button class="btn btn-primary" type="button" id="guardarcantidad">
+                            <li class="glyphicon glyphicon-thumbs-up"></li> Guardar
                         </button>
-                        <button class="btn btn-default closemodificarcantidad" type="button">
-                            <i class="fa fa-close"></i> Cancelar
+                        <button class="btn btn-warning closemodificarcantidad" type="button">
+                            <li class="glyphicon glyphicon-thumbs-down"></li> Cancelar
                         </button>
                     </div>
                 </div>

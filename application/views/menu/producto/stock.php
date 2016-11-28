@@ -42,8 +42,8 @@
         </div>-->
 
         <div class="col-md-1">
-            <a class="btn btn-default" onclick="unidadesycostos();">
-                <i class="fa fa-list-ol"> Unidades y costos</i>
+            <a class="btn btn-info" onclick="unidadesycostos();">
+                <i class="fa fa-list-ol"> UM y Precios</i>
             </a>
         </div>
         <!--<div class="col-md-1">
@@ -59,23 +59,6 @@
     </div>
     <br>
 
-    <div class="row">
-        <div class="form-group">
-            <div class="col-md-1">
-                <label>Ubicaci&oacute;n Inventario</label>
-            </div>
-            <div class="col-md-5">
-                <select class="form-control" id="locales" onchange="getproductosbylocal()">
-
-                    <?php foreach ($locales as $local) { ?>
-                        <option value="<?= $local['int_local_id'] ?>"><?= $local['local_nombre'] ?></option>
-                    <?php } ?>
-
-                </select>
-            </div>
-        </div>
-    </div>
-    <br>
 
     <div class="table-responsive" id="productostable" >
         <table class='table table-striped dataTable table-bordered'  id="table">
@@ -99,7 +82,7 @@
         </table>
 
     </div>
-    <a href="<?= $ruta ?>producto/pdfStock" class="btn  btn-default btn-lg" data-toggle="tooltip" title="Exportar a PDF"
+    <a href="<?= $ruta ?>producto/pdfStock" class="btn  btn-danger btn-lg" data-toggle="tooltip" title="Exportar a PDF"
        data-original-title="fa fa-file-pdf-o"><i class="fa fa-file-pdf-o fa-fw"></i></a>
 
     <a href="<?= $ruta ?>producto/excelStock" class="btn btn-default btn-lg" data-toggle="tooltip"
@@ -120,41 +103,8 @@
 </div>
 
 
-<div class="modal fade" id="borrar" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
-     aria-hidden="true">
-    <form name="formeliminar" id="formeliminar" method="post" action="<?= $ruta ?>producto/eliminar">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title">Eliminar Producto</h4>
-                </div>
-                <div class="modal-body">
-                    <p>Est&aacute; seguro que desea eliminar el producto seleccionado</p>
-                    <input type="hidden" name="id" id="id_borrar">
-
-                </div>
-                <div class="modal-footer">
-                    <button type="button" id="botoneliminar" class="btn btn-primary" onclick="eliminar()">Confirmar</button>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
-
-                </div>
-            </div>
-            <!-- /.modal-content -->
-        </div>
-
-</div>
-
-<div class="row" id="loading" style="display: none;">
-    <div class="col-md-12 text-center">
-        <div class="loading-icon"></div>
-    </div>
-</div>
 
 <script type="text/javascript">
-
-
-
 
     function unidadesycostos() {
         var id = $("#tbody tr.ui-selected td:first").html();

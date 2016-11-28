@@ -2,7 +2,7 @@
 
 
 <ul class="breadcrumb breadcrumb-top">
-    <li>Productos</li>
+    <li>Inventario</li>
     <li><a href="">Listado de Precios y Productos</a></li>
 </ul>
 <div class="block">
@@ -58,7 +58,7 @@
             <thead>
             <tr>
 
-                <th>ID Producto</th>
+                <th>Codigo Producto</th>
                 <th>Nombre</th>
                 <th>Grupo</th>
                 <?php
@@ -79,7 +79,7 @@
 </div>
 
 <br>
-<a href="<?= $ruta ?>producto/pdf/1" id="generarpdf" class="btn  btn-default btn-lg" data-toggle="tooltip"
+<a href="<?= $ruta ?>producto/pdf/1" id="generarpdf" class="btn  btn-danger btn-lg" data-toggle="tooltip"
    title="Exportar a PDF" data-original-title="fa fa-file-pdf-o"><i class="fa fa-file-pdf-o fa-fw"></i></a>
 <a href="<?= $ruta ?>producto/excel/1" id="generarexcel" class="btn btn-default btn-lg"
    data-toggle="tooltip"

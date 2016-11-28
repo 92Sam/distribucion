@@ -133,7 +133,7 @@
                 </div>
                 <a href="<?= $ruta ?>inventario/pdfKardex/<?= $producto ?>/<?= $local ?><?php if (isset($operacion)) {
                     echo "/" . $documento_fiscal = true;
-                } ?>" id="generarpdf" class="btn  btn-default btn-lg" data-toggle="tooltip" title="Exportar a PDF"
+                } ?>" id="generarpdf" class="btn  btn-danger btn-lg" data-toggle="tooltip" title="Exportar a PDF"
                    data-original-title="fa fa-file-pdf-o"><i class="fa fa-file-pdf-o fa-fw"></i></a>
                 <a href="<?= $ruta ?>inventario/excelKardex/<?= $producto ?>/<?= $local ?><?php if (isset($operacion)) {
                     echo "/" . $documento_fiscal = true;
@@ -141,8 +141,7 @@
                    data-original-title="fa fa-file-excel-o"><i class="fa fa-file-excel-o fa-fw"></i></a>
 
                 <div class="modal-footer">
-                    <input type="button" id="" class="btn btn-primary" value="Confirmar" data-dismiss="modal">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-warning" data-dismiss="modal">Salir</button>
 
                 </div>
             </div>
