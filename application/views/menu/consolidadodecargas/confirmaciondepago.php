@@ -18,14 +18,14 @@
 echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "</div>");
 ?>
 <div class="block">
-    <div class="form-group row">
-        <div class="col-xs-1">
-            Estatus
-        </div>
+    <div class="row">
+
         <div class="col-md-2">
 
-            <select id="estado" name="estado" class="form-control">
-                <option value="">Seleccione</option>
+            <label class="control-label panel-admin-text">Estado:</label>
+
+            <select id="estado" name="estado" class='cho form-control filter-input'>
+                <option value="">TODOS</option>
 
                 <option selected  value="CERRADO">CERRADO</option>
                 <option  value="CONFIRMADO">CONFIRMADO</option>
@@ -34,6 +34,8 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
 
         </div>
     </div>
+<br>
+<br>
 <div class="block">
     <!-- Progress Bars Wizard Title -->
 
@@ -206,10 +208,12 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                 <h4 class="modal-title">Confirmaci&oacute;n</h4>
             </div>
 
-            <div class="modal-body">Est&aacute; seguro que desea continuar?</div>
+            <h4>¿Est&aacute; seguro que desea continuar?</h4>
             <div class="modal-footer">
-                <button type="button" id="boton_aceptar" class="btn btn-primary" onclick="cerrar_confirmacion()">Si</button>
-                <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+                <button type="button" id="boton_aceptar" class="btn btn-primary" onclick="cerrar_confirmacion()">
+                <li class="glyphicon glyphicon-thumbs-up"></li> Si</button>
+                <button type="button" class="btn btn-warning" data-dismiss="modal">
+                <li class="glyphicon glyphicon-thumbs-down"></li> No</button>
 
             </div>
         </div>
@@ -251,7 +255,7 @@ function refreshajax(){
         },
         error: function () {
 
-            alert('Ocurrio un error por favor intente nuevamente');
+            alert('Ocurrio un error, intente nuevamente por favor');
         }
     })
 }

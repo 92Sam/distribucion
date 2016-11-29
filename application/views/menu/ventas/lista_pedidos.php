@@ -4,7 +4,7 @@
     <table class="table table-striped dataTable table-bordered table-condensed table-hover" id="tablaresultado">
         <thead>
         <tr>
-            <th style="text-align: center; " >ID</th>
+            <th style="text-align: center;" >ID</th>
             <th style="text-align: center;">Documento</th>
             <th style="text-align: center;">Cliente</th>
             <th style="text-align: center;">Vendedor</th>

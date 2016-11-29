@@ -6,12 +6,12 @@
     <thead>
     <tr>
 
-        <th>N° de Consolidado Guía Carga</th>
-        <th>Fecha Entrega</th>
-        <th>Camion</th>
-        <th>Chofer</th>
-        <th>Estado</th>
-        <th>Accion</th>
+        <th style="text-align: center;">N° de Consolidado Guía Carga</th>
+        <th style="text-align: center;">Fecha Entrega</th>
+        <th style="text-align: center;">Camión</th>
+        <th style="text-align: center;">Chofer</th>
+        <th style="text-align: center;">Estado</th>
+        <th style="text-align: center;">Accion</th>
 
 
     </tr>
@@ -23,14 +23,14 @@
             ?>
             <tr>
 
-                <td class="center"><?= $campoConsolidado['consolidado_id'] ?></td>
-                <td><span
+                <td style="text-align: center;"><?= $campoConsolidado['consolidado_id'] ?></td>
+                <td style="text-align: center;"><span
                         style="display: none;"><?= date('YmdHis', strtotime($campoConsolidado['fecha'])) ?></span><?= date('d-m-Y', strtotime($campoConsolidado['fecha'])) ?>
                 </td>
-                <td><?= $campoConsolidado['camiones_placa'] ?></td>
-                <td><?= $campoConsolidado['nombre'] ?></td>
-                <td><?= $campoConsolidado['status'] ?></td>
-                <td class="center">
+                <td style="text-align: center;"><?= $campoConsolidado['camiones_placa'] ?></td>
+                <td style="text-align: center;"><?= $campoConsolidado['nombre'] ?></td>
+                <td style="text-align: center;"><?= $campoConsolidado['status'] ?></td>
+                <td style="text-align: center;">
                     <?php
                     $color = 'default';
                     if ($campoConsolidado['status'] == 'CONFIRMADO')

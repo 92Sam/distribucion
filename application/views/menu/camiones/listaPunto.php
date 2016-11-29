@@ -7,7 +7,7 @@
                 <th >Fecha</th>
                 <th>Nombre</th>
                 <th>Camion</th>
-                <th>status</th>
+                <th>Estado</th>
                 <th>Mapa</th>
 
             </tr>

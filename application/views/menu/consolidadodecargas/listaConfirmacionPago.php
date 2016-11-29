@@ -4,12 +4,12 @@
         <thead>
         <tr>
 
-            <th>N° de Consolidado Guía Carga</th>
-            <th>Transportista</th>
-            <th>Fecha</th>
-            <th>Placa del cami&oacute;n</th>
-            <th>Importe a liquidar</th>
-            <th>Acciones</th>
+            <th style="text-align: center;">N° de Consolidado Guía Carga</th>
+            <th style="text-align: center;">Fecha Entrega</th>
+            <th style="text-align: center;">Transportista</th>
+            <th style="text-align: center;">Placa del cami&oacute;n</th>
+            <th style="text-align: center;">Importe a liquidar</th>
+            <th style="text-align: center;">Acciones</th>
 
 
         </tr>
@@ -22,12 +22,12 @@
                     ?>
                     <tr>
 
-                        <td class="center"><?= $consolidadoCamion['consolidado_id'] ?></td>
-                        <td><?= $consolidadoCamion['nombre'] ?></td>
-                        <td><?= date('d-m-Y', strtotime($consolidadoCamion['fecha'])) ?></td>
-                        <td><?= $consolidadoCamion['camiones_placa'] ?></td>
-                        <td><?= number_format($consolidadoCamion['totalC'], 2) ?></td>
-                        <td class="center">
+                        <td style="text-align: center;"><?= $consolidadoCamion['consolidado_id'] ?></td>
+                        <td style="text-align: center;"><?= date('d-m-Y', strtotime($consolidadoCamion['fecha'])) ?></td>
+                        <td style="text-align: center;"><?= $consolidadoCamion['nombre'] ?></td>
+                        <td style="text-align: center;"><?= $consolidadoCamion['camiones_placa'] ?></td>
+                        <td style="text-align: center;"><?= number_format($consolidadoCamion['totalC'], 2) ?></td>
+                        <td style="text-align: center;">
                             <?php if ($consolidadoCamion['status'] == "CERRADO"){ ?>
                             <div class="btn-group">
 

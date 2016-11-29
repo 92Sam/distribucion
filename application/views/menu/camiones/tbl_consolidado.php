@@ -23,8 +23,8 @@
     <tr>
 
         <th style="text-align: center;">N° de Consolidado Guía Carga</th>
-        <th style="text-align: center;">Fecha</th>
-        <th style="text-align: center;">Camion</th>
+        <th style="text-align: center;">Fecha Entrega</th>
+        <th style="text-align: center;">Camión</th>
         <th style="text-align: center;">Chofer</th>
         <th style="text-align: center;">Estado</th>
         <th style="text-align: center;">Acciones</th>
@@ -65,7 +65,7 @@
                         </a>
                         <?php
 
-                        echo '<a class="btn btn-default" data-toggle="tooltip"
+                        echo '<a class="btn btn-warning" data-toggle="tooltip"
                                             title="Imprimir" data-original-title="Imprimir"
                                             href="#" onclick="alertImprimir(' . $campoConsolidado['consolidado_id'] . '); ">'; ?>
                         <i class="fa fa-print fa-fw" id="ic"></i><span

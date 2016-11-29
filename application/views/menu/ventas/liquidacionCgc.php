@@ -19,6 +19,7 @@
     }
 </style>
 <ul class="breadcrumb breadcrumb-top">
+    <li>Flujo de Trabajo</li>
     <li>Liquidación CGC</li>
 </ul>
 <div class="row">
@@ -41,8 +42,6 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
             <div class="row">
                 <div class="col-md-2">
                     <label class="control-label panel-admin-text">Estado:</label>
-    
-
 
                     <select name="estado" id="estado" class='cho form-control filter-input'>
                         <option value="-1">Todos</option>
@@ -51,17 +50,17 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                         <option value="CERRADO">CERRADO</option>
                     </select>
                 </div>
-      
+
                 <div class="col-md-2">
                     <label class="control-label panel-admin-text">Desde:</label>
-             
+
                     <input type="text" name="fecha_ini" id="fecha_ini" value=""
                            required="true" readonly style="cursor: pointer;"
                            class="form-control fecha input-datepicker filter-input">
                 </div>
                 <div class="col-md-2">
                     <label class="control-label panel-admin-text">Hasta:</label>
-             
+
                     <input type="text" name="fecha_fin" id="fecha_fin" value=""
                            required="true" readonly style="cursor: pointer;"
                            class="form-control fecha input-datepicker filter-input">
@@ -81,13 +80,13 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                     <label class="control-label badge b-default">ABIERTO</label>
                     <label class="control-label badge btn-other">IMPRESO</label>
                     <label class="control-label badge b-primary">CERRADO</label>
-                </div>  
+                </div>
 
             </div>
             <br>
         </form>
-    </div>
-</div>
+
+
 
 <div class="block">
     <div class="row" id="loading" style="display: none;">
@@ -95,7 +94,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
             <div class="loading-icon"></div>
         </div>
     </div>
-   
+
     <div class="table-responsive" id="tablaresultado">
 
 
@@ -135,13 +134,15 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                 <div class="modal-body">
                     <div class="form-group row">
                         <div class="col-md-2">
-                            Estatus:
+                            <label class="control-label panel-admin-text">
+                                Estado
+                            </label>
                         </div>
                         <div class="col-md-10">
-                            <select id="estatus" class="" name="estatus" onchange="verificar_select()">
-                                <option value="RECHAZADO"> RECHAZADO</option>
+                            <select id="estatus" class=""  name="estatus" onchange="verificar_select()">
                                 <option value="ENTREGADO"> ENTREGADO</option>
                                 <option value="DEVUELTO PARCIALMENTE"> DEVUELTO PARCIALMENTE</option>
+                                <option value="RECHAZADO"> RECHAZADO</option>
 
                             </select>
                         </div>
@@ -168,7 +169,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                             >
                         </div>
                         <div class="col-md-4">
-                            Pendiente por pagar
+                            Pendiente de pago
                         </div>
                         <div class="col-md-8">
                             <input type="text" readonly value="10" name="pendiente" id="pendiente" required="true"
@@ -196,8 +197,10 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" id="" class="btn btn-primary" onclick="validar_estatus()">Confirmar</button>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                    <button type="button" id="" class="btn btn-primary" onclick="validar_estatus()">
+                    <li class="glyphicon glyphicon-thumbs-up"></li> Confirmar</button>
+                    <button type="button" class="btn btn-warning" data-dismiss="modal">
+                    <li class="glyphicon glyphicon-thumbs-down"></li> Cancelar</button>
 
                 </div>
             </div>
@@ -210,7 +213,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
      aria-hidden="true">
     <div class="modal-content">
         <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="fa fa-close"></i>
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><li class="glyphicon glyphicon-thumbs-up"></li>
             </button>
 
             <h3>Devolver Pedido</h3>
@@ -234,11 +237,13 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
             </div>
 
             <div class="modal-body">Al cambiar el estado el pedido regresara a su estado original,
-                esta seguro que desea realizar esta acción?
+                ¿Esta seguro que desea realizar esta acción?
             </div>
             <div class="modal-footer">
-                <button type="button" id="" class="btn btn-primary" onclick="grupo.guardar()">Si</button>
-                <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+                <button type="button" id="" class="btn btn-primary" onclick="grupo.guardar()">
+                <li class="glyphicon glyphicon-thumbs-up"></li> Si</button>
+                <button type="button" class="btn btn-warning" data-dismiss="modal">
+                <li class="glyphicon glyphicon-thumbs-down"></li> No</button>
 
             </div>
         </div>
@@ -291,7 +296,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
 
         $('#estado').change(function(){
             var table = $('#example').DataTable();
- 
+
             table
                 .clear()
                 .draw();

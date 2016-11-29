@@ -4,42 +4,46 @@
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
             <h4 class="modal-title">Consolidado de Documento</h4>
+
         </div>
 
         <div class="modal-body">
             <div class="table-responsive">
                 <table class="table table-striped dataTable table-bordered" id="example">
                     <thead>
-                    <tr>
 
-                        <th>ID</th>
-                        <th>Representante</th>
-                        <th>Documento</th>
-                        <th>N° Doc</th>
-                        <th>Cantidad Bultos</th>
-                        <th>Total</th>
-                        <th>Estado</th>
-                        <th>Acciones</th>
+                    <tr class="#alineacion">
+
+                        <th style="text-align: center">ID</th>
+                        <th style="text-align: center">Documento</th>
+                        <th style="text-align: center">Cantidad Bultos</th>
+                        <th style="text-align: center">Cliente</th>
+                        <th style="text-align: center">Importe Pedido</th>
+                        <th style="text-align: center">Estado</th>
+                        <th style="text-align: center">Acciones</th>
 
                     </tr>
                     </thead>
                     <tbody>
-                    <?php 
-$total_bultos =0;
+                    <?php
+            $total_bultos =0;
+            $total_importe =0;
                     foreach ($consolidadoDetalles as $detalle) { ?>
                         <tr>
 
-                            <td><?php echo $detalle['venta_id']; ?></td>
-                            <td><?php echo $detalle['representante']; ?></td>
-                            <td>NE</td>
-                            <td><?php echo $detalle['documento_Numero']; ?></td>
-                            <td><?php echo $detalle['bulto']; 
-                                $total_bultos += $detalle['bulto'];
-                            ?></td>
-                            <td><?php echo $detalle['total']; ?></td>
-                            <td><?php echo $detalle['venta_status']; ?> </td>
-                            <td>
-                                <a class="btn btn-default" data-toggle="tooltip"
+                            <td style="text-align: center"><?php echo $detalle['venta_id']; ?></td>
+                            <td style="text-align: center"><?php echo 'NE - '.$detalle['documento_Numero']; ?></td>
+                            <td style="text-align: center"><?php echo number_format($detalle['bulto'],0);
+                                $total_bultos += $detalle['bulto'];?>
+                            </td>
+                            <td style="text-align: center"><?php echo $detalle['representante']; ?></td>
+
+                            <td style="text-align: right;"><?php echo MONEDA.' '.number_format($detalle['total'],2);
+                                $total_importe +=$detalle['total'];?>
+                            </td>
+                            <td style="text-align: center"><?php echo $detalle['venta_status']; ?> </td>
+                            <td style="text-align: center">
+                                <a class="btn btn-primary" data-toggle="tooltip"
                                    title="Imprimir" data-original-title="Imprimir"
                                    href="#"
                                    onclick="notaEntrega('<?= isset($consolidado['consolidado_id']) ? $consolidado['consolidado_id'] : 0 ?>', '<?php echo $detalle['venta_id']; ?>'); ">
@@ -49,30 +53,23 @@ $total_bultos =0;
                         </tr>
                         <?php
                     }?>
-                    
-                        <tr>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                        <td><?php echo '<strong>Totales = '.$total_bultos.'<strong>'; ?></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
+
+                    <tr style="background-color: #C6EFCE">
+                    <td></td>
+                    <td style="text-align: right; font-size: 13px"><?php echo '<strong style="fond-family:bold;">Total Bultos => <strong>'; ?></td>
+                    <td style="text-align: center; font-weight: bold; font-size: 13px"><?php echo number_format($total_bultos,0) ?></td>
+                    <td style="text-align: right; font-size: 13px"><?php echo '<strong style="fond-family:bold;">Total Importe Pedido => <strong>'; ?></td>
+                    <td style="text-align: right; font-weight: bold; font-size: 13px"><?php echo MONEDA.' '.number_format($total_importe,2) ?></td>
+                    <td></td>
+                    <td></td>
+
 
                         </tr>
                     </tbody>
                 </table>
             </div>
             <br>
-            <a href="<?= $ruta ?>consolidadodecargas/excelModal/<?php if (isset($consolidado['consolidado_id'])) echo $consolidado['consolidado_id']; ?>"
-               class="btn btn-default btn-lg" data-toggle="tooltip"
-               title="Exportar a Excel" data-original-title="fa fa-file-excel-o"><i
-                    class="fa fa-file-excel-o fa-fw"></i></a>
-            <a href="<?= $ruta ?>consolidadodecargas/pdfModal/<?php if (isset($consolidado['consolidado_id'])) echo $consolidado['consolidado_id']; ?>"
-               class="btn btn-default btn-lg" data-toggle="tooltip"
-               title="Exportar a PDF" data-original-title="fa fa-file-pdf-o"><i
-                    class="fa fa-file-pdf-o fa-fw"></i></a>
+
 
             <div class="btn-group">
                 <a class="btn btn-default" data-toggle="tooltip"

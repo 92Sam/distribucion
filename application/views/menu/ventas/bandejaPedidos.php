@@ -29,7 +29,7 @@
     </div>
     <div class="form-group row">
         <div class="col-md-2">
-            Estatus
+            Estado
         </div>
         <div class="col-md-4">
             <select id="estatus" class="campos" name="estatus">
@@ -162,7 +162,7 @@
                     </span>
                 </div>
 
-        </div>  
+        </div>
       </div>
 
 <div class="modal fade" id="seleccionarPedido" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"

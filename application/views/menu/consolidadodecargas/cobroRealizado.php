@@ -14,20 +14,20 @@
                         <thead>
                         <tr>
 
-                            <th>Nro Nota de Entrega</th>
-                            <th>Estado</th>
-                            <th>Monto Total</th>
-                            <th>Saldo</th>
-                            <th>Pago realizado</th>
-                            <th>Caja <?php if ($tipo == "CONFIRMAR") {
+                            <th style="text-align:center;">Nro Nota de Entrega</th>
+                            <th style="text-align:center;">Estado</th>
+                            <th style="text-align:center;">Monto Total</th>
+                            <th style="text-align:center;">Saldo</th>
+                            <th style="text-align:center;">Pago realizado</th>
+                            <th style="text-align:center;">Caja <?php if ($tipo == "CONFIRMAR") {
                                     echo '<input type="checkbox" id="marcar_caja"></th>';
                                 } ?>
 
-                            <th>Bancos <?php if ($tipo == "CONFIRMAR") {
+                            <th style="text-align:center;">Bancos <?php if ($tipo == "CONFIRMAR") {
                                     echo '<input type="checkbox" id="marcar_banco"></th>';
                                 } ?>
 
-                            <th>Confirmar <?php if ($tipo == "CONFIRMAR") {
+                            <th style="text-align:center;">Confirmar <?php if ($tipo == "CONFIRMAR") {
                                     echo '<input type="checkbox" id="marcar_confirmar">';
                                 } ?>
                             </th>
@@ -51,29 +51,29 @@
                             }
                             ?>
                             <tr id="tr<?= $i; ?>">
-                                <td>
+                                <td style="text-align:center;">
                                     <?php echo $row['pedido_id']; ?>
                                     <input id="pedido_id<?= $i; ?>" type="hidden" name="pedido_id[<?= $i; ?>]"
                                            class="form-control" value="<?= $row['pedido_id'] ?>" disabled/>
                                     <input type="hidden" name="consolidado_id" class="form-control"
                                            value="<?= $row['consolidado_id'] ?>"/>
                                 </td>
-                                <td>
+                                <td style="text-align:center;">
                                     <?php echo $row['venta_status']; ?>
 
                                 </td>
-                                <td>
-                                    <?php echo number_format($row['total'],2); ?>
+                                <td style="text-align:right;">
+                                    <?php echo MONEDA.' '.number_format($row['total'],2); ?>
                                     <input type="hidden" id="total<?= $i ?>" class="form-control"
                                            value="<?= $row['total'] ?>"/>
 
                                 </td>
-                                <td>
+                                <td style="text-align:right;">
                                     <div
-                                        id="mostrar_suma<?= $i ?>"><?php echo number_format( $row['total'] - $row['liquidacion_monto_cobrado'],2); ?></div>
+                                        id="mostrar_suma<?= $i ?>"><?php echo MONEDA.' '.number_format( $row['total'] - $row['liquidacion_monto_cobrado'],2); ?></div>
                                 </td>
-                                <td>
-                                    <?php echo number_format($row['liquidacion_monto_cobrado'],2); ?>
+                                <td style="text-align:right;">
+                                    <?php echo MONEDA.' '.number_format($row['liquidacion_monto_cobrado'],2); ?>
                                     <input type="hidden" name="liquidacion_monto_cobrado[<?= $i ?>]"
                                            class="form-control"
                                         <?php if ($row['liquidacion_monto_cobrado'] == null) { ?> value="0.00"  <?php } else { ?>
@@ -82,7 +82,7 @@
 
                                            id="liquidacion_monto_cobrado<?= $i ?>"/>
                                 </td>
-                                <td>
+                                <td style="text-align:center;">
                                     <div class="row">
                                         <div class="col-md-10">
                                             <input type="text" onkeypress="return soloNumeros(event);"
@@ -103,7 +103,7 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td>
+                                <td style="text-align:center;">
                                     <div class="col-md-10">
                                         <div class="col-md-10">
                                             <input type="text" onkeypress="return soloNumeros(event);"
@@ -139,7 +139,7 @@
                                             } ?>
                                             <div>
                                 </td>
-                                <td>
+                                <td style="text-align:center;">
                                     <?php if ($tipo == "CONFIRMAR") {
                                         echo '<input type="checkbox" id="' . $i . '" value="0" name="confirmar[' . $i . ']" class="confirmar"/>';
                                     } ?>
@@ -176,7 +176,7 @@
                                 <input type="text" id="totales_banco"
                                        class="form-control" <?php if ($tipo == "CONFIRMAR") {
                                     echo ' value="0.00" ';
-                                } else { ?>  value="<?= $total_banco ?>"  <?php } ?> disabled>
+                                } else { ?>  value="<?= MONEDA.' '.number_format($total_banco,2) ?>"  <?php } ?> disabled>
                             </td>
                             <td>
 
@@ -205,7 +205,7 @@
                             </td>
                             <td>
                                 <input type="text" id="TOTAL"
-                                       class="form-control"   value="<?= number_format($TOTAL,2) ?>" disabled>
+                                       class="form-control"   value="<?= MONEDA.' '.number_format($TOTAL,2) ?>" disabled>
                             </td>
                             <td>
 
@@ -222,11 +222,12 @@
 
 
             <?php if ($tipo == "CONFIRMAR") {
-                echo '<button type="button" id="cerrar_confirmacion" class="btn btn-primary"  onclick="validar_confirmacion()">Cerrar
-                        Confirmaci&oacute;n de Pago
+                echo '<button type="button" id="cerrar_confirmacion" class="btn btn-primary"  onclick="validar_confirmacion()">
+                    <li class="glyphicon glyphicon-thumbs-up"></li> Cerrar Confirmaci&oacute;n de Pago
                     </button>';
             } ?>
-            <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+            <button type="button" class="btn btn-warning" data-dismiss="modal">
+            <li class="glyphicon glyphicon-thumbs-down"></li> Cancelar</button>
         </div>
     </div>
 

@@ -1,6 +1,7 @@
 <?php $ruta = base_url(); ?>
 
 <ul class="breadcrumb breadcrumb-top">
+    <li>Flujo de Trabajo</li>
     <li>Consolidado de Carga</li>
 </ul>
 <div class="row">
@@ -23,8 +24,6 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
             <div class="row">
                 <div class="col-md-2">
                     <label class="control-label panel-admin-text">Estado:</label>
-    
-
 
                     <select name="estado" id="estado" class='cho form-control filter-input'>
                         <option value="-1">Todos</option>
@@ -33,17 +32,17 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                         <option value="CERRADO">CERRADO</option>
                     </select>
                 </div>
-      
+
                 <div class="col-md-2">
                     <label class="control-label panel-admin-text">Desde:</label>
-             
+
                     <input type="text" name="fecha_ini" id="fecha_ini" value=""
                            required="true" readonly style="cursor: pointer;"
                            class="form-control fecha input-datepicker filter-input">
                 </div>
                 <div class="col-md-2">
                     <label class="control-label panel-admin-text">Hasta:</label>
-             
+
                     <input type="text" name="fecha_fin" id="fecha_fin" value=""
                            required="true" readonly style="cursor: pointer;"
                            class="form-control fecha input-datepicker filter-input">
@@ -63,13 +62,12 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                     <label class="control-label badge b-default">ABIERTO</label>
                     <label class="control-label badge btn-other">IMPRESO</label>
                     <label class="control-label badge b-primary">CERRADO</label>
-                </div>  
+                </div>
 
             </div>
             <br>
         </form>
-    </div>
-</div>
+
 <div class="block">
     <!-- Progress btn-defaultrs Wizard Title -->
     <div class="row" id="loading" style="display: none;">
@@ -80,10 +78,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
     <div id="lstTabla" class="table-responsive"></div>
 
 
-    <br>
-    <a href="<?= $ruta ?>consolidadodecargas/excel" class="btn btn-default btn-lg" data-toggle="tooltip"
-       title="Exportar a Excel" data-original-title="Exportar Excel"><i
-            class="fa fa-file-excel-o fa-fw"></i></a>
+
 
 </div>
 
@@ -132,7 +127,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
 
         $('#estado').change(function(){
             var table = $('#example').DataTable();
- 
+
             table
                 .clear()
                 .draw();
@@ -279,9 +274,9 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
 
                 <div class="col-md-3">
                     <button type="button" id="añadircamion" onclick="agregarPedidos(this.value);" value="0"
-                            class="btn btn-default"><i
+                            class="btn btn-info"><i
                             class="fa fa-truck"></i>
-                        Añadir a camión
+                        Asignar a camión
                     </button>
                 </div>
             </div>
@@ -299,28 +294,27 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="fa fa-close"></i>
                 </button>
 
-                <h3>Imprimir consolidado</h3>
+                <h4>Imprimir consolidado</h4>
             </div>
 
 
             <div class="modal-body" id="ventamodalbody">
                 <div class="form-group row">
 
-
-                    <h4>¿ Está seguro que desea imprimir el consolidado ? </h4>
-
+                    <h4>¿Está seguro que desea imprimir el consolidado? </h4>
 
                 </div>
 
             </div>
             <div class="modal-footer">
                 <button type="button" id="imprimirconso" onclick="impirmirGuiaConsolidado(this.value);" value="0"
-                        class="btn btn-default" value="">Aceptar
+                        class="btn btn-primary" value="">
+                        <li class="glyphicon glyphicon-thumbs-up"></li> Aceptar
 
                 </button>
                 <button type="button" data-dismiss="modal" value="0"
-                        class="btn btn-default">Cancenlar
-
+                        class="btn btn-warning">Cancelar
+                        <li class="glyphicon glyphicon-thumbs-down"></li>
                 </button>
             </div>
         </div>
@@ -422,17 +416,18 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
             </div>
 
             <div class="modal-body">
-                <p>El pedido excede la cantidad de metros cúbicos que soporta el camión.</p>
+                <h4>El pedido excede la cantidad de metros cúbicos que soporta el camión.</h4>
 
-                <p>Presione "Confirmar" para guardar el pedido de todos modos o "Cancelar" para elegir otro camión.</p>
+                <h4>Presione "Confirmar" para guardar el pedido de todos modos o "Cancelar" para elegir otro camión.</h4>
             </div>
             <br><br><br>
 
             <div class="modal-footer">
                 <button type="button" id="" class="btn btn-primary" onclick="grupo.guardarconsolidado()">
-                    Confirmar
+                   <li class="glyphicon glyphicon-thumbs-up"></li> Confirmar
                 </button>
-                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-warning" data-dismiss="modal"
+                <li class="glyphicon glyphicon-thumbs-down"></li> Cancelar</button>
 
             </div>
         </div>
