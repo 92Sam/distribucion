@@ -44,9 +44,9 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                     <label class="control-label panel-admin-text">Estado:</label>
 
                     <select name="estado" id="estado" class='cho form-control filter-input'>
-                        <option value="-1">Todos</option>
-                        <option value="ABIERTO">ABIERTO</option>
+                        <option value="-1">TODOS</option>
                         <option value="IMPRESO" selected>IMPRESO</option>
+                        <option value="ABIERTO">CONFIRMADO</option>
                         <option value="CERRADO">CERRADO</option>
                     </select>
                 </div>
@@ -77,8 +77,8 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
 
 
                 <div class="col-md-3 text-right" style="padding:2% 1%">
-                    <label class="control-label badge b-default">ABIERTO</label>
                     <label class="control-label badge btn-other">IMPRESO</label>
+                    <label class="control-label badge b-warning">CONFIRMADO</label>
                     <label class="control-label badge b-primary">CERRADO</label>
                 </div>
 
