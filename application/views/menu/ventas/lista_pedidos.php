@@ -4,9 +4,8 @@
     <table class="table table-striped dataTable table-bordered table-condensed table-hover" id="tablaresultado">
         <thead>
         <tr>
-            <th style="text-align: center;" class="w_id">ID</th>
+            <th style="text-align: center; " >ID</th>
             <th style="text-align: center;">Documento</th>
-            <th style="text-align: center;">Num. Doc</th>
             <th style="text-align: center;">Cliente</th>
             <th style="text-align: center;">Vendedor</th>
             <th style="text-align: center;">Fecha Venta</th>
@@ -30,9 +29,8 @@
 
                     ?>
                     <tr>
-                        <td><?= $prod_con->venta_id ?></td>
-                        <td><?= $prod_con->nombre_tipo_documento ?></td>
-                        <td><?= $prod_con->documento_Serie . "-" . $prod_con->documento_Numero ?></td>
+                        <td style='width:3% !important; '><?= $prod_con->venta_id ?></td>
+                        <td><?= $prod_con->nombre_tipo_documento. "-" . $prod_con->documento_Numero ?></td>
                         <td><label class=" <?php
                             if (isset($venta->deudor)) {
                                 echo 'label label-danger';
@@ -94,9 +92,8 @@
                 $venta_status = $venta->venta_status;
                 ?>
                 <tr>
-                    <td><?= $venta->venta_id ?></td>
-                    <td>NE</td>
-                    <td><?= $venta->documento_Serie . "-" . $venta->documento_Numero ?></td>
+                    <td style='width:3% !important; '><?= $venta->venta_id ?></td>
+                    <td><?=  "NE -" . $venta->documento_Numero ?></td>
                     <td><label class=" <?php
                     if (isset($venta->deudor)) {
                         echo 'label label-danger';
@@ -255,9 +252,10 @@
                 sumarMetros();
 
             }
+
         });
 
-        TablesDatatables.init(0, 'tablaresultado');
+       // TablesDatatables.init(0, 'tablaresultado');
 
         $('.edit_estatus_pedido').editable('<?php echo $ruta; ?>api/pedidos/estatus', {
             indicator: '<img src="<?php echo $ruta; ?>recursos/editable/loading.gif">',
@@ -269,7 +267,6 @@
                 console.log(value);
             }
         });
-$('.w_id').attr('style', 'text-align: center; width:6%')
 
     });
 

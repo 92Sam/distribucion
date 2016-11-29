@@ -16,9 +16,8 @@
 
                             <th>ID</th>
                             <th>Total</th>
-                            <th>Cantidad</th>
-                            <th>Tipo Doc.</th>
-                            <th>Numero Doc.</th>
+                            <th>Bultos</th>
+                            <th>Documento</th>
                             <th>Cliente</th>
                             <th>Status</th>
                             <th>Acciones</th>
@@ -51,9 +50,8 @@
                             <tr>
                                 <td><?php echo $consolidadoDetalles['venta_id']; ?></td>
                                 <td><?php echo $consolidadoDetalles['total']; ?></td>
-                                <td><?php echo $consolidadoDetalles['cantidad_prductos']; ?></td>
-                                <td><?php echo $consolidadoDetalles['nombre_tipo_documento']; ?></td>
-                                <td><?php echo $consolidadoDetalles['documento_Serie'] . "-" . $consolidadoDetalles['documento_Numero']; ?></td>
+                                <td><?php echo $consolidadoDetalles['bulto']; ?></td>
+                                <td><?php echo 'NE - '.$consolidadoDetalles['documento_Numero']; ?></td>
                                 <td><?php echo $consolidadoDetalles['razon_social']; ?></td>
                                 <td><?php echo $consolidadoDetalles['venta_status']; ?></td>
                                 <td>

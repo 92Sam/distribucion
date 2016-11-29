@@ -151,19 +151,20 @@
 
     </div>
 </div>
-<div class="form-group row">
     <div class="row">
         <div class="col-xs-12">
             <div class="alert alert-success alert-dismissable" id="success"
                  style="display:<?php echo isset($success) ? 'block' : 'none' ?>">
                 <button type="button" class="close" data-dismiss="alert" aria-hidden="true">X</button>
                 <h4><i class="icon fa fa-check"></i> Operaci&oacute;n realizada</h4>
-                <span id="successspan"><?php echo isset($success) ? $success : '' ?></div>
-            </span>
-        </div>
-    </div>
+                <span id="successspan"><?php echo isset($success) ? $success : '' ?>
 
-</div>
+                    </span>
+                </div>
+
+        </div>  
+      </div>
+
 <div class="modal fade" id="seleccionarPedido" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
      aria-hidden="true">
     <div class="modal-dialog">
@@ -236,6 +237,8 @@
 
         refreshpedidos();
         $("select").chosen({width: '100%'});
+        $('.w_id').attr('style', 'text-align: center; width:6%')
+
     });
 
     function renewSession() {

@@ -46,8 +46,8 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
 
                     <select name="estado" id="estado" class='cho form-control filter-input'>
                         <option value="-1">Todos</option>
-                        <option value="ABIERTO" selected>ABIERTO</option>
-                        <option value="IMPRESO">IMPRESO</option>
+                        <option value="ABIERTO">ABIERTO</option>
+                        <option value="IMPRESO" selected>IMPRESO</option>
                         <option value="CERRADO">CERRADO</option>
                     </select>
                 </div>
