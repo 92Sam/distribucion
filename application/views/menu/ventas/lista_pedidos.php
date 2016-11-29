@@ -4,7 +4,7 @@
     <table class="table table-striped dataTable table-bordered table-condensed table-hover" id="tablaresultado">
         <thead>
         <tr>
-            <th style="text-align: center;">ID</th>
+            <th style="text-align: center;" class="w_id">ID</th>
             <th style="text-align: center;">Documento</th>
             <th style="text-align: center;">Num. Doc</th>
             <th style="text-align: center;">Cliente</th>
@@ -269,7 +269,7 @@
                 console.log(value);
             }
         });
-
+$('.w_id').attr('style', 'text-align: center; width:6%')
 
     });
 
