@@ -17,6 +17,7 @@ class bonificaciones extends MY_Controller
         $this->load->model('linea/lineas_model');
         $this->load->model('subfamilia/subfamilias_model');
         $this->load->model('subgrupos/subgrupos_model');
+        $this->load->model('clientesgrupos/clientes_grupos_model');
 
     }
 
@@ -40,6 +41,7 @@ class bonificaciones extends MY_Controller
         $data['bonificacioness'] = array();
         $bonificaciones = $this->bonificaciones_model->get_all();
 
+        $data["grupos"] = $this->clientes_grupos_model->get_all();
 
         foreach ($bonificaciones as $b) {
 
@@ -55,6 +57,29 @@ class bonificaciones extends MY_Controller
             echo $dataCuerpo['cuerpo'];
         } else {
             $this->load->view('menu/template', $dataCuerpo);
+        }
+    }
+
+    function lst_bonificaciones() {
+
+        if ($this->input->is_ajax_request()) {
+
+            $id = $this->input->post('grupos');
+
+            $data['bonificacioness'] = array();
+            $bonificaciones = $this->bonificaciones_model->get_by_groupclie($id);
+
+            foreach ($bonificaciones as $b) {
+
+                $b['bonificaciones_has_producto'] = $this->bonificaciones_model->bonificaciones_has_producto('id_bonificacion', $b['id_bonificacion']);
+
+                $data['bonificacioness'][]=$b;
+            }
+
+            $this->load->view('menu/bonificaciones/tbl_bonificaciones', $data);
+
+        } else {
+            redirect(base_url() . 'bonificaciones/', 'refresh');
         }
     }
 

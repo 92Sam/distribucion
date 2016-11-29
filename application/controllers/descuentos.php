@@ -10,6 +10,7 @@ class descuentos extends MY_Controller
         $this->load->model('descuentos/descuentos_model');
         $this->load->model('producto/producto_model');
         $this->load->model('unidades/unidades_model');
+        $this->load->model('clientesgrupos/clientes_grupos_model');
 
         //$this->very_sesion();
     }
@@ -23,7 +24,6 @@ class descuentos extends MY_Controller
 
     function index()
     {
-        //$data="";
 
         if ($this->session->flashdata('success') != FALSE) {
             $data ['success'] = $this->session->flashdata('success');
@@ -31,7 +31,11 @@ class descuentos extends MY_Controller
         if ($this->session->flashdata('error') != FALSE) {
             $data ['error'] = $this->session->flashdata('error');
         }
+
         $data["descuentos"] = $this->descuentos_model->get_all();
+
+        $data["grupos"] = $this->clientes_grupos_model->get_all();
+
         $dataCuerpo['cuerpo'] = $this->load->view('menu/descuentos/descuentos', $data, true);
 
         if ($this->input->is_ajax_request()) {
@@ -40,6 +44,21 @@ class descuentos extends MY_Controller
             $this->load->view('menu/template', $dataCuerpo);
         }
     }
+
+    function lst_descuentos() {
+
+        if ($this->input->is_ajax_request()) {
+
+            $id = $this->input->post('grupos');
+            $data["descuentos"] = $this->descuentos_model->get_by_groupclie($id);
+
+            $this->load->view('menu/descuentos/tbl_descuentos', $data);
+        } else {
+            redirect(base_url() . 'descuentos/', 'refresh');
+        }
+    }
+
+
     function verReglaDescuento($id){
 
         $data['escalas'] = $this->descuentos_model->get_escalas_descuento($id);
@@ -56,17 +75,18 @@ class descuentos extends MY_Controller
         if ($id != FALSE) {
             $datax['descuentos'] = $this->descuentos_model->get_by('descuento_id', $id);
 
+            $datax['escalas'] = $this->descuentos_model->get_escalas_descuento_x($id);
+            $datax['escalas_h'] = $this->descuentos_model->get_escalas_descuento_head($id);
 
-            $datax['escalas'] = $this->descuentos_model->get_escalas_by_descuento($id);
             $where = " where  descuentos.descuento_id='" . $id . "'";
+
             $datax['productosnoagrupados'] = $this->descuentos_model->edit_descuentos($where, false);
+
             $datax['sizenoagrupados'] = sizeof($datax['productosnoagrupados']);
             $datax['sizeescalas'] = sizeof($datax['escalas']);
 
-
         }
         $datax['productosenreglasdedescuento'] = $this->descuentos_model->edit_descuentos('where descuentos.status=1', $group);
-
 
         $datax["lstProducto"] = $this->producto_model->select_all_producto();
 

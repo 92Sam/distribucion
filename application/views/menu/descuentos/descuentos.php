@@ -15,88 +15,91 @@
         </span>
     </div>
 </div>
-<!--
-<div class="row">
-    <div class="col-xs-12">
-        <div class="alert alert-danger alert-dismissable" id="error"
-             style="display:<?php //echo isset($error) ? 'block' : 'none' ?>">
-            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">X</button>
-            <h4><i class="icon fa fa-check"></i> Error</h4>
-            <span id="errorspan"><?php //echo isset($error) ? $error : '' ?></div>
-    </div>
-</div>-->
 <?php
-echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "</div>");
+echo validation_errors('<div class="alert alert-danger alert-dismissable">', "</div>");
 ?>
-<div class="block">
-    <!-- Progress Bars Wizard Title -->
 
-    <a class="btn btn-primary" onclick="agregar();">
-        <i class="fa fa-plus ">Nuevo</i>
-    </a>
-    <br />
+<div class="span12">
+    <div class="block">
+        <!-- Progress Bars Wizard Title -->
 
-    <?php
-    echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "</div>");
-    ?>
-    <div class="box-body" id="table">
-     <div class="table-responsive">
-        <table class="table table-striped dataTable table-bordered" id="example">
-            <thead>
-            <tr>
+        <div class="row">
+            <div class="col-md-2">
+                <a class="btn btn-primary" onclick="agregar();">
+                    <i class="fa fa-plus ">Nuevo</i>
+                </a>
 
-                <th>ID</th>
-                <th>Nombre</th>
+            </div>
 
-                <th class="desktop">Acciones</th>
+            <form id="frmGrupos">
+                <div class="col-md-1">
+                    <label class="control-label panel-admin-text">Grupos:</label>
+                </div>
+                <div class="col-md-3">
 
-            </tr>
-            </thead>
-            <tbody>
-            <?php if (count($descuentos) > 0) {
-
-                foreach ($descuentos as $descuento) {
-                    ?>
-                    <tr>
-
-                        <td class="center"><?= sumCod($descuento['descuento_id']); ?></td>
-                        <td><?= $descuento['nombre'] ?></td>
-
-                        <td class="center">
-                            <div class="btn-group">
-                                <?php
-
-                                echo '<a class="btn btn-default btn-default btn-default" data-toggle="tooltip"
-                                            title="Editar" data-original-title="Ver"
-                                            href="#" onclick="verModal(' . $descuento['descuento_id'] . ');">'; ?>
-                                ver
-                                </a>
-                                <?php
-
-                                echo '<a class="btn btn-default btn-default btn-default" data-toggle="tooltip"
-                                            title="Editar" data-original-title="Editar"
-                                            href="#" onclick="editar(' . $descuento['descuento_id'] . ');">'; ?>
-                                <i class="fa fa-edit"></i>
-                                </a>
-                                <?php echo '<a class="btn btn-default btn-default btn-default" data-toggle="tooltip"
-                                     title="Eliminar" data-original-title="Eliminar" onclick="borrar(' . $descuento['descuento_id'] . ',\'' . $descuento['nombre'] . '\');">'; ?>
-                                <i class="fa fa-trash-o"></i>
-                                </a>
-
-                            </div>
-                        </td>
-                    </tr>
-                <?php }
-            } ?>
-
-            </tbody>
-        </table>
-
+                    <select name="grupos" id="grupos" class='cho form-control filter-input'>
+                        <?php if (count($grupos) > 0): ?>
+                            <?php foreach ($grupos as $grupo): ?>
+                                <option
+                                    value="<?php echo $grupo['id_grupos_cliente']; ?>"
+                                    id="<?php echo $grupo['nombre_grupos_cliente']; ?>">
+                                    <?php echo $grupo['nombre_grupos_cliente']; ?></option>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </select>
+                </div>
+            </form>
         </div>
     </div>
 </div>
 
+<div class="block">
+    <!-- Progress Bars Wizard Title -->
+    <div class="row" id="loading" style="display: none;">
+        <div class="col-md-12 text-center">
+            <div class="loading-icon"></div>
+        </div>
+    </div>
+    <div id="lstTabla" class="table-responsive"></div>
 
+</div>
+
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        $("#grupos").on('change', function () {
+            loadDescuentos();
+        });
+
+        loadDescuentos();
+    });
+
+
+    function loadDescuentos() {
+        $("#lstTabla").html($("#loading").html());
+
+        $.ajax({
+            type: 'POST',
+            data: $('#frmGrupos').serialize(),
+            url: '<?php echo base_url();?>' + 'descuentos/lst_descuentos',
+            success: function (data) {
+                $("#lstTabla").html(data);
+
+            },
+            error: function(){
+                $("#lstTabla").html('');
+                $.bootstrapGrowl('<h4>Ha ocurrido un error en la opci&oacute;n</h4>', {
+                    type: 'warning',
+                    delay: 2500,
+                    allow_dismiss: true
+                });
+            }
+        });
+    }
+
+</script>
 
 
 <script type="text/javascript">

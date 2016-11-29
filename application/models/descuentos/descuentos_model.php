@@ -19,6 +19,18 @@ class descuentos_model extends CI_Model
         return $query->result_array();
 
     }
+
+    function get_by_groupclie($id)
+    {
+
+        $this->db->where('status', 1);
+        $this->db->where('id_grupos_cliente', $id);
+        $this->db->order_by('nombre', 'asc');
+        $query = $this->db->get('descuentos');
+        return $query->result_array();
+
+    }
+
     function get_desc_list($condicion)
     {
 
@@ -42,12 +54,33 @@ class descuentos_model extends CI_Model
         $this->db->order_by('cantidad_minima','asc');
         //$this->db->group_by();
 
-
         $query = $this->db->get();
+        //echo $this->db->last_query();
 
         return $query->result_array();
 
     }
+
+    function get_escalas_descuento_x($id)
+    {
+        $this->db->select('descuentos.* , escalas.* , escala_producto.* , unidades.* ,
+	                        producto.* ,  unidades_has_precio.precio AS preciov');
+        $this->db->from('descuentos');
+        $this->db->join('escalas', 'escalas.regla_descuento = descuentos.descuento_id', 'left');
+        $this->db->join('escala_producto', 'escala_producto.escala = escalas.escala_id', 'left');
+        $this->db->join('unidades', 'escala_producto.unidad = unidades.id_unidad', 'left');
+        $this->db->join('producto', 'producto.producto_id = escala_producto.producto', 'left');
+        $this->db->join('unidades_has_precio', 'unidades_has_precio.id_producto = producto.producto_id', 'left');
+        $this->db->where('descuento_id', $id);
+        $this->db->order_by('cantidad_minima','asc');
+
+        $query = $this->db->get();
+        //echo $this->db->last_query();
+
+        return $query->result_array();
+
+    }
+
     function get_escalas_descuento_head($id)
     {
         $this->db->select('*');
@@ -131,11 +164,11 @@ class descuentos_model extends CI_Model
     function edit_descuentos($where, $group)
     {
 
-        $sql = "SELECT * FROM escala_producto JOIN producto on escala_producto.producto=producto.producto_id
-                 JOIN unidades ON escala_producto.unidad=unidades.id_unidad
-                JOIN escalas ON escala_producto.`escala`=escalas.`escala_id`
-                JOIN descuentos ON descuentos.`descuento_id`=escalas.`regla_descuento`
-        ";
+        $sql = "SELECT * FROM escala_producto
+                JOIN producto on escala_producto.producto=producto.producto_id
+                JOIN unidades ON escala_producto.unidad=unidades.id_unidad
+                JOIN escalas ON escala_producto.escala=escalas.escala_id
+                JOIN descuentos ON descuentos.descuento_id=escalas.regla_descuento";
 
         if ($where != false) {
             $sql .= " " . $where . " ";

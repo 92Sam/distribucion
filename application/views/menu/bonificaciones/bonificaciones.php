@@ -17,125 +17,52 @@
     </div>
 </div>
 <?php
-echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "</div>");
+echo validation_errors('<div class="alert alert-danger alert-dismissable">', "</div>");
 ?>
+<div class="span12">
+    <div class="block">
+        <!-- Progress Bars Wizard Title -->
+
+        <div class="row">
+            <div class="col-md-2">
+                <a class="btn btn-primary" onclick="agregar();">
+                    <i class="fa fa-plus ">Nuevo</i>
+                </a>
+
+            </div>
+
+            <form id="frmGrupos">
+                <div class="col-md-1">
+                    <label class="control-label panel-admin-text">Grupos:</label>
+                </div>
+                <div class="col-md-3">
+
+                    <select name="grupos" id="grupos" class='cho form-control filter-input'>
+                        <?php if (count($grupos) > 0): ?>
+                            <?php foreach ($grupos as $grupo): ?>
+                                <option
+                                    value="<?php echo $grupo['id_grupos_cliente']; ?>"
+                                    id="<?php echo $grupo['nombre_grupos_cliente']; ?>">
+                                    <?php echo $grupo['nombre_grupos_cliente']; ?></option>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </select>
+                </div>
+            </form>
+            <!-- <button id="btnBuscar" class="btn btn-default" >Buscar</button>  -->
+        </div>
+    </div>
+</div>
+
 <div class="block">
     <!-- Progress Bars Wizard Title -->
-
-
-    <a class="btn btn-primary" onclick="agregar();">
-        <i class="fa fa-plus "> Nueva</i>
-    </a>
-    <br>
-
-    <div class="table-responsive">
-        <table class="table table-striped dataTable table-bordered" id="example">
-            <thead>
-            <tr>
-
-                <th>ID</th>
-                <th>Vencimiento</th>
-                <th>Estado</th>
-                <th>Productos</th>
-                <th>Marca Condición</th>
-                <th>Grupo Condición</th>
-                <th>Sub Grupo Condición</th>
-                <th>Familia Condición</th>
-                <th>Sub Familia Condición</th>
-                <th>Línea Condición</th>
-                <th>Unidad Condición</th>
-
-
-                <th>Cantidad Condición</th>
-                <th>Bono Producto</th>
-
-                <th>Bono Unidad</th>
-                <th>Bono Cantidad</th>
-                <th class="desktop">Acciones</th>
-
-            </tr>
-            </thead>
-            <tbody>
-            <?php if (count($bonificacioness) > 0) {
-
-                foreach ($bonificacioness as $bonificaciones) {
-                    ?>
-                    <tr>
-
-                        <td class="center"><?= $bonificaciones['id_bonificacion'] ?></td>
-                        <td><?= $bonificaciones['fecha'] ?></td>
-                        <td><?php $days = (strtotime(date('d-m-Y')) - strtotime($bonificaciones['fecha'])) / (60 * 60 * 24);
-                            if ($days < 0)
-                                $days = 0; ?>
-                            <div><label class="label
-                            <?php if (floor($days) <= 0) {
-                                    echo "label-success";
-
-                                } else {
-                                    echo "label-danger";
-                                } ?> "> <?php if (floor($days) <= 0) {
-                                        echo "Activa";
-
-                                    } else {
-                                        echo "Vencida";
-                                    } ?></label>
-                            </div>
-                        </td>
-                        <td style="width: 30%;">
-                            <?php /*echo '<a class="btn btn-default" data-toggle="tooltip"
-                                     title="Ver Productos" data-original-title="fa fa-eye"
-                                     onclick="verproductos(' . $bonificaciones['id_bonificacion'] . ');">';
- */ ?>
-                          <!--  <i class="fa fa-eye"></i>
-                            </a>-->
-
-                            <?php
-
-                                foreach($bonificaciones['bonificaciones_has_producto'] as $produc){
-                                    echo sumCod($produc['id_producto']). " ".$produc['producto_nombre'];?>
-                                    <br>
-                                    <?php
-                                }
-                            ?>
-
-                        </td>
-                        <td><?= $bonificaciones['nombre_marca'] ?></td>
-                        <td><?= $bonificaciones['nombre_grupo'] ?></td>
-                        <td><?= $bonificaciones['nombre_subgrupo'] ?></td>
-                        <td><?= $bonificaciones['nombre_familia'] ?></td>
-                        <td><?= $bonificaciones['nombre_subfamilia'] ?></td>
-                        <td><?= $bonificaciones['nombre_linea'] ?></td>
-                        <td><?= $bonificaciones['nombre_unidad'] ?></td>
-                        <td><?= $bonificaciones['cantidad_condicion'] ?></td>
-                        <td><?= $bonificaciones['producto_bonificacion'] ?></td>
-                        <td><?= $bonificaciones['unidad_bonificacion'] ?></td>
-                        <td><?= $bonificaciones['bono_cantidad'] ?></td>
-
-                        <td class="center">
-                            <div class="btn-group">
-
-                                <a class="btn btn-default" data-toggle="tooltip" title="Editar"
-                                   data-original-title="fa fa-comment-o"
-                                   href="#"
-                                   onclick="editar('<?php echo $bonificaciones["id_bonificacion"] ?>','<?php echo isset($bonificaciones['producto_id']) ? $bonificaciones['producto_id'] : "false" ?>','<?php echo $bonificaciones['bono_producto'] ?>')">
-                                    <i class="fa fa-edit"></i>
-                                </a>
-
-                                <?php echo '<a class="btn btn-default" data-toggle="tooltip"
-                                     title="Eliminar" data-original-title="fa fa-comment-o"
-                                     onclick="borrar(' . $bonificaciones['id_bonificacion'] . ');">'; ?>
-                                <i class="fa fa-trash-o"></i>
-                                </a>
-
-                            </div>
-                        </td>
-                    </tr>
-                <?php }
-            } ?>
-
-            </tbody>
-        </table>
+    <div class="row" id="loading" style="display: none;">
+        <div class="col-md-12 text-center">
+            <div class="loading-icon"></div>
+        </div>
     </div>
+    <div id="lstTabla" class="table-responsive"></div>
+
 </div>
 
 
@@ -160,6 +87,37 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
 
 
 <script type="text/javascript">
+
+    $(document).ready(function () {
+
+        $("#grupos").on('change', function () {
+            loadBonificaciones();
+        });
+
+        loadBonificaciones();
+    });
+
+    function loadBonificaciones() {
+        $("#lstTabla").html($("#loading").html());
+
+        $.ajax({
+            type: 'POST',
+            data: $('#frmGrupos').serialize(),
+            url: '<?php echo base_url();?>' + 'bonificaciones/lst_bonificaciones',
+            success: function (data) {
+                $("#lstTabla").html(data);
+
+            },
+            error: function(){
+                $("#lstTabla").html('');
+                $.bootstrapGrowl('<h4>Ha ocurrido un error en la opci&oacute;n</h4>', {
+                    type: 'warning',
+                    delay: 2500,
+                    allow_dismiss: true
+                });
+            }
+        });
+    }
 
     function borrar(id) {
 

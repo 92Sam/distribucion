@@ -55,6 +55,7 @@
 
                             $array_destino=array();
                             $valor=array();
+
                             foreach($escalas as $escala) {
 
                                 $valor['nombre']=$escala['producto_nombre'];
@@ -65,7 +66,7 @@
                             }
                             foreach ($array_destino as $valor) {
                                 ?>
-                                <tr><td><?= sumCod($valor['id']);  ?></td>
+                                <tr><td><?= sumCod($valor['id']); ?></td>
 
                                     <td><?= $valor['nombre']; ?></td>
                                     <?php
