@@ -50,8 +50,8 @@ $active_record = TRUE;
 
 $db['default']['hostname'] = 'localhost';
 $db['default']['username'] = 'root';
-$db['default']['password'] = '123';
-$db['default']['database'] = 'teayudop_distribucion6';
+$db['default']['password'] = 'nexus1108';
+$db['default']['database'] = 'distribucion_edison';
 
 
 /*
