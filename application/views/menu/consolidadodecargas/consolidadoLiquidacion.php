@@ -5,7 +5,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title">Liquidación de guia de carga</h4>
+                <h4 class="modal-title">Liquidación de guia de carga - <?php echo $id_consolidado ?></h4>
             </div>
 
             <div class="modal-body">
@@ -32,6 +32,8 @@
                         $liquidar = true;
                         $s = 0;
                         $total=0;
+                        $devolucion = 'false';
+
                         foreach ($consolidado as $consolidadoDetalles) {
 
                             if ($consolidadoDetalles['montocobradoliquidacion'] == null) {
@@ -54,7 +56,13 @@
                                 <td style="text-align: center"><?php echo $consolidadoDetalles['razon_social']; ?></td>
                                 <td style="text-align: right"><?php echo MONEDA.' '.number_format($consolidadoDetalles['total'],2) ?></td>
 
-                                <td style="text-align: center"><?php echo $consolidadoDetalles['venta_status']; ?></td>
+                                <td style="text-align: center"><?php 
+                                if($consolidadoDetalles['venta_status'] == 'DEVUELTO PARCIALMENTE' || $consolidadoDetalles['venta_status'] == 'RECHAZADO'){
+                                    $devolucion = 'true';
+                                }
+
+                                    echo $consolidadoDetalles['venta_status']; ?></td>
+                                
                                 <td style="text-align: center">
                                     <?php
                                     if (($status != 'CERRADO'&& $status != 'CONFIRMADO') && $consolidadoDetalles['venta_status'] == PEDIDO_ENVIADO) {
@@ -122,7 +130,7 @@
                     </button>
 
                 <?php }
-                if (($status != 'CERRADO'&& $status != 'CONFIRMADO')) {
+                if (($status != 'CERRADO' && $status != 'CONFIRMADO')) {
                 } else {
                     ?>
                     <button type="button" class="btn btn-danger" data-dismiss="modal">
@@ -151,13 +159,23 @@
 
 <script type="text/javascript">
     function pedidoDevolucion(id) {
+        if('<?php echo $devolucion ?>' == 'false'){
 
-        var win = window.open('<?= $ruta ?>consolidadodecargas/pedidoDevolucion/' + id, '_blank');
-        win.focus();
+            $.bootstrapGrowl('<h4>El consolidado no tiene devoluciones</h4>', {
+                    type: 'warning',
+                    delay: 2500,
+                    allow_dismiss: true
+                });
 
-        grupo.ajaxgrupo().success(function (data) {
+        }else{
 
-        });
+            var win = window.open('<?= $ruta ?>consolidadodecargas/pedidoDevolucion/' + id, '_blank');
+            win.focus();
+
+            grupo.ajaxgrupo().success(function (data) {
+
+            });
+        }
 
 
     }

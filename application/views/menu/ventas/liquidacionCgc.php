@@ -46,7 +46,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                     <select name="estado" id="estado" class='cho form-control filter-input'>
                         <option value="-1">TODOS</option>
                         <option value="IMPRESO" selected>IMPRESO</option>
-                        <option value="ABIERTO">CONFIRMADO</option>
+                        <option value="CONFIRMADO">CONFIRMADO</option>
                         <option value="CERRADO">CERRADO</option>
                     </select>
                 </div>
@@ -139,7 +139,8 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                             </label>
                         </div>
                         <div class="col-md-10">
-                            <select id="estatus" class=""  name="estatus" onchange="verificar_select()">
+                            <select id="estatus" class=""  name="estatus" onchange="verificar_select()" data-placeholder="Seleccione una acci&oacute;n">
+                            <option></option>
                                 <option value="ENTREGADO"> ENTREGADO</option>
                                 <option value="DEVUELTO PARCIALMENTE"> DEVUELTO PARCIALMENTE</option>
                                 <option value="RECHAZADO"> RECHAZADO</option>
@@ -149,8 +150,8 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                     </div>
                     <div class="form-group row" id="div_monto" style="display:none;">
 
-                        <div class="col-md-4">
-                            Total Venta
+                        <div class="col-md-3">
+                            <label class="control-label panel-admin-text"> Total Venta</label>
                         </div>
                         <div class="col-md-8">
                             <input type="text" readonly value="10" name="total" id="total" required="true"
@@ -160,16 +161,20 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                                    class="form-control"
                             >
                         </div>
-                        <div class="col-md-4">
-                            Saldo a cuenta
+
+
+                        <div class="col-md-3">
+                           <label class="control-label panel-admin-text"> Saldo a cuenta</label>
                         </div>
                         <div class="col-md-8">
                             <input type="text" readonly value="10" name="acuenta" id="acuenta" required="true"
                                    class="form-control"
                             >
                         </div>
-                        <div class="col-md-4">
-                            Pendiente de pago
+
+
+                        <div class="col-md-3">
+                            <label class="control-label panel-admin-text"> Pendiente de pago</label>
                         </div>
                         <div class="col-md-8">
                             <input type="text" readonly value="10" name="pendiente" id="pendiente" required="true"
@@ -177,14 +182,24 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                             >
                         </div>
 
-                        <div class="col-md-4">
-                            Monto cobrado
+                        <div class="col-md-3">
+                            <label class="control-label panel-admin-text"> Monto cobrado</label>
+
                         </div>
-                        <div class="col-md-8">
+                        <div class="col-md-4">
                             <input type="number" onkeydown="return soloDecimal(this, event);" name="monto" id="monto"
                                    required="true"
                                    class="form-control"
                             >
+
+                        </div>
+                        <div class="col-md-4">
+                            <input type="checkbox" id="cobrar_todo" style="padding-bottom: 10px;">
+                            <label for="cobrar_todo"
+                                   class="control-label"
+                                   style="cursor: pointer;">
+                                Cobrar todo
+                            </label>
                         </div>
                     </div>
                     <div class="col-md-10">
@@ -301,7 +316,16 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                 .clear()
                 .draw();
             })
+                    
+                    $('#cobrar_todo').prop('checked', false)
 
+        $('#cobrar_todo').click(function(){
+            if($('#cobrar_todo').is(':checked')){
+                $('#monto').val($('#pendiente').val())
+            }else{
+                $('#monto').val(0)
+            }
+        })
 
     });
 
