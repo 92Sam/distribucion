@@ -1136,7 +1136,7 @@ $primary_nav = array(
                                 </li>
                                 <li class="divider"></li>
                                 <li>
-                                    <a href="<?= $ruta; ?>logout"><i class="fa fa-ban fa-fw pull-right"></i> Logout</a>
+                                    <a href="<?= $ruta; ?>logout"><i class="fa fa-ban fa-fw pull-right"></i> Cerrar Sesión</a>
                                 </li>
                             </ul>
                         </li>

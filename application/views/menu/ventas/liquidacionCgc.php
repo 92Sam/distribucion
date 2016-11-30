@@ -46,8 +46,9 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                     <select name="estado" id="estado" class='cho form-control filter-input'>
                         <option value="-1">TODOS</option>
                         <option value="IMPRESO" selected>IMPRESO</option>
-                        <option value="CONFIRMADO">CONFIRMADO</option>
                         <option value="CERRADO">CERRADO</option>
+                        <option value="CONFIRMADO">CONFIRMADO</option>
+
                     </select>
                 </div>
 
@@ -78,8 +79,9 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
 
                 <div class="col-md-3 text-right" style="padding:2% 1%">
                     <label class="control-label badge btn-other">IMPRESO</label>
-                    <label class="control-label badge b-warning">CONFIRMADO</label>
                     <label class="control-label badge b-primary">CERRADO</label>
+                    <label class="control-label badge b-warning">CONFIRMADO</label>
+
                 </div>
 
             </div>
@@ -316,7 +318,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                 .clear()
                 .draw();
             })
-                    
+
                     $('#cobrar_todo').prop('checked', false)
 
         $('#cobrar_todo').click(function(){
