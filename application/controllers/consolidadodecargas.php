@@ -89,8 +89,13 @@ class consolidadodecargas extends MY_Controller
 
     function buscarConsolidadoEstado()
     {
-
         $condicion = array();
+
+        if ($this->input->post('fecha_ini') != "" && $this->input->post('fecha_fin') != "") {
+            $condicion['fecha_ini'] = $this->input->post('fecha_ini');
+            $condicion['fecha_fin'] = $this->input->post('fecha_fin');
+        }
+
         if ($this->input->post('estado') != "") {
             $condicion['status'] = $this->input->post('estado');
             $data['estado'] = $this->input->post('estado');

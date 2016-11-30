@@ -63,10 +63,25 @@ class consolidado_model extends CI_Model
         $this->db->select('camiones.*,SUM(liquidacion_monto_cobrado)as totalC,liquidacion_monto_cobrado,usuario.nombre,consolidado_detalle.consolidado_id as ConsolidadoDetalle,consolidado_carga.consolidado_id,
         fecha,camion,status,consolidado_carga.metros_cubicos as metrosc, fecha_creacion');
         $this->db->from('consolidado_carga');
-        $this->db->where($where);
         $this->db->join('camiones', 'camiones.camiones_id=consolidado_carga.camion', 'left');
         $this->db->join('usuario', 'usuario.nUsuCodigo=camiones.id_trabajadores', 'left');
         $this->db->join('consolidado_detalle', 'consolidado_detalle.consolidado_id=consolidado_carga.consolidado_id', 'left');
+
+
+        if ($where['status'] != null && $where['status'] != -1){
+          $this->db->where('status', $where['status']);
+        }else{
+          $condicion = "(status = 'CONFIRMADO' OR status = 'CERRADO')";
+          $this->db->where($condicion);
+        }
+
+        if (isset($where['fecha_ini']) && isset($where['fecha_fin'])) {
+          if ($where['fecha_ini'] != null && $where['fecha_fin'] != null) {
+            $this->db->where('fecha >=', date('Y-m-d H:i:s', strtotime($where['fecha_ini'] . " 00:00:00")));
+            $this->db->where('fecha <=', date('Y-m-d H:i:s', strtotime($where['fecha_fin'] . " 23:59:59")));
+          }
+        }
+
         $this->db->group_by('consolidado_id');
         $query = $this->db->get();
 
