@@ -89,7 +89,7 @@ fieldset {
                                 <label for="zona" class="control-label">Zona</label>
                                 <select name="zona" id="zona" class='form-control' required="true" >
                                     <option value="">Seleccione</option>
-                            
+
                                 </select>
 
                             </div>
@@ -106,8 +106,10 @@ fieldset {
                                 <label class="control-label">Documento</label>
                                 <select name="tipo_documento" id="tipo_documento" onchange="" class="form-control" <?= $disabled; ?>>
                                     <option value="">Seleccione</option>
-                                    <option value="FACTURA">FACTURA</option>
-                                    <option value="BOLETA">BOLETA</option>
+                                    <option value="<?= BOLETAVENTA ?>" <?php if ((isset($venta[0]['documento_tipo']) and $venta[0]['documento_tipo'] == BOLETAVENTA) or !isset($venta[0])) echo 'selected' ?>><?= BOLETAVENTA ?>
+                                    </option>
+                                    <option value="<?= FACTURA ?>" <?php if (isset($venta[0]['documento_tipo']) and $venta[0]['documento_tipo'] == FACTURA) echo 'selected' ?>><?= FACTURA ?>
+                                    </option>
                                 </select>
 
                             </div>
@@ -119,9 +121,9 @@ fieldset {
                         </div>
                         <div class="col-md-2">
                             <div class="form-group">
-                                <div class="sidebar-user-name"><?= 
+                                <div class="sidebar-user-name"><?=
 
-                                    date('D d - m - Y').'<br> '.$this->session->userdata('nombre') 
+                                    date('D d - m - Y').'<br> '.$this->session->userdata('nombre')
 
                                 ?></div>
                             </div>
@@ -157,7 +159,7 @@ fieldset {
                         </div>
                         <div class="form-group col-md-12">
                             <div class="col-md-2">
-                                <label for="zona" class="control-label">Retenci&oacute;n</label>
+                                <label for="zona" class="control-label panel-admin-text">Retenci&oacute;n</label>
                             </div>
                             <div class="col-md-4">
                                 <input type="number" name="retencion" class="form-control">
@@ -165,17 +167,17 @@ fieldset {
 
                             <div class="col-md-4">
                                 <input id="cambiar_retencion" type="checkbox" name="cambiar_retencion">
-                                <label for="cambiar_retencion" class="control-label">¿Cambiar retenci&oacute;n?</label>
+                                <label for="cambiar_retencion" class="control-label panel-admin-text">¿Cambiar retenci&oacute;n?</label>
                             </div>
                         </div>
                         <div class="form-group col-md-12">
                             <div class="col-md-6">
-                                <label for="" class="control-label"><u>Estado de cuenta actual</u></label>
+                                <label for="" class="control-label panel-admin-text"><u>Estado de cuenta actual</u></label>
                             </div>
                         </div>
                         <div class="form-group col-md-12">
                             <div class="col-md-4">
-                                <label for="" class="control-label">Deuda Actual</label>
+                                <label for="" class="control-label panel-admin-text">Deuda Actual</label>
                             </div>
                             <div class="col-md-6 col-md-12">
                                 <input type="number" name="retencion" class="form-control">
@@ -183,7 +185,7 @@ fieldset {
                         </div>
                         <div class="form-group col-md-12">
                             <div class="col-md-4">
-                                <label for="" class="control-label"># Documentos Pendientes</label>
+                                <label for="" class="control-label panel-admin-text"># Documentos Pendientes</label>
                             </div>
                             <div class="col-md-6">
                                 <input type="number" name="retencion" class="form-control">
@@ -196,7 +198,7 @@ fieldset {
                         <legend>Nota Pedido</legend>
                             <div class="form-group col-md-12">
                                 <div class="col-md-3">
-                                    <label for="zona" class="control-label">Cliente</label>
+                                    <label for="zona" class="control-label panel-admin-text">Cliente</label>
                                 </div>
                                 <div class="col-md-8">
                                     <input type="text" class="form-control" name="cliente_nt" id="cliente_nt" style="">
@@ -206,7 +208,7 @@ fieldset {
                             </div>
                             <div class="form-group col-md-12">
                                 <div class="col-md-3">
-                                    <label for="zona" class="control-label">Direccion Entrega</label>
+                                    <label for="zona" class="control-label panel-admin-text">Direccion Entrega</label>
                                 </div>
                                 <div class="col-md-8">
                                     <select name="zona" id="direccion_entrega_np" class='form-control' required="true" style="">
@@ -216,7 +218,7 @@ fieldset {
                             </div>
                             <div class="form-group col-md-12">
                                 <div class="col-md-3">
-                                    <label for="contacto_nt" class="control-label">Contacto</label>
+                                    <label for="contacto_nt" class="control-label panel-admin-text">Contacto</label>
                                 </div>
                                 <div class="col-md-8">
                                     <input type="text" name="contacto_nt" class="form-control" id="contacto_nt" style="">
@@ -229,7 +231,7 @@ fieldset {
 
                         <div class="form-group col-md-12">
                             <div class="col-md-3">
-                                <label for="zona" class="control-label">RUC</label>
+                                <label for="zona" class="control-label panel-admin-text">RUC</label>
                             </div>
                             <div class="col-md-8">
                                 <input type="text" name="cliente_nt" class="form-control" id="cliente_nt" style="">
@@ -237,7 +239,7 @@ fieldset {
                         </div>
                         <div class="form-group col-md-12">
                             <div class="col-md-3">
-                                <label for="zona" class="control-label">Razon Social</label>
+                                <label for="zona" class="control-label panel-admin-text">Razon Social</label>
                             </div>
                             <div class="col-md-8">
                                 <input type="text" name="cliente_nt" class="form-control" id="cliente_nt" style="">
@@ -245,7 +247,7 @@ fieldset {
                         </div>
                         <div class="form-group col-md-12">
                             <div class="col-md-3">
-                                <label for="direccion_principal" class="control-label">Direcci&oacute;n Principal</label>
+                                <label for="direccion_principal" class="control-label panel-admin-text">Direcci&oacute;n Principal</label>
                             </div>
                             <div class="col-md-8">
                                 <select name="direccion_principal"  id="direccion_principal" class='form-control' required="true" >
@@ -256,7 +258,7 @@ fieldset {
                         </div>
                         <div class="form-group col-md-12">
                             <div class="col-md-3">
-                                <label for="direccion_entrega_doc" class="control-label">Direcci&oacute;n Entrega</label>
+                                <label for="direccion_entrega_doc" class="control-label panel-admin-text">Direcci&oacute;n Entrega</label>
                             </div>
                             <div class="col-md-8">
                                 <select name="direccion_entrega_doc" id="direccion_entrega_doc" class='form-control' required="true" >
@@ -275,7 +277,7 @@ fieldset {
                     <div class="row panel">
                         <div class="form-group">
                             <div class="col-md-1">
-                                <label for="cboTipDoc" class="control-label">Cliente</label>
+                                <label for="cboTipDoc" class="control-label panel-admin-text">Cliente</label>
                             </div>
                             <div class="col-md-5">
                                 <span
@@ -288,7 +290,7 @@ fieldset {
                     <div class="row panel">
                         <div class="form-group">
                             <div class="col-md-1">
-                                <label for="cboTipDoc" class="control-label">Buscar Producto:</label>
+                                <label for="cboTipDoc" class="control-label panel-admin-text">Buscar Producto:</label>
                             </div>
                             <div class="col-md-5">
                                 <select class="form-control" style="width: 100%" id="selectproductos"
@@ -376,7 +378,7 @@ fieldset {
                             <div class="row">
                                 <div class="form-group">
                                     <div class="col-md-3">
-                                        <label for="subTotal" class="control-label">Sub-Total:</label>
+                                        <label for="subTotal" class="control-label panel-admin-text">Sub-Total:</label>
                                     </div>
                                     <div class="col-md-9">
                                         <div class="input-prepend input-append input-group">
@@ -391,7 +393,7 @@ fieldset {
                             <div class="row">
                                 <div class="form-group">
                                     <div class="col-md-3">
-                                        <label for="montoigv" class="control-label">Impuesto:</label>
+                                        <label for="montoigv" class="control-label panel-admin-text">Impuesto:</label>
                                     </div>
                                     <div class="col-md-9">
                                         <div class="input-prepend input-append input-group">
@@ -795,7 +797,7 @@ fieldset {
         }
 
         $(document).ready(function () {
-        
+
 
 
                     $('#tipo_documento').change(function(){
@@ -808,7 +810,7 @@ fieldset {
                             }
                         }else{
                             $('#content_opcion').hide()
-                        }    
+                        }
 
 
                     })
