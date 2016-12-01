@@ -507,7 +507,7 @@ $primary_nav = array(
                         'slug' => 'reporteutilidades'
                     ),
                     array(
-                        'name' => 'Estado de Cuenta',
+                        'name' => 'Estado de Pago',
                         'url' => $ruta . 'reporte_compra/proveedor_estado',
                         'icon' => 'fa fa-bar-chart',
                         'slug' => 'reporteutilidades'
