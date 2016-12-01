@@ -501,8 +501,8 @@ $primary_nav = array(
                         'slug' => 'reporteutilidades'
                     ),
                     array(
-                        'name' => 'Mis Cr&eacute;ditos',
-                        'url' => $ruta . 'reporte_compra/cobranzas',
+                        'name' => 'Cuentas por Pagar',
+                        'url' => $ruta . 'reporte_compra/cuentas',
                         'icon' => 'fa fa-bar-chart',
                         'slug' => 'reporteutilidades'
                     ),

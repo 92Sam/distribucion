@@ -6,24 +6,23 @@ class reporte_compra extends MY_Controller
     function __construct()
     {
         parent::__construct();
-        //$this->load->model('reporte/rcredito_model');
+        $this->load->model('reporte/rcuentas_model');
         //$this->load->model('reporte/compra_cliente_estado_model');
         $this->load->model('reporte/rcompras_model');
     }
 
-    function credito($action = '')
+    function cuentas($action = '')
     {
-        $data['reporte_nombre'] = 'Reporte de Cr&eacute;dito';
+        $data['reporte_nombre'] = 'Reporte de Cuentas por Cobrar';
 
         switch ($action) {
             case 'filter': {
-                $data['cobranzas'] = $this->rcredito_model->get_cobranzas(array(
+                $data['cuentas'] = $this->rcuentas_model->get_cuentas(array(
                     'fecha_ini' => date('Y-m-d', strtotime($this->input->post('fecha_ini'))),
                     'fecha_fin' => date('Y-m-d', strtotime($this->input->post('fecha_fin'))),
                     'fecha_flag' => $this->input->post('fecha_flag'),
-                    'vendedor_id' => $this->input->post('vendedor_id'),
-                    'cliente_id' => $this->input->post('cliente_id'),
-                    'zonas_id' => json_decode($this->input->post('zonas_id')),
+                    'proveedor_id' => $this->input->post('proveedor_id'),
+                    'tipo_documento' => $this->input->post('tipo_documento'),
                     'atraso' => $this->input->post('atraso'),
                     'dif_deuda' => $this->input->post('dif_deuda'),
                     'dif_deuda_value' => $this->input->post('dif_deuda_value')
@@ -31,21 +30,12 @@ class reporte_compra extends MY_Controller
 
                 $data['mostrar_detalles'] = $this->input->post('mostrar_detalles');
 
-                echo $this->load->view('menu/reports/cobranzas/tabla', $data, true);
-                break;
-            }
-            case 'pdf': {
-                break;
-            }
-            case 'excel': {
-                break;
-            }
-            case 'graphic': {
+                echo $this->load->view('menu/reports/cuentas/tabla', $data, true);
                 break;
             }
             default: {
 
-                $data['cobranzas'] = $this->rcobranza_model->get_cobranzas(array(
+                $data['cuentas'] = $this->rcuentas_model->get_cuentas(array(
                     'fecha_ini' => date('Y-m-01'),
                     'fecha_fin' => date('Y-m-d'),
                     'fecha_flag' => 1
@@ -53,13 +43,10 @@ class reporte_compra extends MY_Controller
 
                 $data['mostrar_detalles'] = 0;
 
-                $data['reporte_filtro'] = $this->load->view('menu/reports/cobranzas/filtros', array(
-                    'vendedores' => $this->usuario_model->select_all_by_roll('Vendedor'),
-                    'vendedor_zonas' => $this->db->get('usuario_has_zona')->result(),
-                    'zonas' => $this->zona_model->get_all(),
-                    'clientes' => $this->cliente_model->get_all(),
+                $data['reporte_filtro'] = $this->load->view('menu/reports/cuentas/filtros', array(
+                    'proveedores' => $this->db->get_where('proveedor', array('proveedor_status' => 1))->result()
                 ), true);
-                $data['reporte_tabla'] = $this->load->view('menu/reports/cobranzas/tabla', $data, true);
+                $data['reporte_tabla'] = $this->load->view('menu/reports/cuentas/tabla', $data, true);
                 $dataCuerpo['cuerpo'] = $this->load->view('menu/reports/report_template', $data, true);
                 if ($this->input->is_ajax_request()) {
                     echo $dataCuerpo['cuerpo'];
