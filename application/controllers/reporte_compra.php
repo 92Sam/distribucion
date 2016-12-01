@@ -1,27 +1,23 @@
 <?php if (!defined('BASEPATH')) exit('No direct script access allowed');
 
-class reporte extends MY_Controller
+class reporte_compra extends MY_Controller
 {
 
     function __construct()
     {
         parent::__construct();
-        $this->load->model('reporte/rcobranza_model');
-        $this->load->model('reporte/rcliente_estado_model');
-        $this->load->model('reporte/rstock_transito_model');
-        $this->load->model('reporte/rventas_model');
-        $this->load->model('usuario/usuario_model');
-        $this->load->model('zona/zona_model');
-        $this->load->model('cliente/cliente_model');
+        //$this->load->model('reporte/rcredito_model');
+        //$this->load->model('reporte/compra_cliente_estado_model');
+        $this->load->model('reporte/rcompras_model');
     }
 
-    function cobranzas($action = '')
+    function credito($action = '')
     {
-        $data['reporte_nombre'] = 'Reporte de Cobranzas';
+        $data['reporte_nombre'] = 'Reporte de Cr&eacute;dito';
 
         switch ($action) {
             case 'filter': {
-                $data['cobranzas'] = $this->rcobranza_model->get_cobranzas(array(
+                $data['cobranzas'] = $this->rcredito_model->get_cobranzas(array(
                     'fecha_ini' => date('Y-m-d', strtotime($this->input->post('fecha_ini'))),
                     'fecha_fin' => date('Y-m-d', strtotime($this->input->post('fecha_fin'))),
                     'fecha_flag' => $this->input->post('fecha_flag'),
@@ -76,7 +72,7 @@ class reporte extends MY_Controller
 
     }
 
-    function cliente_estado($action = '')
+    function proveedor_estado($action = '')
     {
         $data['reporte_nombre'] = 'Reporte de Estado de Cuenta del Cliente';
 
@@ -133,118 +129,46 @@ class reporte extends MY_Controller
 
     }
 
-
-    function stock_transito($action = '')
+    function compras($action = '')
     {
-        $data['reporte_nombre'] = 'Reporte de Stock Comprometido';
+        $data['reporte_nombre'] = 'Reporte de Resumen de Compras';
 
         switch ($action) {
             case 'filter': {
-                $data['stocks'] = $this->rstock_transito_model->get_stock_transito(array(
+                $data['compras'] = $this->rcompras_model->get_compras(array(
                     'fecha_ini' => date('Y-m-d', strtotime($this->input->post('fecha_ini'))),
                     'fecha_fin' => date('Y-m-d', strtotime($this->input->post('fecha_fin'))),
                     'fecha_flag' => $this->input->post('fecha_flag'),
-                    'vendedor_id' => $this->input->post('vendedor_id'),
-                    'cliente_id' => $this->input->post('cliente_id'),
-                    'zonas_id' => json_decode($this->input->post('zonas_id')),
-                    'proceso_transito' => $this->input->post('proceso_transito')
-                ));
-
-
-                echo $this->load->view('menu/reports/stock_transito/tabla', $data, true);
-                break;
-            }
-            case 'pdf': {
-                break;
-            }
-            case 'excel': {
-                break;
-            }
-            case 'graphic': {
-                break;
-            }
-            default: {
-
-                $data['stocks'] = $this->rstock_transito_model->get_stock_transito(array(
-                    'fecha_ini' => date('Y-m-01'),
-                    'fecha_fin' => date('Y-m-d'),
-                    'fecha_flag' => 1,
-                    'proceso_transito' => PROCESO_ASIGNAR
-                ));
-
-
-                $data['reporte_filtro'] = $this->load->view('menu/reports/stock_transito/filtros', array(
-                    'vendedores' => $this->usuario_model->select_all_by_roll('Vendedor'),
-                    'vendedor_zonas' => $this->db->get('usuario_has_zona')->result(),
-                    'zonas' => $this->zona_model->get_all(),
-                    'clientes' => $this->cliente_model->get_all(),
-                ), true);
-                $data['reporte_tabla'] = $this->load->view('menu/reports/stock_transito/tabla', $data, true);
-                $dataCuerpo['cuerpo'] = $this->load->view('menu/reports/report_template', $data, true);
-                if ($this->input->is_ajax_request()) {
-                    echo $dataCuerpo['cuerpo'];
-                } else {
-                    $this->load->view('menu/template', $dataCuerpo);
-                }
-            }
-        }
-
-
-    }
-
-    function ventas($action = '')
-    {
-        $data['reporte_nombre'] = 'Reporte de Ventas';
-
-        switch ($action) {
-            case 'filter': {
-                $data['ventas'] = $this->rventas_model->get_ventas(array(
-                    'fecha_ini' => date('Y-m-d', strtotime($this->input->post('fecha_ini'))),
-                    'fecha_fin' => date('Y-m-d', strtotime($this->input->post('fecha_fin'))),
-                    'fecha_flag' => $this->input->post('fecha_flag'),
-                    'vendedor_id' => $this->input->post('vendedor_id'),
-                    'cliente_id' => $this->input->post('cliente_id'),
-                    'zonas_id' => json_decode($this->input->post('zonas_id')),
+                    'proveedor_id' => $this->input->post('proveedor_id'),
+                    'tipo_documento' => $this->input->post('tipo_documento'),
                     'desglose' => $this->input->post('desglose'),
                 ));
 
                 if ($this->input->post('desglose') == 1)
-                    $data['desglose'] = 'Zonas';
+                    $data['desglose'] = 'Proveedores';
                 if ($this->input->post('desglose') == 2)
-                    $data['desglose'] = 'Vendedores';
+                    $data['desglose'] = 'Tipo de Documento';
                 if ($this->input->post('desglose') == 3)
-                    $data['desglose'] = 'Clientes';
+                    $data['desglose'] = 'Tipo de Pago';
 
-                echo $this->load->view('menu/reports/ventas/tabla', $data, true);
-                break;
-            }
-            case 'pdf': {
-                break;
-            }
-            case 'excel': {
-                break;
-            }
-            case 'graphic': {
+                echo $this->load->view('menu/reports/compras/tabla', $data, true);
                 break;
             }
             default: {
 
-                $data['ventas'] = $this->rventas_model->get_ventas(array(
+                $data['compras'] = $this->rcompras_model->get_compras(array(
                     'fecha_ini' => date('Y-m-01'),
                     'fecha_fin' => date('Y-m-d'),
                     'fecha_flag' => 1,
                     'desglose' => 1
                 ));
 
-                $data['desglose'] = 'Zonas';
+                $data['desglose'] = 'Proveedores';
 
-                $data['reporte_filtro'] = $this->load->view('menu/reports/ventas/filtros', array(
-                    'vendedores' => $this->usuario_model->select_all_by_roll('Vendedor'),
-                    'vendedor_zonas' => $this->db->get('usuario_has_zona')->result(),
-                    'zonas' => $this->zona_model->get_all(),
-                    'clientes' => $this->cliente_model->get_all(),
+                $data['reporte_filtro'] = $this->load->view('menu/reports/compras/filtros', array(
+                    'proveedores' => $this->db->get_where('proveedor', array('proveedor_status' => 1))->result()
                 ), true);
-                $data['reporte_tabla'] = $this->load->view('menu/reports/ventas/tabla', $data, true);
+                $data['reporte_tabla'] = $this->load->view('menu/reports/compras/tabla', $data, true);
                 $dataCuerpo['cuerpo'] = $this->load->view('menu/reports/report_template', $data, true);
                 if ($this->input->is_ajax_request()) {
                     echo $dataCuerpo['cuerpo'];

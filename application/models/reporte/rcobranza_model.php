@@ -35,6 +35,7 @@ class rcobranza_model extends CI_Model
             ->join('zonas', 'cliente.id_zona = zonas.zona_id')
             ->where('historial_pedido_proceso.proceso_id', PROCESO_LIQUIDAR)
             ->where('venta.venta_status !=', 'RECHAZADO')
+            ->where('venta.venta_status !=', 'ANULADO')
             ->where('venta.total > credito.dec_credito_montodebito')
             ->where_in('credito.var_credito_estado', array(CREDITO_DEBE, CREDITO_ACUENTA));
 
@@ -95,7 +96,7 @@ class rcobranza_model extends CI_Model
             ))->row();
 
             $cobranza->generado = new stdClass();
-            $cobranza->generado->fecha = $historial_pedido->created_at;
+            $cobranza->generado->fecha = isset($historial_pedido->created_at) ? $historial_pedido->created_at : $cobranza->fecha_venta;
             $cobranza->generado->monto = $generado->pagado != null ? $generado->pagado : 0;
             $cobranza->generado->tipo_pago_nombre = 'Generaci&oacute;n del pedido';
 

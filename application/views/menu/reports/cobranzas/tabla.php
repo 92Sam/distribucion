@@ -42,23 +42,27 @@
             <td><?= $cobranza->atraso ?></td>
         </tr>
 
-        <tr class="tabla_detalles">
-            <td colspan="3"><?= $cobranza->generado->tipo_pago_nombre ?></td>
-            <td><?= date('d/m/Y', strtotime($cobranza->generado->fecha)) ?></td>
-            <td></td>
-            <td><?= MONEDA . ' ' . number_format($cobranza->generado->monto, 2) ?></td>
-            <?php $actual_desglose += $cobranza->generado->monto; ?>
-            <td><?= MONEDA . ' ' . number_format($cobranza->total_deuda - $actual_desglose, 2) ?></td>
-        </tr>
+        <?php if ($cobranza->generado->monto != 0): ?>
+            <tr class="tabla_detalles">
+                <td colspan="3"><?= $cobranza->generado->tipo_pago_nombre ?></td>
+                <td><?= date('d/m/Y', strtotime($cobranza->generado->fecha)) ?></td>
+                <td></td>
+                <td><?= MONEDA . ' ' . number_format($cobranza->generado->monto, 2) ?></td>
+                <?php $actual_desglose += $cobranza->generado->monto; ?>
+                <td><?= MONEDA . ' ' . number_format($cobranza->total_deuda - $actual_desglose, 2) ?></td>
+            </tr>
+        <?php endif; ?>
 
-        <tr class="tabla_detalles">
-            <td colspan="3"><?= $cobranza->liquidacion->tipo_pago_nombre ?></td>
-            <td><?= date('d/m/Y', strtotime($cobranza->liquidacion->fecha)) ?></td>
-            <td></td>
-            <td><?= MONEDA . ' ' . number_format($cobranza->liquidacion->monto, 2) ?></td>
-            <?php $actual_desglose += $cobranza->liquidacion->monto; ?>
-            <td><?= MONEDA . ' ' . number_format($cobranza->total_deuda - $actual_desglose, 2) ?></td>
-        </tr>
+        <?php if ($cobranza->liquidacion->monto != 0): ?>
+            <tr class="tabla_detalles">
+                <td colspan="3"><?= $cobranza->liquidacion->tipo_pago_nombre ?></td>
+                <td><?= date('d/m/Y', strtotime($cobranza->liquidacion->fecha)) ?></td>
+                <td></td>
+                <td><?= MONEDA . ' ' . number_format($cobranza->liquidacion->monto, 2) ?></td>
+                <?php $actual_desglose += $cobranza->liquidacion->monto; ?>
+                <td><?= MONEDA . ' ' . number_format($cobranza->total_deuda - $actual_desglose, 2) ?></td>
+            </tr>
+        <?php endif; ?>
 
         <? foreach ($cobranza->detalles as $detalle): ?>
             <tr class="tabla_detalles">
@@ -77,7 +81,7 @@
 <input type="hidden" id="input_saldo" value="<?= number_format($total_saldo, 2) ?>">
 
 <script>
-    $(document).ready(function(){
+    $(document).ready(function () {
         $("#total_venta").html($("#input_venta").val());
         $("#total_pago").html($("#input_pago").val());
         $("#total_saldo").html($("#input_saldo").val());

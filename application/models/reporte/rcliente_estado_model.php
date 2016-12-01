@@ -27,6 +27,8 @@ class rcliente_estado_model extends CI_Model
             ->join('usuario', 'venta.id_vendedor = usuario.nUsuCodigo')
             ->where('cliente.cliente_status', 1)
             ->where('historial_pedido_proceso.proceso_id', PROCESO_LIQUIDAR)
+            ->where('venta.venta_status !=', 'RECHAZADO')
+            ->where('venta.venta_status !=', 'ANULADO')
             ->group_by('cliente.id_cliente');
 
         if (isset($params['fecha_ini']) && isset($params['fecha_fin']) && $params['fecha_flag'] == 1) {
@@ -94,16 +96,23 @@ class rcliente_estado_model extends CI_Model
         if (isset($params['estado']) && $params['estado'] != 0) {
             switch ($params['estado']) {
                 case 1: {
+                    $this->db->where('venta.venta_status !=', 'RECHAZADO');
+                    $this->db->where('venta.venta_status !=', 'ANULADO');
                     $this->db->where('(venta.total - credito.dec_credito_montodebito) <= 0');
                     break;
                 }
                 case 2: {
                     $this->db->where('(venta.total - credito.dec_credito_montodebito) > 0');
+                    $this->db->where('venta.venta_status !=', 'RECHAZADO');
+                    $this->db->where('venta.total > credito.dec_credito_montodebito');
+                    $this->db->where_in('credito.var_credito_estado', array(CREDITO_DEBE, CREDITO_ACUENTA));
                     break;
                 }
             }
+        } else {
+            $this->db->where('venta.venta_status !=', 'RECHAZADO');
+            $this->db->where('venta.venta_status !=', 'ANULADO');
         }
-
 
 
         $cobranzas = $this->db->get()->result();
@@ -118,7 +127,7 @@ class rcliente_estado_model extends CI_Model
             ))->row();
 
             $cobranza->generado = new stdClass();
-            $cobranza->generado->fecha = $historial_pedido->created_at;
+            $cobranza->generado->fecha = isset($historial_pedido->created_at) ? $historial_pedido->created_at : $cobranza->fecha_venta;
             $cobranza->generado->monto = $generado->pagado != null ? $generado->pagado : 0;
             $cobranza->generado->tipo_pago_nombre = 'Generaci&oacute;n del pedido';
 
