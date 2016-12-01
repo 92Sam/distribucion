@@ -7,6 +7,23 @@
 <input type="hidden" id="coso_id" value="<?php echo isset($coso_id) ? $coso_id : 'false'; ?>">
 <input type="hidden" id="preciosugerido" value="<?php echo isset($preciosugerido) ? 'true' : 'false'; ?>">
 <input type="hidden" id="idlocal" value="<?= $this->session->userdata('id_local'); ?>">
+    <style>
+legend {
+    display: block;
+    width: auto;
+    padding: 0px;
+    margin-bottom: 0;
+    font-size: inherit;
+    line-height: inherit;
+    border: auto;
+    border-bottom: none;
+}
+
+fieldset {
+    border: 3px groove threedface;
+    padding: 5px;
+}
+    </style>
 <script>
     var countproducto = 0;
 </script>
@@ -64,12 +81,59 @@
         </div>
         <div class="row setup-content" id="step-1">
             <div class="col-xs-12">
-                <div class="col-md-12 well">
+                <fieldset class="col-md-12" style="margin: 0% 1% 1% 0%;">
+                    <legend>Datos Claves</legend>
                     <div class="row">
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="form-group">
-                                <label for="cliente" class="control-label">Cliente</label>
-                                <?php //var_dump($venta[0]);?>
+                                <label for="zona" class="control-label">Zona</label>
+                                <select name="zona" id="zona" class='form-control' required="true" >
+                                    <option value="">Seleccione</option>
+                            
+                                </select>
+
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label class="control-label">Tipo de Pago</label>
+                                <select name="condicion_pago" id="cboModPag" onchange="activarText_ModoPago()"
+                                        class="form-control" <?= $disabled; ?>></select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label class="control-label">Documento</label>
+                                <select name="documento" id="documento" onchange="" class="form-control" <?= $disabled; ?>>
+                                    <option value="">Seleccione</option>
+                                    <option value="FACTURA">FACTURA</option>
+                                    <option value="BOLETA">BOLETA</option>
+                                </select>
+
+                            </div>
+                        </div>
+                        <div class="col-md-1">
+                            <div class="form-group">
+                                <button id="activate-step-2" class="btn btn-primary">Continuar</button>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <div class="sidebar-user-name"><?= 
+
+                                    date('D d - m - Y').'<br> '.$this->session->userdata('nombre') 
+
+                                ?></div>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+                <div id='content_opcion' style="display: none">
+                    <fieldset class="col-md-6" style="margin: 0% 1% 1% 0%; width: 49%">
+                        <legend>Cliente</legend>
+                        <div class="col-md-12">
+                            <div class="col-md-12 form-group">
+                                <label for="zona" class="control-label">Cliente</label>
                                 <select name="id_cliente" id="id_cliente" class='form-control'
                                         required="true" <?= $disabled; ?>>
                                     <option value="">Seleccione</option>
@@ -89,22 +153,119 @@
                                         <?php }
                                     } ?>
                                 </select>
+                            </div>
+                        </div>
+                        <div class="form-group col-md-12">
+                            <div class="col-md-2">
+                                <label for="zona" class="control-label">Retenci&oacute;n</label>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="number" name="retencion" class="form-control">
+                            </div>
+
+                            <div class="col-md-4">
+                                <input id="cambiar_retencion" type="checkbox" name="cambiar_retencion">
+                                <label for="cambiar_retencion" class="control-label">¿Cambiar retenci&oacute;n?</label>
+                            </div>
+                        </div>
+                        <div class="form-group col-md-12">
+                            <div class="col-md-6">
+                                <label for="" class="control-label"><u>Estado de cuenta actual</u></label>
+                            </div>
+                        </div>
+                        <div class="form-group col-md-12">
+                            <div class="col-md-4">
+                                <label for="" class="control-label">Deuda Actual</label>
+                            </div>
+                            <div class="col-md-6 col-md-12">
+                                <input type="number" name="retencion" class="form-control">
+                            </div>
+                        </div>
+                        <div class="form-group col-md-12">
+                            <div class="col-md-4">
+                                <label for="" class="control-label"># Documentos Pendientes</label>
+                            </div>
+                            <div class="col-md-6">
+                                <input type="number" name="retencion" class="form-control">
+                            </div>
+
+                        </div>
+                    </fieldset>
+
+                    <fieldset id='div_nota_pedido' class="col-md-6">
+                        <legend>Nota Pedido</legend>
+                            <div class="form-group col-md-12">
+                                <div class="col-md-3">
+                                    <label for="zona" class="control-label">Cliente</label>
+                                </div>
+                                <div class="col-md-8">
+                                    <input type="text" class="form-control" name="cliente_nt" id="cliente_nt" style="">
+
+                                </div>
 
                             </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label class="control-label">Tipo de Pago</label>
-                                <select name="condicion_pago" id="cboModPag" onchange="activarText_ModoPago()"
-                                        class="form-control" <?= $disabled; ?>></select>
+                            <div class="form-group col-md-12">
+                                <div class="col-md-3">
+                                    <label for="zona" class="control-label">Direccion Entrega</label>
+                                </div>
+                                <div class="col-md-8">
+                                    <select name="zona" id="direccion_entrega_np" class='form-control' required="true" style="">
+                                        <option value="">Seleccione</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group col-md-12">
+                                <div class="col-md-3">
+                                    <label for="contacto_nt" class="control-label">Contacto</label>
+                                </div>
+                                <div class="col-md-8">
+                                    <input type="text" name="contacto_nt" class="form-control" id="contacto_nt" style="">
+                                </div>
+                            </div>
+                    </fieldset>
+
+                    <fieldset id='div_documento' class="col-md-6" style="margin: 0% 0% 1% 0%;">
+                        <legend>Documento</legend>
+
+                        <div class="form-group col-md-12">
+                            <div class="col-md-3">
+                                <label for="zona" class="control-label">RUC</label>
+                            </div>
+                            <div class="col-md-8">
+                                <input type="text" name="cliente_nt" class="form-control" id="cliente_nt" style="">
                             </div>
                         </div>
-                        <div class="col-md-2">
-                            <div class="form-group">
-                                <button id="activate-step-2" class="btn btn-primary">Continuar</button>
+                        <div class="form-group col-md-12">
+                            <div class="col-md-3">
+                                <label for="zona" class="control-label">Razon Social</label>
+                            </div>
+                            <div class="col-md-8">
+                                <input type="text" name="cliente_nt" class="form-control" id="cliente_nt" style="">
                             </div>
                         </div>
-                    </div>
+                        <div class="form-group col-md-12">
+                            <div class="col-md-3">
+                                <label for="direccion_principal" class="control-label">Direcci&oacute;n Principal</label>
+                            </div>
+                            <div class="col-md-8">
+                                <select name="direccion_principal"  id="direccion_principal" class='form-control' required="true" >
+                                    <option value="">Seleccione</option>
+                                </select>
+                            </div>
+
+                        </div>
+                        <div class="form-group col-md-12">
+                            <div class="col-md-3">
+                                <label for="direccion_entrega_doc" class="control-label">Direcci&oacute;n Entrega</label>
+                            </div>
+                            <div class="col-md-8">
+                                <select name="direccion_entrega_doc" id="direccion_entrega_doc" class='form-control' required="true" >
+                                    <option value="">Seleccione</option>
+                                </select>
+                            </div>
+
+                        </div>
+                    </fieldset>
                 </div>
             </div>
         </div>
@@ -634,9 +795,31 @@
         }
 
         $(document).ready(function () {
+        
 
 
-            $("#id_cliente").change(function () {
+                    $('#documento').change(function(){
+                        if($('#documento').val() != ''){
+                            $('#content_opcion').show()
+                            if($('#documento').val() == 'FACTURA'){
+                                $('#div_documento').show()
+                            }else{
+                                $('#div_documento').hide()
+                            }
+                        }else{
+                            $('#content_opcion').hide()
+                        }    
+
+
+                    })
+
+
+
+
+                $("#id_cliente").change(function () {
+                $('#cliente_nt').val($('#id_cliente :selected').html())
+                $('#contacto_nt').val($('#id_cliente :selected').html())
+
                 $("#clienteinformativo").html($("#id_cliente option:selected").html());
             });
             var data = {};
