@@ -104,7 +104,7 @@ fieldset {
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label class="control-label">Documento</label>
-                                <select name="documento" id="documento" onchange="" class="form-control" <?= $disabled; ?>>
+                                <select name="tipo_documento" id="tipo_documento" onchange="" class="form-control" <?= $disabled; ?>>
                                     <option value="">Seleccione</option>
                                     <option value="FACTURA">FACTURA</option>
                                     <option value="BOLETA">BOLETA</option>
@@ -420,7 +420,7 @@ fieldset {
                                     </div>
                                 </div>
                             </div>
-                            <div class="row">
+                            <!--<div class="row">
                                 <div class="form-group">
                                     <div class="col-md-3">
                                         <label for="tipo_documento" class="control-label">Tipo Documento:</label>
@@ -436,7 +436,7 @@ fieldset {
                                         </select>
                                     </div>
                                 </div>
-                            </div>
+                            </div>-->
                             <div class="row">
                                 <div class="form-group">
                                     <div class="col-md-3">
@@ -798,10 +798,10 @@ fieldset {
         
 
 
-                    $('#documento').change(function(){
-                        if($('#documento').val() != ''){
+                    $('#tipo_documento').change(function(){
+                        if($('#tipo_documento').val() != ''){
                             $('#content_opcion').show()
-                            if($('#documento').val() == 'FACTURA'){
+                            if($('#tipo_documento').val() == 'FACTURA'){
                                 $('#div_documento').show()
                             }else{
                                 $('#div_documento').hide()
