@@ -91,8 +91,8 @@ fieldset {
                                     <option value="">Seleccione</option>
 
                                 </select>
-
                             </div>
+                                <input type="checkbox" name="todasZona" id="todasZonas">Todas las zonas
                         </div>
                         <div class="col-md-3">
                             <div class="form-group">
@@ -106,9 +106,9 @@ fieldset {
                                 <label class="control-label">Documento</label>
                                 <select name="tipo_documento" id="tipo_documento" onchange="" class="form-control" <?= $disabled; ?>>
                                     <option value="">Seleccione</option>
-                                    <option value="<?= BOLETAVENTA ?>" <?php if ((isset($venta[0]['documento_tipo']) and $venta[0]['documento_tipo'] == BOLETAVENTA) or !isset($venta[0])) echo 'selected' ?>><?= BOLETAVENTA ?>
+                                    <option value="<?= BOLETAVENTA ?>" selected><?= BOLETAVENTA ?>
                                     </option>
-                                    <option value="<?= FACTURA ?>" <?php if (isset($venta[0]['documento_tipo']) and $venta[0]['documento_tipo'] == FACTURA) echo 'selected' ?>><?= FACTURA ?>
+                                    <option value="<?= FACTURA ?>"><?= FACTURA ?>
                                     </option>
                                 </select>
 
@@ -208,10 +208,10 @@ fieldset {
                             </div>
                             <div class="form-group col-md-12">
                                 <div class="col-md-3">
-                                    <label for="zona" class="control-label panel-admin-text">Direccion Entrega</label>
+                                    <label for="direccion_entrega_np" class="control-label panel-admin-text">Direccion Entrega</label>
                                 </div>
                                 <div class="col-md-8">
-                                    <select name="zona" id="direccion_entrega_np" class='form-control' required="true" style="">
+                                    <select name="direccion_entrega_np" id="direccion_entrega_np" class='form-control' required="true" style="">
                                         <option value="">Seleccione</option>
                                     </select>
                                 </div>
@@ -231,18 +231,18 @@ fieldset {
 
                         <div class="form-group col-md-12">
                             <div class="col-md-3">
-                                <label for="zona" class="control-label panel-admin-text">RUC</label>
+                                <label for="ruc_dc" class="control-label panel-admin-text">RUC</label>
                             </div>
                             <div class="col-md-8">
-                                <input type="text" name="cliente_nt" class="form-control" id="cliente_nt" style="">
+                                <input type="text" name="ruc_dc" class="form-control" id="ruc_dc" style="">
                             </div>
                         </div>
                         <div class="form-group col-md-12">
                             <div class="col-md-3">
-                                <label for="zona" class="control-label panel-admin-text">Razon Social</label>
+                                <label for="razon_social" class="control-label panel-admin-text">Razon Social</label>
                             </div>
                             <div class="col-md-8">
-                                <input type="text" name="cliente_nt" class="form-control" id="cliente_nt" style="">
+                                <input type="text" name="razon_social" class="form-control" id="razon_social" style="">
                             </div>
                         </div>
                         <div class="form-group col-md-12">
@@ -250,7 +250,7 @@ fieldset {
                                 <label for="direccion_principal" class="control-label panel-admin-text">Direcci&oacute;n Principal</label>
                             </div>
                             <div class="col-md-8">
-                                <select name="direccion_principal"  id="direccion_principal" class='form-control' required="true" >
+                                <select name="direccion_principal" readonly id="direccion_principal" class='form-control' required="true" >
                                     <option value="">Seleccione</option>
                                 </select>
                             </div>
@@ -796,34 +796,110 @@ fieldset {
             });
         }
 
+
+        function zonaVendedor(){
+            if($('#todasZonas').is(':checked')){
+                var n = ''
+            }else{
+                var d = new Date();
+                var n = d.getDay();
+            }
+            $('#zona option').remove();
+
+            $.ajax({
+                url: '<?=base_url()?>venta/zonaVendedor',
+                 type: "post",
+                dataType: "json",
+                data: {'vendedor_id': $('#vendedor').val(), 'dia': n},
+                success: function(data) {
+                    if (data != '') {
+                        if (data != '') {
+                             for (i = 0; i < data.length; i++) {                      
+                                 $('#zona').append('<option value=' + data[i].zona_id + '>' + data[i].zona_nombre + '</option>')
+                             }
+                        }
+                        $("#zona").trigger('chosen:updated');
+                    }
+                }
+            });
+        }
+
+
+        function clienteDireccion(){
+            if($("#id_cliente").val()!=''){
+                $('#direccion_entrega_np option').remove();
+                $('#direccion_principal option').remove();
+                $('#direccion_entrega_doc option').remove();
+
+                $.ajax({
+                    url: '<?=base_url()?>venta/clienteDireccion',
+                     type: "post",
+                    dataType: "json",
+                    data: {'cliente_id': $('#id_cliente').val()},
+                    success: function(data) {
+                        if (data != '') {
+                            if (data != '') {
+                                 for (i = 0; i < data.length; i++) {                      
+                                     $('#direccion_entrega_np').append('<option value=' + data[i].id + '>' + data[i].valor + '</option>')
+                                     if(data[i].principal == 1){
+
+                                        $('#direccion_principal').append('<option value=' + data[i].id + '>' + data[i].valor + '</option>')
+                                     }
+
+                                     $('#direccion_entrega_doc').append('<option value=' + data[i].id + '>' + data[i].valor + '</option>')
+                                 }
+                            }
+                            $("#direccion_entrega_np").trigger('chosen:updated');
+                            $("#direccion_principal").trigger('chosen:updated');
+                            $("#direccion_entrega_doc").trigger('chosen:updated');
+                        }
+                    }
+                });
+            }
+        }
+
+
+
         $(document).ready(function () {
 
+            tipoDoc()
+            $('#tipo_documento').change(function(){
+                tipoDoc()
+
+            })
+
+            $('#todasZonas').prop('checked', false)
+            zonaVendedor()
+            $('#todasZonas').click(function(){
+                zonaVendedor()
+
+            })
 
 
-                    $('#tipo_documento').change(function(){
-                        if($('#tipo_documento').val() != ''){
-                            $('#content_opcion').show()
-                            if($('#tipo_documento').val() == 'FACTURA'){
-                                $('#div_documento').show()
-                            }else{
-                                $('#div_documento').hide()
-                            }
-                        }else{
-                            $('#content_opcion').hide()
-                        }
+        $("#id_cliente").change(function(){
+            clienteDireccion()
+        })
 
+        $("#id_cliente").change(function () {
+        $('#cliente_nt').val($('#id_cliente :selected').html())
+        $('#contacto_nt').val($('#id_cliente :selected').html())
 
-                    })
+        $("#clienteinformativo").html($("#id_cliente option:selected").html());
+        });
 
+            function tipoDoc(){
+                if($('#tipo_documento').val() != ''){
+                    $('#content_opcion').show()
+                    if($('#tipo_documento').val() == 'FACTURA'){
+                        $('#div_documento').show()
+                    }else{
+                        $('#div_documento').hide()
+                    }
+                }else{
+                    $('#content_opcion').hide()
+                }
+            }
 
-
-
-                $("#id_cliente").change(function () {
-                $('#cliente_nt').val($('#id_cliente :selected').html())
-                $('#contacto_nt').val($('#id_cliente :selected').html())
-
-                $("#clienteinformativo").html($("#id_cliente option:selected").html());
-            });
             var data = {};
             data.vendedor = null;
             var useradmin = '<?=  $this->session->userdata("admin"); ?>';
