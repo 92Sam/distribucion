@@ -69,7 +69,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable">', "</
 
     $(document).ready(function () {
 
-        $("#grupos").on('change', function () {
+        $("#grupos").on('change', function() {
             loadDescuentos();
         });
 

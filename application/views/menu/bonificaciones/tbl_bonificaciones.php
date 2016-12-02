@@ -1,11 +1,13 @@
 
-<table class="table table-striped dataTable table-bordered" id="example">
+<?php $ruta = base_url(); ?>
+
+<table class="table table-striped dataTable table-bordered table-condensed" id="tblbonificaciones">
     <thead>
     <tr>
         <th>ID</th>
         <th>Vencimiento</th>
         <th>Estado</th>
-        <th>Productos</th>
+        <th style="width: 300px !important;">Productos</th>
         <th>Marca Condici&oacute;n</th>
         <th>Grupo Condici&oacute;n</th>
         <th>Sub Grupo Condici&oacute;n</th>
@@ -48,13 +50,6 @@
                     </div>
                 </td>
                 <td>
-                    <?php /*echo '<a class="btn btn-default" data-toggle="tooltip"
-                                     title="Ver Productos" data-original-title="fa fa-eye"
-                                     onclick="verproductos(' . $bonificaciones['id_bonificacion'] . ');">';
- */ ?>
-                    <!--  <i class="fa fa-eye"></i>
-                      </a>-->
-
                     <?php
 
                     foreach($bonificaciones['bonificaciones_has_producto'] as $produc){
@@ -101,6 +96,11 @@
 
     </tbody>
 </table>
+<a href="<?= $ruta ?>bonificaciones/pdfExport/<?php echo $id_grupoclie;?>/" id="generarpdf" class="btn  btn-default btn-lg" data-toggle="tooltip"
+   title="Exportar a PDF" data-original-title="fa fa-file-pdf-o"><i class="fa fa-file-pdf-o fa-fw"></i></a>
+<a href="<?= $ruta ?>bonificaciones/excelExport/<?php echo $id_grupoclie;?>/" id="generarexcel" class="btn btn-default btn-lg" data-toggle="tooltip"
+   title="Exportar a Excel" data-original-title="fa fa-file-excel-o"><i class="fa fa-file-excel-o fa-fw"></i></a>
+
 
 <script>
     TablesDatatables.init(1);
