@@ -81,7 +81,7 @@ fieldset {
         </div>
         <div class="row setup-content" id="step-1">
             <div class="col-xs-12">
-                <fieldset class="col-md-12" style="margin: 0% 1% 1% 0%;">
+                <fieldset class="col-md-12" style="margin: -2% 1% 1% 0%;">
                     <legend>Datos Claves</legend>
                     <div class="row">
                         <div class="col-md-3">
@@ -162,12 +162,12 @@ fieldset {
                                 <label for="zona" class="control-label panel-admin-text">Retenci&oacute;n</label>
                             </div>
                             <div class="col-md-4">
-                                <input type="number" name="retencion" class="form-control">
+                                <input type="number" name="retencion" readonly="readonly" class="form-control">
                             </div>
 
                             <div class="col-md-4">
                                 <input id="cambiar_retencion" type="checkbox" name="cambiar_retencion">
-                                <label for="cambiar_retencion" class="control-label panel-admin-text">¿Cambiar retenci&oacute;n?</label>
+                                <label for="cambiar_retencion" class="control-label panel-admin-text"> Cambiar retenci&oacute;n</label>
                             </div>
                         </div>
                         <div class="form-group col-md-12">
@@ -180,15 +180,15 @@ fieldset {
                                 <label for="" class="control-label panel-admin-text">Deuda Actual</label>
                             </div>
                             <div class="col-md-6 col-md-12">
-                                <input type="number" name="retencion" class="form-control">
+                                <input type="number" name="retencion" readonly="readonly" class="form-control">
                             </div>
                         </div>
                         <div class="form-group col-md-12">
                             <div class="col-md-4">
-                                <label for="" class="control-label panel-admin-text"># Documentos Pendientes</label>
+                                <label for="" class="control-label panel-admin-text">Documentos Pendientes</label>
                             </div>
                             <div class="col-md-6">
-                                <input type="number" name="retencion" class="form-control">
+                                <input type="number" name="retencion" readonly="readonly" class="form-control">
                             </div>
 
                         </div>
@@ -814,7 +814,7 @@ fieldset {
                 success: function(data) {
                     if (data != '') {
                         if (data != '') {
-                             for (i = 0; i < data.length; i++) {                      
+                             for (i = 0; i < data.length; i++) {
                                  $('#zona').append('<option value=' + data[i].zona_id + '>' + data[i].zona_nombre + '</option>')
                              }
                         }
@@ -839,7 +839,7 @@ fieldset {
                     success: function(data) {
                         if (data != '') {
                             if (data != '') {
-                                 for (i = 0; i < data.length; i++) {                      
+                                 for (i = 0; i < data.length; i++) {
                                      $('#direccion_entrega_np').append('<option value=' + data[i].id + '>' + data[i].valor + '</option>')
                                      if(data[i].principal == 1){
 
