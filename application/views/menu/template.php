@@ -450,7 +450,7 @@ $primary_nav = array(
                     ),
                     array(
                         'name' => 'Venta vs Compra',
-                        'url' => $ruta . 'reporte/cliente_estado',
+                        'url' => $ruta . 'reporte_general/ventas_compras',
                         'icon' => 'fa fa-bar-chart',
                         'slug' => 'reporteutilidades'
                     ),

@@ -80,8 +80,8 @@
                 <label class="control-label">Estado:</label>
                 <select id="estado" class="form-control">
                     <option value="0">Todos</option>
-                    <option value="1">Cancelados</option>
-                    <option value="2">Pendientes</option>
+                    <option value="1">Pagados</option>
+                    <option value="2">Por Pagar</option>
                 </select>
             </div>
 

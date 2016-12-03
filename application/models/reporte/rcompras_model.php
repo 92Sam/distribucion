@@ -49,18 +49,18 @@ class rcompras_model extends CI_Model
 
         $result = $this->db->get()->result();
 
+        if ($params['desglose'] != '0')
+            foreach ($result as $desglose) {
 
-        foreach ($result as $desglose) {
-
-            $desglose->total_completado = $this->count_compras('COMPLETADO', $params, 1, $desglose->desglose_id);
-            $desglose->total_pendiente = $this->count_compras('PENDIENTE', $params, 1, $desglose->desglose_id);
-            $desglose->total_anulado = $this->count_compras('ANULADO', $params, 1, $desglose->desglose_id);
+                $desglose->total_completado = $this->count_compras('COMPLETADO', $params, 1, $desglose->desglose_id);
+                $desglose->total_pendiente = $this->count_compras('PENDIENTE', $params, 1, $desglose->desglose_id);
+                $desglose->total_anulado = $this->count_compras('ANULADO', $params, 1, $desglose->desglose_id);
 
 
-            $desglose->importe_completado = $this->get_importe('COMPLETADO', $params, 1, $desglose->desglose_id);
-            $desglose->importe_pagado = $this->get_importe('CONTADO', $params, 1, $desglose->desglose_id) + $this->get_importe('CREDTIO', $params, 1, $desglose->desglose_id);
-            $desglose->importe_pendiente = $desglose->importe_completado - $desglose->importe_pagado;
-        }
+                $desglose->importe_completado = $this->get_importe('COMPLETADO', $params, 1, $desglose->desglose_id);
+                $desglose->importe_pagado = $this->get_importe('CONTADO', $params, 1, $desglose->desglose_id) + $this->get_importe('CREDTIO', $params, 1, $desglose->desglose_id);
+                $desglose->importe_pendiente = $desglose->importe_completado - $desglose->importe_pagado;
+            }
 
         return $result;
     }
@@ -123,17 +123,18 @@ class rcompras_model extends CI_Model
         return $result->total;
     }
 
-    function aplicar_desglose($params, $desglose_id){
+    function aplicar_desglose($params, $desglose_id)
+    {
 
-            if ($params['desglose'] == '1') {
-                $this->db->where('proveedor.id_proveedor', $desglose_id);
-            }
-            if ($params['desglose'] == '2') {
-                $this->db->where('ingreso.tipo_documento', $desglose_id);
-            }
-            if ($params['desglose'] == '3') {
-                $this->db->where('ingreso.pago', $desglose_id);
-            }
+        if ($params['desglose'] == '1') {
+            $this->db->where('proveedor.id_proveedor', $desglose_id);
+        }
+        if ($params['desglose'] == '2') {
+            $this->db->where('ingreso.tipo_documento', $desglose_id);
+        }
+        if ($params['desglose'] == '3') {
+            $this->db->where('ingreso.pago', $desglose_id);
+        }
     }
 
     function aplicar_filtros($params)

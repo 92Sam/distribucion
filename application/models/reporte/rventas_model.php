@@ -47,29 +47,22 @@ class rventas_model extends CI_Model
 
         $this->aplicar_from();
 
-        $this->db->where('historial_pedido_proceso.proceso_id', PROCESO_LIQUIDAR);
-        $this->db->where('venta.venta_status !=', 'RECHAZADO');
-        $this->db->where('venta.venta_status !=', 'ANULADO');
-
-        $this->db->or_where('historial_pedido_proceso.proceso_id !=', PROCESO_LIQUIDAR);
-        $this->db->where('historial_pedido_proceso.actual', 1);
-
         $this->aplicar_filtros($params);
 
         $result = $this->db->get()->result();
 
+        if ($params['desglose'] != '0')
+            foreach ($result as $desglose) {
+                $desglose->total_completado = $this->count_ventas('COMPLETADO', $params, 1, $desglose->desglose_id);
+                $desglose->total_cancelada = $this->count_ventas('CANCELADA', $params, 1, $desglose->desglose_id);
+                $desglose->total_rechazado = $this->count_ventas('RECHAZADO', $params, 1, $desglose->desglose_id);
+                $desglose->total_proceso = $this->count_ventas('PROCESO', $params, 1, $desglose->desglose_id);
+                $desglose->total_cobranzas = $this->count_ventas('COBRANZAS', $params, 1, $desglose->desglose_id);
 
-        foreach ($result as $desglose) {
-            $desglose->total_completado = $this->count_ventas('COMPLETADO', $params, 1, $desglose->desglose_id);
-            $desglose->total_cancelada = $this->count_ventas('CANCELADA', $params, 1, $desglose->desglose_id);
-            $desglose->total_rechazado = $this->count_ventas('RECHAZADO', $params, 1, $desglose->desglose_id);
-            $desglose->total_proceso = $this->count_ventas('PROCESO', $params, 1, $desglose->desglose_id);
-            $desglose->total_cobranzas = $this->count_ventas('COBRANZAS', $params, 1, $desglose->desglose_id);
 
-
-            $desglose->importe_completado = $this->get_importe('COMPLETADO', $params, 1, $desglose->desglose_id);
-            $desglose->importe_cobranza = $this->get_importe('COBRANZAS', $params, 1, $desglose->desglose_id);
-        }
+                $desglose->importe_completado = $this->get_importe('COMPLETADO', $params, 1, $desglose->desglose_id);
+                $desglose->importe_cobranza = $this->get_importe('COBRANZAS', $params, 1, $desglose->desglose_id);
+            }
 
         return $result;
     }

@@ -73,7 +73,7 @@ $total_cuenta = 0; ?>
                 <td></td>
                 <?php $actual_desglose += $pago->total; ?>
                 <td><?= MONEDA . ' ' . number_format($actual_desglose, 2) ?></td>
-                <td><?= $pago->cuenta_pagar > 0 ? 'Pendiente' : 'Cancelado' ?></td>
+                <td><?= $pago->cuenta_pagar > 0 ? 'POR PAGAR' : 'PAGADO' ?></td>
             </tr>
 
             <?php if ($pago->pago == 'CONTADO'): ?>
