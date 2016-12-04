@@ -92,29 +92,12 @@
             </div>
 
             <div class="row">
-                <label class="control-label">Dias de Atraso:</label>
-                <select id="atraso" class="form-control">
-                    <option value="0">Todos</option>
-                    <option value="1">Menor que 7 Dias</option>
-                    <option value="2">Entre 8 y 15 Dias</option>
-                    <option value="3">Entre 16 y 30 Dias</option>
-                    <option value="4">Mayor que 30 Dias</option>
+                <label class="control-label">Proceso de Tr&aacute;nsito:</label>
+                <select id="proceso_transito" class="form-control">
+                    <option value="<?= PROCESO_GENERAR ?>">Pedido Generado</option>
+                    <option selected value="<?= PROCESO_ASIGNAR ?>">Consolidado Asignado</option>
+                    <option value="<?= PROCESO_IMPRIMIR ?>">Consolidado Impreso</option>
                 </select>
-            </div>
-
-            <div class="row">
-                <label class="control-label">Deudas:</label>
-                <br>
-                <div class="col-md-6">
-                    <select id="dif_deuda" class="form-control">
-                        <option value="1">Mayor</option>
-                        <option value="2">Menor</option>
-                    </select>
-                </div>
-                <div class="col-md-6">
-                    <input id="dif_deuda_value" type="number" class="form-control" value="0">
-                </div>
-
             </div>
         </div>
     </div>
@@ -140,13 +123,6 @@
                    class="control-label"
                    style="cursor: pointer;">
                 Incluir Filtro de Fecha
-            </label>
-<br>
-            <input type="checkbox" id="mostrar_detalles">
-            <label for="mostrar_detalles"
-                   class="control-label"
-                   style="cursor: pointer;">
-                Mostrar Detalles
             </label>
         </div>
 
@@ -228,14 +204,7 @@
             filter_cobranzas();
         });
 
-        $("#mostrar_detalles").on('change', function(){
-            if($(this).prop('checked'))
-                $('.tabla_detalles').show();
-            else
-                $('.tabla_detalles').hide();
-        });
-
-        $("#btn_filter_reset").on('click', function(){
+        $("#btn_filter_reset").on('click', function () {
             $('#vendedor_id').val('0').trigger('chosen:updated');
             $('#vendedor_id').change();
             $('#atraso').val('0');
@@ -292,20 +261,13 @@
             'fecha_fin': $("#fecha_fin").val(),
             'vendedor_id': $("#vendedor_id").val(),
             'cliente_id': $("#cliente_id").val(),
-            'atraso': $("#atraso").val(),
-            'dif_deuda': $("#dif_deuda").val(),
-            'dif_deuda_value': $("#dif_deuda_value").val()
+            'proceso_transito': $("#proceso_transito").val()
         };
 
         if ($("#incluir_fecha").prop('checked'))
             data.fecha_flag = 1;
         else
             data.fecha_flag = 0;
-
-        if($(this).prop('checked'))
-            data.mostrar_detalles = 1;
-        else
-            data.mostrar_detalles = 0;
 
         data.zonas_id = [];
         $('.zona_check').each(function () {
@@ -317,7 +279,7 @@
         data.zonas_id = JSON.stringify(data.zonas_id);
 
         $.ajax({
-            url: '<?php echo base_url('reporte/cobranzas/filter')?>',
+            url: '<?php echo base_url('reporte/stock_transito/filter')?>',
             data: data,
             type: 'post',
             success: function (data) {

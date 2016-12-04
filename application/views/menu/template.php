@@ -432,11 +432,127 @@ $primary_nav = array(
         'slug' => 'reportes',
         'sub' => array(
             array(
-                'name' => 'Reporte Cobranzas',
-                'url' => $ruta . 'reporte/cobranzas',
+                'name' => 'Generales',
                 'icon' => 'fa fa-bar-chart',
-                'slug' => 'reporteutilidades'
+                'slug' => 'reporteutilidades',
+                'sub' => array(
+                    array(
+                        'name' => 'Cuadre de Caja',
+                        'icon' => 'fa fa-bar-chart',
+                        'url' => $ruta . 'reporte/cobranzas',
+                        'slug' => 'reporteutilidades'
+                    ),
+                    array(
+                        'name' => 'Utilidades',
+                        'url' => $ruta . 'reporte/cobranzas',
+                        'icon' => 'fa fa-bar-chart',
+                        'slug' => 'reporteutilidades'
+                    ),
+                    array(
+                        'name' => 'Venta vs Compra',
+                        'url' => $ruta . 'reporte_general/ventas_compras',
+                        'icon' => 'fa fa-bar-chart',
+                        'slug' => 'reporteutilidades'
+                    ),
+                    array(
+                        'name' => 'VC por Producto',
+                        'url' => $ruta . 'reporte/cliente_estado',
+                        'icon' => 'fa fa-bar-chart',
+                        'slug' => 'reporteutilidades'
+                    )
+                ),
             ),
+
+            array(
+                'name' => 'Ventas',
+                'icon' => 'fa fa-bar-chart',
+                'slug' => 'reporteutilidades',
+                'sub' => array(
+                    array(
+                        'name' => 'Resumen',
+                        'icon' => 'fa fa-bar-chart',
+                        'url' => $ruta . 'reporte/ventas',
+                        'slug' => 'reporteutilidades'
+                    ),
+                    array(
+                        'name' => 'Cobranzas',
+                        'url' => $ruta . 'reporte/cobranzas',
+                        'icon' => 'fa fa-bar-chart',
+                        'slug' => 'reporteutilidades'
+                    ),
+                    array(
+                        'name' => 'Estado de Cuenta',
+                        'url' => $ruta . 'reporte/cliente_estado',
+                        'icon' => 'fa fa-bar-chart',
+                        'slug' => 'reporteutilidades'
+                    )
+                ),
+            ),
+
+            array(
+                'name' => 'Compras',
+                'icon' => 'fa fa-bar-chart',
+                'slug' => 'reporteutilidades',
+                'sub' => array(
+                    array(
+                        'name' => 'Resumen',
+                        'icon' => 'fa fa-bar-chart',
+                        'url' => $ruta . 'reporte_compra/compras',
+                        'slug' => 'reporteutilidades'
+                    ),
+                    array(
+                        'name' => 'Cuentas por Pagar',
+                        'url' => $ruta . 'reporte_compra/cuentas',
+                        'icon' => 'fa fa-bar-chart',
+                        'slug' => 'reporteutilidades'
+                    ),
+                    array(
+                        'name' => 'Estado de Pago',
+                        'url' => $ruta . 'reporte_compra/proveedor_estado',
+                        'icon' => 'fa fa-bar-chart',
+                        'slug' => 'reporteutilidades'
+                    )
+                ),
+            ),
+
+            array(
+                'name' => 'Stock',
+                'icon' => 'fa fa-bar-chart',
+                'slug' => 'reporteutilidades',
+                'sub' => array(
+                    array(
+                        'name' => 'Stock de Producto',
+                        'url' => $ruta . 'reporte_compra/cliente_estado',
+                        'icon' => 'fa fa-bar-chart',
+                        'slug' => 'reporteutilidades'
+                    ),
+                    array(
+                        'name' => 'Stock Comprometido',
+                        'icon' => 'fa fa-bar-chart',
+                        'url' => $ruta . 'reporte/stock_transito',
+                        'slug' => 'reporteutilidades'
+                    ),
+                    array(
+                        'name' => 'Estado del Producto',
+                        'url' => $ruta . 'producto/reporteEstado',
+                        'icon' => 'fa fa-bar-chart',
+                        'slug' => 'reporteutilidades'
+                    ),
+                    array(
+                        'name' => 'Venta por Producto',
+                        'url' => $ruta . 'reporte_compra/cliente_estado',
+                        'icon' => 'fa fa-bar-chart',
+                        'slug' => 'reporteutilidades'
+                    ),
+                    array(
+                        'name' => 'Compra por Producto',
+                        'url' => $ruta . 'reporte_compra/cliente_estado',
+                        'icon' => 'fa fa-bar-chart',
+                        'slug' => 'reporteutilidades'
+                    )
+                ),
+            ),
+
             array(
                 'name' => 'Reporte utilidades',
                 'url' => $ruta . 'venta/reporteUtilidades',
@@ -709,20 +825,20 @@ $primary_nav = array(
     <script src="<?php echo $ruta; ?>recursos/js/bootstrap-select.min.js"></script>
     <script src="<?php echo $ruta; ?>recursos/js/common.js"></script>
     <script src="<?php echo $ruta; ?>recursos/js/Validacion.js"></script>
-    <script src="<?php echo $ruta?>recursos/js/pages/tablesDatatables.js"></script>
+    <script src="<?php echo $ruta ?>recursos/js/pages/tablesDatatables.js"></script>
 
 
     <script>
         var baseurl = '<?php echo base_url();?>';
     </script>
-<style>
-    .loading-icon {
-        background: url("<?php echo $ruta ?>recursos/img/loading.gif") no-repeat;
-        width: 192px;
-        height: 24px;
-        margin: 0 auto;
-    }
-</style>
+    <style>
+        .loading-icon {
+            background: url("<?php echo $ruta ?>recursos/img/loading.gif") no-repeat;
+            width: 192px;
+            height: 24px;
+            margin: 0 auto;
+        }
+    </style>
 
 </head>
 <script>
@@ -1428,34 +1544,34 @@ $primary_nav = array(
         checkSession();
         //checkTimeout = setTimeout(checkSession, 60000);
 
-        $( document ).ajaxComplete(function( event, xhr, settings ) {
-         //  $('#barloadermodal').modal('hide');
+        $(document).ajaxComplete(function (event, xhr, settings) {
+            //  $('#barloadermodal').modal('hide');
         });
-        $( document ).ajaxStop(function( event, xhr, settings ) {
-          //  $('#barloadermodal').modal('hide');
+        $(document).ajaxStop(function (event, xhr, settings) {
+            //  $('#barloadermodal').modal('hide');
         });
-        $( document ).ajaxError(function( event, xhr, settings ) {
-           // $('#barloadermodal').modal('hide');
+        $(document).ajaxError(function (event, xhr, settings) {
+            // $('#barloadermodal').modal('hide');
         });
 
 
-       // $(document).ajaxSend(function (event, request, settings) {
-            //   console.log(request);
-            // console.log(event);
-            // console.log(settings);
-            //console.log(settings.url);
+        // $(document).ajaxSend(function (event, request, settings) {
+        //   console.log(request);
+        // console.log(event);
+        // console.log(settings);
+        //console.log(settings.url);
 
 
-           /* $("#barloadermodal").modal({
-                show: true,
-                backdrop: 'static'
-            });*/
+        /* $("#barloadermodal").modal({
+         show: true,
+         backdrop: 'static'
+         });*/
 
-          /*  if (settings.url != 'http://localhost/distribucion/inicio/renew_session' && settings.url != 'http://localhost/distribucion/inicio/very_sesion') {
+        /*  if (settings.url != 'http://localhost/distribucion/inicio/renew_session' && settings.url != 'http://localhost/distribucion/inicio/very_sesion') {
 
-                checkSession();
-            }
-        });*/
+         checkSession();
+         }
+         });*/
 
         $("body").mouseup(function () {
             //renewSession();
@@ -1466,7 +1582,7 @@ $primary_nav = array(
         });
 
         $("input").focus(function () {
-           // renewSession();
+            // renewSession();
         });
 
 
