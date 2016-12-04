@@ -69,13 +69,13 @@ fieldset {
                     <li class="disabled"><a href="#step-2">
                             <h4 class="list-group-item-heading">Paso 2</h4>
 
-                            <p class="list-group-item-text">Seleccion de Productos</p>
+                            <p class="list-group-item-text">Seleccion de Productos y envio de Pedido</p>
                         </a></li>
-                    <li class="disabled"><a href="#step-3">
+                    <!-- <li class="disabled"><a href="#step-3" style="display: none;">
                             <h4 class="list-group-item-heading">Paso 3</h4>
 
                             <p class="list-group-item-text">Enviar Pedidos</p>
-                        </a></li>
+                        </a></li> -->
                 </ul>
             </div>
         </div>
@@ -92,7 +92,7 @@ fieldset {
 
                                 </select>
                             </div>
-                                <input type="checkbox" name="todasZona" id="todasZonas">Todas las zonas
+                                <input type="checkbox" name="todasZona" id="todasZonas"> Todas las zonas
                         </div>
                         <div class="col-md-3">
                             <div class="form-group">
@@ -226,7 +226,7 @@ fieldset {
                             </div>
                     </fieldset>
 
-                    <fieldset id='div_documento' class="col-md-6" style="margin: 0% 0% 1% 0%;">
+                    <fieldset id='  ' class="col-md-6" style="margin: 0% 0% 1% 0%;">
                         <legend>Documento</legend>
 
                         <div class="form-group col-md-12">
@@ -289,10 +289,10 @@ fieldset {
 
                     <div class="row panel">
                         <div class="form-group">
-                            <div class="col-md-1">
+                            <div class="col-md-2">
                                 <label for="cboTipDoc" class="control-label panel-admin-text">Buscar Producto:</label>
                             </div>
-                            <div class="col-md-5">
+                            <div class="col-md-6">
                                 <select class="form-control" style="width: 100%" id="selectproductos"
                                         onchange="buscarProducto()" <?= $disabled; ?>></select>
                             </div>
@@ -304,7 +304,7 @@ fieldset {
                                         </button>
 
                                     <?php } ?>
-                                    <button id="activate-step-3" class="btn btn-primary">Continuar</button>
+                                    <!-- <button id="activate-step-3" class="btn btn-primary">Continuar</button> -->
                                 </div>
                             </div>
                             <?php if ($estatus_actual == PEDIDO_DEVUELTO) { ?>
@@ -321,7 +321,7 @@ fieldset {
 
                     <div class="row ">
 
-                        <div class=" col-md-8 block">
+                        <div class=" col-md-9 block">
                             <div id="" class="table-responsive" style="height: 400px; overflow-y: auto;">
                                 <table class="table dataTable dataTables_filter table-bordered">
                                     <thead>
@@ -374,13 +374,26 @@ fieldset {
                         </div>
                         <input type="hidden" id="accion_resetear" name="accion_resetear">
 
-                        <div class="col-md-4 block">
+                        <div class="col-md-3 block">
+
                             <div class="row">
                                 <div class="form-group">
-                                    <div class="col-md-3">
+                                    <div class="col-md-4">
+                                        <label for="cboTipDoc" class="control-label panel-admin-text">Fecha:</label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <input type="text" class="form-control" readonly id="fecha" name="fecha" style="text-align: right;"
+                                               value="<?= isset($venta[0]['fechaemision']) ? $venta[0]['fechaemision'] : date('d/m/Y'); ?>">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="form-group">
+                                    <div class="col-md-4">
                                         <label for="subTotal" class="control-label panel-admin-text">Sub-Total:</label>
                                     </div>
-                                    <div class="col-md-9">
+                                    <div class="col-md-8">
                                         <div class="input-prepend input-append input-group">
                                             <span class="input-group-addon"><?= MONEDA; ?></span>
                                             <input type="text"
@@ -392,10 +405,10 @@ fieldset {
                             </div>
                             <div class="row">
                                 <div class="form-group">
-                                    <div class="col-md-3">
+                                    <div class="col-md-4">
                                         <label for="montoigv" class="control-label panel-admin-text">Impuesto:</label>
                                     </div>
-                                    <div class="col-md-9">
+                                    <div class="col-md-8">
                                         <div class="input-prepend input-append input-group">
                                             <span class="input-group-addon"><?= MONEDA; ?></span>
                                             <input type="text" class='input-square input-small form-control'
@@ -407,13 +420,13 @@ fieldset {
                             </div>
                             <div class="row">
                                 <div class="form-group">
-                                    <div class="col-md-3">
-                                        <label class="control-label">Total:</label>
+                                    <div class="col-md-4">
+                                        <label class="control-label panel-admin-text">Total:</label>
                                     </div>
-                                    <div class="col-md-9">
+                                    <div class="col-md-8">
                                         <div class="input-prepend input-append input-group">
                                             <span class="input-group-addon"><?= MONEDA; ?></span>
-                                            <input style="font-size: 14px; font-weight: bolder;" type="text"
+                                            <input style="font-size: 14px; font-weight: bolder; background: #FFEB9C;" type="text"
                                                    class='input-square input-small form-control'
                                                    name="totApagar"
                                                    id="totApagar"
@@ -422,61 +435,57 @@ fieldset {
                                     </div>
                                 </div>
                             </div>
-                            <!--<div class="row">
-                                <div class="form-group">
-                                    <div class="col-md-3">
-                                        <label for="tipo_documento" class="control-label">Tipo Documento:</label>
-                                    </div>
-                                    <div class="col-md-9">
-                                        <select name="tipo_documento" id="tipo_documento"
-                                                class="form-control" <?= $disabled; ?>>
-                                            <option value="">Seleccione</option>
-                                            <option
-                                                value="<?= BOLETAVENTA ?>" <?php if ((isset($venta[0]['documento_tipo']) and $venta[0]['documento_tipo'] == BOLETAVENTA) or !isset($venta[0])) echo 'selected' ?>><?= BOLETAVENTA ?></option>
-                                            <option
-                                                value="<?= FACTURA ?>" <?php if (isset($venta[0]['documento_tipo']) and $venta[0]['documento_tipo'] == FACTURA) echo 'selected' ?>><?= FACTURA ?></option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>-->
+
+                            <br>
+
                             <div class="row">
                                 <div class="form-group">
-                                    <div class="col-md-3">
-                                        <label for="cboTipDoc" class="control-label">Fecha:</label>
-                                    </div>
-                                    <div class="col-md-9">
-                                        <input type="text" class="form-control" readonly id="fecha" name="fecha"
-                                               value="<?= isset($venta[0]['fechaemision']) ? $venta[0]['fechaemision'] : date('d/m/Y'); ?>">
-                                    </div>
+                                        <div class="col-md-6" style="text-align: center">
+
+                                            <button class="btn btn-danger closegenerarventa" type="button">
+                                                <li class="glyphicon glyphicon-thumbs-down"></li> Cancelar
+                                            </button>
+
+                                        </div>
+                                        <div class="col-md-6">
+                                             <button class="btn btn-primary" type="button" id="realizarventa" onclick="javascript:hacerventa(0);">
+                                                <li class="glyphicon glyphicon-thumbs-up"></li> Guardar
+                                            </button>
+
+                                        </div>
                                 </div>
                             </div>
+
+                            <br>
+
                         </div>
 
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="row">
                                 <div class="form-group">
-                                    <div class="col-md-3">
+                                    <div class="col-md-5">
                                         <label class="control-label">Total Productos</label>
                                     </div>
-                                    <div class="col-md-9">
+                                    <div class="col-md-7">
                                         <span id="totalproductos"></span>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="row">
                                 <div class="form-group">
                                 </div>
                             </div>
                         </div>
+
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="row setup-content" id="step-3">
+        <div class="row setup-content" id="step-3" style="display: none;">
             <div class="col-xs-12">
                 <div class="col-md-12 well">
                     <div class="modal-body">
@@ -486,7 +495,7 @@ fieldset {
                         <div class="row">
                             <div class="form-group">
                                 <div class="col-md-3">
-                                    <label for="totApagar2" class="control-label">Total a Pagar:</label>
+                                    <label for="totApagar2" class="control-label">Total Pagar:</label>
                                 </div>
                                 <div class="col-md-9">
                                     <div class="input-prepend input-append input-group">
@@ -523,7 +532,7 @@ fieldset {
                             </div>
                         <?php } ?>
 
-                        <div class="row" id="importediv">
+                        <div class="row" id="importediv" style="display: none;">
                             <div class="form-group">
                                 <div class="col-md-3">
                                     <label for="importe" class="control-label">Importe:</label>
