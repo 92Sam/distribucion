@@ -92,7 +92,9 @@ fieldset {
 
                                 </select>
                             </div>
+                            <div id=check_zonas style="display:none">
                                 <input type="checkbox" name="todasZona" id="todasZonas"> Todas las zonas
+                            </div>
                         </div>
                         <div class="col-md-3">
                             <div class="form-group">
@@ -139,7 +141,7 @@ fieldset {
                             <div class="col-md-12 form-group">
                                 <label for="zona" class="control-label">Cliente</label>
                                 <select name="id_cliente" id="id_cliente" class='form-control'
-                                        required="true" <?= $disabled; ?>>
+                                        required="true" >
                                     <option value="">Seleccione</option>
                                     <?php if (count($clientes) > 0) { ?>
                                         <?php foreach ($clientes as $cl): ?>
@@ -157,7 +159,19 @@ fieldset {
                                         <?php }
                                     } ?>
                                 </select>
+
+<div class="chosen-container chosen-container-single" style="width: 100%; display: none;" title="" id="id_cliente_chosen2">
+<a class="chosen-single" tabindex="-1">
+<span>Seleccione</span><div><b></b></div></a>
+<div class="chosen-drop">
+<div class="chosen-search">
+<input type="text" autocomplete="off">
+</div>
+<ul class="chosen-results">
+<li class="active-result result-selected" data-option-array-index="0">Seleccione</li>
+</ul></div></div>
                             </div>
+
                         </div>
                         <div class="form-group col-md-12">
                             <div class="col-md-2">
@@ -835,6 +849,7 @@ fieldset {
                         }
                         $("#zona").trigger('chosen:updated');
                     }
+zonaclientes()
                 }
             });
         }
@@ -893,9 +908,22 @@ fieldset {
         }
     }
 
+function zonaclientes(){
+    if($('#zona').val() != null){
+        $('#id_cliente_chosen').show()
+        $('#id_cliente_chosen2').hide()
+        $('#check_zonas').show()
+    }else{
+        $('#id_cliente_chosen').hide()
+        $('#id_cliente_chosen2').show()
+        $('#check_zonas').hide()
+
+    }
+}
 
 
         $(document).ready(function () {
+
 
             $('#cont_retencion').click(function(){
                 if($('#cambiar_retencion').is(':checked')){
@@ -1014,8 +1042,12 @@ fieldset {
                 $(this).remove();
             })
 
+$('#zona').change(function(){
+    zonaclientes()
+})
 
         });
+
     </script>
 </div>
 
