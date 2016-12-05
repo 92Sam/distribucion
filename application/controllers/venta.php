@@ -25,7 +25,7 @@ class venta extends MY_Controller
         $this->load->model('liquidacioncobranza/liquidacion_cobranza_model');
         $this->load->model('ingreso/ingreso_model');
         $this->load->model('gastos/gastos_model');
-        //$this->load->library('phpword');
+        $this->load->library('phpword');
 
         $this->load->library('Pdf');
         $this->load->library('session');

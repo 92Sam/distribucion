@@ -228,7 +228,7 @@ fieldset {
                             </div>
                     </fieldset>
 
-                    <fieldset id='  ' class="col-md-6" style="margin: 0% 0% 1% 0%;">
+                    <fieldset id='div_documento' class="col-md-6" style="margin: 0% 0% 1% 0%;">
                         <legend>Documento</legend>
 
                         <div class="form-group col-md-12">
