@@ -882,8 +882,8 @@ fieldset {
                 success: function(data) {
                     if (data != '') {
                         $('#contacto_nt').val(data[0].representante)
-                        $('#retencion').val(data[0].importe_deuda)
-                        $('#deuda_actual').val(data[0].linea_credito_valor)
+                        $('#retencion').val(data[0].linea_credito_valor)
+                        $('#deuda_actual').val(data[0].importe_deuda)
 
 
 
