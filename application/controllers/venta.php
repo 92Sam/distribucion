@@ -25,7 +25,7 @@ class venta extends MY_Controller
         $this->load->model('liquidacioncobranza/liquidacion_cobranza_model');
         $this->load->model('ingreso/ingreso_model');
         $this->load->model('gastos/gastos_model');
-        $this->load->library('phpword');
+        //$this->load->library('phpword');
 
         $this->load->library('Pdf');
         $this->load->library('session');
@@ -4482,6 +4482,12 @@ class venta extends MY_Controller
     function clienteDireccion()
     {
         $cliente_direccion = $this->venta_model->clienteDireccion($this->input->post('cliente_id'));
+        die(json_encode($cliente_direccion));
+    }
+
+    function representanteCliente()
+    {
+        $cliente_direccion = $this->venta_model->representanteCliente($this->input->post('cliente_id'));
         die(json_encode($cliente_direccion));
     }
 }

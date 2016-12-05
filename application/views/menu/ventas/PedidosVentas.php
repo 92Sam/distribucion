@@ -130,6 +130,8 @@ fieldset {
                         </div>
                     </div>
                 </fieldset>
+                <?php
+                ?>
                 <div id='content_opcion' style="display: none">
                     <fieldset class="col-md-6" style="margin: 0% 1% 1% 0%; width: 49%">
                         <legend>Cliente</legend>
@@ -143,7 +145,7 @@ fieldset {
                                         <?php foreach ($clientes as $cl): ?>
                                             <option
                                                 value="<?php echo $cl['id_cliente']; ?>" <?php if ((isset($venta[0]['cliente_id']) and $venta[0]['cliente_id'] == $cl['id_cliente']) or (!isset($venta[0]['cliente_id']) && $cl['razon_social'] == 'Cliente Frecuente'))
-                                                echo 'selected' ?>><?php echo $cl['razon_social']; ?></option>
+                                                echo 'selected' ?>><?php echo $cl['razon_social']?></option>
                                         <?php endforeach; ?>
                                     <?php } else {
                                         if (isset($venta[0])) {
@@ -847,7 +849,6 @@ fieldset {
                     data: {'cliente_id': $('#id_cliente').val()},
                     success: function(data) {
                         if (data != '') {
-                            if (data != '') {
                                  for (i = 0; i < data.length; i++) {
                                      $('#direccion_entrega_np').append('<option value=' + data[i].id + '>' + data[i].valor + '</option>')
                                      if(data[i].principal == 1){
@@ -857,7 +858,6 @@ fieldset {
 
                                      $('#direccion_entrega_doc').append('<option value=' + data[i].id + '>' + data[i].valor + '</option>')
                                  }
-                            }
                             $("#direccion_entrega_np").trigger('chosen:updated');
                             $("#direccion_principal").trigger('chosen:updated');
                             $("#direccion_entrega_doc").trigger('chosen:updated');
@@ -867,9 +867,28 @@ fieldset {
             }
         }
 
+    function representanteCliente(){
+        if($("#id_cliente").val()!=''){
+
+            $.ajax({
+                url: '<?=base_url()?>venta/representanteCliente',
+                 type: "post",
+                dataType: "json",
+                data: {'cliente_id': $('#id_cliente').val()},
+                success: function(data) {
+                    if (data != '') {
+                        $('#contacto_nt').val(data[0].representante)
+                    }
+                }
+            });
+        }
+    }
+
 
 
         $(document).ready(function () {
+
+
 
             tipoDoc()
             $('#tipo_documento').change(function(){
@@ -887,6 +906,7 @@ fieldset {
 
         $("#id_cliente").change(function(){
             clienteDireccion()
+            representanteCliente()
         })
 
         $("#id_cliente").change(function () {

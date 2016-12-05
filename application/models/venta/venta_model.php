@@ -3402,11 +3402,11 @@ where v.venta_id=" . $id_venta . " group by tr.id_detalle order by 1 ";
         $this->db->from('usuario u');
         $this->db->join('usuario_has_zona uhz', 'uhz.id_usuario = u.nUsuCodigo', 'left');
         $this->db->join('zonas z', 'z.zona_id = uhz.id_zona', 'left');
-        $this->db->join('zona_dias zd', 'zd.id_zona = z.zona_id ', 'left');
-        $this->db->where('u.nUsuCodigo', $vendedor_id);
         if($dia!=null){
-          $this->db->where('zd.dia_semana', $dia);
+            $this->db->join('zona_dias zd', 'zd.id_zona = z.zona_id ', 'left');
+            $this->db->where('zd.dia_semana', $dia);
         }
+        $this->db->where('u.nUsuCodigo', $vendedor_id);
 
         $query = $this->db->get();
         return $query->result_array();
@@ -3419,6 +3419,16 @@ where v.venta_id=" . $id_venta . " group by tr.id_detalle order by 1 ";
         $this->db->join('cliente_datos cd', 'cd.cliente_id = c.id_cliente', 'left');
         $this->db->where('c.id_cliente', $cliente_id);
         $this->db->where('cd.tipo', 1);
+
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+
+    function representanteCliente($cliente_id)
+    {
+        $this->db->select('*');
+        $this->db->from('cliente c');
+        $this->db->where('c.id_cliente', $cliente_id);
 
         $query = $this->db->get();
         return $query->result_array();
