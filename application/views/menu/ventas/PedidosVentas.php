@@ -907,18 +907,33 @@ fieldset {
 
             })
 
+            $("#direccion_entrega_np").change(function(){
+                if($('#tipo_documento').val() == 'FACTURA'){
+                    $('#direccion_entrega_doc').val($("#direccion_entrega_np").val())
+                }else{
+                    $('#direccion_entrega_doc').val('')
+                }
+                $("#direccion_entrega_doc").trigger('chosen:updated');
+            })
 
-        $("#id_cliente").change(function(){
-            clienteDireccion()
-            representanteCliente()
-        })
+            $("#direccion_entrega_doc").change(function(){
+                $('#direccion_entrega_np').val($("#direccion_entrega_doc").val())
+                $("#direccion_entrega_np").trigger('chosen:updated');
 
-        $("#id_cliente").change(function () {
-        $('#cliente_nt').val($('#id_cliente :selected').html())
-        $('#contacto_nt').val($('#id_cliente :selected').html())
+            })
 
-        $("#clienteinformativo").html($("#id_cliente option:selected").html());
-        });
+
+            $("#id_cliente").change(function(){
+                clienteDireccion()
+                representanteCliente()
+            })
+
+            $("#id_cliente").change(function () {
+            $('#cliente_nt').val($('#id_cliente :selected').html())
+            $('#contacto_nt').val($('#id_cliente :selected').html())
+
+            $("#clienteinformativo").html($("#id_cliente option:selected").html());
+            });
 
             function tipoDoc(){
                 if($('#tipo_documento').val() != ''){
