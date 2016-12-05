@@ -814,6 +814,10 @@ fieldset {
             }else{
                 var d = new Date();
                 var n = d.getDay();
+
+                if(n==0){
+                    n = 7
+                }
             }
             $('#zona option').remove();
 
