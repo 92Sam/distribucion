@@ -164,10 +164,10 @@ fieldset {
                                 <label for="zona" class="control-label panel-admin-text">Retenci&oacute;n</label>
                             </div>
                             <div class="col-md-4">
-                                <input type="number" name="retencion" readonly="readonly" class="form-control">
+                                <input type="number" id="retencion" name="retencion" readonly="readonly" class="form-control">
                             </div>
 
-                            <div class="col-md-4">
+                            <div class="col-md-4" id='cont_retencion'>
                                 <input id="cambiar_retencion" type="checkbox" name="cambiar_retencion">
                                 <label for="cambiar_retencion" class="control-label panel-admin-text"> Cambiar retenci&oacute;n</label>
                             </div>
@@ -182,7 +182,7 @@ fieldset {
                                 <label for="" class="control-label panel-admin-text">Deuda Actual</label>
                             </div>
                             <div class="col-md-6 col-md-12">
-                                <input type="number" name="retencion" readonly="readonly" class="form-control">
+                                <input type="number" id="deuda_actual" name="deuda_actual" readonly="readonly" class="form-control">
                             </div>
                         </div>
                         <div class="form-group col-md-12">
@@ -190,7 +190,7 @@ fieldset {
                                 <label for="" class="control-label panel-admin-text">Documentos Pendientes</label>
                             </div>
                             <div class="col-md-6">
-                                <input type="number" name="retencion" readonly="readonly" class="form-control">
+                                <input type="number" id="docs_pendiente" name="docs_pendiente" readonly="readonly" class="form-control">
                             </div>
 
                         </div>
@@ -871,17 +871,22 @@ fieldset {
             }
         }
 
-    function representanteCliente(){
+    function dataCliente(){
         if($("#id_cliente").val()!=''){
 
             $.ajax({
-                url: '<?=base_url()?>venta/representanteCliente',
+                url: '<?=base_url()?>venta/dataCliente',
                  type: "post",
                 dataType: "json",
                 data: {'cliente_id': $('#id_cliente').val()},
                 success: function(data) {
                     if (data != '') {
                         $('#contacto_nt').val(data[0].representante)
+                        $('#retencion').val(data[0].importe_deuda)
+                        $('#deuda_actual').val(data[0].linea_credito_valor)
+
+
+
                     }
                 }
             });
@@ -891,6 +896,15 @@ fieldset {
 
 
         $(document).ready(function () {
+
+            $('#cont_retencion').click(function(){
+                if($('#cambiar_retencion').is(':checked')){
+                    $('#retencion').prop( "readonly", false )
+
+                }else{
+                    $('#retencion').prop( "readonly", true )
+                }
+            })
 
 
 
@@ -925,7 +939,7 @@ fieldset {
 
             $("#id_cliente").change(function(){
                 clienteDireccion()
-                representanteCliente()
+                dataCliente()
             })
 
             $("#id_cliente").change(function () {

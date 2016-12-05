@@ -3424,7 +3424,7 @@ where v.venta_id=" . $id_venta . " group by tr.id_detalle order by 1 ";
         return $query->result_array();
     }
 
-    function representanteCliente($cliente_id)
+    function dataCliente($cliente_id)
     {
         $this->db->select('*');
         $this->db->from('cliente c');

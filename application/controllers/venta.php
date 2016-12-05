@@ -4485,9 +4485,9 @@ class venta extends MY_Controller
         die(json_encode($cliente_direccion));
     }
 
-    function representanteCliente()
+    function dataCliente()
     {
-        $cliente_direccion = $this->venta_model->representanteCliente($this->input->post('cliente_id'));
+        $cliente_direccion = $this->venta_model->dataCliente($this->input->post('cliente_id'));
         die(json_encode($cliente_direccion));
     }
 }
