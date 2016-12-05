@@ -53,6 +53,9 @@ class descuentos extends MY_Controller
         if ($this->input->is_ajax_request()) {
 
             $id = $this->input->post('grupos');
+
+            $data["grupo_id"] = $id;
+
             $data["descuentos"] = $this->descuentos_model->get_by_groupclie($id);
 
             $this->load->view('menu/descuentos/tbl_descuentos', $data);
@@ -69,21 +72,23 @@ class descuentos extends MY_Controller
         $this->load->view('menu/descuentos/reglaDescuento',$data);
 
     }
-    function form($id = FALSE)
+    function form($id = FALSE, $grupoid)
     {
 
         $datax = array();
         $group = "producto.producto_id";
 
+        $grupo_id = $grupoid;
+
+        $datax['grupo_clie_id'] = $grupo_id;
+
+        $grupo_name = $this->clientes_grupos_model->get_by('id_grupos_cliente', $grupo_id);
+        $datax['grupo_clie'] = $grupo_name['nombre_grupos_cliente'];
+
+
         if ($id != FALSE) {
 
-            $desc = $this->descuentos_model->get_by('descuento_id', $id);
-            $grupo_id = $desc['id_grupos_cliente'];
-
-            $grupo_name = $this->clientes_grupos_model->get_by('id_grupos_cliente', $grupo_id);
-            $datax['grupo_clie'] = $grupo_name['nombre_grupos_cliente'];
-
-            $datax['descuentos'] = $desc;
+            $datax['descuentos'] = $this->descuentos_model->get_by('descuento_id', $id);
             
 			$datax['escalas'] = $this->descuentos_model->get_escalas_by_descuento($id);
             
@@ -96,8 +101,12 @@ class descuentos extends MY_Controller
 			$datax['sizeescalas'] = sizeof($datax['escalas']);
 
             $datax['prod_precios'] = $this->descuentos_model->get_prod_precioventa();
+
         }
-        $datax['productosenreglasdedescuento'] = $this->descuentos_model->edit_descuentos('where descuentos.status=1', $group);
+
+        $where_all = " where descuentos.status=1 AND descuentos.id_grupos_cliente ='" . $grupo_id . "'";
+
+        $datax['productosenreglasdedescuento'] = $this->descuentos_model->edit_descuentos($where_all, $group);
 
         $datax["lstProducto"] = $this->producto_model->select_all_producto();
 
@@ -214,17 +223,18 @@ class descuentos extends MY_Controller
                 $json['error'] = 'Algunos campos son requeridos';
             } else {
 
+                $id_grupo = $this->input->post('grupos');
+
                 $comp_cab_pie = array(
                     'nombre' => $this->input->post('nombre', true),
                 );
 
                 if ($this->input->post('id_de_descuento') == "") {
 
-
                     $rs = $this->descuentos_model->insertar_descuento($comp_cab_pie,
                         json_decode($this->input->post('lst_escalas', true)),
                         json_decode($this->input->post('lst_producto', true)),
-                        $this->input->post('precio'));
+                        $this->input->post('precio'),$id_grupo);
 
                 } else {
 
@@ -252,8 +262,13 @@ class descuentos extends MY_Controller
 
     function pdfExport($id) {
 
-        $escalas = $this->descuentos_model->get_escalas_descuento($id);
+        $desc_row = $this->descuentos_model->get_by('descuento_id', $id);
+        $grupo_id = $desc_row['id_grupos_cliente'];
 
+        $grupo_clie_row = $this->clientes_grupos_model->get_by('id_grupos_cliente', $grupo_id);
+        $grupo_name = $grupo_clie_row['nombre_grupos_cliente'];
+
+        $escalas = $this->descuentos_model->get_escalas_descuento($id);
         $escalas_h = $this->descuentos_model->get_escalas_descuento_head($id);
 
         //PDF
@@ -282,7 +297,9 @@ class descuentos extends MY_Controller
         $html .= "</style>";
 
 
-        $html .= "<br><br><b><u>DESCUENTOS</u></b><br><br>";
+        $html .= "<br><b><u>DESCUENTOS</u></b><br>";
+
+        $html .= "<br>Grupo: " . $grupo_name . "</b><br><br>";
 
         $html .= "<table><tr><thead>
                         <th>C&oacute;digo</th>

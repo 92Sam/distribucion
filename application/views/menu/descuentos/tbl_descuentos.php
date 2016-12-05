@@ -1,5 +1,5 @@
 
-<table class="table table-striped dataTable table-bordered table-condensed" id="tbldescuentos">
+<table class="table table-striped table-bordered table-condensed" id="tbldescuentos">
     <thead>
     <tr>
         <th>ID</th>
@@ -30,7 +30,7 @@
 
                         echo '<a class="btn btn-default btn-default btn-default" data-toggle="tooltip"
                                                         title="Editar" data-original-title="Editar"
-                                                        href="#" onclick="editar(' . $descuento['descuento_id'] . ');">'; ?>
+                                                        href="#" onclick="editar(' . $descuento['descuento_id'] . ',\'' . $grupo_id . '\');">'; ?>
                         <i class="fa fa-edit"></i>
                         </a>
                         <?php echo '<a class="btn btn-default btn-default btn-default" data-toggle="tooltip"
@@ -46,9 +46,3 @@
 
     </tbody>
 </table>
-
-
-
-<script>
-    TablesDatatables.init(1);
-</script>

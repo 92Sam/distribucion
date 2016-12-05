@@ -14,15 +14,28 @@
                 <div class="row">
                     <div class="form-group">
                         <div class="col-md-1">
-                            Nombre
+                            Nombre:
                         </div>
-                        <div class="col-md-11">
+                        <div class="col-md-6">
                             <input type="text" name="nombre" id="nombre" required="true" class="form-control"
                                    value="<?php if (isset($descuentos['nombre'])) echo $descuentos['nombre']; ?>">
                         </div>
 
                         <input type="hidden" name="id_de_descuento" id="" required="true"
                                value="<?php if (isset($descuentos['descuento_id'])) echo $descuentos['descuento_id']; ?>">
+
+                        <div class="col-md-2">
+                            Grupo seleccionado:
+                        </div>
+                        <div class="col-md-3">
+
+                            <select name="grupos" id="grupos" class='cho form-control filter-input'>
+                                <option
+                                    value="<?php echo $grupo_clie_id; ?>"
+                                    id="<?php echo $grupo_clie; ?>">
+                                    <?php echo $grupo_clie; ?></option>
+                            </select>
+                        </div>
                     </div>
                 </div>
 

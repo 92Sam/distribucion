@@ -1,13 +1,13 @@
 
 <?php $ruta = base_url(); ?>
 
-<table class="table table-striped dataTable table-bordered table-condensed" id="tblbonificaciones">
+<table class="table table-striped table-bordered table-condensed" id="tblbonificaciones">
     <thead>
     <tr>
         <th>ID</th>
         <th>Vencimiento</th>
         <th>Estado</th>
-        <th style="width: 300px !important;">Productos</th>
+        <th>Productos</th>
         <th>Marca Condici&oacute;n</th>
         <th>Grupo Condici&oacute;n</th>
         <th>Sub Grupo Condici&oacute;n</th>
@@ -93,15 +93,9 @@
             </tr>
         <?php }
     } ?>
-
     </tbody>
 </table>
 <a href="<?= $ruta ?>bonificaciones/pdfExport/<?php echo $id_grupoclie;?>/" id="generarpdf" class="btn  btn-default btn-lg" data-toggle="tooltip"
    title="Exportar a PDF" data-original-title="fa fa-file-pdf-o"><i class="fa fa-file-pdf-o fa-fw"></i></a>
 <a href="<?= $ruta ?>bonificaciones/excelExport/<?php echo $id_grupoclie;?>/" id="generarexcel" class="btn btn-default btn-lg" data-toggle="tooltip"
    title="Exportar a Excel" data-original-title="fa fa-file-excel-o"><i class="fa fa-file-excel-o fa-fw"></i></a>
-
-
-<script>
-    TablesDatatables.init(1);
-</script>

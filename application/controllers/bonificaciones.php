@@ -48,12 +48,10 @@ class bonificaciones extends MY_Controller
 
         foreach ($bonificaciones as $b) {
 
-
             $b['bonificaciones_has_producto'] = $this->bonificaciones_model->bonificaciones_has_producto('id_bonificacion', $b['id_bonificacion']);
           //  var_dump($b);
             $data['bonificacioness'][]=$b;
         }
-
 
         $dataCuerpo['cuerpo'] = $this->load->view('menu/bonificaciones/bonificaciones', $data, true);
         if ($this->input->is_ajax_request()) {
@@ -112,21 +110,24 @@ class bonificaciones extends MY_Controller
     {
 
         $data = array();
+
+        $data["grupos_clie"] = $this->clientes_grupos_model->get_all();
+
         if ($id != FALSE && $id != 'false') {
             $data['bonificaciones'] = $this->bonificaciones_model->get_by('id_bonificacion', $id);
             $data['bonificaciones_has_producto'] = $this->bonificaciones_model->bonificaciones_has_producto('id_bonificacion', $id);
-
         }
-
 
         if ($p1 != FALSE && $p1 != 'false') {
             $data['unidades'] = $this->unidades_model->get_by_producto($p1);
 
         }
+
         if ($p2 != FALSE && $p2 != 'false') {
             $data['unidades_bono'] = $this->unidades_model->get_by_producto($p2);
 
         }
+
         $productos=$this->producto_model->select_all_producto();
         $data['productos'] = $productos;
         $data['familias'] = $this->familias_model->get_familias();
@@ -180,9 +181,14 @@ class bonificaciones extends MY_Controller
         } else {
             $bonificaciones['subgrupo_id'] = $this->input->post('subgrupos');
         }
+
+        $bonificaciones['id_grupos_cliente'] = $this->input->post('grupos');
+
         $productos = $this->input->post('producto_condicion', true);
+
         if (empty($id)) {
             $resultado = $this->bonificaciones_model->insertar($bonificaciones, $productos);
+
         } else {
             $bonificaciones['id_bonificacion'] = $id;
             $resultado = $this->bonificaciones_model->update($bonificaciones, $productos);
@@ -278,6 +284,9 @@ class bonificaciones extends MY_Controller
 
     function pdfExport($id) {
 
+        $grupo_clie_row = $this->clientes_grupos_model->get_by('id_grupos_cliente', $id);
+        $grupo_name = $grupo_clie_row['nombre_grupos_cliente'];
+
         $bonificacioness = array();
         $bonificaciones = $this->bonificaciones_model->get_by_groupclie($id);
 
@@ -314,7 +323,9 @@ class bonificaciones extends MY_Controller
         $html .= "</style>";
 
 
-        $html .= "<br><br><b><u>BONIFICACIONES</u></b><br><br>";
+        $html .= "<br><b><u>BONIFICACIONES</u></b><br>";
+
+        $html .= "<br>Grupo: " . $grupo_name . "</b><br><br>";
 
         $html .= "<table><tr><thead>
                         <th>ID</th>
@@ -461,7 +472,7 @@ class bonificaciones extends MY_Controller
                 $prod = "";
 
                 foreach($b['bonificaciones_has_producto'] as $produc){
-                    $prod .= sumCod($produc['id_producto']). " " .$produc['producto_nombre'] . " ";
+                    $prod .= sumCod($produc['id_producto']). " " .$produc['producto_nombre'] . ", ";
 
                 }
 

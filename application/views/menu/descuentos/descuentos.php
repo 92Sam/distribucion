@@ -215,7 +215,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable">', "</
 
     }
 
-    function editar(id) {
+    function editar(id, grupo_id) {
 
         lst_producto = new Array();
         lst_escalas = new Array();
@@ -227,7 +227,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable">', "</
         countprecio = 0;
         $("#barloadermodal").modal('show');
 
-        $("#agregar").load('<?= $ruta ?>descuentos/form/' + id, function () {
+        $("#agregar").load('<?= $ruta ?>descuentos/form/' + id + '/' + grupo_id + '/', function () {
             $('#agregar').modal({show: true, keyboard: false, backdrop: 'static'});
             $("#barloadermodal").modal('hide');
 
@@ -236,10 +236,12 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable">', "</
     }
 
     function agregar() {
+        var id = false;
+        var grupo_id = $("#grupos option:selected").val();
 
         $("#barloadermodal").modal('show');
 
-        $("#agregar").load('<?= $ruta ?>descuentos/form', function(){
+        $("#agregar").load('<?= $ruta ?>descuentos/form/' + id + '/' + grupo_id + '/', function(){
             $('#agregar').modal({show: true, keyboard: false, backdrop: 'static'});
             $("#barloadermodal").modal('hide');
 
@@ -361,7 +363,6 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable">', "</
                     success: function (data) {
 
                         if (data.success != 'undefined') {
-
 
                             $('#agregar').modal('hide');
                             var growlType = 'success';

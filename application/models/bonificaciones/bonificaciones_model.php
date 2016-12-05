@@ -129,6 +129,7 @@ class bonificaciones_model extends CI_Model
         $this->db->insert('bonificaciones', $bonificaciones);
 
         $id = $this->db->insert_id();
+
         if ($productos != null) {
             foreach ($productos as $p) {
                 $producto = array(

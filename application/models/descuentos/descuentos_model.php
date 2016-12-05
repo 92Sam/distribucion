@@ -169,9 +169,10 @@ class descuentos_model extends CI_Model
             $sql .= " group by " . $group . " ";
         }
 
+
         $sql .= " order by producto_id asc ";
         $query = $this->db->query($sql);
-       // echo $this->db->last_query();
+        //echo $this->db->last_query();
         return $query->result_array();
 
     }
@@ -237,7 +238,7 @@ class descuentos_model extends CI_Model
     }
 
 
-    function insertar_descuento($cab_pie, $detalle_escala, $detalle_producto, $detalle_precio)
+    function insertar_descuento($cab_pie, $detalle_escala, $detalle_producto, $detalle_precio, $grupo)
     {
 
         $this->db->trans_start(true);
@@ -246,6 +247,7 @@ class descuentos_model extends CI_Model
 
         $descuento = array(
             'nombre' => $cab_pie['nombre'],
+            'id_grupos_cliente' => $grupo,
         );
 
         $this->db->insert('descuentos', $descuento);

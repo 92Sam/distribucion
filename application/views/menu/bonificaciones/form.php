@@ -35,12 +35,9 @@
                         </div>
                         <div class="col-md-4">
 
-
                             <select name="producto_condicion[]" id="producto_condicion" class='form-control selectpicker' multiple="true" >
 
-
                                 <?php foreach ($productos as $producto_condicion) { ?>
-
 
                                     <?php if ($bonificaciones_has_producto != null) {
                                         $cantidad = count($bonificaciones_has_producto);
@@ -155,7 +152,6 @@
                 </div>
                 <div class="row">
 
-
                     <div class="form-group">
                         <div class="col-md-2">
                             <label>Grupo Condición</label>
@@ -172,10 +168,28 @@
 
                         </div>
 
+                        <div class="col-md-2">
+                            <label>Grupos</label>
+                        </div>
+                        <div class="col-md-4">
 
-
+                            <select name="grupos" id="grupos" class='cho form-control filter-input'>
+                                <?php if (count($grupos_clie) > 0): ?>
+                                    <?php foreach ($grupos_clie as $g_clie): ?>
+                                        <option
+                                            value="<?php echo $g_clie['id_grupos_cliente']; ?>"
+                                            id="<?php echo $g_clie['nombre_grupos_cliente']; ?>">
+                                            <?php echo $g_clie['nombre_grupos_cliente']; ?></option>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </select>
+                        </div>
                     </div>
-                </div> <div class="row">
+
+                </div>
+
+
+                <div class="row">
                     <div class="form-group">
                         <div class="col-md-2">
                             <label>Sub Grupos</label>
