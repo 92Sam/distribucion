@@ -4465,7 +4465,31 @@ class venta extends MY_Controller
         return $xsub;
     }
 
+   
 
+    function zonaVendedor()
+    {
+        if($this->input->post('dia') != ''){
+            $dia = $this->input->post('dia');
+        }else {
+            $dia = null;
+        }
+        $zona_vendedor = $this->venta_model->zonaVendedor($this->input->post('vendedor_id'), $dia);
+        die(json_encode($zona_vendedor));
+
+    }
+
+    function clienteDireccion()
+    {
+        $cliente_direccion = $this->venta_model->clienteDireccion($this->input->post('cliente_id'));
+        die(json_encode($cliente_direccion));
+    }
+
+    function dataCliente()
+    {
+        $cliente_direccion = $this->venta_model->dataCliente($this->input->post('cliente_id'));
+        die(json_encode($cliente_direccion));
+    }
 }
 
 
