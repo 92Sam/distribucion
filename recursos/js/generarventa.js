@@ -554,6 +554,29 @@ function alertModal(message, type, disabled) {
 }
 
 function hacerventa(imprimir) {
+    if($('#tipo_documento').val() == 'FACTURA'){
+        if($('#razon_social').val() == ''){
+            $.bootstrapGrowl('<h4>Debe ingresar razon social</h4>', {
+                    type: 'warning',
+                    delay: 2500,
+                    allow_dismiss: true
+                });
+
+                $(this).prop('disabled', true);
+                return false
+        }
+
+        if($('#ruc_dc').val() == ''){
+            $.bootstrapGrowl('<h4>Debe ingresar RUC</h4>', {
+                    type: 'warning',
+                    delay: 2500,
+                    allow_dismiss: true
+                });
+
+                $(this).prop('disabled', true);
+                return false
+        }
+    }
 
     $("#realizarventa").addClass('disabled');
     $("#btnRealizarVentaAndView").addClass('disabled');

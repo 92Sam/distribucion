@@ -900,6 +900,10 @@ zonaclientes()
                         $('#retencion').val(data[0].linea_credito_valor)
                         $('#deuda_actual').val(data[0].importe_deuda)
 
+                        if(data[0].tipo_cliente == 0 && $('#tipo_documento').val() == 'FACTURA'){
+                            $('#ruc_dc').val(data[0].identificacion)
+                            $('#razon_social').val(data[0].razon_social)
+                        }
 
 
                     }
