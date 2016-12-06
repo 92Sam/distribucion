@@ -559,106 +559,143 @@
 
                 <div class="tab-pane table-responsive" role="tabpanel" id="promocion" role="tabpanel">
                     <br>
-                    <table class="table table-striped dataTable table-bordered" id="tablaresultado">
-                        <thead>
-                        <tr>
 
-                            <th>Unidad</th>
-                            <th>Familia</th>
-                            <th>Grupo</th>
-                            <th>Marca</th>
-                            <th>Linea</th>
-                            <th>Cantidad</th>
-                            <th>Bono unidad</th>
-                            <th>Bono producto</th>
-                            <th>Bono cantidad</th>
-                            <th>Fecha</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <?php foreach ($promociones as $promocion){ ?>
-                        <tr>
-                            <td>
-                                <?php if (isset($promocion['id_unidad'])) echo $promocion['nombre_unidad']; ?>
-                            </td>
-                            <td>
-                                <?php if (isset($promocion['id_familia'])) echo $promocion['nombre_familia']; ?>
-                            </td>
-                            <td>
-                                <?php if (isset($promocion['id_grupo'])) echo $promocion['nombre_grupo']; ?>
-                            </td>
-                            <td>
-                                <?php if (isset($promocion['id_marca'])) echo $promocion['nombre_marca']; ?>
-                            </td>
-                            <td>
-                                <?php if (isset($promocion['id_linea'])) echo $promocion['nombre_linea']; ?>
-                            </td>
-                            <td>
-                                <?php if (isset($promocion['cantidad_condicion'])) echo $promocion['cantidad_condicion']; ?>
-                            </td>
-                            <td>
-                                <?php if (isset($promocion['unidad_bonificacion'])) echo $promocion['unidad_bonificacion']; ?>
-                            </td>
-                            <td>
-                                <?php if (isset($promocion['producto_bonificacion'])) echo $promocion['producto_bonificacion']; ?>
-                            </td>
-                            <td>
-                                <?php if (isset($promocion['bono_cantidad'])) echo $promocion['bono_cantidad']; ?>
-                            </td>
-                            <td>
-                                <?php if (isset($promocion['fecha'])) echo date('d-m-Y', strtotime($promocion['fecha']));
-                                } ?>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
+                    <?php foreach($grupos_clie as $grup) {
 
+                        foreach ($promociones as $promocion) {
+
+                            if ($grup['id_grupos_cliente'] == $promocion['id_grupos_cliente']) { ?>
+
+                                <label>Grupo: <?php echo $grup['nombre_grupos_cliente'];?></label>
+
+                                <div row>
+                                    <table class="table table-striped dataTable table-bordered" id="tablaresultado">
+                                        <thead>
+                                        <tr>
+                                            <th>Unidad</th>
+                                            <th>Familia</th>
+                                            <th>Grupo</th>
+                                            <th>Marca</th>
+                                            <th>Linea</th>
+                                            <th>Cantidad</th>
+                                            <th>Bono unidad</th>
+                                            <th>Bono producto</th>
+                                            <th>Bono cantidad</th>
+                                            <th>Fecha</th>
+                                        </tr>
+                                        </thead>
+
+                                        <tbody>
+
+                                        <tr>
+                                            <td>
+                                                <?php if (isset($promocion['id_unidad'])) echo $promocion['nombre_unidad']; ?>
+                                            </td>
+                                            <td>
+                                                <?php if (isset($promocion['id_familia'])) echo $promocion['nombre_familia']; ?>
+                                            </td>
+                                            <td>
+                                                <?php if (isset($promocion['id_grupo'])) echo $promocion['nombre_grupo']; ?>
+                                            </td>
+                                            <td>
+                                                <?php if (isset($promocion['id_marca'])) echo $promocion['nombre_marca']; ?>
+                                            </td>
+                                            <td>
+                                                <?php if (isset($promocion['id_linea'])) echo $promocion['nombre_linea']; ?>
+                                            </td>
+                                            <td>
+                                                <?php if (isset($promocion['cantidad_condicion'])) echo $promocion['cantidad_condicion']; ?>
+                                            </td>
+                                            <td>
+                                                <?php if (isset($promocion['unidad_bonificacion'])) echo $promocion['unidad_bonificacion']; ?>
+                                            </td>
+                                            <td>
+                                                <?php if (isset($promocion['producto_bonificacion'])) echo $promocion['producto_bonificacion']; ?>
+                                            </td>
+                                            <td>
+                                                <?php if (isset($promocion['bono_cantidad'])) echo $promocion['bono_cantidad']; ?>
+                                            </td>
+                                            <td>
+                                                <?php if (isset($promocion['fecha'])) echo date('d-m-Y', strtotime($promocion['fecha'])); ?>
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                    <br>
+                                    <br>
+                                </div>
+
+                            <?php }
+                        }
+
+                    }; ?>
                 </div>
 
                 <div class="tab-pane" role="tabpanel" id="descuento" role="tabpanel">
                     <br>
-                    <tr class="table-responsive ">
-                        <table class="table table-striped dataTable table-bordered" id="tablaresultado">
-                            <thead>
-                            <tr>
 
-                                <th>Regla descuento</th>
-                                <th>Cantidades</th>
-                                <th>Nombre producto</th>
-                                <th>Unidad</th>
-                                <th>Precio</th>
+                    <?php foreach($grupos_clie as $grup) {
+                        $pass = false;
 
+                        foreach ($descuentos as $descuento) {
+                            if ($descuento['id_grupos_cliente'] == $grup['id_grupos_cliente']) {
+                                $pass = true;
+                                break;
+                            }
+                        }
 
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <?php foreach ($descuentos as $descuento) { ?>
-                            <tr>
-                                <td>
-                                    <?php if (isset($descuento['nombre'])) echo $descuento['nombre']; ?>
-                                </td>
-                                <td>
-                                    <?php if (isset($descuento['cantidad_minima'])) echo $descuento['cantidad_minima']; ?>
-                                    a
-                                    <?php if (isset($descuento['cantidad_maxima'])) echo $descuento['cantidad_maxima']; ?>
-                                </td>
-                                <td>
-                                    <?php if (isset($descuento['producto_nombre'])) echo $descuento['producto_nombre']; ?>
-                                </td>
-                                <td>
-                                    <?php if (isset($descuento['nombre_unidad'])) echo $descuento['nombre_unidad']; ?>
-                                </td>
-                                <td>
-                                    <?php if (isset($descuento['precio'])) echo $descuento['precio'];
-                                    } ?>
-                                </td>
+                        if ($pass) { ?>
 
+                            <label>Grupo: <?php echo $grup['nombre_grupos_cliente'];?></label>
 
-                            </tr>
-                            </tbody>
-                        </table>
+                            <div row>
+                                <tr class="table-responsive ">
+                                    <table class="table table-striped dataTable table-bordered" id="tablaresultado">
+                                        <thead>
+                                        <tr>
+                                            <th>Regla descuento</th>
+                                            <th>Cantidades</th>
+                                            <th>Nombre producto</th>
+                                            <th>Unidad</th>
+                                            <th>Precio</th>
+
+                                        </tr>
+                                        </thead>
+
+                                        <tbody>
+                                        <?php foreach ($descuentos as $descuento) {
+                                            if ($descuento['id_grupos_cliente'] == $grup['id_grupos_cliente']) { ?>
+                                                <tr>
+                                                    <td>
+                                                        <?php if (isset($descuento['nombre'])) echo $descuento['nombre']; ?>
+                                                    </td>
+                                                    <td>
+                                                        <?php if (isset($descuento['cantidad_minima'])) echo $descuento['cantidad_minima']; ?>
+                                                        a
+
+                                                        <?php if (isset($descuento['cantidad_maxima'])) echo $descuento['cantidad_maxima']; ?>
+                                                    </td>
+                                                    <td>
+                                                        <?php if (isset($descuento['producto_nombre'])) echo $descuento['producto_nombre']; ?>
+                                                    </td>
+                                                    <td>
+                                                        <?php if (isset($descuento['nombre_unidad'])) echo $descuento['nombre_unidad']; ?>
+                                                    </td>
+                                                    <td>
+                                                        <?php if (isset($descuento['precio'])) echo $descuento['precio']; ?>
+                                                    </td>
+                                                </tr>
+                                            <?php }; ?>
+                                        <?php };?>
+                                        </tbody>
+                                    </table>
+                                    <br>
+                                    <br>
+                            </div>
+                        <?php }; ?>
+                    <?php } ?>
+
                 </div>
-
 
             </div>
 
