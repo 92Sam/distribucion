@@ -7,6 +7,23 @@
 <input type="hidden" id="coso_id" value="<?php echo isset($coso_id) ? $coso_id : 'false'; ?>">
 <input type="hidden" id="preciosugerido" value="<?php echo isset($preciosugerido) ? 'true' : 'false'; ?>">
 <input type="hidden" id="idlocal" value="<?= $this->session->userdata('id_local'); ?>">
+    <style>
+legend {
+    display: block;
+    width: auto;
+    padding: 0px;
+    margin-bottom: 0;
+    font-size: inherit;
+    line-height: inherit;
+    border: auto;
+    border-bottom: none;
+}
+
+fieldset {
+    border: 3px groove threedface;
+    padding: 5px;
+}
+    </style>
 <script>
     var countproducto = 0;
 </script>
@@ -52,32 +69,85 @@
                     <li class="disabled"><a href="#step-2">
                             <h4 class="list-group-item-heading">Paso 2</h4>
 
-                            <p class="list-group-item-text">Seleccion de Productos</p>
+                            <p class="list-group-item-text">Seleccion de Productos y envio de Pedido</p>
                         </a></li>
-                    <li class="disabled"><a href="#step-3">
+                    <!-- <li class="disabled"><a href="#step-3" style="display: none;">
                             <h4 class="list-group-item-heading">Paso 3</h4>
 
                             <p class="list-group-item-text">Enviar Pedidos</p>
-                        </a></li>
+                        </a></li> -->
                 </ul>
             </div>
         </div>
         <div class="row setup-content" id="step-1">
             <div class="col-xs-12">
-                <div class="col-md-12 well">
+                <fieldset class="col-md-12" style="margin: -2% 1% 1% 0%;">
+                    <legend>Datos Claves</legend>
                     <div class="row">
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="form-group">
-                                <label for="cliente" class="control-label">Cliente</label>
-                                <?php //var_dump($venta[0]);?>
+                                <label for="zona" class="control-label">Zona</label>
+                                <select name="zona" id="zona" class='form-control' required="true" >
+                                    <option value="">Seleccione</option>
+
+                                </select>
+                            </div>
+                            <div id=check_zonas style="display:none">
+                                <input type="checkbox" name="todasZona" id="todasZonas"> Todas las zonas
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label class="control-label">Tipo de Pago</label>
+                                <select name="condicion_pago" id="cboModPag" onchange="activarText_ModoPago()"
+                                        class="form-control" <?= $disabled; ?>></select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label class="control-label">Documento</label>
+                                <select name="tipo_documento" id="tipo_documento" onchange="" class="form-control" <?= $disabled; ?>>
+                                    <option value="">Seleccione</option>
+                                    <option value="<?= BOLETAVENTA ?>" selected><?= BOLETAVENTA ?>
+                                    </option>
+                                    <option value="<?= FACTURA ?>"><?= FACTURA ?>
+                                    </option>
+                                </select>
+
+                            </div>
+                        </div>
+                        <div class="col-md-1">
+                            <div class="form-group">
+                                <button id="activate-step-2" class="btn btn-primary">Continuar</button>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <div class="sidebar-user-name"><?=
+
+                                    date('D d - m - Y').'<br> '.$this->session->userdata('nombre')
+
+                                ?></div>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+                <?php
+                ?>
+                <div id='content_opcion' style="display: none">
+                    <fieldset class="col-md-6" style="margin: 0% 1% 1% 0%; width: 49%">
+                        <legend>Cliente</legend>
+                        <div class="col-md-12">
+                            <div class="col-md-12 form-group">
+                                <label for="zona" class="control-label">Cliente</label>
                                 <select name="id_cliente" id="id_cliente" class='form-control'
-                                        required="true" <?= $disabled; ?>>
+                                        required="true" >
                                     <option value="">Seleccione</option>
                                     <?php if (count($clientes) > 0) { ?>
                                         <?php foreach ($clientes as $cl): ?>
                                             <option
                                                 value="<?php echo $cl['id_cliente']; ?>" <?php if ((isset($venta[0]['cliente_id']) and $venta[0]['cliente_id'] == $cl['id_cliente']) or (!isset($venta[0]['cliente_id']) && $cl['razon_social'] == 'Cliente Frecuente'))
-                                                echo 'selected' ?>><?php echo $cl['razon_social']; ?></option>
+                                                echo 'selected' ?>><?php echo $cl['razon_social']?></option>
                                         <?php endforeach; ?>
                                     <?php } else {
                                         if (isset($venta[0])) {
@@ -90,21 +160,130 @@
                                     } ?>
                                 </select>
 
+<div class="chosen-container chosen-container-single" style="width: 100%; display: none;" title="" id="id_cliente_chosen2">
+<a class="chosen-single" tabindex="-1">
+<span>Seleccione</span><div><b></b></div></a>
+<div class="chosen-drop">
+<div class="chosen-search">
+<input type="text" autocomplete="off">
+</div>
+<ul class="chosen-results">
+<li class="active-result result-selected" data-option-array-index="0">Seleccione</li>
+</ul></div></div>
+                            </div>
+
+                        </div>
+                        <div class="form-group col-md-12">
+                            <div class="col-md-2">
+                                <label for="zona" class="control-label panel-admin-text">Retenci&oacute;n</label>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="number" id="retencion" name="retencion" readonly="readonly" class="form-control">
+                            </div>
+
+                            <div class="col-md-4" id='cont_retencion'>
+                                <input id="cambiar_retencion" type="checkbox" name="cambiar_retencion">
+                                <label for="cambiar_retencion" class="control-label panel-admin-text"> Cambiar retenci&oacute;n</label>
                             </div>
                         </div>
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label class="control-label">Tipo de Pago</label>
-                                <select name="condicion_pago" id="cboModPag" onchange="activarText_ModoPago()"
-                                        class="form-control" <?= $disabled; ?>></select>
+                        <div class="form-group col-md-12">
+                            <div class="col-md-6">
+                                <label for="" class="control-label panel-admin-text"><u>Estado de cuenta actual</u></label>
                             </div>
                         </div>
-                        <div class="col-md-2">
-                            <div class="form-group">
-                                <button id="activate-step-2" class="btn btn-primary">Continuar</button>
+                        <div class="form-group col-md-12">
+                            <div class="col-md-4">
+                                <label for="" class="control-label panel-admin-text">Deuda Actual</label>
+                            </div>
+                            <div class="col-md-6 col-md-12">
+                                <input type="number" id="deuda_actual" name="deuda_actual" readonly="readonly" class="form-control">
                             </div>
                         </div>
-                    </div>
+                        <div class="form-group col-md-12">
+                            <div class="col-md-4">
+                                <label for="" class="control-label panel-admin-text">Documentos Pendientes</label>
+                            </div>
+                            <div class="col-md-6">
+                                <input type="number" id="docs_pendiente" name="docs_pendiente" readonly="readonly" class="form-control">
+                            </div>
+
+                        </div>
+                    </fieldset>
+
+                    <fieldset id='div_nota_pedido' class="col-md-6">
+                        <legend>Nota Pedido</legend>
+                            <div class="form-group col-md-12">
+                                <div class="col-md-3">
+                                    <label for="zona" class="control-label panel-admin-text">Cliente</label>
+                                </div>
+                                <div class="col-md-8">
+                                    <input type="text" class="form-control" name="cliente_nt" id="cliente_nt" style="">
+
+                                </div>
+
+                            </div>
+                            <div class="form-group col-md-12">
+                                <div class="col-md-3">
+                                    <label for="direccion_entrega_np" class="control-label panel-admin-text">Direccion Entrega</label>
+                                </div>
+                                <div class="col-md-8">
+                                    <select name="direccion_entrega_np" id="direccion_entrega_np" class='form-control' required="true" style="">
+                                        <option value="">Seleccione</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group col-md-12">
+                                <div class="col-md-3">
+                                    <label for="contacto_nt" class="control-label panel-admin-text">Contacto</label>
+                                </div>
+                                <div class="col-md-8">
+                                    <input type="text" name="contacto_nt" class="form-control" id="contacto_nt" style="">
+                                </div>
+                            </div>
+                    </fieldset>
+
+                    <fieldset id='div_documento' class="col-md-6" style="margin: 0% 0% 1% 0%;">
+                        <legend>Documento</legend>
+
+                        <div class="form-group col-md-12">
+                            <div class="col-md-3">
+                                <label for="ruc_dc" class="control-label panel-admin-text">RUC</label>
+                            </div>
+                            <div class="col-md-8">
+                                <input type="text" name="ruc_dc" class="form-control" id="ruc_dc" style="">
+                            </div>
+                        </div>
+                        <div class="form-group col-md-12">
+                            <div class="col-md-3">
+                                <label for="razon_social" class="control-label panel-admin-text">Razon Social</label>
+                            </div>
+                            <div class="col-md-8">
+                                <input type="text" name="razon_social" class="form-control" id="razon_social" style="">
+                            </div>
+                        </div>
+                        <div class="form-group col-md-12">
+                            <div class="col-md-3">
+                                <label for="direccion_principal" class="control-label panel-admin-text">Direcci&oacute;n Principal</label>
+                            </div>
+                            <div class="col-md-8">
+                                <select name="direccion_principal" readonly id="direccion_principal" class='form-control' required="true" >
+                                    <option value="">Seleccione</option>
+                                </select>
+                            </div>
+
+                        </div>
+                        <div class="form-group col-md-12">
+                            <div class="col-md-3">
+                                <label for="direccion_entrega_doc" class="control-label panel-admin-text">Direcci&oacute;n Entrega</label>
+                            </div>
+                            <div class="col-md-8">
+                                <select name="direccion_entrega_doc" id="direccion_entrega_doc" class='form-control' required="true" >
+                                    <option value="">Seleccione</option>
+                                </select>
+                            </div>
+
+                        </div>
+                    </fieldset>
                 </div>
             </div>
         </div>
@@ -114,7 +293,7 @@
                     <div class="row panel">
                         <div class="form-group">
                             <div class="col-md-1">
-                                <label for="cboTipDoc" class="control-label">Cliente</label>
+                                <label for="cboTipDoc" class="control-label panel-admin-text">Cliente</label>
                             </div>
                             <div class="col-md-5">
                                 <span
@@ -126,10 +305,10 @@
 
                     <div class="row panel">
                         <div class="form-group">
-                            <div class="col-md-1">
-                                <label for="cboTipDoc" class="control-label">Buscar Producto:</label>
+                            <div class="col-md-2">
+                                <label for="cboTipDoc" class="control-label panel-admin-text">Buscar Producto:</label>
                             </div>
-                            <div class="col-md-5">
+                            <div class="col-md-6">
                                 <select class="form-control" style="width: 100%" id="selectproductos"
                                         onchange="buscarProducto()" <?= $disabled; ?>></select>
                             </div>
@@ -141,7 +320,7 @@
                                         </button>
 
                                     <?php } ?>
-                                    <button id="activate-step-3" class="btn btn-primary">Continuar</button>
+                                    <!-- <button id="activate-step-3" class="btn btn-primary">Continuar</button> -->
                                 </div>
                             </div>
                             <?php if ($estatus_actual == PEDIDO_DEVUELTO) { ?>
@@ -158,7 +337,7 @@
 
                     <div class="row ">
 
-                        <div class=" col-md-8 block">
+                        <div class=" col-md-9 block">
                             <div id="" class="table-responsive" style="height: 400px; overflow-y: auto;">
                                 <table class="table dataTable dataTables_filter table-bordered">
                                     <thead>
@@ -211,13 +390,26 @@
                         </div>
                         <input type="hidden" id="accion_resetear" name="accion_resetear">
 
-                        <div class="col-md-4 block">
+                        <div class="col-md-3 block">
+
                             <div class="row">
                                 <div class="form-group">
-                                    <div class="col-md-3">
-                                        <label for="subTotal" class="control-label">Sub-Total:</label>
+                                    <div class="col-md-4">
+                                        <label for="cboTipDoc" class="control-label panel-admin-text">Fecha:</label>
                                     </div>
-                                    <div class="col-md-9">
+                                    <div class="col-md-8">
+                                        <input type="text" class="form-control" readonly id="fecha" name="fecha" style="text-align: right;"
+                                               value="<?= isset($venta[0]['fechaemision']) ? $venta[0]['fechaemision'] : date('d/m/Y'); ?>">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="form-group">
+                                    <div class="col-md-4">
+                                        <label for="subTotal" class="control-label panel-admin-text">Sub-Total:</label>
+                                    </div>
+                                    <div class="col-md-8">
                                         <div class="input-prepend input-append input-group">
                                             <span class="input-group-addon"><?= MONEDA; ?></span>
                                             <input type="text"
@@ -229,10 +421,10 @@
                             </div>
                             <div class="row">
                                 <div class="form-group">
-                                    <div class="col-md-3">
-                                        <label for="montoigv" class="control-label">Impuesto:</label>
+                                    <div class="col-md-4">
+                                        <label for="montoigv" class="control-label panel-admin-text">Impuesto:</label>
                                     </div>
-                                    <div class="col-md-9">
+                                    <div class="col-md-8">
                                         <div class="input-prepend input-append input-group">
                                             <span class="input-group-addon"><?= MONEDA; ?></span>
                                             <input type="text" class='input-square input-small form-control'
@@ -244,13 +436,13 @@
                             </div>
                             <div class="row">
                                 <div class="form-group">
-                                    <div class="col-md-3">
-                                        <label class="control-label">Total:</label>
+                                    <div class="col-md-4">
+                                        <label class="control-label panel-admin-text">Total:</label>
                                     </div>
-                                    <div class="col-md-9">
+                                    <div class="col-md-8">
                                         <div class="input-prepend input-append input-group">
                                             <span class="input-group-addon"><?= MONEDA; ?></span>
-                                            <input style="font-size: 14px; font-weight: bolder;" type="text"
+                                            <input style="font-size: 14px; font-weight: bolder; background: #FFEB9C;" type="text"
                                                    class='input-square input-small form-control'
                                                    name="totApagar"
                                                    id="totApagar"
@@ -259,61 +451,57 @@
                                     </div>
                                 </div>
                             </div>
+
+                            <br>
+
                             <div class="row">
                                 <div class="form-group">
-                                    <div class="col-md-3">
-                                        <label for="tipo_documento" class="control-label">Tipo Documento:</label>
-                                    </div>
-                                    <div class="col-md-9">
-                                        <select name="tipo_documento" id="tipo_documento"
-                                                class="form-control" <?= $disabled; ?>>
-                                            <option value="">Seleccione</option>
-                                            <option
-                                                value="<?= BOLETAVENTA ?>" <?php if ((isset($venta[0]['documento_tipo']) and $venta[0]['documento_tipo'] == BOLETAVENTA) or !isset($venta[0])) echo 'selected' ?>><?= BOLETAVENTA ?></option>
-                                            <option
-                                                value="<?= FACTURA ?>" <?php if (isset($venta[0]['documento_tipo']) and $venta[0]['documento_tipo'] == FACTURA) echo 'selected' ?>><?= FACTURA ?></option>
-                                        </select>
-                                    </div>
+                                        <div class="col-md-6" style="text-align: center">
+
+                                            <button class="btn btn-danger closegenerarventa" type="button">
+                                                <li class="glyphicon glyphicon-thumbs-down"></li> Cancelar
+                                            </button>
+
+                                        </div>
+                                        <div class="col-md-6">
+                                             <button class="btn btn-primary" type="button" id="realizarventa" onclick="javascript:hacerventa(0);">
+                                                <li class="glyphicon glyphicon-thumbs-up"></li> Guardar
+                                            </button>
+
+                                        </div>
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="form-group">
-                                    <div class="col-md-3">
-                                        <label for="cboTipDoc" class="control-label">Fecha:</label>
-                                    </div>
-                                    <div class="col-md-9">
-                                        <input type="text" class="form-control" readonly id="fecha" name="fecha"
-                                               value="<?= isset($venta[0]['fechaemision']) ? $venta[0]['fechaemision'] : date('d/m/Y'); ?>">
-                                    </div>
-                                </div>
-                            </div>
+
+                            <br>
+
                         </div>
 
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="row">
                                 <div class="form-group">
-                                    <div class="col-md-3">
+                                    <div class="col-md-5">
                                         <label class="control-label">Total Productos</label>
                                     </div>
-                                    <div class="col-md-9">
+                                    <div class="col-md-7">
                                         <span id="totalproductos"></span>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="row">
                                 <div class="form-group">
                                 </div>
                             </div>
                         </div>
+
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="row setup-content" id="step-3">
+        <div class="row setup-content" id="step-3" style="display: none;">
             <div class="col-xs-12">
                 <div class="col-md-12 well">
                     <div class="modal-body">
@@ -323,7 +511,7 @@
                         <div class="row">
                             <div class="form-group">
                                 <div class="col-md-3">
-                                    <label for="totApagar2" class="control-label">Total a Pagar:</label>
+                                    <label for="totApagar2" class="control-label">Total Pagar:</label>
                                 </div>
                                 <div class="col-md-9">
                                     <div class="input-prepend input-append input-group">
@@ -360,7 +548,7 @@
                             </div>
                         <?php } ?>
 
-                        <div class="row" id="importediv">
+                        <div class="row" id="importediv" style="display: none;">
                             <div class="form-group">
                                 <div class="col-md-3">
                                     <label for="importe" class="control-label">Importe:</label>
@@ -633,12 +821,179 @@
             });
         }
 
+
+        function zonaVendedor(){
+            if($('#todasZonas').is(':checked')){
+                var n = ''
+            }else{
+                var d = new Date();
+                var n = d.getDay();
+
+                if(n==0){
+                    n = 7
+                }
+            }
+            $('#zona option').remove();
+
+            $.ajax({
+                url: '<?=base_url()?>venta/zonaVendedor',
+                 type: "post",
+                dataType: "json",
+                data: {'vendedor_id': $('#vendedor').val(), 'dia': n},
+                success: function(data) {
+                    if (data != '') {
+                        if (data != '') {
+                             for (i = 0; i < data.length; i++) {
+                                 $('#zona').append('<option value=' + data[i].zona_id + '>' + data[i].zona_nombre + '</option>')
+                             }
+                        }
+                        $("#zona").trigger('chosen:updated');
+                    }
+zonaclientes()
+                }
+            });
+        }
+
+
+        function clienteDireccion(){
+            if($("#id_cliente").val()!=''){
+                $('#direccion_entrega_np option').remove();
+                $('#direccion_principal option').remove();
+                $('#direccion_entrega_doc option').remove();
+
+                $.ajax({
+                    url: '<?=base_url()?>venta/clienteDireccion',
+                     type: "post",
+                    dataType: "json",
+                    data: {'cliente_id': $('#id_cliente').val()},
+                    success: function(data) {
+                        if (data != '') {
+                                 for (i = 0; i < data.length; i++) {
+                                     $('#direccion_entrega_np').append('<option value=' + data[i].id + '>' + data[i].valor + '</option>')
+                                     if(data[i].principal == 1){
+
+                                        $('#direccion_principal').append('<option value=' + data[i].id + '>' + data[i].valor + '</option>')
+                                     }
+
+                                     $('#direccion_entrega_doc').append('<option value=' + data[i].id + '>' + data[i].valor + '</option>')
+                                 }
+                            $("#direccion_entrega_np").trigger('chosen:updated');
+                            $("#direccion_principal").trigger('chosen:updated');
+                            $("#direccion_entrega_doc").trigger('chosen:updated');
+                        }
+                    }
+                });
+            }
+        }
+
+    function dataCliente(){
+        if($("#id_cliente").val()!=''){
+
+            $.ajax({
+                url: '<?=base_url()?>venta/dataCliente',
+                 type: "post",
+                dataType: "json",
+                data: {'cliente_id': $('#id_cliente').val()},
+                success: function(data) {
+                    if (data != '') {
+                        $('#contacto_nt').val(data[0].representante)
+                        $('#retencion').val(data[0].linea_credito_valor)
+                        $('#deuda_actual').val(data[0].importe_deuda)
+
+                        if(data[0].tipo_cliente == 0 && $('#tipo_documento').val() == 'FACTURA'){
+                            $('#ruc_dc').val(data[0].identificacion)
+                            $('#razon_social').val(data[0].razon_social)
+                        }
+
+
+                    }
+                }
+            });
+        }
+    }
+
+function zonaclientes(){
+    if($('#zona').val() != null){
+        $('#id_cliente_chosen').show()
+        $('#id_cliente_chosen2').hide()
+        $('#check_zonas').show()
+    }else{
+        $('#id_cliente_chosen').hide()
+        $('#id_cliente_chosen2').show()
+        $('#check_zonas').hide()
+
+    }
+}
+
+
         $(document).ready(function () {
 
 
+            $('#cont_retencion').click(function(){
+                if($('#cambiar_retencion').is(':checked')){
+                    $('#retencion').prop( "readonly", false )
+
+                }else{
+                    $('#retencion').prop( "readonly", true )
+                }
+            })
+
+
+
+            tipoDoc()
+            $('#tipo_documento').change(function(){
+                tipoDoc()
+
+            })
+
+            $('#todasZonas').prop('checked', false)
+            zonaVendedor()
+            $('#todasZonas').click(function(){
+                zonaVendedor()
+
+            })
+
+            $("#direccion_entrega_np").change(function(){
+                if($('#tipo_documento').val() == 'FACTURA'){
+                    $('#direccion_entrega_doc').val($("#direccion_entrega_np").val())
+                }else{
+                    $('#direccion_entrega_doc').val('')
+                }
+                $("#direccion_entrega_doc").trigger('chosen:updated');
+            })
+
+            $("#direccion_entrega_doc").change(function(){
+                $('#direccion_entrega_np').val($("#direccion_entrega_doc").val())
+                $("#direccion_entrega_np").trigger('chosen:updated');
+
+            })
+
+
+            $("#id_cliente").change(function(){
+                clienteDireccion()
+                dataCliente()
+            })
+
             $("#id_cliente").change(function () {
-                $("#clienteinformativo").html($("#id_cliente option:selected").html());
+            $('#cliente_nt').val($('#id_cliente :selected').html())
+            $('#contacto_nt').val($('#id_cliente :selected').html())
+
+            $("#clienteinformativo").html($("#id_cliente option:selected").html());
             });
+
+            function tipoDoc(){
+                if($('#tipo_documento').val() != ''){
+                    $('#content_opcion').show()
+                    if($('#tipo_documento').val() == 'FACTURA'){
+                        $('#div_documento').show()
+                    }else{
+                        $('#div_documento').hide()
+                    }
+                }else{
+                    $('#content_opcion').hide()
+                }
+            }
+
             var data = {};
             data.vendedor = null;
             var useradmin = '<?=  $this->session->userdata("admin"); ?>';
@@ -691,8 +1046,12 @@
                 $(this).remove();
             })
 
+$('#zona').change(function(){
+    zonaclientes()
+})
 
         });
+
     </script>
 </div>
 

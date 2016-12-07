@@ -17,25 +17,51 @@
 <?php
 echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "</div>");
 ?>
-<div class="block">
-    <div class="row">
+<div class="span12">
+    <div class="block">
+        <form id="frmBuscar">
 
-        <div class="col-md-2">
+            <div class="row">
+                <div class="col-md-2">
+                    <label class="control-label panel-admin-text">Estado:</label>
 
-            <label class="control-label panel-admin-text">Estado:</label>
+                    <select name="estado" id="estado" class='cho form-control filter-input'>
+                        <option value="-1">TODOS</option>
+                        <option value="CERRADO" selected>CERRADO</option>
+                        <option value="CONFIRMADO">CONFIRMADO</option>
+                    </select>
+                </div>
 
-            <select id="estado" name="estado" class='cho form-control filter-input'>
-                <option value="">TODOS</option>
+                <div class="col-md-2">
+                    <label class="control-label panel-admin-text">Desde:</label>
 
-                <option selected  value="CERRADO">CERRADO</option>
-                <option  value="CONFIRMADO">CONFIRMADO</option>
+                    <input type="text" name="fecha_ini" id="fecha_ini" value=""
+                           required="true" readonly style="cursor: pointer;"
+                           class="form-control fecha input-datepicker filter-input">
+                </div>
+                <div class="col-md-2">
+                    <label class="control-label panel-admin-text">Hasta:</label>
 
-            </select>
+                    <input type="text" name="fecha_fin" id="fecha_fin" value=""
+                           required="true" readonly style="cursor: pointer;"
+                           class="form-control fecha input-datepicker filter-input">
+                </div>
 
-        </div>
+                <div class="col-md-3" style="padding:1.5% 1%">
+                <input type="checkbox" name="limpiar_fecha" id="limpiar_f">
+                    <label for="habilitar_f" class="control-label panel-admin-text">Limpiar Fechas</label>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <a class="btn btn-default" id="btn_buscar">
+                        <i class="fa fa-search"> </i>
+                    </a>
+                </div>
+
+
+            </div>
+            <br>
+        </form>
     </div>
-<br>
-<br>
+</div>
 <div class="block">
     <!-- Progress Bars Wizard Title -->
 
@@ -226,7 +252,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
 <script>$(function () {
         refreshajax();
             //busacodr estado
-            $("#estado").on("change", function () {
+            $("#btn_buscar").click("change", function () {
 
               refreshajax();
 
@@ -234,24 +260,42 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
 
 
             TablesDatatables.init();
+
+
+        $('#limpiar_f').click(function(){
+             if($('#limpiar_f').is(':checked')){
+                    $('#fecha_ini').val('')
+                    $('#fecha_fin').val('')
+
+                }
+        })
+
+
+        $('.fecha').change(function(){
+            if($('#fecha_ini').val() != '' || $('#fecha_fin').val() != ''){
+                $('#limpiar_f').prop('checked', false)
+            }
+        })
+
     });
 
 function refreshajax(){
     var estado = $("#estado").val();
+    var fechaIni = $("#fecha_ini").val();
+    var fechaFin = $("#fecha_fin").val();
 
 
     $.ajax({
         url: '<?= base_url()?>consolidadodecargas/buscarConsolidadoEstado',
-        data: {
-            'estado': estado
-
-        },
+        data: {'estado': estado, 'fecha_ini': fechaIni, 'fecha_fin':fechaFin },
         type: 'POST',
         success: function (data) {
 
             if (data.length > 0)
                 $("#tablaresultado").html(data);
             // $("#tablaresultado").dataTable();
+                            $('#limpiar_f').prop('checked', false)
+
         },
         error: function () {
 

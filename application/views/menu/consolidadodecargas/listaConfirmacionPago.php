@@ -8,6 +8,7 @@
             <th style="text-align: center;">Fecha Entrega</th>
             <th style="text-align: center;">Transportista</th>
             <th style="text-align: center;">Placa del cami&oacute;n</th>
+            <th style="text-align: center;">Fecha Cierre Liquidación</th>
             <th style="text-align: center;">Importe a liquidar</th>
             <th style="text-align: center;">Acciones</th>
 
@@ -26,6 +27,7 @@
                         <td style="text-align: center;"><?= date('d-m-Y', strtotime($consolidadoCamion['fecha'])) ?></td>
                         <td style="text-align: center;"><?= $consolidadoCamion['nombre'] ?></td>
                         <td style="text-align: center;"><?= $consolidadoCamion['camiones_placa'] ?></td>
+                        <td>Antonio</td>
                         <td style="text-align: center;"><?= number_format($consolidadoCamion['totalC'], 2) ?></td>
                         <td style="text-align: center;">
                             <?php if ($consolidadoCamion['status'] == "CERRADO"){ ?>
