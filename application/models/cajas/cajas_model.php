@@ -63,7 +63,9 @@ class cajas_model extends CI_Model
             $this->db->update('caja_desglose', array('principal' => 0));
         }
 
-
+        if($caja['saldo'] == ""){
+            $caja['saldo'] = 0;
+        }
 
         if ($id != FALSE) {
             $this->db->where('id', $id);

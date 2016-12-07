@@ -28,8 +28,10 @@ class cajas extends MY_Controller
     function caja_form($id = FALSE)
     {
 
+        $data['header_text'] = 'Nueva Caja';
         if ($id != FALSE) {
             $data['caja'] = $this->cajas_model->get($id);
+            $data['header_text'] = 'Editar Caja';
         }
 
         $data['locales'] = $this->local_model->get_all();
@@ -58,9 +60,10 @@ class cajas extends MY_Controller
 
     function caja_cuenta_form($caja_id, $id = FALSE)
     {
-
+        $data['header_text'] = 'Nueva Cuenta de Caja';
         if ($id != FALSE) {
             $data['cuenta'] = $this->cajas_model->get_cuenta($id);
+            $data['header_text'] = 'Editar Cuenta de Caja';
         }
 
         $data['caja_id'] = $caja_id;

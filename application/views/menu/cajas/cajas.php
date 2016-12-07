@@ -84,21 +84,7 @@
 
 <div class="modal fade" id="dialog_form" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
      aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 id="header_dialog_form" class="modal-title">Atención:</h4>
-            </div>
-            <div id="body_dialog_form" class="modal-body">
-                <p>Debe elegir algún pedido.</p>
-            </div>
-            <div class="modal-footer">
-                <a id="btn_save_form" href="#" class="btn btn-primary">Guardar</a>
-                <a href="#" class="btn btn-warning" data-dismiss="modal">Cancelar</a>
-            </div>
-        </div>
-    </div>
+
 </div>
 
 <script>
@@ -110,8 +96,7 @@
                 url: '<?php echo base_url('cajas/caja_form')?>',
                 type: 'post',
                 success: function (data) {
-                    $("#header_dialog_form").html('Nueva Caja');
-                    $("#body_dialog_form").html(data);
+                    $("#dialog_form").html(data);
                     $("#dialog_form").modal('show');
                 }
             });
@@ -122,8 +107,7 @@
                 url: '<?php echo base_url('cajas/caja_form')?>' + '/' + $(this).attr('data-id'),
                 type: 'post',
                 success: function (data) {
-                    $("#header_dialog_form").html('Editar Caja');
-                    $("#body_dialog_form").html(data);
+                    $("#dialog_form").html(data);
                     $("#dialog_form").modal('show');
                 }
             });
@@ -134,8 +118,7 @@
                 url: '<?php echo base_url('cajas/caja_cuenta_form')?>' + '/' + $(this).attr('data-caja_id'),
                 type: 'post',
                 success: function (data) {
-                    $("#header_dialog_form").html('Nueva Cuenta de Caja');
-                    $("#body_dialog_form").html(data);
+                    $("#dialog_form").html(data);
                     $("#dialog_form").modal('show');
                 }
             });
@@ -146,8 +129,7 @@
                 url: '<?php echo base_url('cajas/caja_cuenta_form')?>' + '/' + $(this).attr('data-caja_id') + '/' + $(this).attr('data-id'),
                 type: 'post',
                 success: function (data) {
-                    $("#header_dialog_form").html('Editar Cuenta de Caja');
-                    $("#body_dialog_form").html(data);
+                    $("#dialog_form").html(data);
                     $("#dialog_form").modal('show');
                 }
             });
