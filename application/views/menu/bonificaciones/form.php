@@ -35,12 +35,9 @@
                         </div>
                         <div class="col-md-4">
 
-
                             <select name="producto_condicion[]" id="producto_condicion" class='form-control selectpicker' multiple="true" >
 
-
                                 <?php foreach ($productos as $producto_condicion) { ?>
-
 
                                     <?php if ($bonificaciones_has_producto != null) {
                                         $cantidad = count($bonificaciones_has_producto);
@@ -155,7 +152,6 @@
                 </div>
                 <div class="row">
 
-
                     <div class="form-group">
                         <div class="col-md-2">
                             <label>Grupo Condición</label>
@@ -172,10 +168,24 @@
 
                         </div>
 
+                        <div class="col-md-2">
+                            <label>Grupo seleccionado</label>
+                        </div>
+                        <div class="col-md-4">
 
-
+                            <select name="grupos" id="grupos" class='cho form-control filter-input'>
+                                <option
+                                    value="<?php echo $grupo_clie_id; ?>"
+                                    id="<?php echo $grupo_clie; ?>">
+                                    <?php echo $grupo_clie; ?></option>
+                            </select>
+                        </div>
                     </div>
-                </div> <div class="row">
+
+                </div>
+
+
+                <div class="row">
                     <div class="form-group">
                         <div class="col-md-2">
                             <label>Sub Grupos</label>

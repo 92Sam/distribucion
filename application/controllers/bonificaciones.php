@@ -17,6 +17,10 @@ class bonificaciones extends MY_Controller
         $this->load->model('linea/lineas_model');
         $this->load->model('subfamilia/subfamilias_model');
         $this->load->model('subgrupos/subgrupos_model');
+        $this->load->model('clientesgrupos/clientes_grupos_model');
+
+        $this->load->library('Pdf');
+        $this->load->library('phpExcel/PHPExcel.php');
 
     }
 
@@ -40,21 +44,45 @@ class bonificaciones extends MY_Controller
         $data['bonificacioness'] = array();
         $bonificaciones = $this->bonificaciones_model->get_all();
 
+        $data["grupos"] = $this->clientes_grupos_model->get_all();
 
         foreach ($bonificaciones as $b) {
-
 
             $b['bonificaciones_has_producto'] = $this->bonificaciones_model->bonificaciones_has_producto('id_bonificacion', $b['id_bonificacion']);
           //  var_dump($b);
             $data['bonificacioness'][]=$b;
         }
 
-
         $dataCuerpo['cuerpo'] = $this->load->view('menu/bonificaciones/bonificaciones', $data, true);
         if ($this->input->is_ajax_request()) {
             echo $dataCuerpo['cuerpo'];
         } else {
             $this->load->view('menu/template', $dataCuerpo);
+        }
+    }
+
+    function lst_bonificaciones() {
+
+        if ($this->input->is_ajax_request()) {
+
+            $id = $this->input->post('grupos');
+
+            $data['bonificacioness'] = array();
+            $data['id_grupoclie'] = $id;
+
+            $bonificaciones = $this->bonificaciones_model->get_by_groupclie($id);
+
+            foreach ($bonificaciones as $b) {
+
+                $b['bonificaciones_has_producto'] = $this->bonificaciones_model->bonificaciones_has_producto('id_bonificacion', $b['id_bonificacion']);
+
+                $data['bonificacioness'][]=$b;
+            }
+
+            $this->load->view('menu/bonificaciones/tbl_bonificaciones', $data);
+
+        } else {
+            redirect(base_url() . 'bonificaciones/', 'refresh');
         }
     }
 
@@ -78,25 +106,33 @@ class bonificaciones extends MY_Controller
 
 
 
-    function form($id = FALSE, $p1 = FALSE, $p2 = FALSE)
+    function form($id = FALSE, $p1 = FALSE, $p2 = FALSE, $grupoid)
     {
 
         $data = array();
+
+        $grupo_id = $grupoid;
+
+        $data['grupo_clie_id'] = $grupo_id;
+
+        $grupo_name = $this->clientes_grupos_model->get_by('id_grupos_cliente', $grupo_id);
+        $data['grupo_clie'] = $grupo_name['nombre_grupos_cliente'];
+
         if ($id != FALSE && $id != 'false') {
             $data['bonificaciones'] = $this->bonificaciones_model->get_by('id_bonificacion', $id);
             $data['bonificaciones_has_producto'] = $this->bonificaciones_model->bonificaciones_has_producto('id_bonificacion', $id);
-
         }
-
 
         if ($p1 != FALSE && $p1 != 'false') {
             $data['unidades'] = $this->unidades_model->get_by_producto($p1);
 
         }
+
         if ($p2 != FALSE && $p2 != 'false') {
             $data['unidades_bono'] = $this->unidades_model->get_by_producto($p2);
 
         }
+
         $productos=$this->producto_model->select_all_producto();
         $data['productos'] = $productos;
         $data['familias'] = $this->familias_model->get_familias();
@@ -150,9 +186,14 @@ class bonificaciones extends MY_Controller
         } else {
             $bonificaciones['subgrupo_id'] = $this->input->post('subgrupos');
         }
+
+        $bonificaciones['id_grupos_cliente'] = $this->input->post('grupos');
+
         $productos = $this->input->post('producto_condicion', true);
+
         if (empty($id)) {
             $resultado = $this->bonificaciones_model->insertar($bonificaciones, $productos);
+
         } else {
             $bonificaciones['id_bonificacion'] = $id;
             $resultado = $this->bonificaciones_model->update($bonificaciones, $productos);
@@ -244,6 +285,254 @@ class bonificaciones extends MY_Controller
 
         header('Content-Type: application/json');
         echo json_encode($data);
+    }
+
+    function pdfExport($id) {
+
+        $grupo_clie_row = $this->clientes_grupos_model->get_by('id_grupos_cliente', $id);
+        $grupo_name = $grupo_clie_row['nombre_grupos_cliente'];
+
+        $bonificacioness = array();
+        $bonificaciones = $this->bonificaciones_model->get_by_groupclie($id);
+
+        foreach ($bonificaciones as $b) {
+
+            $b['bonificaciones_has_producto'] = $this->bonificaciones_model->bonificaciones_has_producto('id_bonificacion', $b['id_bonificacion']);
+            //  var_dump($b);
+            $bonificacioness[]=$b;
+        }
+
+        //PDF
+        //////////////////
+        $pdf = new Pdf('P', 'mm', 'A4', true, 'UTF-8', false);
+        $pdf->setPageOrientation('P');
+        $pdf->SetTitle('Reporte Bonificaciones');
+        $pdf->SetPrintHeader(false);
+        $pdf->setFooterData($tc = array(0, 64, 0), $lc = array(0, 64, 128));
+        $pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
+        //$pdf->SetMargins(PDF_MARGIN_LEFT, 0, PDF_MARGIN_RIGHT);
+        $pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
+        $pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
+        $pdf->setFontSubsetting(true);
+        $pdf->SetFont('helvetica', '', 14, '', true);
+        $pdf->SetFontSize(8);
+
+        $pdf->AddPage();
+
+        $html = '';
+        $html .= "<style type=text/css>";
+        $html .= "th{color: #000; font-weight: bold; background-color: #CED6DB; }";
+        $html .= "td{color: #222; font-weight: bold; background-color: #fff;}";
+        $html .= "table{border:0.2px}";
+        $html .= "body{font-size:15px}";
+        $html .= "</style>";
+
+
+        $html .= "<br><b><u>BONIFICACIONES</u></b><br>";
+
+        $html .= "<br>Grupo: " . $grupo_name . "</b><br><br>";
+
+        $html .= "<table><tr><thead>
+                        <th>ID</th>
+                        <th>Vencimiento</th>
+                        <th>Estado</th>
+                        <th>Productos</th>
+                        <th>Marca Condici&oacute;n</th>
+                        <th>Grupo Condici&oacute;n</th>
+                        <th>Sub Grupo Condici&oacute;n</th>
+                        <th>Familia Condici&oacute;n</th>
+                        <th>Sub Familia Condici&oacute;n</th>
+                        <th>L&iacute;nea Condici&oacute;n</th>
+                        <th>Unidad Condici&oacute;n</th>
+                        <th>Cantidad Condici&oacute;n</th>
+                        <th>Bono Producto</th>
+                        <th>Bono Unidad</th>
+                        <th>Bono Cantidad</th>";
+
+        $html .= "</tr></thead>";
+
+        $html .= "<tbody>";
+
+
+        if (count($bonificacioness) > 0) {
+            foreach ($bonificacioness as $bonificaciones) {
+                $html .= "<tr><td>" . $bonificaciones['id_bonificacion'] . "</td>";
+
+                $html .= "<td>" . $bonificaciones['fecha'] . "</td>";
+
+                $days = (strtotime(date('d-m-Y')) - strtotime($bonificaciones['fecha'])) / (60 * 60 * 24);
+                if ($days < 0)
+                    $days = 0;
+
+                if (floor($days) <= 0) {
+                    $estado = "Activa";
+                } else {
+                    $estado = "Vencida";
+                }
+
+                $html .= "<td>" . $estado . "</td>";
+
+                $html .= "<td>";
+
+                foreach($bonificaciones['bonificaciones_has_producto'] as $produc){
+                    $prod = sumCod($produc['id_producto']). " " .$produc['producto_nombre'];
+                    $html .= $prod;
+                    $html .= "<br>";
+                }
+
+                $html .= "</td>";
+
+                $html .= "<td>" . $bonificaciones['nombre_marca'] . "</td>";
+                $html .= "<td>" . $bonificaciones['nombre_grupo'] . "</td>";
+                $html .= "<td>" . $bonificaciones['nombre_subgrupo'] . "</td>";
+                $html .= "<td>" . $bonificaciones['nombre_familia'] . "</td>";
+                $html .= "<td>" . $bonificaciones['nombre_subfamilia'] . "</td>";
+                $html .= "<td>" . $bonificaciones['nombre_linea'] . "</td>";
+                $html .= "<td>" . $bonificaciones['nombre_unidad'] . "</td>";
+                $html .= "<td>" . $bonificaciones['cantidad_condicion'] . "</td>";
+                $html .= "<td>" . $bonificaciones['producto_bonificacion'] . "</td>";
+                $html .= "<td>" . $bonificaciones['unidad_bonificacion'] . "</td>";
+                $html .= "<td>" . $bonificaciones['bono_cantidad'] . "</td>";
+
+                $html .= "</tr>";
+
+            }
+        }
+
+        $html .= "</tbody></table>";
+
+        $pdf->writeHTML($html, true, 0, true, 0);
+        $pdf->lastPage();
+        $pdf->output('Bonificaciones.pdf', 'D');
+    }
+
+
+    function excelExport($id) {
+
+        $bonificacioness = array();
+        $bonificaciones = $this->bonificaciones_model->get_by_groupclie($id);
+
+        foreach ($bonificaciones as $b) {
+
+            $b['bonificaciones_has_producto'] = $this->bonificaciones_model->bonificaciones_has_producto('id_bonificacion', $b['id_bonificacion']);
+            //  var_dump($b);
+            $bonificacioness[]=$b;
+        }
+
+        $this->phpexcel->getProperties()
+            ->setTitle("ReporteBonificaciones")
+            ->setSubject("ReporteBonificaciones")
+            ->setDescription("ReporteBonificaciones")
+            ->setKeywords("ReporteBonificaciones")
+            ->setCategory("ReporteBonificaciones");
+
+        $columna[0] = "ID";
+        $columna[1] = "Vencimiento";
+        $columna[2] = "Estado";
+        $columna[3] = "Productos";
+        $columna[4] = "Marca condicion";
+        $columna[5] = "Grupo condicion";
+        $columna[6] = "Sub grupo condicion";
+        $columna[7] = "Familia condicion";
+        $columna[8] = "Sub familia condicion";
+        $columna[9] = "Linea condicion";
+        $columna[10] = "Unidad condicion";
+        $columna[11] = "Cantidad condicion";
+        $columna[12] = "Bono producto";
+        $columna[13] = "Bono unidad";
+        $columna[14] = "Bono cantidad";
+
+        for ($i = 0; $i < count($columna); $i++) {
+
+            $this->phpexcel->setActiveSheetIndex(0)
+                ->setCellValueByColumnAndRow($i, 1, $columna[$i]);
+
+        }
+
+        $row = 2;
+
+        if (count($bonificacioness) > 0) {
+            foreach ($bonificacioness as $b) {
+                $col = 0;
+
+                $this->phpexcel->setActiveSheetIndex(0)
+                    ->setCellValueByColumnAndRow($col++, $row, $b['id_bonificacion']);
+
+                $this->phpexcel->setActiveSheetIndex(0)
+                    ->setCellValueByColumnAndRow($col++, $row, $b['fecha']);
+
+                $days = (strtotime(date('d-m-Y')) - strtotime($b['fecha'])) / (60 * 60 * 24);
+                if ($days < 0)
+                    $days = 0;
+
+                if (floor($days) <= 0) {
+                    $estado = "Activa";
+                } else {
+                    $estado = "Vencida";
+                }
+
+                $this->phpexcel->setActiveSheetIndex(0)
+                    ->setCellValueByColumnAndRow($col++, $row, $estado);
+
+                $prod = "";
+
+                foreach($b['bonificaciones_has_producto'] as $produc){
+                    $prod .= sumCod($produc['id_producto']). " " .$produc['producto_nombre'] . ", ";
+
+                }
+
+                $this->phpexcel->setActiveSheetIndex(0)
+                    ->setCellValueByColumnAndRow($col++, $row, $prod);
+
+                $this->phpexcel->setActiveSheetIndex(0)
+                    ->setCellValueByColumnAndRow($col++, $row, $b['nombre_marca']);
+
+                $this->phpexcel->setActiveSheetIndex(0)
+                    ->setCellValueByColumnAndRow($col++, $row, $b['nombre_grupo']);
+
+                $this->phpexcel->setActiveSheetIndex(0)
+                    ->setCellValueByColumnAndRow($col++, $row, $b['nombre_subgrupo']);
+
+                $this->phpexcel->setActiveSheetIndex(0)
+                    ->setCellValueByColumnAndRow($col++, $row, $b['nombre_familia']);
+
+                $this->phpexcel->setActiveSheetIndex(0)
+                    ->setCellValueByColumnAndRow($col++, $row, $b['nombre_subfamilia']);
+
+                $this->phpexcel->setActiveSheetIndex(0)
+                    ->setCellValueByColumnAndRow($col++, $row, $b['nombre_linea']);
+
+                $this->phpexcel->setActiveSheetIndex(0)
+                    ->setCellValueByColumnAndRow($col++, $row, $b['nombre_unidad']);
+
+                $this->phpexcel->setActiveSheetIndex(0)
+                    ->setCellValueByColumnAndRow($col++, $row, $b['cantidad_condicion']);
+
+                $this->phpexcel->setActiveSheetIndex(0)
+                    ->setCellValueByColumnAndRow($col++, $row, $b['producto_bonificacion']);
+
+                $this->phpexcel->setActiveSheetIndex(0)
+                    ->setCellValueByColumnAndRow($col++, $row, $b['unidad_bonificacion']);
+
+                $this->phpexcel->setActiveSheetIndex(0)
+                    ->setCellValueByColumnAndRow($col++, $row, $b['bono_cantidad']);
+
+                $row++;
+
+            }
+        }
+
+        $this->phpexcel->getActiveSheet()->setTitle('ReporteBonificaciones');
+
+        $this->phpexcel->setActiveSheetIndex(0);
+
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="ReporteBonificaciones.xlsx"');
+        header('Cache-Control: max-age=0');
+
+        $objWriter = PHPExcel_IOFactory::createWriter($this->phpexcel, 'Excel2007');
+        $objWriter->save('php://output');
+
     }
 
 }

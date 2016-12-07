@@ -26,6 +26,8 @@ class producto extends MY_Controller
         $this->load->model('precio/precios_model');
         $this->load->model('local/local_model');
         $this->load->model('unidades_has_precio/unidades_has_precio_model');
+        $this->load->model('clientesgrupos/clientes_grupos_model');
+
         $this->load->library('Pdf');
         $this->load->library('phpExcel/PHPExcel.php');
         //$this->very_sesion();
@@ -457,6 +459,8 @@ $join = array('lineas', 'marcas', 'familia', 'grupos', 'proveedor', 'impuestos',
 
     function agregar($id = FALSE)
     {
+
+        $data["grupos_clie"] = $this->clientes_grupos_model->get_all();
 
         $data["marcas"] = $this->marcas_model->get_marcas();
         $data["lineas"] = $this->lineas_model->get_lineas();

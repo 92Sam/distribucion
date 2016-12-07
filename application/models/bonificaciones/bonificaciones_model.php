@@ -28,6 +28,27 @@ class bonificaciones_model extends CI_Model
         return $query->result_array();
     }
 
+    function get_by_groupclie($id) {
+
+        $this->db->select('bonificaciones.*,unidades.*, familia.*, grupos.*, marcas.*, lineas.*, p2.producto_nombre as producto_bonificacion, u2.nombre_unidad as unidad_bonificacion,subfamilia.*, subgrupo.*');
+        $this->db->where('bonificacion_status', 1);
+        $this->db->where('id_grupos_cliente', $id);
+
+        $this->db->join('unidades', 'unidades.id_unidad=bonificaciones.id_unidad', 'left');
+        $this->db->join('familia', 'familia.id_familia=bonificaciones.id_familia', 'left');
+        $this->db->join('grupos', 'grupos.id_grupo=bonificaciones.id_grupo', 'left');
+        $this->db->join('marcas', 'marcas.id_marca=bonificaciones.id_marca', 'left');
+        $this->db->join('lineas', 'lineas.id_linea=bonificaciones.id_linea', 'left');
+        $this->db->join('subfamilia', 'subfamilia.id_subfamilia=bonificaciones.subfamilia_id', 'left');
+        $this->db->join('subgrupo', 'subgrupo.id_subgrupo=bonificaciones.subgrupo_id', 'left');
+        $this->db->join('producto as p2', 'p2.producto_id=bonificaciones.bono_producto');
+        $this->db->join('unidades as u2', 'u2.id_unidad=bonificaciones.bono_unidad');
+
+        $query = $this->db->get('bonificaciones');
+        return $query->result_array();
+
+    }
+
     function get_by($campo, $valor)
     {
         $this->db->select('bonificaciones.*, unidades.*, p2.producto_nombre as producto_bonificacion, u2.nombre_unidad as unidad_bonificacion');
@@ -108,6 +129,7 @@ class bonificaciones_model extends CI_Model
         $this->db->insert('bonificaciones', $bonificaciones);
 
         $id = $this->db->insert_id();
+
         if ($productos != null) {
             foreach ($productos as $p) {
                 $producto = array(

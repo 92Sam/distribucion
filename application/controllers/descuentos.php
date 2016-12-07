@@ -10,6 +10,10 @@ class descuentos extends MY_Controller
         $this->load->model('descuentos/descuentos_model');
         $this->load->model('producto/producto_model');
         $this->load->model('unidades/unidades_model');
+        $this->load->model('clientesgrupos/clientes_grupos_model');
+
+        $this->load->library('Pdf');
+        $this->load->library('phpExcel/PHPExcel.php');
 
         //$this->very_sesion();
     }
@@ -23,7 +27,6 @@ class descuentos extends MY_Controller
 
     function index()
     {
-        //$data="";
 
         if ($this->session->flashdata('success') != FALSE) {
             $data ['success'] = $this->session->flashdata('success');
@@ -31,7 +34,11 @@ class descuentos extends MY_Controller
         if ($this->session->flashdata('error') != FALSE) {
             $data ['error'] = $this->session->flashdata('error');
         }
+
         $data["descuentos"] = $this->descuentos_model->get_all();
+
+        $data["grupos"] = $this->clientes_grupos_model->get_all();
+
         $dataCuerpo['cuerpo'] = $this->load->view('menu/descuentos/descuentos', $data, true);
 
         if ($this->input->is_ajax_request()) {
@@ -40,33 +47,66 @@ class descuentos extends MY_Controller
             $this->load->view('menu/template', $dataCuerpo);
         }
     }
+	
+	function lst_descuentos() {
+
+        if ($this->input->is_ajax_request()) {
+
+            $id = $this->input->post('grupos');
+
+            $data["grupo_id"] = $id;
+
+            $data["descuentos"] = $this->descuentos_model->get_by_groupclie($id);
+
+            $this->load->view('menu/descuentos/tbl_descuentos', $data);
+        } else {
+            redirect(base_url() . 'descuentos/', 'refresh');
+        }
+    }
+	
     function verReglaDescuento($id){
 
         $data['escalas'] = $this->descuentos_model->get_escalas_descuento($id);
         $data['escalas_h'] = $this->descuentos_model->get_escalas_descuento_head($id);
+        $data['id_desc'] = $id;
         $this->load->view('menu/descuentos/reglaDescuento',$data);
 
     }
-    function form($id = FALSE)
+    function form($id = FALSE, $grupoid)
     {
 
         $datax = array();
         $group = "producto.producto_id";
 
+        $grupo_id = $grupoid;
+
+        $datax['grupo_clie_id'] = $grupo_id;
+
+        $grupo_name = $this->clientes_grupos_model->get_by('id_grupos_cliente', $grupo_id);
+        $datax['grupo_clie'] = $grupo_name['nombre_grupos_cliente'];
+
+
         if ($id != FALSE) {
+
             $datax['descuentos'] = $this->descuentos_model->get_by('descuento_id', $id);
+            
+			$datax['escalas'] = $this->descuentos_model->get_escalas_by_descuento($id);
+            
+			$where = " where  descuentos.descuento_id='" . $id . "'";
+            
+			$datax['productosnoagrupados'] = $this->descuentos_model->edit_descuentos($where, false);
+            
+			$datax['sizenoagrupados'] = sizeof($datax['productosnoagrupados']);
+            
+			$datax['sizeescalas'] = sizeof($datax['escalas']);
 
-
-            $datax['escalas'] = $this->descuentos_model->get_escalas_by_descuento($id);
-            $where = " where  descuentos.descuento_id='" . $id . "'";
-            $datax['productosnoagrupados'] = $this->descuentos_model->edit_descuentos($where, false);
-            $datax['sizenoagrupados'] = sizeof($datax['productosnoagrupados']);
-            $datax['sizeescalas'] = sizeof($datax['escalas']);
-
+            $datax['prod_precios'] = $this->descuentos_model->get_prod_precioventa();
 
         }
-        $datax['productosenreglasdedescuento'] = $this->descuentos_model->edit_descuentos('where descuentos.status=1', $group);
 
+        $where_all = " where descuentos.status=1 AND descuentos.id_grupos_cliente ='" . $grupo_id . "'";
+
+        $datax['productosenreglasdedescuento'] = $this->descuentos_model->edit_descuentos($where_all, $group);
 
         $datax["lstProducto"] = $this->producto_model->select_all_producto();
 
@@ -183,17 +223,18 @@ class descuentos extends MY_Controller
                 $json['error'] = 'Algunos campos son requeridos';
             } else {
 
+                $id_grupo = $this->input->post('grupos');
+
                 $comp_cab_pie = array(
                     'nombre' => $this->input->post('nombre', true),
                 );
 
                 if ($this->input->post('id_de_descuento') == "") {
 
-
                     $rs = $this->descuentos_model->insertar_descuento($comp_cab_pie,
                         json_decode($this->input->post('lst_escalas', true)),
                         json_decode($this->input->post('lst_producto', true)),
-                        $this->input->post('precio'));
+                        $this->input->post('precio'),$id_grupo);
 
                 } else {
 
@@ -213,13 +254,173 @@ class descuentos extends MY_Controller
             }
         } else {
 
-
             $json['error'] = 'Ha ocurrido un error al procesar la solicitud';
-
 
         }
         echo json_encode($json);
     }
 
+    function pdfExport($id) {
+
+        $desc_row = $this->descuentos_model->get_by('descuento_id', $id);
+        $grupo_id = $desc_row['id_grupos_cliente'];
+
+        $grupo_clie_row = $this->clientes_grupos_model->get_by('id_grupos_cliente', $grupo_id);
+        $grupo_name = $grupo_clie_row['nombre_grupos_cliente'];
+
+        $escalas = $this->descuentos_model->get_escalas_descuento($id);
+        $escalas_h = $this->descuentos_model->get_escalas_descuento_head($id);
+
+        //PDF
+        //////////////////
+        $pdf = new Pdf('P', 'mm', 'A4', true, 'UTF-8', false);
+        $pdf->setPageOrientation('P');
+        $pdf->SetTitle('Reporte Descuentos');
+        $pdf->SetPrintHeader(false);
+        $pdf->setFooterData($tc = array(0, 64, 0), $lc = array(0, 64, 128));
+        $pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
+        //$pdf->SetMargins(PDF_MARGIN_LEFT, 0, PDF_MARGIN_RIGHT);
+        $pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
+        $pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
+        $pdf->setFontSubsetting(true);
+        $pdf->SetFont('helvetica', '', 14, '', true);
+        $pdf->SetFontSize(8);
+
+        $pdf->AddPage();
+
+        $html = '';
+        $html .= "<style type=text/css>";
+        $html .= "th{color: #000; font-weight: bold; background-color: #CED6DB; }";
+        $html .= "td{color: #222; font-weight: bold; background-color: #fff;}";
+        $html .= "table{border:0.2px}";
+        $html .= "body{font-size:15px}";
+        $html .= "</style>";
+
+
+        $html .= "<br><b><u>DESCUENTOS</u></b><br>";
+
+        $html .= "<br>Grupo: " . $grupo_name . "</b><br><br>";
+
+        $html .= "<table><tr><thead>
+                        <th>C&oacute;digo</th>
+                        <th>Producto</th>";
+
+        foreach($escalas_h as $escala){
+            $html .= "<th>" . $escala['cantidad_minima'] . "--" . $escala['cantidad_maxima'] . "</th>";
+        }
+
+        $html .= "</tr></thead>";
+
+        $array_destino = array();
+        $valor = array();
+
+        foreach($escalas as $escala) {
+
+            $valor['nombre'] = $escala['producto_nombre'];
+            $valor['id'] = $escala['producto_id'];
+            if (!in_array($valor,$array_destino)){
+                $array_destino[] = $valor;
+            }
+        }
+
+        $html .= "<tbody>";
+        foreach ($array_destino as $valor) {
+            $html .= "<tr><td>" . sumCod($valor['id']) . "</td>";
+
+            $html .= "<td>" . $valor['nombre'] . "</td>";
+
+                foreach($escalas as $escala) {
+                    if ($valor['nombre'] == $escala['producto_nombre']) {
+                        $html .= "<td>" . $escala['precio'] . "</td>";
+
+                    }
+                }
+
+            $html .= "</tr>";
+        }
+
+        $html .= "</tbody></table>";
+
+        $pdf->writeHTML($html, true, 0, true, 0);
+        $pdf->lastPage();
+        $pdf->output('Descuentos.pdf', 'D');
+    }
+
+
+    function excelExport($id) {
+
+        $escalas = $this->descuentos_model->get_escalas_descuento($id);
+
+        $escalas_h = $this->descuentos_model->get_escalas_descuento_head($id);
+
+        $this->phpexcel->getProperties()
+            ->setTitle("ReporteDescuentos")
+            ->setSubject("ReporteDescuentos")
+            ->setDescription("ReporteDescuentos")
+            ->setKeywords("ReporteDescuentos")
+            ->setCategory("ReporteDescuentos");
+
+        $columna[0] = "Codigo";
+        $columna[1] = "Producto";
+
+        $c = 2;
+
+        foreach($escalas_h as $escala){
+            $columna[$c] = $escala['cantidad_minima'] . "--" . $escala['cantidad_maxima'];
+            $c++;
+        }
+
+        for ($i = 0; $i < count($columna); $i++) {
+
+            $this->phpexcel->setActiveSheetIndex(0)
+                ->setCellValueByColumnAndRow($i, 1, $columna[$i]);
+
+        }
+
+        $array_destino = array();
+        $valor = array();
+
+        foreach($escalas as $escala) {
+
+            $valor['nombre'] = $escala['producto_nombre'];
+            $valor['id'] = $escala['producto_id'];
+            if (!in_array($valor,$array_destino)){
+                $array_destino[] = $valor;
+            }
+        }
+
+        $row = 2;
+
+        foreach ($array_destino as $valor) {
+            $col = 0;
+
+            $this->phpexcel->setActiveSheetIndex(0)
+                ->setCellValueByColumnAndRow($col++, $row, sumCod($valor['id']));
+
+            $this->phpexcel->setActiveSheetIndex(0)
+                ->setCellValueByColumnAndRow($col++, $row, $valor['nombre']);
+
+            foreach($escalas as $escala) {
+                if ($valor['nombre'] == $escala['producto_nombre']) {
+                    $this->phpexcel->setActiveSheetIndex(0)
+                        ->setCellValueByColumnAndRow($col++, $row, $escala['precio']);
+                }
+            }
+
+            $row++;
+        }
+
+        $this->phpexcel->getActiveSheet()->setTitle('ReporteDescuentos');
+
+        $this->phpexcel->setActiveSheetIndex(0);
+
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="ReporteDescuentos.xlsx"');
+        header('Cache-Control: max-age=0');
+
+        $objWriter = PHPExcel_IOFactory::createWriter($this->phpexcel, 'Excel2007');
+        $objWriter->save('php://output');
+
+    }
 
 }
