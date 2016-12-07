@@ -425,6 +425,36 @@ $primary_nav = array(
             ),
         )
     ),
+    array(
+        'name' => 'CAJA',
+        'slug' => 'cajas',
+        'sub' => array(
+            array(
+                'name' => 'Cuadre de Caja',
+                'url' => $ruta . 'cajas/cierre',
+                'icon' => 'gi gi-nameplate',
+                'slug' => 'cajas'
+            ),
+            array(
+                'name' => 'Traspaso',
+                'url' => $ruta . 'cajas/traspaso',
+                'icon' => 'gi gi-nameplate',
+                'slug' => 'cajas'
+            ),
+            array(
+                'name' => 'Ajuste',
+                'url' => $ruta . 'cajas/ajuste',
+                'icon' => 'gi gi-nameplate',
+                'slug' => 'cajas'
+            ),
+            array(
+                'name' => 'Administrar',
+                'url' => $ruta . 'cajas',
+                'icon' => 'gi gi-nameplate',
+                'slug' => 'cajas'
+            )
+        )
+    ),
 
     // Reportes
     array(
@@ -659,12 +689,6 @@ $primary_nav = array(
                 'url' => $ruta . 'banco',
                 'icon' => 'gi gi-kiosk',
                 'slug' => 'bancos'
-            ),
-            array(
-                'name' => 'Caja',
-                'url' => $ruta . 'cajas',
-                'icon' => 'gi gi-nameplate',
-                'slug' => 'cajas'
             )
         )
 

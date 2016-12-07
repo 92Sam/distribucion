@@ -11,97 +11,98 @@ class cajas_model extends CI_Model
 
     function get_all()
     {
+        $result = $this->db->join('local', 'local.int_local_id = caja.local_id')
+            ->join('usuario', 'usuario.nUsuCodigo = caja.responsable_id')
+            ->get('caja')->result();
 
-        $query = $this->db->select('*');
-        $query = $this->db->where('status',1);
-        $query = $this->db->join('local', 'local.int_local_id=caja.local');
-        $query = $this->db->join('usuario', 'usuario.nUsuCodigo=caja.responsable');
-        $query = $this->db->get('caja');
+        foreach ($result as $desglose) {
+            $desglose->desgloses = $this->db->where('caja_id', $desglose->id)
+                ->join('usuario', 'usuario.nUsuCodigo = caja_desglose.responsable_id')
+                ->get('caja_desglose')->result();
+        }
 
-        return $query->result_array();
-
+        return $result;
     }
 
-    function get_by($campo, $valor)
+    function get($id)
     {
-        $this->db->where($campo, $valor);
-        $query = $this->db->get('caja');
-        return $query->row_array();
+        return $this->db->get_where('caja', array('id' => $id))->row();
     }
-  
-    function insertar($cajas)
+
+    function get_cuenta($id)
+    {
+        return $this->db->get_where('caja_desglose', array('id' => $id))->row();
+    }
+
+
+    function save($caja, $id = FALSE)
     {
 
-        $this->db->trans_start();
-            if ($this->db->insert('caja', $cajas)) {
-                $id_caja = $this->db->insert_id();
-                $usuarios = $this->input->post('usuarios', true);
-                
-                if ($usuarios != null) {
-
-                    foreach ($usuarios as $usuario) { 
-                        $usuario = array(
-                        'caja' => $id_caja,
-                    );
-                }
-                
-                    foreach ($usuarios as $user) {
-                        $this->db->where('usuario.nUsuCodigo', $user);    
-                        $this->db->update('usuario', $usuario);        
-                    }
-
-                $this->db->trans_complete();
-
-                return true;
-            } else {
-                return false;
-            }
+        if ($id != FALSE) {
+            $this->db->where('id', $id);
+            $this->db->update('caja', $caja);
+            return $id;
+        } else {
+            $this->db->insert('caja', $caja);
+            return $this->db->insert_id();
         }
     }
 
-    function update($cajas)
+    function save_cuenta($caja, $id = FALSE)
     {
-        $this->db->trans_start();
-        
-        $this->db->where('caja.caja_id', $cajas['caja_id']);
+        $this->db->where('caja_id', $caja['caja_id']);
+        $this->db->from('caja_desglose');
+        if($this->db->count_all_results() == 0){
+            $caja['principal'] == 1;
+        }
 
-            if ($this->db->update('caja', $cajas)) {
-                $data = array('caja' => NULL,);
-                $this->db->where('usuario.caja', $cajas['caja_id']);
-                $this->db->update('usuario', $data);
+        if ($caja['principal'] == 1) {
+            $caja['estado'] == 1;
+            $this->db->where('principal', 1);
+            $this->db->where('caja_id', $caja['caja_id']);
+            $this->db->update('caja_desglose', array('principal' => 0));
+        }
 
-                $usuarios = $this->input->post('usuarios', true);            
 
-                if ($usuarios != null) {
-                
-                    foreach ($usuarios as $user) {
-                        $usuario = array(
-                            'caja' => $cajas['caja_id'],
-                        );
-                    }
 
-                    foreach ($usuarios as $user) {
-                        $this->db->where('usuario.nUsuCodigo', $user);    
-                        $this->db->update('usuario', $usuario);     
-                    }   
-                }   
-               $this->db->trans_complete();
-
-                return true;
-            } else {
-                return false;
-            } 
-        
+        if ($id != FALSE) {
+            $this->db->where('id', $id);
+            $this->db->update('caja_desglose', $caja);
+            return $id;
+        } else {
+            $this->db->insert('caja_desglose', $caja);
+            return $this->db->insert_id();
+        }
     }
 
-    function get_all_user()
+    function valid_caja($data, $id = FALSE)
     {
-        $this->db->select('*');
-        $this->db->from('usuario');
-        $this->db->where('activo', 1);
-   //     $this->db->where('deleted', 0);
-        $query = $this->db->get();
-        return $query->result_array();
+        $this->db->where('local_id', $data['local_id']);
+        $this->db->where('moneda_id', $data['moneda_id']);
+        if ($id != FALSE)
+            $this->db->where('id !=', $id);
+        $this->db->from('caja');
+
+        if ($this->db->count_all_results() == 0)
+            return TRUE;
+        else
+            return FALSE;
     }
+
+    function valid_caja_cuenta($data, $id = FALSE)
+    {
+
+        $this->db->where('descripcion', $data['descripcion']);
+        $this->db->where('responsable_id', $data['responsable_id']);
+        if ($id != FALSE)
+            $this->db->where('id !=', $id);
+        $this->db->from('caja_desglose');
+
+        if ($this->db->count_all_results() == 0)
+            return TRUE;
+        else
+            return FALSE;
+    }
+
 
 }

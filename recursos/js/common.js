@@ -1,6 +1,13 @@
 /**
  * Created by Jhainey on 10/10/2015.
  */
+function show_msg(type, msg) {
+    $.bootstrapGrowl(msg, {
+        type: type,
+        delay: 5000,
+        allow_dismiss: true
+    });
+}
 
 var region = {
 
