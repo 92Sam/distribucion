@@ -19,6 +19,18 @@ class descuentos_model extends CI_Model
         return $query->result_array();
 
     }
+	
+	function get_by_groupclie($id)
+    {
+
+        $this->db->where('status', 1);
+        $this->db->where('id_grupos_cliente', $id);
+        $this->db->order_by('nombre', 'asc');
+        $query = $this->db->get('descuentos');
+        return $query->result_array();
+
+    }
+	
     function get_desc_list($condicion)
     {
 
@@ -128,13 +140,23 @@ class descuentos_model extends CI_Model
         return $query->result_array();
     }
 
+    function get_prod_precioventa()
+    {
+        $this->db->select('*');
+        $this->db->from('producto');
+        $this->db->join('unidades_has_precio', 'unidades_has_precio.id_producto = producto.producto_id', 'join');
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+
     function edit_descuentos($where, $group)
     {
 
-        $sql = "SELECT * FROM escala_producto JOIN producto on escala_producto.producto=producto.producto_id
-                 JOIN unidades ON escala_producto.unidad=unidades.id_unidad
-                JOIN escalas ON escala_producto.`escala`=escalas.`escala_id`
-                JOIN descuentos ON descuentos.`descuento_id`=escalas.`regla_descuento`
+        $sql = "SELECT * FROM escala_producto
+                JOIN producto ON escala_producto.producto = producto.producto_id
+                JOIN unidades ON escala_producto.unidad = unidades.id_unidad
+                JOIN escalas ON escala_producto.escala = escalas.escala_id
+                JOIN descuentos ON descuentos.descuento_id = escalas.regla_descuento
         ";
 
         if ($where != false) {
@@ -147,9 +169,10 @@ class descuentos_model extends CI_Model
             $sql .= " group by " . $group . " ";
         }
 
+
         $sql .= " order by producto_id asc ";
         $query = $this->db->query($sql);
-       // echo $this->db->last_query();
+        //echo $this->db->last_query();
         return $query->result_array();
 
     }
@@ -215,7 +238,7 @@ class descuentos_model extends CI_Model
     }
 
 
-    function insertar_descuento($cab_pie, $detalle_escala, $detalle_producto, $detalle_precio)
+    function insertar_descuento($cab_pie, $detalle_escala, $detalle_producto, $detalle_precio, $grupo)
     {
 
         $this->db->trans_start(true);
@@ -224,6 +247,7 @@ class descuentos_model extends CI_Model
 
         $descuento = array(
             'nombre' => $cab_pie['nombre'],
+            'id_grupos_cliente' => $grupo,
         );
 
         $this->db->insert('descuentos', $descuento);

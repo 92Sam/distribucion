@@ -14,15 +14,28 @@
                 <div class="row">
                     <div class="form-group">
                         <div class="col-md-1">
-                            Nombre
+                            Nombre:
                         </div>
-                        <div class="col-md-11">
+                        <div class="col-md-6">
                             <input type="text" name="nombre" id="nombre" required="true" class="form-control"
                                    value="<?php if (isset($descuentos['nombre'])) echo $descuentos['nombre']; ?>">
                         </div>
 
                         <input type="hidden" name="id_de_descuento" id="" required="true"
                                value="<?php if (isset($descuentos['descuento_id'])) echo $descuentos['descuento_id']; ?>">
+
+                        <div class="col-md-2">
+                            Grupo seleccionado:
+                        </div>
+                        <div class="col-md-3">
+
+                            <select name="grupos" id="grupos" class='cho form-control filter-input'>
+                                <option
+                                    value="<?php echo $grupo_clie_id; ?>"
+                                    id="<?php echo $grupo_clie; ?>">
+                                    <?php echo $grupo_clie; ?></option>
+                            </select>
+                        </div>
                     </div>
                 </div>
 
@@ -132,26 +145,17 @@
                         </div>
                     </div>
                     <div class="col-md-2">
-                        <br>
 
                         <div class="col-md-4">
                             <a id="listar" class="btn btn-primary" data-placement="bottom"
                                style="margin-top:-2%;cursor: pointer;"
                                onclick="accionProductos();">Agregar</a>
                         </div>
-                        <!--div class="col-md-4">
-                             <a id="listarTodos" class="btn btn-primary" data-placement="bottom"
-                               style="margin-top:-2%;cursor: pointer;"
-                               onclick="listarTodos();">Agregar Todos</a>
-                        </div>
 
-                        <div class="col-md-4">
-                             <a id="quitarTodos" class="btn btn-danger" data-placement="bottom"
-                               style="margin-top:-2%;cursor: pointer;"
-                               onclick="del_listaTodo();">Quitar Todos</a>
-                        </div> -->
                     </div>
                 </div>
+
+                <br>
 
                 <div class="row-fluid">
                     <div class="span12">
@@ -165,27 +169,33 @@
                                     $contador_precios = 1;
                                     foreach ($escalas as $escala) {
                                         ?>
-                                        <div class="escalita table table-striped dataTable table-condensed table-bordered dataTable-noheader
-         table-has-pover dataTable-nosort" id="escalita<?php echo $contador_escala; ?>"> Escala
-                                            del <?php echo $escala['cantidad_minima']; ?>
-                                            hasta <?php echo $escala['cantidad_maxima']; ?>
-                                            <div class="btn-group">
-                                                <a class="btn btn-default btn-mini btn-default" data-toggle="tooltip"
-                                                   title="Eliminar"
-                                                   data-original-title="Eliminar"
-                                                   onclick="quitarEscala(<?php echo $contador_escala; ?>)">
-                                                    <i class="fa fa-trash-o"></i></a></div>
-                                            <div class="lstTabla" id="lstTabla<?php echo $contador_escala; ?>">
+                                        <div class="escalita table table-striped table-condensed table-bordered dataTable-noheader
+         table-has-pover dataTable-nosort" id="escalita<?php echo $contador_escala; ?>">
+                                            <strong>Grupo: </strong><?php echo $grupo_clie; ?>
+                                            <div align="right">
+                                                Escala del <?php echo $escala['cantidad_minima']; ?>
+                                                hasta <?php echo $escala['cantidad_maxima']; ?>
+
+                                                <div class="btn-group">
+                                                    <a class="btn btn-default btn-mini btn-default" data-toggle="tooltip"
+                                                       title="Eliminar"
+                                                       data-original-title="Eliminar"
+                                                       onclick="quitarEscala(<?php echo $contador_escala; ?>)">
+                                                        <i class="fa fa-trash-o"></i></a></div>
+
+                                                <div class="lstTabla" id="lstTabla<?php echo $contador_escala; ?>">
+                                            </div>
 
                                                 <table id="productos<?php echo $contador_escala; ?>" class="copiar table table-striped dataTable table-condensed
             table-bordered dataTable-noheader table-has-pover dataTable-nosort" data-nosort="0">
                                                     <thead>
                                                     <tr>
-                                                        <th>Codigo</th>
+                                                        <th>C&oacute;digo</th>
                                                         <th>Producto</th>
                                                         <th>Unidad</th>
-                                                        <th>Precio</th>
-                                                        <th>Action</th>
+                                                        <th>Precio Venta</th>
+                                                        <th>Precio Escala</th>
+                                                        <th>Acci&oacute;n</th>
                                                     </tr>
                                                     </thead>
                                                     <tbody class="agrega"
@@ -201,14 +211,18 @@
 
                                                             ?>
 
-
                                                             <tr id="tr<?= $contador_escala ?><?= $productosnoagrupados[$p]["producto_id"] ?>">
                                                                 <td style="text-align: center;"><?= sumCod($productosnoagrupados[$p]["producto_id"]) ?>
                                                                 </td>
-                                                                <td><?= $productosnoagrupados[$p]['producto_nombre'] ?>
+                                                                <td width="50%"><?= $productosnoagrupados[$p]['producto_nombre'] ?>
                                                                 </td>
                                                                 <td><?= $productosnoagrupados[$p]['nombre_unidad'] ?>
                                                                 </td>
+                                                                <?php foreach ($prod_precios as $pp) {
+                                                                    if ($pp['producto_id'] == $productosnoagrupados[$p]["producto_id"]) { ?>
+                                                                      <td width="15%"><?= $pp['precio'] ?></td>
+                                                                    <?}
+                                                                }?>
                                                                 <td><input type="number" name="precio[]" min="0"
                                                                            id="precio<?= $contador_escala ?><?= sumCod($productosnoagrupados[$p]["producto_id"]) ?>"
                                                                            value="<?= $productosnoagrupados[$p]["precio"] ?>"
@@ -265,8 +279,10 @@
                         </div>
                     </div>
 
+                    <br>
 
                     <br>
+
                 </div>
             </div>
             <div class="modal-footer">
@@ -308,10 +324,6 @@
     </div>
 
 </div>
-
-
-
-
 
 
 <script type="text/javascript">
