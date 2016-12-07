@@ -78,7 +78,7 @@
                         <a class="btn btn-default" data-toggle="tooltip" title="Editar"
                            data-original-title="fa fa-comment-o"
                            href="#"
-                           onclick="editar('<?php echo $bonificaciones["id_bonificacion"] ?>','<?php echo isset($bonificaciones['producto_id']) ? $bonificaciones['producto_id'] : "false" ?>','<?php echo $bonificaciones['bono_producto'] ?>')">
+                           onclick="editar('<?php echo $bonificaciones["id_bonificacion"] ?>','<?php echo isset($bonificaciones['producto_id']) ? $bonificaciones['producto_id'] : "false" ?>','<?php echo $bonificaciones['bono_producto'] ?>', '<?php echo $id_grupoclie ?>')">
                             <i class="fa fa-edit"></i>
                         </a>
 
@@ -95,7 +95,3 @@
     } ?>
     </tbody>
 </table>
-<a href="<?= $ruta ?>bonificaciones/pdfExport/<?php echo $id_grupoclie;?>/" id="generarpdf" class="btn  btn-default btn-lg" data-toggle="tooltip"
-   title="Exportar a PDF" data-original-title="fa fa-file-pdf-o"><i class="fa fa-file-pdf-o fa-fw"></i></a>
-<a href="<?= $ruta ?>bonificaciones/excelExport/<?php echo $id_grupoclie;?>/" id="generarexcel" class="btn btn-default btn-lg" data-toggle="tooltip"
-   title="Exportar a Excel" data-original-title="fa fa-file-excel-o"><i class="fa fa-file-excel-o fa-fw"></i></a>

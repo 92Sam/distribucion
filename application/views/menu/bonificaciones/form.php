@@ -169,19 +169,15 @@
                         </div>
 
                         <div class="col-md-2">
-                            <label>Grupos</label>
+                            <label>Grupo seleccionado</label>
                         </div>
                         <div class="col-md-4">
 
                             <select name="grupos" id="grupos" class='cho form-control filter-input'>
-                                <?php if (count($grupos_clie) > 0): ?>
-                                    <?php foreach ($grupos_clie as $g_clie): ?>
-                                        <option
-                                            value="<?php echo $g_clie['id_grupos_cliente']; ?>"
-                                            id="<?php echo $g_clie['nombre_grupos_cliente']; ?>">
-                                            <?php echo $g_clie['nombre_grupos_cliente']; ?></option>
-                                    <?php endforeach; ?>
-                                <?php endif; ?>
+                                <option
+                                    value="<?php echo $grupo_clie_id; ?>"
+                                    id="<?php echo $grupo_clie; ?>">
+                                    <?php echo $grupo_clie; ?></option>
                             </select>
                         </div>
                     </div>

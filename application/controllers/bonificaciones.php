@@ -106,12 +106,17 @@ class bonificaciones extends MY_Controller
 
 
 
-    function form($id = FALSE, $p1 = FALSE, $p2 = FALSE)
+    function form($id = FALSE, $p1 = FALSE, $p2 = FALSE, $grupoid)
     {
 
         $data = array();
 
-        $data["grupos_clie"] = $this->clientes_grupos_model->get_all();
+        $grupo_id = $grupoid;
+
+        $data['grupo_clie_id'] = $grupo_id;
+
+        $grupo_name = $this->clientes_grupos_model->get_by('id_grupos_cliente', $grupo_id);
+        $data['grupo_clie'] = $grupo_name['nombre_grupos_cliente'];
 
         if ($id != FALSE && $id != 'false') {
             $data['bonificaciones'] = $this->bonificaciones_model->get_by('id_bonificacion', $id);

@@ -65,6 +65,19 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable">', "</
 
 </div>
 
+<div class="span12">
+    <div class="block">
+
+        <div class="row">
+
+            <a href="javascript:window.location = pdfUrl();" id="generarpdf" class="btn  btn-default btn-lg" data-toggle="tooltip"
+               title="Exportar a PDF" data-original-title="fa fa-file-pdf-o"><i class="fa fa-file-pdf-o fa-fw"></i></a>
+            <a href="javascript:window.location = excelUrl()" id="generarexcel" class="btn btn-default btn-lg" data-toggle="tooltip"
+               title="Exportar a Excel" data-original-title="fa fa-file-excel-o"><i class="fa fa-file-excel-o fa-fw"></i></a>
+        </div>
+    </div>
+</div>
+
 
 <!-- Modales for Messages -->
 <div class="modal hide" id="mOK">
@@ -119,15 +132,30 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable">', "</
         });
     }
 
+    function pdfUrl() {
+        var id_gruclie = $("#grupos option:selected").val();
+        var pdf = "<?= $ruta ?>bonificaciones/pdfExport/" + id_gruclie + '/';
+
+        return pdf;
+
+    }
+
+    function excelUrl() {
+        var id_gruclie = $("#grupos option:selected").val();
+        var excel = "<?= $ruta ?>bonificaciones/excelExport/" + id_gruclie + '/';
+
+        return excel;
+    }
+
     function borrar(id) {
 
         $('#borrar').modal({show: true, keyboard: false, backdrop: 'static'});
         $("#id_borrar").attr('value', id);
     }
 
-    function editar(id, p1, p2) {
+    function editar(id, p1, p2, grup) {
 
-        $("#agregar").load('<?= $ruta ?>bonificaciones/form/' + id + '/' + p1 + '/' + p2);
+        $("#agregar").load('<?= $ruta ?>bonificaciones/form/' + id + '/' + p1 + '/' + p2 + '/' + grup);
         $('#agregar').modal({show: true, keyboard: false, backdrop: 'static'});
     }
 
@@ -138,8 +166,12 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable">', "</
     }
 
     function agregar() {
+        var id = false;
+        var p1 = false;
+        var p2 = false;
+        var grup = $("#grupos option:selected").val();
 
-        $("#agregar").load('<?= $ruta ?>bonificaciones/form');
+        $("#agregar").load('<?= $ruta ?>bonificaciones/form/' + id + '/' + p1 + '/' + p2 + '/' + grup);
         $('#agregar').modal({show: true, keyboard: false, backdrop: 'static'});
     }
 
