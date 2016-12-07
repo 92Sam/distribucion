@@ -72,7 +72,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable">', "</
 
             <a href="javascript:window.location = pdfUrl();" id="generarpdf" class="btn  btn-default btn-lg" data-toggle="tooltip"
                title="Exportar a PDF" data-original-title="fa fa-file-pdf-o"><i class="fa fa-file-pdf-o fa-fw"></i></a>
-            <a href="javascript:window.location = excelUrl()" id="generarexcel" class="btn btn-default btn-lg" data-toggle="tooltip"
+            <a href="javascript:window.location = excelUrl();" id="generarexcel" class="btn btn-default btn-lg" data-toggle="tooltip"
                title="Exportar a Excel" data-original-title="fa fa-file-excel-o"><i class="fa fa-file-excel-o fa-fw"></i></a>
         </div>
     </div>
