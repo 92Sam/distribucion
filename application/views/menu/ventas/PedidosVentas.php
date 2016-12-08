@@ -86,7 +86,7 @@ fieldset {
                     <div class="row">
                         <div class="col-md-3">
                             <div class="form-group">
-                                <label for="zona" class="control-label">Zona</label>
+                                <label for="zona" class="control-label panel-admin-text">Zona</label>
                                 <select name="zona" id="zona" class='form-control' required="true" >
                                     <option value="">Seleccione</option>
 
@@ -98,14 +98,14 @@ fieldset {
                         </div>
                         <div class="col-md-3">
                             <div class="form-group">
-                                <label class="control-label">Tipo de Pago</label>
+                                <label class="control-label panel-admin-text">Tipo de Pago</label>
                                 <select name="condicion_pago" id="cboModPag" onchange="activarText_ModoPago()"
                                         class="form-control" <?= $disabled; ?>></select>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="form-group">
-                                <label class="control-label">Documento</label>
+                                <label class="control-label panel-admin-text">Documento</label>
                                 <select name="tipo_documento" id="tipo_documento" onchange="" class="form-control" <?= $disabled; ?>>
                                     <option value="">Seleccione</option>
                                     <option value="<?= BOLETAVENTA ?>" selected><?= BOLETAVENTA ?>
@@ -139,7 +139,7 @@ fieldset {
                         <legend>Cliente</legend>
                         <div class="col-md-12">
                             <div class="col-md-12 form-group">
-                                <label for="zona" class="control-label">Cliente</label>
+                                <label for="zona" class="control-label panel-admin-text">Cliente</label>
                                 <select name="id_cliente" id="id_cliente" class='form-control'
                                         required="true" >
                                     <option value="">Seleccione</option>
@@ -483,7 +483,7 @@ fieldset {
                             <div class="row">
                                 <div class="form-group">
                                     <div class="col-md-5">
-                                        <label class="control-label">Total Productos</label>
+                                        <label class="control-label panel-admin-text">Total Productos</label>
                                     </div>
                                     <div class="col-md-7">
                                         <span id="totalproductos"></span>
@@ -513,10 +513,10 @@ fieldset {
                     <div class="modal-body">
                         <div class="row">
                             <div class="form-group">
-                                <div class="col-md-3">
-                                    <label for="totApagar2" class="control-label">Total Pagar:</label>
+                                <div class="col-md-2">
+                                    <label for="totApagar2" class="control-label panel-admin-text">Total Pagar:</label>
                                 </div>
-                                <div class="col-md-9">
+                                <div class="col-md-6">
                                     <div class="input-prepend input-append input-group">
                                         <span class="input-group-addon"><?= MONEDA ?></span>
                                         <input type="number"
@@ -530,12 +530,12 @@ fieldset {
                             </div>
                         </div>
                         <?php if (isset($venta[0]) && (!isset($preciosugerido) || $preciosugerido != 1)) { ?>
-                            <div class="row" id="pagadodiv">
+                            <div class="row" id="pagadodiv" style="display: none;">
                                 <div class="form-group">
-                                    <div class="col-md-3">
-                                        <label for="importe" class="control-label">A cuenta:</label>
+                                    <div class="col-md-2">
+                                        <label for="importe" class="control-label panel-admin-text">A cuenta:</label>
                                     </div>
-                                    <div class="col-md-9">
+                                    <div class="col-md-6">
                                         <div class="input-prepend input-append input-group">
                                             <span class="input-group-addon"><?= MONEDA ?></span>
                                             <input type="number" tabindex="0"
@@ -551,12 +551,12 @@ fieldset {
                             </div>
                         <?php } ?>
 
-                        <div class="row" id="importediv" style="display: none;">
+                        <div class="row" id="importediv" >
                             <div class="form-group">
-                                <div class="col-md-3">
-                                    <label for="importe" class="control-label">Importe:</label>
+                                <div class="col-md-2">
+                                    <label for="importe" class="control-label panel-admin-text">Importe:</label>
                                 </div>
-                                <div class="col-md-9">
+                                <div class="col-md-6">
                                     <div class="input-prepend input-append input-group">
                                         <span class="input-group-addon"><?= MONEDA ?></span>
                                         <input type="number" tabindex="0"

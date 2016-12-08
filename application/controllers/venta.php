@@ -25,20 +25,14 @@ class venta extends MY_Controller
         $this->load->model('liquidacioncobranza/liquidacion_cobranza_model');
         $this->load->model('ingreso/ingreso_model');
         $this->load->model('gastos/gastos_model');
-        // $this->load->library('phpword');
+        $this->load->library('phpword');
 
         $this->load->library('Pdf');
         $this->load->library('session');
         $this->load->library('phpExcel/PHPExcel.php');
-        //$this->very_sesion();
+
     }
 
-    /* function very_sesion()
-     {
-         if (!$this->session->userdata('nUsuCodigo')) {
-             redirect(base_url() . 'inicio');
-         }
-     }*/
 
     function index()
     {
@@ -3575,7 +3569,7 @@ class venta extends MY_Controller
         $campos_join = array('historial_pagos_clientes.credito_id=venta.venta_id', 'cliente.id_cliente=venta.id_cliente',
             'documento_venta.id_tipo_documento=venta.numero_documento', 'metodos_pago.id_metodo=historial_pagos_clientes.historial_tipopago',
             'liquidacion_cobranza_detalle.pago_id=historial_pagos_clientes.historial_id', 'cli_dat.cliente_id = cliente.id_cliente', 'cli_dat2.cliente_id = cliente.id_cliente');
-        
+
         $tipo_join = array(null, null, null, null, null, null, 'left');
 
 
@@ -4465,7 +4459,7 @@ class venta extends MY_Controller
         return $xsub;
     }
 
-   
+
 
     function zonaVendedor()
     {
