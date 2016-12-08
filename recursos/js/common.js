@@ -9,6 +9,30 @@ function show_msg(type, msg) {
     });
 }
 
+function formatPrice(price, min) {
+    if (min == undefined)
+        min = 10;
+    var r = +(Math.round(price + "e+4") + "e-4");
+    var round = r.toFixed(2).split('.');
+    var entero = round[0];
+    var fraccion = round[1]
+
+    for (var i = 0; i <= 100; i = i + min) {
+        if (i < fraccion && i + min > fraccion) {
+            if ((i + min - fraccion) <= (fraccion - i))
+                fraccion = i + min;
+            else if ((i + min - fraccion) > (fraccion - i))
+                fraccion = i;
+
+            if (fraccion == 100) {
+                fraccion = 0;
+                entero = parseInt(entero) + 1;
+            }
+        }
+    }
+    return parseFloat(entero + '.' + fraccion).toFixed(2);
+}
+
 var region = {
 
     actualizarestados: function () {

@@ -3,7 +3,7 @@
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
             <h4 class="modal-title"><?= isset($header_text) ? $header_text : '' ?></h4>
-        </div>
+        </div> 
         <div class="modal-body">
             <input type="hidden" name="cuenta_id" id="cuenta_id" required="true"
                    value="<?= isset($cuenta->id) ? $cuenta->id : '' ?>">
@@ -45,18 +45,6 @@
                     </div>
                 </div>
 
-                <div class="row">
-                    <div class="form-group">
-                        <div class="col-md-4">
-                            <label>Saldo</label>
-                        </div>
-                        <div class="col-md-8">
-                            <input type="number" id="saldo" name="saldo"
-                                   class="form-control"
-                                   value="<?= isset($cuenta->saldo) ? $cuenta->saldo : '' ?>">
-                        </div>
-                    </div>
-                </div>
 
                 <div class="row">
                     <div class="form-group">

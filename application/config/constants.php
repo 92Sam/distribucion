@@ -73,6 +73,7 @@ define('PESABLE',		'PESABLE');
 define('MEDIBLE',		'MEDIBLE');
 
 define('MONEDA',		'S/.');
+define('DOLAR',		'$');
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
 

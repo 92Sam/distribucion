@@ -63,10 +63,16 @@
                                 <td><?= $desglose->principal == '1' ? 'SI' : 'NO' ?></td>
                                 <td><?= $desglose->estado == '1' ? 'Activa' : 'Inactiva' ?></td>
                                 <td>
-                                    <a class="btn_new_caja_cuenta btn btn-primary"
+                                    <a class="btn_edit_caja_cuenta btn btn-primary"
                                        data-caja_id="<?= $caja->id ?>"
                                        data-id="<?= $desglose->id ?>">
                                         <i class="fa fa-edit"></i>
+                                    </a>
+
+                                    <a class="btn_ajustar_caja_cuenta btn btn-warning"
+                                       data-caja_id="<?= $caja->id ?>"
+                                       data-id="<?= $desglose->id ?>">
+                                        <i class="fa fa-exchange"></i>
                                     </a>
                                 </td>
                             </tr>
@@ -86,6 +92,9 @@
      aria-hidden="true">
 
 </div>
+
+
+
 
 <script>
 
@@ -124,9 +133,20 @@
             });
         });
 
-        $(".btn_new_caja_cuenta").on('click', function () {
+        $(".btn_edit_caja_cuenta").on('click', function () {
             $.ajax({
                 url: '<?php echo base_url('cajas/caja_cuenta_form')?>' + '/' + $(this).attr('data-caja_id') + '/' + $(this).attr('data-id'),
+                type: 'post',
+                success: function (data) {
+                    $("#dialog_form").html(data);
+                    $("#dialog_form").modal('show');
+                }
+            });
+        });
+
+        $(".btn_ajustar_caja_cuenta").on('click', function () {
+            $.ajax({
+                url: '<?php echo base_url('cajas/caja_ajustar_form')?>' + '/' + $(this).attr('data-caja_id') + '/' + $(this).attr('data-id'),
                 type: 'post',
                 success: function (data) {
                     $("#dialog_form").html(data);

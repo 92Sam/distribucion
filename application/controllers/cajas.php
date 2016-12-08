@@ -8,6 +8,7 @@ class cajas extends MY_Controller
         parent::__construct();
 
         $this->load->model('cajas/cajas_model');
+        $this->load->model('cajas/cajas_mov_model');
         $this->load->model('local/local_model');
         $this->load->model('usuario/usuario_model');
     }
@@ -79,7 +80,6 @@ class cajas extends MY_Controller
             'caja_id' => $this->input->post('caja_id'),
             'descripcion' => $this->input->post('descripcion'),
             'responsable_id' => $this->input->post('responsable_id'),
-            'saldo' => $this->input->post('saldo'),
             'principal' => $this->input->post('principal'),
             'estado' => $this->input->post('estado')
         );
@@ -91,6 +91,37 @@ class cajas extends MY_Controller
         } else {
             echo json_encode(array('error' => '1'));
         }
+    }
+
+    function caja_ajustar_form($caja_id, $id)
+    {
+        $data['header_text'] = 'Ajustar Cuenta de Caja';
+        $data['cuenta'] = $this->cajas_model->get_cuenta($id);
+
+        $data['caja_id'] = $caja_id;
+        $data['caja_actual'] = $this->cajas_model->get($caja_id);
+
+        $data['cajas'] = $this->db->get_where('caja', array('estado' => 1))->result();
+        $data['caja_cuentas'] = $this->db->get_where('caja_desglose', array('estado' => 1))->result();
+
+        $this->load->view('menu/cajas/form_ajustar_cuenta', $data);
+    }
+
+    function caja_ajustar_guardar($id)
+    {
+        $data = array(
+            'fecha' => $this->input->post('fecha'),
+            'motivo' => $this->input->post('motivo'),
+            'tipo_ajuste' => $this->input->post('tipo_ajuste'),
+            'cuenta_id' => $this->input->post('cuenta_id'),
+            'tasa' => $this->input->post('tasa'),
+            'importe' => $this->input->post('importe'),
+            'subimporte' => $this->input->post('subimporte')
+        );
+        $this->cajas_model->ajustar_cuenta($data, $id);
+
+        header('Content-Type: application/json');
+        echo json_encode(array('success' => 1));
     }
 
 }

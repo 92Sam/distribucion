@@ -436,18 +436,6 @@ $primary_nav = array(
                 'slug' => 'cajas'
             ),
             array(
-                'name' => 'Traspaso',
-                'url' => $ruta . 'cajas/traspaso',
-                'icon' => 'gi gi-nameplate',
-                'slug' => 'cajas'
-            ),
-            array(
-                'name' => 'Ajuste',
-                'url' => $ruta . 'cajas/ajuste',
-                'icon' => 'gi gi-nameplate',
-                'slug' => 'cajas'
-            ),
-            array(
                 'name' => 'Administrar',
                 'url' => $ruta . 'cajas',
                 'icon' => 'gi gi-nameplate',
