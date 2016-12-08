@@ -935,6 +935,7 @@ function resetCampos(campo_id){
 function obtenerClientesZona(zona_id){
 // Metodo Ajax 
     if(zona_id != ''){
+        alert(zona_id);
         $.ajax({
             url: '<?=base_url()?>venta/clientesIdZona',
             type: "post",
@@ -952,7 +953,7 @@ function obtenerClientesZona(zona_id){
             }
         });
     }else{
-        resetCampos($('#id_cliente'));
+        resetCampos('id_cliente');
     }
  }
 
