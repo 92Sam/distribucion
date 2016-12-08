@@ -853,13 +853,12 @@ fieldset {
                             $('#zona').append('<option value=' + data[i].zona_id + '>' + data[i].zona_nombre + '</option>')
                         }
 
-                        if(n != null){ 
-                            // Selecci´on aleatorea de valores
-                            dataRand = arrayRand[Math.floor(Math.random()*arrayRand.length)];
-                            obtenerClientesZona(dataRand);
-                            $('#zona').val(dataRand)
-                            $("#zona").trigger('chosen:updated');
-                        }
+                        // Selecci´on aleatorea de valores
+                        dataRand = arrayRand[Math.floor(Math.random()*arrayRand.length)];
+                        obtenerClientesZona(dataRand);
+                        $('#zona').val(dataRand)
+                        $("#zona").trigger('chosen:updated');
+                        
                     }else{
                         resetCampos('zona');
                     }
