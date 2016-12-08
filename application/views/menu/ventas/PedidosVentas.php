@@ -845,13 +845,21 @@ fieldset {
                 data: {'vendedor_id': $('#vendedor').val(), 'dia': n},
                 success: function(data) {
                     if (data != '') {
-                        if (data != '') {
-                            $('#zona').append('<option value="">Seleccione</option>');
-                             for (i = 0; i < data.length; i++) {
-                                 $('#zona').append('<option value=' + data[i].zona_id + '>' + data[i].zona_nombre + '</option>')
-                             }
+
+                        var arrayRand = [];
+
+                        for (i = 0; i < data.length; i++) {
+                            arrayRand.push(data[i].zona_id);
+                            $('#zona').append('<option value=' + data[i].zona_id + '>' + data[i].zona_nombre + '</option>')
                         }
-                        $("#zona").trigger('chosen:updated');
+
+                        if(n != null){ 
+                            // Selecci´on aleatorea de valores
+                            dataRand = arrayRand[Math.floor(Math.random()*arrayRand.length)];
+                            obtenerClientesZona(dataRand);
+                            $('#zona').val(dataRand)
+                            $("#zona").trigger('chosen:updated');
+                        }
                     }else{
                         resetCampos('zona');
                     }
@@ -978,9 +986,26 @@ function obtenerClientes(){
     });
  }
 
+function getElementOptionRand(id_input){    
+    alert(id_input)
+    var arrayRand = [];
+    $(id_input).children().each(function(index,value){
+        console.log(value);
+        arrayRand.push($(value).val())
+    });
+    return arrayRand[Math.floor(Math.random()*arrayRand.length)];
+}
+
+function contruirSelect(data,element_id){
+    for (i = 0; i < data.length; i++) {
+        $('#'+element_id).append('<option value=' + data[i].zona_id + '>' + data[i].zona_nombre + '</option>')
+    }
+    $("#"+element_id).trigger('chosen:updated');
+}
 //////////////////////////
 
         $(document).ready(function () {
+
 
 
             $('#cont_retencion').click(function(){
@@ -1001,8 +1026,14 @@ function obtenerClientes(){
             })
 
             // Evento Zonas N
-            $('#todasZonas').prop('checked', false)
-                zonaVendedor()
+            $('#todasZonas').prop('checked', false);
+
+            zonaVendedor();
+            // console.log(data);
+            // var zonaRand = getElementOptionRand("#zona");
+            // $("#zona").trigger('chosen:updated');
+            
+            // Evento Click Checkbox
             $('#todasZonas').click(function(){
                 if($('#todasZonas').is(':checked')){
                     obtenerClientes();
@@ -1010,7 +1041,7 @@ function obtenerClientes(){
                     $('#id_cliente option').remove();
                     $("#id_cliente").trigger('chosen:updated');
                 }
-                zonaVendedor()
+                zonaVendedor();
             })
 
             $("#direccion_entrega_np").change(function(){
@@ -1035,10 +1066,9 @@ function obtenerClientes(){
             })
 
             $("#id_cliente").change(function () {
-            $('#cliente_nt').val($('#id_cliente :selected').html())
-            $('#contacto_nt').val($('#id_cliente :selected').html())
-
-            $("#clienteinformativo").html($("#id_cliente option:selected").html());
+                $('#cliente_nt').val($('#id_cliente :selected').html())
+                $('#contacto_nt').val($('#id_cliente :selected').html())
+                $("#clienteinformativo").html($("#id_cliente option:selected").html());
             });
 
             function tipoDoc(){
