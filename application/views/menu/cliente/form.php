@@ -171,15 +171,14 @@
 
 
         if($('#linea_libre').is(':checked')){
-            var linea_libre = 1 
+            var linea_libre = 1
         }else{
             var linea_libre = 0
         }
-        
-$('#tipo').attr('disabled', true)
-$('#valor').attr('disabled', true)
 
-       
+    $('#tipo').attr('disabled', true)
+    $('#valor').attr('disabled', true)
+
 
     $.ajax({
         url: '<?=base_url()?>cliente/guardar',
@@ -222,10 +221,10 @@ $('#valor').attr('disabled', true)
                                 TablesDatatablesJson.init('<?php echo base_url()?>api/Clientes', 0, 'example');
                         }else{
                             return false
-                        
+
                         }
 
-                    
+
                     }
                 }
 
@@ -268,7 +267,7 @@ fieldset {
                 <div class="row">
                     <div class="form-group">
                         <div class="col-md-2">
-                            <label>Tipo</label>
+                            <label class="control-label panel-admin-text">Tipo</label>
                         </div>
                         <div class="col-md-4">
                                 <select name="tipo_cliente" id="tipo_cliente" required="true" class="form-control" >
@@ -276,24 +275,36 @@ fieldset {
                                       <option value="1" <?php if (isset($cliente['tipo_cliente']) and $cliente['tipo_cliente'] == 1) echo 'selected' ?>>Natural</option>
                                       <option value="0" <?php if (isset($cliente['tipo_cliente']) and $cliente['tipo_cliente'] == 0) echo 'selected' ?>>Juridico</option>
 
-                                    </select>
+                                </select>
                         </div>
-                        <div class="col-md-2">
-                            <label>DNI / RUC</label>
-                        </div>
-                        <div class="col-md-4" id='dni_ruc_cont'>
-                            <input type="text" name="dni_ruc" id="dni_ruc" required="true" class="form-control" value="<?php if (isset($cliente['identificacion'])) echo $cliente['identificacion']; ?>">
-                        </div>
-
-
-
 
                     </div>
                 </div>
-                      <div class="row">
+
+
+                <div class="row">
                     <div class="form-group">
                         <div class="col-md-2">
-                            <label>Razón Social</label>
+                            <label class="control-label panel-admin-text">RUC</label>
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" name="dni_ruc" id="dni_ruc" required="true" class="form-control" value="<?php if (isset($cliente['identificacion'])) echo $cliente['identificacion']; ?>">
+                        </div>
+
+                        <div class="col-md-2">
+                            <label class="control-label panel-admin-text">DNI</label>
+                        </div>
+                        <div class="col-md-4" id="dni_ruc_cont">
+                            <input type="text" name="dni_ruc" id="dni_ruc" required="true" class="form-control" value="<?php if (isset($cliente['identificacion'])) echo $cliente['identificacion']; ?>">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+
+                    <div class="form-group">
+                        <div class="col-md-2">
+                            <label class="control-label panel-admin-text">Razón Social</label>
                         </div>
                         <div class="col-md-4">
                             <input type="text" name="razon_social" id="razon_social" required="true"
@@ -302,40 +313,37 @@ fieldset {
                         </div>
 
                         <div class="col-md-2">
-                            <label>Representante</label>
+                            <label class="control-label panel-admin-text">Representante</label>
                         </div>
                         <div class="col-md-4">
                             <input type="text" name="representante" id="representante_id" class="form-control"
                                    value="<?php if (isset($cliente['representante'])) echo $cliente['representante']; ?>">
                         </div>
-
-
-
                     </div>
+
                 </div>
-            
+
 
                 <div class="row">
                     <div class="form-group">
-    <div class="col-md-4" style="display:none">
-        <select name="pais_id" id="id_pais" required="true" class="form-control"
-                onchange="region.actualizarestados();">
+                        <div class="col-md-4" style="display:none">
+                            <select name="pais_id" id="id_pais" required="true" class="form-control"
+                                onchange="region.actualizarestados();">
+                                <?php
+                                $p=1;
+                                foreach ($paises as $pais){
+                                        $paais['pais'.$p] = $pais['id_pais'];
+                                    ?>
+                                    <option
+                                        value="<?php echo $pais['id_pais'] ?>" <?php if (isset($cliente['id_pais']) and $cliente['pais_id'] == $pais['id_pais']) echo 'selected' ?>><?= $pais['nombre_pais'] ?></option>
+                                <?php
+                                $p++;
+                                } ?>
+                            </select>
+                        </div>
 
-            <?php
-            $p=1;
-            foreach ($paises as $pais){
-                    $paais['pais'.$p] = $pais['id_pais'];
-                ?>
-                <option
-                    value="<?php echo $pais['id_pais'] ?>" <?php if (isset($cliente['id_pais']) and $cliente['pais_id'] == $pais['id_pais']) echo 'selected' ?>><?= $pais['nombre_pais'] ?></option>
-            <?php
-            $p++;
-            } ?>
-        </select>
-    </div>
-                    
                         <div class="col-md-2">
-                            <label>Ciudad</label>
+                            <label class="control-label panel-admin-text">Ciudad</label>
                         </div>
                         <div class="col-md-4">
                             <?php
@@ -374,7 +382,7 @@ fieldset {
                         </div>
 
                         <div class="col-md-2">
-                            <label>Distrito</label>
+                            <label class="control-label panel-admin-text">Distrito</label>
                         </div>
                         <div class="col-md-4">
                             <?php
@@ -410,7 +418,7 @@ fieldset {
                 <div class="row">
                     <div class="form-group">
                         <div class="col-md-2">
-                            <label>Zona de Reparto</label>
+                            <label class="control-label panel-admin-text">Zona de Reparto</label>
                         </div>
                         <div class="col-md-4">
                             <?php
@@ -443,28 +451,27 @@ fieldset {
                         </div>
                     </div>
                 </div>
-         
 
                 <div class="row">
 
                     <div class="form-group">
                         <div class="col-md-2">
-                            <label>L&iacute;nea de Cr&eacute;dito</label>
+                            <label class="control-label panel-admin-text">L&iacute;nea de Cr&eacute;dito</label>
                         </div>
                         <div class="col-md-2">
                             <input type="number" name="linea_libre_valor" id="linea_libre_valor" class="form-control"
                                    value="<?php if (isset($cliente['linea_libre_valor'])) echo $cliente['linea_libre_valor']; ?>">
-                            
+
                         </div>
 
                         <div class="col-md-2">
                             <input type="checkbox" id="linea_libre" name="linea_libre" style="display: inline" <?php if (isset($cliente['linea_libre']) and $cliente['linea_libre'] == 1) echo 'checked' ?>>
-                            <label>Linea Libre</label>
-                            
+                            <label class="control-label panel-admin-text">Linea Libre</label>
+
                         </div>
 
                         <div class="col-md-2">
-                            <label>Agente Retenci&oacute;n</label>
+                            <label class="control-label panel-admin-text">Agente Retenci&oacute;n</label>
                         </div>
                         <div class="col-md-2" >
                                 <select name="s_retencion" id="s_retencion" class="form-control">
@@ -476,18 +483,16 @@ fieldset {
                         <div class="col-md-2" id='div_retencion' ?>
                             <input type="number" name="retencion" id="retencion_id" class="form-control"
                                    value="<?php if (isset($cliente['linea_credito_valor'])) echo $cliente['linea_credito_valor']; ?>">
-                            
+
                         </div>
 
                     </div>
-
                 </div>
-
 
                 <div class="row">
                     <div class="form-group">
                         <div class="col-md-2">
-                            <label>Grupo</label>
+                            <label class="control-label panel-admin-text">Grupo</label>
                         </div>
                         <div class="col-md-4">
 
@@ -501,24 +506,22 @@ fieldset {
 
                         </div>
                         <div class="col-md-2">
-                            <label>Importe Deuda</label>
+                            <label class="control-label panel-admin-text">Importe Deuda</label>
                         </div>
-                        
+
                         <div class="col-md-2" id='' ?>
                             <input disabled type="number" name="importe_deuda" id="importe_deuda" class="form-control"
                                    value="<?php if (isset($cliente['importe_deuda'])) echo $cliente['importe_deuda']; ?>">
-                            
+
                         </div>
                     </div>
                 </div>
-
-             
 
                 <fieldset id="el##">
                     <legend>Datos Adicionales</legend>
 
                     <div class="col-md-1" style="padding:10px 20px">
-                        <label>Valor</label>
+                        <label class="control-label panel-admin-text">Valor</label>
                     </div>
                     <div class="col-md-4">
                         <select name="tipo" id="tipo" class="form-control" >
@@ -536,14 +539,14 @@ fieldset {
                     </div>
                     <div class="col-md-2" style="padding-left: 1%; width:12%">
                                 <input type="checkbox" name="principal" id='principal' style="display: inline">
-                                <label>Principal</label>
+                                <label class="control-label panel-admin-text">Principal</label>
                     </div>
                     <div class="col-md-1" onclick="agregar_dato()">
                                 <a class="btn btn-default"><i id='agregar_dato' title='Agregar' class="gi gi-plus sidebar-nav-icon"></i></a>
                     </div>
                         <div class="col-md-8" id='content_tabla' >
                             <table class="table table-striped" id="">
-                              <thead>   
+                              <thead>
                                 <tr>
                                   <th>Tipo</th>
                                   <th>Valor</th>
@@ -552,12 +555,12 @@ fieldset {
                                 </tr>
                               </thead>
                               <tbody id='cont_tabla'>
-    <?php if (isset($cliente_datos)){ 
-        for ($i=0; $i < count($cliente_datos) ; $i++) { ?>
-            
+                        <?php if (isset($cliente_datos)){
+                            for ($i=0; $i < count($cliente_datos) ; $i++) { ?>
+
                         <tr id="<?php echo $i+1?>" class='fila'>
                             <td id="<?php echo $cliente_datos[$i]['tipo'] ?>" class='tipo'>
-                            <?php 
+                            <?php
                                 if($cliente_datos[$i]['tipo'] == '1'){
                                     echo 'Direcci&oacute;n';
                                 }elseif ($cliente_datos[$i]['tipo'] == '2') {
@@ -572,7 +575,7 @@ fieldset {
 
                             ?></td>
                             <td id="<?php echo $cliente_datos[$i]['valor'] ?>" class="valor"><?php echo $cliente_datos[$i]['valor'] ?></td>
-                            <td id="<?php echo $cliente_datos[$i]['principal'] ?>" class="principal"><?php 
+                            <td id="<?php echo $cliente_datos[$i]['principal'] ?>" class="principal"><?php
                             if($cliente_datos[$i]['principal'] == 1 ){
                                 echo 'SI';
                             }else{
@@ -582,43 +585,23 @@ fieldset {
                             <td><i id="editar_dato" title="Editar" onclick="editar_dato(this)" class="editar_d gi gi-edit sidebar-nav-icon" style=""></i>&nbsp;&nbsp;<i id="eliminar_dato" title="Eliminar" onclick="modalEliminarDato(this)" class="eliminar_d fa fa-trash sidebar-nav-icon" ></i></td>
                         </tr>
 
-    <?php } 
+                            <?php }
 
-        } ?>
-                               
-                                
+                                } ?>
+
+
                               </tbody>
                             </table>
                         </div>
                 </fieldset>
                 <br>
 
-               <!-- <div class="row">
-                    <div class="form-group">
-                        <div class="col-md-2">
-                            <label>P&aacute;gina Web</label>
-                        </div>
-                        <div class="col-md-4">
-                            <input type="text" name="pagina_web" id="" class="form-control"
-                                   value="<?php //if (isset($cliente['pagina_web'])) echo $cliente['pagina_web']; ?>">
-                        </div>
-
-                       <!-- <div class="col-md-2">
-                            <label>Descuento</label>
-                        </div>
-                        <div class="col-md-4">
-                            <input type="number" name="descuento" id="" class="form-control"
-                                   value="<?php // if (isset($cliente['descuento'])) echo $cliente['descuento']; ?>">
-                        </div>
-
-                    </div>
-                </div>-->
 
                 <div class="row">
 
                     <div class="col-md-12">
 
-                        <label for="" class="control-label">Direccion en mapa</label>
+                        <label class="control-label panel-admin-text">Direccion en mapa</label>
 
                         <input type="text" name="direccion" id="location" class="form-control" autocomplete="on"
                                value="<?php if (isset($cliente['direccion'])) echo $cliente['direccion']; ?>">
@@ -648,21 +631,21 @@ fieldset {
 
 
 
-<div class="modal-content" id="modal_eliminar_dato" style="width:30%; position: absolute; top:40%;left: 30%; display:none">
-                <div class="modal-header">
-                    <h5 class="modal-title">Eliminar Dato</h5>
-                </div>
-                <div class="modal-body">
-                    <p>Está seguro que desea eliminar el dato seleccionado?</p>
-                    <input type="hidden" name="id" id="id_borrar">
-                    <input type="hidden" name="nombre" id="nom_borrar">
-                </div>
-                <div class="modal-footer">
-                    <button type="button" id="rm_dato" class="btn btn-primary">Confirmar</button>
-                    <button type="button" class="btn btn-default" id='cancelar_rm' >Cancelar</button>
+    <div class="modal-content" id="modal_eliminar_dato" style="width:30%; position: absolute; top:40%;left: 30%; display:none">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Eliminar Dato</h5>
+                    </div>
+                    <div class="modal-body">
+                        <p>Está seguro que desea eliminar el dato seleccionado?</p>
+                        <input type="hidden" name="id" id="id_borrar">
+                        <input type="hidden" name="nombre" id="nom_borrar">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" id="rm_dato" class="btn btn-primary">Confirmar</button>
+                        <button type="button" class="btn btn-default" id='cancelar_rm' >Cancelar</button>
 
-            </div>
-</div>
+                </div>
+    </div>
 
 
 <script type="text/javascript">
@@ -672,6 +655,7 @@ fieldset {
                 $('#div_retencion').hide()
 
             agenteRetencion()
+
         $('#s_retencion').change(function(){
 
             agenteRetencion()
@@ -689,9 +673,12 @@ fieldset {
         })
 
         verificarRucDni()
-        $('#tipo_cliente').change(function(){
+
+        $(tipo_cliente).change(function(event){
             $('#dni_ruc').val('')
+            verificarTipoPersona()
             verificarRucDni()
+
         })
 
         $('#tipo').change(function(){
@@ -700,28 +687,38 @@ fieldset {
             }else{
                 $('#valor').attr('type', 'text');
             }
-       
-        
+
+
         })
 
 
     });
 
+    function verificarTipoPersona () {
+       // $(tipo_cliente).change(function(event) {
+
+            // Juridico es cero "0"
+            var tipopersona = $("#tipo_cliente").val();
+
+            if (true) {}
+
+        };
+
 
     function verificarRucDni(){
-                if($('#tipo_cliente').val()==1){
-                    $('#dni_ruc').mask('99999999');
-                    }
-                if($('#tipo_cliente').val()==0){
-                    $('#dni_ruc').mask('99999999999'); 
-                }
+        if($('#tipo_cliente').val()==1){
+            $('#dni_ruc').mask('99999999');
+            }
+        if($('#tipo_cliente').val()==0){
+            $('#dni_ruc').mask('99999999999');
+        }
     }
 
     function verificarDatos(){
         var retorno = true
         $(".fila").each(function(){
 
-            
+
             if($('#tipo').val() == $(this).find('.tipo').attr('id') && $('#valor').val().toUpperCase() == $(this).find('.valor').attr('id').toUpperCase()){
 
 
@@ -785,7 +782,6 @@ fieldset {
                     $('#linea_libre_valor').prop( "disabled", false )
                 }
 
-
     }
 
     function DniRucEnBd(){
@@ -808,16 +804,15 @@ fieldset {
                                         allow_dismiss: true
                                     });
                                     return false
-                                
+
                                 }
 
-                            
+
                             }
                         }
 
             });
         }
-
 
     }
 
@@ -834,7 +829,7 @@ fieldset {
 
             $(this).prop('disabled', true);
                 return false
-            
+
         }else if($('#tipo_cliente').val() == 1 && $('#dni_ruc').val().length != 8){
                 $.bootstrapGrowl('<h4>¡EL campo DNI/RUC debe contener 8 digitos!</h4>', {
                     type: 'warning',
@@ -844,13 +839,12 @@ fieldset {
 
             $(this).prop('disabled', true);
                 return false
-            
-        }
 
+        }
 
     }
 
-        function agregar_dato(){
+    function agregar_dato(){
             var indice = 0
             if($('.fila').size()==0){
                 indice = 1
@@ -870,7 +864,7 @@ fieldset {
             var principal ='';
             var principal = false;
 
- 
+
 
             if ($('#tipo').val() == '') {
                 var growlType = 'warning';
@@ -909,17 +903,17 @@ fieldset {
 
             $( "#cont_tabla" ).append('<tr id='+indice+' class="fila"><td scope="row" id='+$('#tipo').val()+' class="tipo">'+$('#tipo :selected').html()+'</td><td id="'+$('#valor').val()+'" class="valor">'+$('#valor').val()+'</td><td id='+d_principal+' class="principal">'+principal+'</td><td><i id="editar_dato" title="Editar" class="editar_d gi gi-edit sidebar-nav-icon" style=""></i>&nbsp;&nbsp;<i id="eliminar_dato" title="Eliminar" onclick="modalEliminarDato(this)" class="eliminar_d fa fa-trash sidebar-nav-icon" ></i></td></tr>');
 
-           
+
             $(".editar_d").unbind().click(function() {
                 });
 
             $('.editar_d').bind('click', function () {
                 $('#tipo').val($(this).parent().parent().find('.tipo').attr('id')).trigger('chosen:updated');
 
-                
+
                 $('#valor').val($(this).parent().parent().find('.valor').attr('id'))
-                
-                
+
+
                 if($(this).parent().parent().find('.principal').attr('id') == 1){
                     $('#principal').prop('checked', true)
                 }else{
@@ -935,15 +929,12 @@ fieldset {
              })
 
 
-            
+
             $('#tipo').val('').trigger('chosen:updated');
             $('#valor').val('')
             $('#principal').prop('checked', false)
 
-
-
-
-        }
+    }
 
     function modalEliminarDato(elem){
         $('#rm_dato').attr('onclick', 'eliminar_dato('+$(elem).parent().parent().attr('id')+')')
@@ -963,21 +954,21 @@ fieldset {
 
     function editar_dato(elem){
 
-                $('#tipo').val($(elem).parent().parent().find('.tipo').attr('id')).trigger('chosen:updated');
+        $('#tipo').val($(elem).parent().parent().find('.tipo').attr('id')).trigger('chosen:updated');
 
-                
-                $('#valor').val($(elem).parent().parent().find('.valor').attr('id'))
-                
-                
-                if($(elem).parent().parent().find('.principal').attr('id') == 1){
-                    $('#principal').prop('checked', true)
-                }else{
-                    $('#principal').prop('checked', false)
 
-                }
+        $('#valor').val($(elem).parent().parent().find('.valor').attr('id'))
 
-                $(elem).parent().parent().remove();
-        
+
+        if($(elem).parent().parent().find('.principal').attr('id') == 1){
+            $('#principal').prop('checked', true)
+        }else{
+            $('#principal').prop('checked', false)
+
+        }
+
+        $(elem).parent().parent().remove();
+
     }
 
     if ($('#latitud').val() == '0') {
@@ -1100,4 +1091,5 @@ fieldset {
 
     }
 </script>
+
 <script type="text/javascript" src="<?php echo base_url() ?>recursos/js/jquery.maskedinput.js"></script>
