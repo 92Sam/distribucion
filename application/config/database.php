@@ -50,9 +50,8 @@ $active_record = TRUE;
 
 $db['default']['hostname'] = 'localhost';
 $db['default']['username'] = 'root';
-// $db['default']['password'] = 'nexus1108';
-$db['default']['password'] = '123456';
-$db['default']['database'] = 'distribucion_proyecto';
+$db['default']['password'] = 'nexus1108';
+$db['default']['database'] = 'distribucion_master';
 
 
 /*
@@ -60,8 +59,7 @@ $db['default']['username'] = 'teayudop_distrib';
 $db['default']['password'] = 'distribucion123...';
 $db['default']['database'] = 'teayudop_distribucion';
 */
-// $db['default']['dbdriver'] = 'mysqli';
-$db['default']['dbdriver'] = 'mysql';
+$db['default']['dbdriver'] = 'mysqli';
 $db['default']['dbprefix'] = '';
 $db['default']['pconnect'] = TRUE;
 $db['default']['db_debug'] = TRUE;
@@ -72,7 +70,6 @@ $db['default']['dbcollat'] = 'utf8_general_ci';
 $db['default']['swap_pre'] = '';
 $db['default']['autoinit'] = TRUE;
 $db['default']['stricton'] = FALSE;
-// $db['default']['port'] = 3306;
 $db['default']['port'] = 3306;
 
 
