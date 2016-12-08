@@ -3438,7 +3438,7 @@ where v.venta_id=" . $id_venta . " group by tr.id_detalle order by 1 ";
         $this->db->select('*');
         $this->db->from('cliente c');
         $this->db->where('c.id_zona', $id_zona);
-        $this->db->order_by('c.representante','desc');
+        $this->db->order_by('c.representante','asc');
 
         $query = $this->db->get();
         return $query->result_array();

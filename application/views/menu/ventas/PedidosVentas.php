@@ -92,7 +92,7 @@ fieldset {
 
                                 </select>
                             </div>
-                            <div id=check_zonas style="display:none">
+                            <div id=check_zonas style="display:block">
                                 <input type="checkbox" name="todasZona" id="todasZonas"> Todas las zonas
                             </div>
                         </div>
@@ -850,7 +850,7 @@ fieldset {
                         }
                         $("#zona").trigger('chosen:updated');
                     }
-                zonaclientes()
+                // zonaclientes()
                 }
             });
         }
@@ -915,41 +915,42 @@ fieldset {
 
 // Evento de Zonas
 $('#zona').change(function(){
-    zonaclientes()
-    obtenerClientesZona($('#zona').val());
+    // zonaclientes()
+    obtenerClientesZona($(this).val());
+    resetCampos('id_cliente');
 })
 
-function zonaclientes(){
-    $('#check_zonas').show()
-    if($('#zona').val() != null){
-        $('#id_cliente_chosen').show()
-        $('#id_cliente_chosen2').hide()
-        // $('#check_zonas').show()
-    }else{
-        $('#id_cliente_chosen').hide()
-        $('#id_cliente_chosen2').show()
-        // $('#check_zonas').hide()
+
+function resetCampos(campo_id){
+    if($('#'+campo_id).is('select')){
+        $('#'+campo_id+' option').remove();
+        $('#'+campo_id).append('<option value="">Seleccione</option>');
+        $('#'+campo_id).trigger('chosen:updated');
     }
 }
 
 function obtenerClientesZona(zona_id){
 // Metodo Ajax 
-    $.ajax({
-        url: '<?=base_url()?>venta/clientesIdZona',
-        type: "post",
-        dataType: "json",
-        data: {'zona_id': zona_id},
-        success: function(data) {
-            if (data != '') {
-                $('#id_cliente option').remove();
-                $('#id_cliente').append('<option value="">Seleccione</option>');          
-                 for (i = 0; i < data.length; i++) {
-                     $('#id_cliente').append('<option value=' + data[i].id_cliente + '>' + data[i].representante + '</option>')
-                 }
-                $("#id_cliente").trigger('chosen:updated');
+    if(zona_id != ''){
+        $.ajax({
+            url: '<?=base_url()?>venta/clientesIdZona',
+            type: "post",
+            dataType: "json",
+            data: {'zona_id': zona_id},
+            success: function(data) {
+                if (data != '') {
+                    $('#id_cliente option').remove();
+                    $('#id_cliente').append('<option value="">Seleccione</option>');          
+                     for (i = 0; i < data.length; i++) {
+                         $('#id_cliente').append('<option value=' + data[i].id_cliente + '>' + data[i].representante + '</option>')
+                     }
+                    $("#id_cliente").trigger('chosen:updated');
+                }
             }
-        }
-    });
+        });
+    }else{
+        resetCampos($('#id_cliente'));
+    }
  }
 
 function obtenerClientes(){
