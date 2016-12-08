@@ -843,13 +843,14 @@ fieldset {
                 success: function(data) {
                     if (data != '') {
                         if (data != '') {
+                            $('#zona').append('<option value="">Seleccione</option>');
                              for (i = 0; i < data.length; i++) {
                                  $('#zona').append('<option value=' + data[i].zona_id + '>' + data[i].zona_nombre + '</option>')
                              }
                         }
                         $("#zona").trigger('chosen:updated');
                     }
-zonaclientes()
+                zonaclientes()
                 }
             });
         }
@@ -912,19 +913,65 @@ zonaclientes()
         }
     }
 
+// Evento de Zonas
+$('#zona').change(function(){
+    zonaclientes()
+    obtenerClientesZona($('#zona').val());
+})
+
 function zonaclientes(){
+    $('#check_zonas').show()
     if($('#zona').val() != null){
         $('#id_cliente_chosen').show()
         $('#id_cliente_chosen2').hide()
-        $('#check_zonas').show()
+        // $('#check_zonas').show()
     }else{
         $('#id_cliente_chosen').hide()
         $('#id_cliente_chosen2').show()
-        $('#check_zonas').hide()
-
+        // $('#check_zonas').hide()
     }
 }
 
+function obtenerClientesZona(zona_id){
+// Metodo Ajax 
+    $.ajax({
+        url: '<?=base_url()?>venta/clientesIdZona',
+        type: "post",
+        dataType: "json",
+        data: {'zona_id': zona_id},
+        success: function(data) {
+            if (data != '') {
+                $('#id_cliente option').remove();
+                $('#id_cliente').append('<option value="">Seleccione</option>');          
+                 for (i = 0; i < data.length; i++) {
+                     $('#id_cliente').append('<option value=' + data[i].id_cliente + '>' + data[i].representante + '</option>')
+                 }
+                $("#id_cliente").trigger('chosen:updated');
+            }
+        }
+    });
+ }
+
+function obtenerClientes(){
+// Metodo Ajax 
+    $.ajax({
+        url: '<?=base_url()?>venta/listaClientes',
+        type: "post",
+        dataType: "json",
+        success: function(data) {
+            if (data != '') {
+                $('#id_cliente option').remove();
+                $('#id_cliente').append('<option value="">Seleccione</option>');          
+                 for (i = 0; i < data.length; i++) {
+                     $('#id_cliente').append('<option value=' + data[i].id_cliente + '>' + data[i].representante + '</option>')
+                 }
+                $("#id_cliente").trigger('chosen:updated');
+            }
+        }
+    });
+ }
+
+//////////////////////////
 
         $(document).ready(function () {
 
@@ -946,11 +993,17 @@ function zonaclientes(){
 
             })
 
+            // Evento Zonas N
             $('#todasZonas').prop('checked', false)
-            zonaVendedor()
-            $('#todasZonas').click(function(){
                 zonaVendedor()
-
+            $('#todasZonas').click(function(){
+                if($('#todasZonas').is(':checked')){
+                    obtenerClientes();
+                }else{
+                    $('#id_cliente option').remove();
+                    $("#id_cliente").trigger('chosen:updated');
+                }
+                zonaVendedor()
             })
 
             $("#direccion_entrega_np").change(function(){
@@ -1046,9 +1099,6 @@ function zonaclientes(){
                 $(this).remove();
             })
 
-$('#zona').change(function(){
-    zonaclientes()
-})
 
         });
 
