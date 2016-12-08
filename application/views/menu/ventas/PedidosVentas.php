@@ -69,13 +69,13 @@ fieldset {
                     <li class="disabled"><a href="#step-2">
                             <h4 class="list-group-item-heading">Paso 2</h4>
 
-                            <p class="list-group-item-text">Seleccion de Productos y envio de Pedido</p>
+                            <p class="list-group-item-text">Seleccion de Productos</p>
                         </a></li>
-                    <!-- <li class="disabled"><a href="#step-3" style="display: none;">
+                    <li class="disabled"><a href="#step-3">
                             <h4 class="list-group-item-heading">Paso 3</h4>
 
                             <p class="list-group-item-text">Enviar Pedidos</p>
-                        </a></li> -->
+                    </a></li>
                 </ul>
             </div>
         </div>
@@ -160,16 +160,16 @@ fieldset {
                                     } ?>
                                 </select>
 
-<div class="chosen-container chosen-container-single" style="width: 100%; display: none;" title="" id="id_cliente_chosen2">
-<a class="chosen-single" tabindex="-1">
-<span>Seleccione</span><div><b></b></div></a>
-<div class="chosen-drop">
-<div class="chosen-search">
-<input type="text" autocomplete="off">
-</div>
-<ul class="chosen-results">
-<li class="active-result result-selected" data-option-array-index="0">Seleccione</li>
-</ul></div></div>
+                            <div class="chosen-container chosen-container-single" style="width: 100%; display: none;" title="" id="id_cliente_chosen2">
+                            <a class="chosen-single" tabindex="-1">
+                            <span>Seleccione</span><div><b></b></div></a>
+                            <div class="chosen-drop">
+                            <div class="chosen-search">
+                            <input type="text" autocomplete="off">
+                            </div>
+                            <ul class="chosen-results">
+                            <li class="active-result result-selected" data-option-array-index="0">Seleccione</li>
+                            </ul></div></div>
                             </div>
 
                         </div>
@@ -292,7 +292,7 @@ fieldset {
                 <div class="col-md-12 well">
                     <div class="row panel">
                         <div class="form-group">
-                            <div class="col-md-1">
+                            <div class="col-md-2">
                                 <label for="cboTipDoc" class="control-label panel-admin-text">Cliente</label>
                             </div>
                             <div class="col-md-5">
@@ -308,7 +308,7 @@ fieldset {
                             <div class="col-md-2">
                                 <label for="cboTipDoc" class="control-label panel-admin-text">Buscar Producto:</label>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-5">
                                 <select class="form-control" style="width: 100%" id="selectproductos"
                                         onchange="buscarProducto()" <?= $disabled; ?>></select>
                             </div>
@@ -320,7 +320,8 @@ fieldset {
                                         </button>
 
                                     <?php } ?>
-                                    <!-- <button id="activate-step-3" class="btn btn-primary">Continuar</button> -->
+
+                                    <button id="activate-step-3" class="btn btn-primary">Continuar</button>
                                 </div>
                             </div>
                             <?php if ($estatus_actual == PEDIDO_DEVUELTO) { ?>
@@ -452,6 +453,7 @@ fieldset {
                                 </div>
                             </div>
 
+                            <!--
                             <br>
 
                             <div class="row">
@@ -473,6 +475,7 @@ fieldset {
                             </div>
 
                             <br>
+                            -->
 
                         </div>
 
@@ -843,13 +846,14 @@ fieldset {
                 success: function(data) {
                     if (data != '') {
                         if (data != '') {
+                            $('#zona').append('<option value="">Seleccione</option>');
                              for (i = 0; i < data.length; i++) {
                                  $('#zona').append('<option value=' + data[i].zona_id + '>' + data[i].zona_nombre + '</option>')
                              }
                         }
                         $("#zona").trigger('chosen:updated');
                     }
-zonaclientes()
+                zonaclientes()
                 }
             });
         }
@@ -912,19 +916,65 @@ zonaclientes()
         }
     }
 
+// Evento de Zonas
+$('#zona').change(function(){
+    zonaclientes()
+    obtenerClientesZona($('#zona').val());
+})
+
 function zonaclientes(){
+    $('#check_zonas').show()
     if($('#zona').val() != null){
         $('#id_cliente_chosen').show()
         $('#id_cliente_chosen2').hide()
-        $('#check_zonas').show()
+        // $('#check_zonas').show()
     }else{
         $('#id_cliente_chosen').hide()
         $('#id_cliente_chosen2').show()
-        $('#check_zonas').hide()
-
+        // $('#check_zonas').hide()
     }
 }
 
+function obtenerClientesZona(zona_id){
+// Metodo Ajax
+    $.ajax({
+        url: '<?=base_url()?>venta/clientesIdZona',
+        type: "post",
+        dataType: "json",
+        data: {'zona_id': zona_id},
+        success: function(data) {
+            if (data != '') {
+                $('#id_cliente option').remove();
+                $('#id_cliente').append('<option value="">Seleccione</option>');
+                 for (i = 0; i < data.length; i++) {
+                     $('#id_cliente').append('<option value=' + data[i].id_cliente + '>' + data[i].representante + '</option>')
+                 }
+                $("#id_cliente").trigger('chosen:updated');
+            }
+        }
+    });
+ }
+
+function obtenerClientes(){
+// Metodo Ajax
+    $.ajax({
+        url: '<?=base_url()?>venta/listaClientes',
+        type: "post",
+        dataType: "json",
+        success: function(data) {
+            if (data != '') {
+                $('#id_cliente option').remove();
+                $('#id_cliente').append('<option value="">Seleccione</option>');
+                 for (i = 0; i < data.length; i++) {
+                     $('#id_cliente').append('<option value=' + data[i].id_cliente + '>' + data[i].representante + '</option>')
+                 }
+                $("#id_cliente").trigger('chosen:updated');
+            }
+        }
+    });
+ }
+
+//////////////////////////
 
         $(document).ready(function () {
 
@@ -946,11 +996,17 @@ function zonaclientes(){
 
             })
 
+            // Evento Zonas N
             $('#todasZonas').prop('checked', false)
-            zonaVendedor()
-            $('#todasZonas').click(function(){
                 zonaVendedor()
-
+            $('#todasZonas').click(function(){
+                if($('#todasZonas').is(':checked')){
+                    obtenerClientes();
+                }else{
+                    $('#id_cliente option').remove();
+                    $("#id_cliente").trigger('chosen:updated');
+                }
+                zonaVendedor()
             })
 
             $("#direccion_entrega_np").change(function(){
@@ -1046,9 +1102,6 @@ function zonaclientes(){
                 $(this).remove();
             })
 
-$('#zona').change(function(){
-    zonaclientes()
-})
 
         });
 
