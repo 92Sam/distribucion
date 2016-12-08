@@ -6,34 +6,17 @@ class cajas extends MY_Controller
     function __construct()
     {
         parent::__construct();
-        //$this->very_sesion();
 
         $this->load->model('cajas/cajas_model');
+        $this->load->model('cajas/cajas_mov_model');
         $this->load->model('local/local_model');
         $this->load->model('usuario/usuario_model');
-                $this->load->model('zona/zona_model');
-
-      
     }
-
-    /*function very_sesion()
-    {
-        if (!$this->session->userdata('nUsuCodigo')) {
-            redirect(base_url() . 'inicio');
-        }
-    }*/
 
     function index()
     {
-
-        if ($this->session->flashdata('success') != FALSE) {
-            $data ['success'] = $this->session->flashdata('success');
-        }
-        if ($this->session->flashdata('error') != FALSE) {
-            $data ['error'] = $this->session->flashdata('error');
-        }
-
         $data['cajas'] = $this->cajas_model->get_all();
+
         $dataCuerpo['cuerpo'] = $this->load->view('menu/cajas/cajas', $data, true);
 
         if ($this->input->is_ajax_request()) {
@@ -43,77 +26,111 @@ class cajas extends MY_Controller
         }
     }
 
-   function form($id = FALSE)
+    function caja_form($id = FALSE)
     {
 
-        $data = array();
+        $data['header_text'] = 'Nueva Caja';
         if ($id != FALSE) {
-            $data['cajas'] = $this->cajas_model->get_by('caja_id', $id);
-
+            $data['caja'] = $this->cajas_model->get($id);
+            $data['header_text'] = 'Editar Caja';
         }
+
         $data['locales'] = $this->local_model->get_all();
-        $data['usuarios'] = $this->cajas_model->get_all_user();
-        $data['caja_has_usuario'] = $this->cajas_model->get_all_user();
-        $data['zonas'] = $this->zona_model->get_all();
+        $data['usuarios'] = $this->db->get_where('usuario', array('activo' => 1))->result();
+
         $this->load->view('menu/cajas/form', $data);
-
     }
 
-  function guardar()
+    function caja_guardar($id = FALSE)
     {
-
-        $id = $this->input->post('id');
-        $activo = $this->input->post('activo');
-
-        $cajas = array(
-            'local' => $this->input->post('local'),
-            'activo' => empty($activo) ? 0 : $this->input->post('activo'),
-            'cuenta_contable' => $this->input->post('cuenta_contable'),
-            'responsable' => $this->input->post('responsable'),
-            'status' => 1,
+        $data = array(
+            'local_id' => $this->input->post('local_id'),
+            'moneda_id' => $this->input->post('moneda_id'),
+            'responsable_id' => $this->input->post('responsable_id'),
+            'estado' => $this->input->post('estado')
         );
 
-        if (empty($id)) {
-            $resultado = $this->cajas_model->insertar($cajas);
-
+        header('Content-Type: application/json');
+        if ($this->cajas_model->valid_caja($data, $id)) {
+            $result = $this->cajas_model->save($data, $id);
+            echo json_encode(array('success' => $result));
         } else {
-            $cajas['caja_id'] = $id;
-            $resultado = $this->cajas_model->update($cajas);
+            echo json_encode(array('error' => '1'));
         }
-
-        if ($resultado == TRUE) {
-            $json['success']= 'Solicitud Procesada con exito';
-        } else {
-            $json['error'] = 'Ha ocurrido un error al procesar la Solicitud';
-        }
-
-        echo json_encode($json);
-
     }
 
-    function eliminar()
+    function caja_cuenta_form($caja_id, $id = FALSE)
     {
-        $id = $this->input->post('id');
-
-        $cajas = array(
-            'caja_id' => $id,
-            'status' => 0
-
-        );
-
-        $data['resultado'] = $this->cajas_model->update($cajas);
-
-        if ($data['resultado'] != FALSE) {
-
-            $json['success'] = 'Se ha eliminado exitosamente';
-
-
-        } else {
-
-            $json['error'] = 'Ha ocurrido un error al eliminar la Caja';
+        $data['header_text'] = 'Nueva Cuenta de Caja';
+        if ($id != FALSE) {
+            $data['cuenta'] = $this->cajas_model->get_cuenta($id);
+            $data['header_text'] = 'Editar Cuenta de Caja';
         }
 
-        echo json_encode($json);
-    } 
+        $data['caja_id'] = $caja_id;
+
+        $data['usuarios'] = $this->db->get_where('usuario', array('activo' => 1))->result();
+
+        $this->load->view('menu/cajas/form_cuenta', $data);
+    }
+
+    function caja_cuenta_guardar($id = FALSE)
+    {
+        $data = array(
+            'caja_id' => $this->input->post('caja_id'),
+            'descripcion' => $this->input->post('descripcion'),
+            'responsable_id' => $this->input->post('responsable_id'),
+            'principal' => $this->input->post('principal'),
+            'estado' => $this->input->post('estado')
+        );
+
+        header('Content-Type: application/json');
+        if ($this->cajas_model->valid_caja_cuenta($data, $id)) {
+            $result = $this->cajas_model->save_cuenta($data, $id);
+            echo json_encode(array('success' => $result));
+        } else {
+            echo json_encode(array('error' => '1'));
+        }
+    }
+
+    function caja_ajustar_form($caja_id, $id)
+    {
+        $data['header_text'] = 'Ajustar Cuenta de Caja';
+        $data['cuenta'] = $this->cajas_model->get_cuenta($id);
+
+        $data['caja_id'] = $caja_id;
+        $data['caja_actual'] = $this->cajas_model->get($caja_id);
+
+        $data['cajas'] = $this->db->get_where('caja', array('estado' => 1))->result();
+        $data['caja_cuentas'] = $this->db->get_where('caja_desglose', array('estado' => 1))->result();
+
+        $this->load->view('menu/cajas/form_ajustar_cuenta', $data);
+    }
+
+    function caja_ajustar_guardar($id)
+    {
+        $data = array(
+            'fecha' => $this->input->post('fecha'),
+            'motivo' => $this->input->post('motivo'),
+            'tipo_ajuste' => $this->input->post('tipo_ajuste'),
+            'cuenta_id' => $this->input->post('cuenta_id'),
+            'tasa' => $this->input->post('tasa'),
+            'importe' => $this->input->post('importe'),
+            'subimporte' => $this->input->post('subimporte')
+        );
+        $this->cajas_model->ajustar_cuenta($data, $id);
+
+        header('Content-Type: application/json');
+        echo json_encode(array('success' => 1));
+    }
+
+    function caja_detalle_form($id)
+    {
+        $data['cuenta'] = $this->cajas_model->get_cuenta($id);
+
+        $data['cuenta_movimientos'] = $this->cajas_mov_model->get_movimientos_today($id);
+
+        $this->load->view('menu/cajas/form_detalle', $data);
+    }
 
 }

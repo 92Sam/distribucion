@@ -625,7 +625,6 @@ $primary_nav = array(
                 'slug' => 'metodospago'
             ),
 
-
             array(
                 'name' => 'Usuarios',
                 'icon' => 'fa fa-users',
@@ -655,16 +654,16 @@ $primary_nav = array(
                 'slug' => 'unidadesmedida'
             ),
             array(
-                'name' => 'Bancos',
-                'url' => $ruta . 'banco',
-                'icon' => 'gi gi-kiosk',
-                'slug' => 'bancos'
-            ),
-            array(
                 'name' => 'Caja',
                 'url' => $ruta . 'cajas',
                 'icon' => 'gi gi-nameplate',
                 'slug' => 'cajas'
+            ),
+            array(
+                'name' => 'Bancos',
+                'url' => $ruta . 'banco',
+                'icon' => 'gi gi-kiosk',
+                'slug' => 'bancos'
             )
         )
 
