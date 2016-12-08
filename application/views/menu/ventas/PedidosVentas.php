@@ -852,8 +852,11 @@ fieldset {
                              }
                         }
                         $("#zona").trigger('chosen:updated');
+                    }else{
+                        resetCampos('zona');
                     }
                 // zonaclientes()
+
                 }
             });
         }
@@ -935,7 +938,6 @@ function resetCampos(campo_id){
 function obtenerClientesZona(zona_id){
 // Metodo Ajax 
     if(zona_id != ''){
-        alert(zona_id);
         $.ajax({
             url: '<?=base_url()?>venta/clientesIdZona',
             type: "post",
