@@ -271,7 +271,7 @@ fieldset {
                         </div>
                         <div class="col-md-4">
                                 <select name="tipo_cliente" id="tipo_cliente" required="true" class="form-control" >
-                                      <option value="" >Seleccione</option>
+                                      <option value="-1" >Seleccione</option>
                                       <option value="1" <?php if (isset($cliente['tipo_cliente']) and $cliente['tipo_cliente'] == 1) echo 'selected' ?>>Natural</option>
                                       <option value="0" <?php if (isset($cliente['tipo_cliente']) and $cliente['tipo_cliente'] == 0) echo 'selected' ?>>Juridico</option>
 
@@ -288,14 +288,14 @@ fieldset {
                             <label class="control-label panel-admin-text">RUC</label>
                         </div>
                         <div class="col-md-4">
-                            <input type="text" name="dni_ruc" id="dni_ruc" required="true" class="form-control" value="<?php if (isset($cliente['identificacion'])) echo $cliente['identificacion']; ?>">
+                            <input type="text" name="ruc_cliente" id="ruc_cliente" required="true"  class="form-control" value="<?php if (isset($cliente['identificacion'])) echo $cliente['identificacion']; ?>">
                         </div>
 
                         <div class="col-md-2">
                             <label class="control-label panel-admin-text">DNI</label>
                         </div>
                         <div class="col-md-4" id="dni_ruc_cont">
-                            <input type="text" name="dni_ruc" id="dni_ruc" required="true" class="form-control" value="<?php if (isset($cliente['identificacion'])) echo $cliente['identificacion']; ?>">
+                            <input type="text" name="dni_ruc" id="dni_ruc" required="true"  class="form-control" value="<?php if (isset($cliente['identificacion'])) echo $cliente['identificacion']; ?>">
                         </div>
                     </div>
                 </div>
@@ -307,7 +307,7 @@ fieldset {
                             <label class="control-label panel-admin-text">Razón Social</label>
                         </div>
                         <div class="col-md-4">
-                            <input type="text" name="razon_social" id="razon_social" required="true"
+                            <input type="text" name="razon_social" id="razon_social"  required="true"
                                    class="form-control"
                                    value="<?php if (isset($cliente['razon_social'])) echo $cliente['razon_social']; ?>">
                         </div>
@@ -316,7 +316,7 @@ fieldset {
                             <label class="control-label panel-admin-text">Representante</label>
                         </div>
                         <div class="col-md-4">
-                            <input type="text" name="representante" id="representante_id" class="form-control"
+                            <input type="text" name="representante" id="representante_id"  class="form-control"
                                    value="<?php if (isset($cliente['representante'])) echo $cliente['representante']; ?>">
                         </div>
                     </div>
@@ -652,7 +652,7 @@ fieldset {
     $(document).ready(function () {
         $("select").chosen({'width': '100%'});
 
-                $('#div_retencion').hide()
+            $('#div_retencion').hide()
 
             agenteRetencion()
 
@@ -674,7 +674,7 @@ fieldset {
 
         verificarRucDni()
 
-        $(tipo_cliente).change(function(event){
+        $(tipo_cliente).change(function(){
             $('#dni_ruc').val('')
             verificarTipoPersona()
             verificarRucDni()
@@ -687,8 +687,6 @@ fieldset {
             }else{
                 $('#valor').attr('type', 'text');
             }
-
-
         })
 
 
@@ -700,7 +698,13 @@ fieldset {
             // Juridico es cero "0"
             var tipopersona = $("#tipo_cliente").val();
 
-            if (true) {}
+            if (tipopersona == 0 ) {
+                $("#ruc_cliente").prop('readonly',false);
+                $("#dni_ruc").prop('readonly',false);
+                $("#representante_id").prop('readonly',false);
+
+            }
+
 
         };
 
