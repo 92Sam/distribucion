@@ -4473,6 +4473,7 @@ class venta extends MY_Controller
 
     }
 
+
     function clienteDireccion()
     {
         $cliente_direccion = $this->venta_model->clienteDireccion($this->input->post('cliente_id'));
