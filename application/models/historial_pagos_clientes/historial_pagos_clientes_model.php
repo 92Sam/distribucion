@@ -119,8 +119,7 @@ class historial_pagos_clientes_model extends CI_Model
                     'monto_restante' => isset($row->monto_restante) ? $row->monto_restante : 0.00,
                     'historial_usuario' => $row->usuario,
                     'historial_estatus' => "PENDIENTE",
-                    'historial_banco_id' => $banco,
-                    'historial_caja_id' => $caja
+                    'historial_banco_id' => $banco
 
                 );
 

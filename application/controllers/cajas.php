@@ -124,4 +124,13 @@ class cajas extends MY_Controller
         echo json_encode(array('success' => 1));
     }
 
+    function caja_detalle_form($id)
+    {
+        $data['cuenta'] = $this->cajas_model->get_cuenta($id);
+
+        $data['cuenta_movimientos'] = $this->cajas_mov_model->get_movimientos_today($id);
+
+        $this->load->view('menu/cajas/form_detalle', $data);
+    }
+
 }

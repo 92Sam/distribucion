@@ -25,6 +25,8 @@ class cajas_model extends CI_Model
         return $result;
     }
 
+
+
     function get($id)
     {
         return $this->db->get_where('caja', array('id' => $id))->row();
@@ -33,6 +35,11 @@ class cajas_model extends CI_Model
     function get_cuenta($id)
     {
         return $this->db->get_where('caja_desglose', array('id' => $id))->row();
+    }
+
+    function get_cierre($id)
+    {
+        return $this->db->get_where('caja_cuadre', array('id' => $id))->row();
     }
 
 
@@ -179,7 +186,7 @@ class cajas_model extends CI_Model
         if ($this->db->count_all_results() == 0)
             return TRUE;
         else
-            return FALSE;
+            return TRUE;
     }
 
 

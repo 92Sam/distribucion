@@ -3264,7 +3264,6 @@ where v.venta_id=" . $id_venta . " group by tr.id_detalle order by 1 ";
          $this->db->from('liquidacion_cobranza_detalle');
          $this->db->join('historial_pagos_clientes', 'liquidacion_cobranza_detalle.pago_id=historial_pagos_clientes.historial_id');
          $this->db->join('liquidacion_cobranza', 'liquidacion_cobranza.liquidacion_id=liquidacion_cobranza_detalle.liquidacion_id');
-         $this->db->where('historial_caja_id IS NOT NULL');
          $this->db->where($w);
          $this->db->order_by('liquidacion_cobranza_detalle.liquidacion_id', 'desc');
          $query = $this->db->get();
@@ -3277,7 +3276,6 @@ where v.venta_id=" . $id_venta . " group by tr.id_detalle order by 1 ";
             'historial_estatus' => 'CONFIRMADO'
         );
         $this->db->select('*,SUM(historial_monto) as suma');
-        $this->db->where('historial_caja_id IS NOT NULL');
         $this->db->where($w);
         $this->db->from('historial_pagos_clientes');
         $this->db->join('liquidacion_cobranza_detalle', 'liquidacion_cobranza_detalle.pago_id=historial_id');

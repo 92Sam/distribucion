@@ -74,6 +74,11 @@
                                        data-id="<?= $desglose->id ?>">
                                         <i class="fa fa-exchange"></i>
                                     </a>
+
+                                    <a class="btn_detalle_caja_cuenta btn btn-default"
+                                       data-id="<?= $desglose->id ?>">
+                                        <i class="fa fa-search"></i>
+                                    </a>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -147,6 +152,18 @@
         $(".btn_ajustar_caja_cuenta").on('click', function () {
             $.ajax({
                 url: '<?php echo base_url('cajas/caja_ajustar_form')?>' + '/' + $(this).attr('data-caja_id') + '/' + $(this).attr('data-id'),
+                type: 'post',
+                success: function (data) {
+                    $("#dialog_form").html(data);
+                    $("#dialog_form").modal('show');
+                }
+            });
+        });
+
+
+        $(".btn_detalle_caja_cuenta").on('click', function () {
+            $.ajax({
+                url: '<?php echo base_url('cajas/caja_detalle_form')?>' + '/' + $(this).attr('data-id'),
                 type: 'post',
                 success: function (data) {
                     $("#dialog_form").html(data);

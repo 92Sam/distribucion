@@ -425,24 +425,6 @@ $primary_nav = array(
             ),
         )
     ),
-    array(
-        'name' => 'CAJA',
-        'slug' => 'cajas',
-        'sub' => array(
-            array(
-                'name' => 'Cuadre de Caja',
-                'url' => $ruta . 'cajas/cierre',
-                'icon' => 'gi gi-nameplate',
-                'slug' => 'cajas'
-            ),
-            array(
-                'name' => 'Administrar',
-                'url' => $ruta . 'cajas',
-                'icon' => 'gi gi-nameplate',
-                'slug' => 'cajas'
-            )
-        )
-    ),
 
     // Reportes
     array(
@@ -643,7 +625,6 @@ $primary_nav = array(
                 'slug' => 'metodospago'
             ),
 
-
             array(
                 'name' => 'Usuarios',
                 'icon' => 'fa fa-users',
@@ -671,6 +652,12 @@ $primary_nav = array(
                 'url' => $ruta . 'unidades',
                 'icon' => 'fa fa-list-ol',
                 'slug' => 'unidadesmedida'
+            ),
+            array(
+                'name' => 'Caja',
+                'url' => $ruta . 'cajas',
+                'icon' => 'gi gi-nameplate',
+                'slug' => 'cajas'
             ),
             array(
                 'name' => 'Bancos',
