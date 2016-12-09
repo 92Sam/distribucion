@@ -69,13 +69,13 @@ fieldset {
                     <li class="disabled"><a href="#step-2">
                             <h4 class="list-group-item-heading">Paso 2</h4>
 
-                            <p class="list-group-item-text">Seleccion de Productos y envio de Pedido</p>
+                            <p class="list-group-item-text">Seleccion de Productos</p>
                         </a></li>
-                    <!-- <li class="disabled"><a href="#step-3" style="display: none;">
+                    <li class="disabled"><a href="#step-3">
                             <h4 class="list-group-item-heading">Paso 3</h4>
 
                             <p class="list-group-item-text">Enviar Pedidos</p>
-                        </a></li> -->
+                    </a></li>
                 </ul>
             </div>
         </div>
@@ -86,26 +86,26 @@ fieldset {
                     <div class="row">
                         <div class="col-md-3">
                             <div class="form-group">
-                                <label for="zona" class="control-label">Zona</label>
+                                <label for="zona" class="control-label panel-admin-text">Zona</label>
                                 <select name="zona" id="zona" class='form-control' required="true" >
                                     <option value="">Seleccione</option>
 
                                 </select>
                             </div>
-                            <div id=check_zonas style="display:none">
+                            <div id=check_zonas style="display:block">
                                 <input type="checkbox" name="todasZona" id="todasZonas"> Todas las zonas
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="form-group">
-                                <label class="control-label">Tipo de Pago</label>
+                                <label class="control-label panel-admin-text">Tipo de Pago</label>
                                 <select name="condicion_pago" id="cboModPag" onchange="activarText_ModoPago()"
                                         class="form-control" <?= $disabled; ?>></select>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="form-group">
-                                <label class="control-label">Documento</label>
+                                <label class="control-label panel-admin-text">Documento</label>
                                 <select name="tipo_documento" id="tipo_documento" onchange="" class="form-control" <?= $disabled; ?>>
                                     <option value="">Seleccione</option>
                                     <option value="<?= BOLETAVENTA ?>" selected><?= BOLETAVENTA ?>
@@ -139,7 +139,7 @@ fieldset {
                         <legend>Cliente</legend>
                         <div class="col-md-12">
                             <div class="col-md-12 form-group">
-                                <label for="zona" class="control-label">Cliente</label>
+                                <label for="zona" class="control-label panel-admin-text">Cliente</label>
                                 <select name="id_cliente" id="id_cliente" class='form-control'
                                         required="true" >
                                     <option value="">Seleccione</option>
@@ -160,16 +160,16 @@ fieldset {
                                     } ?>
                                 </select>
 
-<div class="chosen-container chosen-container-single" style="width: 100%; display: none;" title="" id="id_cliente_chosen2">
-<a class="chosen-single" tabindex="-1">
-<span>Seleccione</span><div><b></b></div></a>
-<div class="chosen-drop">
-<div class="chosen-search">
-<input type="text" autocomplete="off">
-</div>
-<ul class="chosen-results">
-<li class="active-result result-selected" data-option-array-index="0">Seleccione</li>
-</ul></div></div>
+                            <div class="chosen-container chosen-container-single" style="width: 100%; display: none;" title="" id="id_cliente_chosen2">
+                            <a class="chosen-single" tabindex="-1">
+                            <span>Seleccione</span><div><b></b></div></a>
+                            <div class="chosen-drop">
+                            <div class="chosen-search">
+                            <input type="text" autocomplete="off">
+                            </div>
+                            <ul class="chosen-results">
+                            <li class="active-result result-selected" data-option-array-index="0">Seleccione</li>
+                            </ul></div></div>
                             </div>
 
                         </div>
@@ -292,7 +292,7 @@ fieldset {
                 <div class="col-md-12 well">
                     <div class="row panel">
                         <div class="form-group">
-                            <div class="col-md-1">
+                            <div class="col-md-2">
                                 <label for="cboTipDoc" class="control-label panel-admin-text">Cliente</label>
                             </div>
                             <div class="col-md-5">
@@ -308,7 +308,7 @@ fieldset {
                             <div class="col-md-2">
                                 <label for="cboTipDoc" class="control-label panel-admin-text">Buscar Producto:</label>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-5">
                                 <select class="form-control" style="width: 100%" id="selectproductos"
                                         onchange="buscarProducto()" <?= $disabled; ?>></select>
                             </div>
@@ -320,7 +320,8 @@ fieldset {
                                         </button>
 
                                     <?php } ?>
-                                    <!-- <button id="activate-step-3" class="btn btn-primary">Continuar</button> -->
+
+                                    <button id="activate-step-3" class="btn btn-primary">Continuar</button>
                                 </div>
                             </div>
                             <?php if ($estatus_actual == PEDIDO_DEVUELTO) { ?>
@@ -452,6 +453,7 @@ fieldset {
                                 </div>
                             </div>
 
+                            <!--
                             <br>
 
                             <div class="row">
@@ -473,6 +475,7 @@ fieldset {
                             </div>
 
                             <br>
+                            -->
 
                         </div>
 
@@ -480,7 +483,7 @@ fieldset {
                             <div class="row">
                                 <div class="form-group">
                                     <div class="col-md-5">
-                                        <label class="control-label">Total Productos</label>
+                                        <label class="control-label panel-admin-text">Total Productos</label>
                                     </div>
                                     <div class="col-md-7">
                                         <span id="totalproductos"></span>
@@ -510,10 +513,10 @@ fieldset {
                     <div class="modal-body">
                         <div class="row">
                             <div class="form-group">
-                                <div class="col-md-3">
-                                    <label for="totApagar2" class="control-label">Total Pagar:</label>
+                                <div class="col-md-2">
+                                    <label for="totApagar2" class="control-label panel-admin-text">Total Pagar:</label>
                                 </div>
-                                <div class="col-md-9">
+                                <div class="col-md-6">
                                     <div class="input-prepend input-append input-group">
                                         <span class="input-group-addon"><?= MONEDA ?></span>
                                         <input type="number"
@@ -527,12 +530,12 @@ fieldset {
                             </div>
                         </div>
                         <?php if (isset($venta[0]) && (!isset($preciosugerido) || $preciosugerido != 1)) { ?>
-                            <div class="row" id="pagadodiv">
+                            <div class="row" id="pagadodiv" style="display: none;">
                                 <div class="form-group">
-                                    <div class="col-md-3">
-                                        <label for="importe" class="control-label">A cuenta:</label>
+                                    <div class="col-md-2">
+                                        <label for="importe" class="control-label panel-admin-text">A cuenta:</label>
                                     </div>
-                                    <div class="col-md-9">
+                                    <div class="col-md-6">
                                         <div class="input-prepend input-append input-group">
                                             <span class="input-group-addon"><?= MONEDA ?></span>
                                             <input type="number" tabindex="0"
@@ -548,12 +551,12 @@ fieldset {
                             </div>
                         <?php } ?>
 
-                        <div class="row" id="importediv" style="display: none;">
+                        <div class="row" id="importediv" >
                             <div class="form-group">
-                                <div class="col-md-3">
-                                    <label for="importe" class="control-label">Importe:</label>
+                                <div class="col-md-2">
+                                    <label for="importe" class="control-label panel-admin-text">Importe:</label>
                                 </div>
-                                <div class="col-md-9">
+                                <div class="col-md-6">
                                     <div class="input-prepend input-append input-group">
                                         <span class="input-group-addon"><?= MONEDA ?></span>
                                         <input type="number" tabindex="0"
@@ -842,14 +845,25 @@ fieldset {
                 data: {'vendedor_id': $('#vendedor').val(), 'dia': n},
                 success: function(data) {
                     if (data != '') {
-                        if (data != '') {
-                             for (i = 0; i < data.length; i++) {
-                                 $('#zona').append('<option value=' + data[i].zona_id + '>' + data[i].zona_nombre + '</option>')
-                             }
+
+                        var arrayRand = [];
+
+                        for (i = 0; i < data.length; i++) {
+                            arrayRand.push(data[i].zona_id);
+                            $('#zona').append('<option value=' + data[i].zona_id + '>' + data[i].zona_nombre + '</option>')
                         }
+
+                        // Selecci´on aleatorea de valores
+                        dataRand = arrayRand[Math.floor(Math.random()*arrayRand.length)];
+                        obtenerClientesZona(dataRand);
+                        $('#zona').val(dataRand)
                         $("#zona").trigger('chosen:updated');
+                        
+                    }else{
+                        resetCampos('zona');
                     }
-zonaclientes()
+                // zonaclientes()
+
                 }
             });
         }
@@ -912,21 +926,85 @@ zonaclientes()
         }
     }
 
-function zonaclientes(){
-    if($('#zona').val() != null){
-        $('#id_cliente_chosen').show()
-        $('#id_cliente_chosen2').hide()
-        $('#check_zonas').show()
-    }else{
-        $('#id_cliente_chosen').hide()
-        $('#id_cliente_chosen2').show()
-        $('#check_zonas').hide()
+// Evento de Zonas
+$('#zona').change(function(){
+    // zonaclientes()
+    obtenerClientesZona($(this).val());
+    resetCampos('id_cliente');
+})
 
+
+function resetCampos(campo_id){
+    if($('#'+campo_id).is('select')){
+        $('#'+campo_id+' option').remove();
+        $('#'+campo_id).append('<option value="">Seleccione</option>');
+        $('#'+campo_id).trigger('chosen:updated');
     }
 }
 
+function obtenerClientesZona(zona_id){
+// Metodo Ajax 
+    if(zona_id != ''){
+        $.ajax({
+            url: '<?=base_url()?>venta/clientesIdZona',
+            type: "post",
+            dataType: "json",
+            data: {'zona_id': zona_id},
+            success: function(data) {
+                if (data != '') {
+                    $('#id_cliente option').remove();
+                    $('#id_cliente').append('<option value="">Seleccione</option>');          
+                     for (i = 0; i < data.length; i++) {
+                         $('#id_cliente').append('<option value=' + data[i].id_cliente + '>' + data[i].representante + '</option>')
+                     }
+                    $("#id_cliente").trigger('chosen:updated');
+                }
+            }
+        });
+    }else{
+        resetCampos('id_cliente');
+    }
+ }
+
+function obtenerClientes(){
+// Metodo Ajax
+    $.ajax({
+        url: '<?=base_url()?>venta/listaClientes',
+        type: "post",
+        dataType: "json",
+        success: function(data) {
+            if (data != '') {
+                $('#id_cliente option').remove();
+                $('#id_cliente').append('<option value="">Seleccione</option>');
+                 for (i = 0; i < data.length; i++) {
+                     $('#id_cliente').append('<option value=' + data[i].id_cliente + '>' + data[i].representante + '</option>')
+                 }
+                $("#id_cliente").trigger('chosen:updated');
+            }
+        }
+    });
+ }
+
+function getElementOptionRand(id_input){    
+    alert(id_input)
+    var arrayRand = [];
+    $(id_input).children().each(function(index,value){
+        console.log(value);
+        arrayRand.push($(value).val())
+    });
+    return arrayRand[Math.floor(Math.random()*arrayRand.length)];
+}
+
+function contruirSelect(data,element_id){
+    for (i = 0; i < data.length; i++) {
+        $('#'+element_id).append('<option value=' + data[i].zona_id + '>' + data[i].zona_nombre + '</option>')
+    }
+    $("#"+element_id).trigger('chosen:updated');
+}
+//////////////////////////
 
         $(document).ready(function () {
+
 
 
             $('#cont_retencion').click(function(){
@@ -946,11 +1024,23 @@ function zonaclientes(){
 
             })
 
-            $('#todasZonas').prop('checked', false)
-            zonaVendedor()
-            $('#todasZonas').click(function(){
-                zonaVendedor()
+            // Evento Zonas N
+            $('#todasZonas').prop('checked', false);
 
+            zonaVendedor();
+            // console.log(data);
+            // var zonaRand = getElementOptionRand("#zona");
+            // $("#zona").trigger('chosen:updated');
+            
+            // Evento Click Checkbox
+            $('#todasZonas').click(function(){
+                if($('#todasZonas').is(':checked')){
+                    obtenerClientes();
+                }else{
+                    $('#id_cliente option').remove();
+                    $("#id_cliente").trigger('chosen:updated');
+                }
+                zonaVendedor();
             })
 
             $("#direccion_entrega_np").change(function(){
@@ -975,10 +1065,9 @@ function zonaclientes(){
             })
 
             $("#id_cliente").change(function () {
-            $('#cliente_nt').val($('#id_cliente :selected').html())
-            $('#contacto_nt').val($('#id_cliente :selected').html())
-
-            $("#clienteinformativo").html($("#id_cliente option:selected").html());
+                $('#cliente_nt').val($('#id_cliente :selected').html())
+                $('#contacto_nt').val($('#id_cliente :selected').html())
+                $("#clienteinformativo").html($("#id_cliente option:selected").html());
             });
 
             function tipoDoc(){
@@ -1046,9 +1135,6 @@ function zonaclientes(){
                 $(this).remove();
             })
 
-$('#zona').change(function(){
-    zonaclientes()
-})
 
         });
 

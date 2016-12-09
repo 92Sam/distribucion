@@ -67,8 +67,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
             </div>
             <br>
         </form>
-    </div>
-</div>
+
 
 <div class="block">
     <!-- Progress btn-defaultrs Wizard Title -->
@@ -78,8 +77,6 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
         </div>
     </div>
     <div id="lstTabla" class="table-responsive"></div>
-
-
 
 
 </div>

@@ -30,15 +30,9 @@ class venta extends MY_Controller
         $this->load->library('Pdf');
         $this->load->library('session');
         $this->load->library('phpExcel/PHPExcel.php');
-        //$this->very_sesion();
+
     }
 
-    /* function very_sesion()
-     {
-         if (!$this->session->userdata('nUsuCodigo')) {
-             redirect(base_url() . 'inicio');
-         }
-     }*/
 
     function index()
     {
@@ -3575,7 +3569,7 @@ class venta extends MY_Controller
         $campos_join = array('historial_pagos_clientes.credito_id=venta.venta_id', 'cliente.id_cliente=venta.id_cliente',
             'documento_venta.id_tipo_documento=venta.numero_documento', 'metodos_pago.id_metodo=historial_pagos_clientes.historial_tipopago',
             'liquidacion_cobranza_detalle.pago_id=historial_pagos_clientes.historial_id', 'cli_dat.cliente_id = cliente.id_cliente', 'cli_dat2.cliente_id = cliente.id_cliente');
-        
+
         $tipo_join = array(null, null, null, null, null, null, 'left');
 
 
@@ -4465,7 +4459,7 @@ class venta extends MY_Controller
         return $xsub;
     }
 
-   
+
 
     function zonaVendedor()
     {
@@ -4479,6 +4473,7 @@ class venta extends MY_Controller
 
     }
 
+
     function clienteDireccion()
     {
         $cliente_direccion = $this->venta_model->clienteDireccion($this->input->post('cliente_id'));
@@ -4489,6 +4484,15 @@ class venta extends MY_Controller
     {
         $cliente_direccion = $this->venta_model->dataCliente($this->input->post('cliente_id'));
         die(json_encode($cliente_direccion));
+    }
+
+    function clientesIdZona(){
+        $cliente_direccion = $this->venta_model->dataClienteIdZona($this->input->post('zona_id'));
+        die(json_encode($cliente_direccion));
+    }
+
+    function listaClientes(){
+        die(json_encode($this->cliente_model->get_all()));
     }
 }
 

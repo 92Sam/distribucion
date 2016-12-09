@@ -51,7 +51,7 @@ $active_record = TRUE;
 $db['default']['hostname'] = 'localhost';
 $db['default']['username'] = 'root';
 $db['default']['password'] = 'nexus1108';
-$db['default']['database'] = 'distribucion_edison';
+$db['default']['database'] = 'distribucion_master';
 
 
 /*

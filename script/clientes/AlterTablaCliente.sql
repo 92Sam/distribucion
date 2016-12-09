@@ -1,0 +1,1 @@
+ALTER TABLE `cliente` ADD COLUMN `ruc_cliente` VARCHAR(15) NULL  AFTER `identificacion` ;

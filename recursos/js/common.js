@@ -1,6 +1,37 @@
 /**
  * Created by Jhainey on 10/10/2015.
  */
+function show_msg(type, msg) {
+    $.bootstrapGrowl(msg, {
+        type: type,
+        delay: 5000,
+        allow_dismiss: true
+    });
+}
+
+function formatPrice(price, min) {
+    if (min == undefined)
+        min = 10;
+    var r = +(Math.round(price + "e+4") + "e-4");
+    var round = r.toFixed(2).split('.');
+    var entero = round[0];
+    var fraccion = round[1]
+
+    for (var i = 0; i <= 100; i = i + min) {
+        if (i < fraccion && i + min > fraccion) {
+            if ((i + min - fraccion) <= (fraccion - i))
+                fraccion = i + min;
+            else if ((i + min - fraccion) > (fraccion - i))
+                fraccion = i;
+
+            if (fraccion == 100) {
+                fraccion = 0;
+                entero = parseInt(entero) + 1;
+            }
+        }
+    }
+    return parseFloat(entero + '.' + fraccion).toFixed(2);
+}
 
 var region = {
 
@@ -50,6 +81,10 @@ var region = {
                     }
                     $("#ciudad_id").html(options);
                     $("#ciudad_id").trigger('chosen:updated');
+                    $("#zona option").empty();
+                    $("#zona").trigger('chosen:updated');
+                    $("#vendedor option").empty();
+                    $("#vendedor").trigger('chosen:updated');
                 }
             }
         })
@@ -73,12 +108,14 @@ var region = {
                     }
                     $("#zona").html(options);
                     $("#zona").trigger('chosen:updated');
+                    $("#vendedor option").empty();
+                    $("#vendedor").trigger('chosen:updated');
                 }
             }
         })
     } ,
     actualizarvendedor: function () {
-        if ($("#vendedor").val() == 0){
+        if($("#zona").val() != ''){
             $.ajax({
                 url: baseurl + 'usuario/get_by_usuario',
                 type: 'POST',
@@ -89,7 +126,8 @@ var region = {
                 },
                 success: function (data) {
                     if (data != 'undefined') {
-
+                        $("#vendedor option").empty();
+                        $("#vendedor").trigger('chosen:updated');
                         var options = '<option value="0">Seleccione</option>';
                         for (var i = 0; i < data.length; i++) {
 
@@ -100,7 +138,10 @@ var region = {
                     }
                 }
             })
-         }
+        }else{
+            $("#vendedor option").empty();
+            $("#vendedor").trigger('chosen:updated');
+        }
     },
     actualizarzona: function () {
         if ($("#zona").val() == 0) {
