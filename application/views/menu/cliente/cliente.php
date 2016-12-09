@@ -33,8 +33,8 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
 
                 <th>ID</th>
                 <th>RUC</th>
-                <th>Raz&oacute;n Social/ Nombre</th>
-                <th>RUC / DNI</th>
+                <th>Raz&oacute;n Social</th>
+                <th>DNI</th>
                 <th>Representante</th>
                 <th>Direcci&oacute;n</th>
                 <th>Distrito</th>
@@ -52,7 +52,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
 
 </div>
     <br>
-    <a href="<?= $ruta ?>cliente/pdf" class="btn  btn-default btn-lg" data-toggle="tooltip" title="Exportar a PDF"
+    <a href="<?= $ruta ?>cliente/pdf" class="btn  btn-danger btn-lg" data-toggle="tooltip" title="Exportar a PDF"
        data-original-title="fa fa-file-pdf-o"><i class="fa fa-file-pdf-o fa-fw"></i></a>
     <a href="<?= $ruta ?>cliente/excel" class="btn btn-default btn-lg" data-toggle="tooltip"
        title="Exportar a Excel" data-original-title="fa fa-file-excel-o"><i
@@ -64,6 +64,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
 <div class="modal hide" id="mOK">
     <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" onclick="javascript:window.location.reload();">
+        <li class="glyphicon glyphicon-thumbs-down"></li>
         </button>
         <h3>Notificaci&oacute;n</h3>
     </div>
@@ -128,7 +129,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
             if ($("#identificacion").val() == '') {
                 var growlType = 'warning';
 
-                $.bootstrapGrowl('<h4>Debe ingresar la identificaci&oacute;n</h4>', {
+                $.bootstrapGrowl('<h4>Debe ingresar el DNI</h4>', {
                     type: growlType,
                     delay: 2500,
                     allow_dismiss: true
@@ -260,7 +261,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                                    return true
                                 }else{
                                     return false
-                                
+
                                 }
 
 
@@ -286,17 +287,25 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="fa fa-close"></i>
+                    </button>
                     <h4 class="modal-title">Eliminar Cliente</h4>
                 </div>
+
                 <div class="modal-body">
-                    <p>Est&aacute; seguro que desea eliminar el Cliente seleccionado?</p>
+                    <div class="form-group row">
+                        <h4>¿Est&aacute; seguro que desea eliminar el Cliente seleccionado?</h4>
+                    </div>
                     <input type="hidden" name="id" id="id_borrar">
                     <input type="hidden" name="nombre" id="nom_borrar">
                 </div>
                 <div class="modal-footer">
-                    <button type="button" id="confirmar" class="btn btn-primary" onclick="eliminar()">Confirmar</button>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                    <button type="button" id="confirmar" class="btn btn-primary" onclick="eliminar()">
+                        <li class="glyphicon glyphicon-thumbs-up"></li> Confirmar
+                    </button>
+                    <button type="button" class="btn btn-warning" data-dismiss="modal"> Cancelar
+                        <li class="glyphicon glyphicon-thumbs-down"></li>
+                    </button>
 
             </div>
         </div>

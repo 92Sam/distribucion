@@ -1,45 +1,52 @@
 
 <script type="text/javascript">
+
     function validarFrm(){
         $('#barloadermodal').modal('show');
 
-
         var items = []
-
 
         if(validar_ruc_dni() == false){
             $('#barloadermodal').modal('hide');
             return false
         }
 
-        if ($("#razon_social").val() == '') {
-        var growlType = 'warning';
+        var tipopersona = $("#tipo_cliente").val();
+        if (tipopersona == 0) {
 
-        $.bootstrapGrowl('<h4>Debe ingresar la raz&oacute;n social</h4>', {
-        type: growlType,
-        delay: 2500,
-        allow_dismiss: true
-        });
+            if ($("#razon_social").val() == '') {
+            var growlType = 'warning';
 
-        $(this).prop('disabled', true);
-        $('#barloadermodal').modal('hide');
-
-        return false;
-        }
-
-        if ($("#dni_ruc").val() == '') {
-        var growlType = 'warning';
-
-        $.bootstrapGrowl('<h4>Debe ingresar la identificaci&oacute;n</h4>', {
+            $.bootstrapGrowl('<h4>Debe ingresar la raz&oacute;n social</h4>', {
             type: growlType,
             delay: 2500,
             allow_dismiss: true
-        });
+            });
 
-        $(this).prop('disabled', true);
-        $('#barloadermodal').modal('hide');
+            $(this).prop('disabled', true);
+            $('#barloadermodal').modal('hide');
 
-        return false;
+            return false;
+            }
+
+        }
+
+        var tipopersona = $("#tipo_cliente").val();
+        if (tipopersona == 1) {
+            if ($("#dni_ruc").val() == '') {
+            var growlType = 'warning';
+
+            $.bootstrapGrowl('<h4>Debe ingresar la identificaci&oacute;n</h4>', {
+                type: growlType,
+                delay: 2500,
+                allow_dismiss: true
+            });
+
+            $(this).prop('disabled', true);
+            $('#barloadermodal').modal('hide');
+
+            return false;
+            }
         }
 
         if ($("#grupo_id").val() == '') {
@@ -165,8 +172,7 @@
             $(this).prop('disabled', true);
             $('#barloadermodal').modal('hide');
 
-
-                return false
+            return false
         }
 
 
@@ -195,6 +201,7 @@
                 'linea_libre':linea_libre,
                 'linea_libre_valor':$('#linea_libre_valor').val(),
                 'identificacion':$('#dni_ruc').val(),
+                'ruc_cliente':$('#ruc_cliente').val(),
                 'latitud' :$('#latitud').val(),
                 'longitud':$('#longitud').val(),
                 'id_zona' :$('#zona').val(),
@@ -287,7 +294,7 @@ fieldset {
                             <label class="control-label panel-admin-text">RUC</label>
                         </div>
                         <div class="col-md-4">
-                            <input type="text" name="ruc_cliente" id="ruc_cliente" required="true" readonly class="form-control" value="<?php if (isset($cliente['identificacion'])) echo $cliente['identificacion']; ?>">
+                            <input type="text" name="ruc_cliente" id="ruc_cliente" required="true" readonly class="form-control" value="<?php if (isset($cliente['ruc_cliente'])) echo $cliente['ruc_cliente']; ?>">
                         </div>
 
                         <div class="col-md-2">
@@ -618,8 +625,10 @@ fieldset {
             </div>
 
             <div class="modal-footer">
-                <button type="button" onclick ="validarFrm()" id="" class="btn btn-primary" >Confirmar</button>
-                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                <button type="button" onclick ="validarFrm()" id="" class="btn btn-primary" >
+                <li class="glyphicon glyphicon-thumbs-up"></li> Guardar</button>
+                <button type="button" class="btn btn-warning" data-dismiss="modal"> Cancelar
+                <li class="glyphicon glyphicon-thumbs-down"></li></button>
 
             </div>
             <!-- /.modal-content -->
@@ -631,32 +640,40 @@ fieldset {
 
 
     <div class="modal-content" id="modal_eliminar_dato" style="width:30%; position: absolute; top:40%;left: 30%; display:none">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Eliminar Dato</h5>
-                    </div>
-                    <div class="modal-body">
-                        <p>Está seguro que desea eliminar el dato seleccionado?</p>
-                        <input type="hidden" name="id" id="id_borrar">
-                        <input type="hidden" name="nombre" id="nom_borrar">
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" id="rm_dato" class="btn btn-primary">Confirmar</button>
-                        <button type="button" class="btn btn-default" id='cancelar_rm' >Cancelar</button>
-
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="fa fa-close"></i>
+                    </button>
+                <h4 class="modal-title">Eliminar Dato</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row">
+                    <h4>¿Está seguro que desea eliminar el dato seleccionado?</h4>
                 </div>
+
+                <input type="hidden" name="id" id="id_borrar">
+                <input type="hidden" name="nombre" id="nom_borrar">
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="rm_dato" class="btn btn-primary">
+                <i class="glyphicon glyphicon-trash"></i> Confirmar</button>
+                <button type="button" class="btn btn-default" id='cancelar_rm' >
+                <li class="glyphicon glyphicon-thumbs-down"></li> Cancelar</button>
+
+        </div>
     </div>
+
 
 
 <script type="text/javascript">
     $(document).ready(function () {
+
         $("select").chosen({'width': '100%'});
 
-            $('#div_retencion').hide()
+        $('#div_retencion').hide()
 
-            agenteRetencion()
+        agenteRetencion()
 
         $('#s_retencion').change(function(){
-
             agenteRetencion()
         })
 
@@ -665,7 +682,6 @@ fieldset {
         $('#linea_libre').change(function(){
             validarLineaCredito()
         })
-
 
         $('#dni_ruc').blur(function(){
             validar_ruc_dni()
@@ -677,7 +693,7 @@ fieldset {
         $("#tipo_cliente").change(function() {
 
             var tipopersona = $("#tipo_cliente").val();
-            alert(tipopersona);
+
 
                 if (tipopersona == 0 ) {
 
@@ -685,7 +701,6 @@ fieldset {
                     $("#representante_id").prop('readonly',false);
                     $("#razon_social").prop('readonly',false);
                     $("#dni_ruc").prop('readonly',true);
-                    $("#dni_ruc").val()="";
 
                 }// Natural es uno "1"
                  else if(tipopersona == 1){
@@ -694,7 +709,6 @@ fieldset {
                     $("#razon_social").prop('readonly',true);
                     $("#representante_id").prop('readonly',false);
                     $("#dni_ruc").prop('readonly',false);
-                    $("#ruc_cliente").val()="";
                 }
                 else {
                     $("#ruc_cliente").prop('readonly',true);
@@ -707,10 +721,8 @@ fieldset {
 
         // Fin de validacion de tipo de persona
 
-        verificarRucDni()
 
         $(tipo_cliente).change(function(){
-            $('#dni_ruc').val('')
             verificarRucDni()
         })
 
@@ -731,7 +743,7 @@ fieldset {
             $('#dni_ruc').mask('99999999');
             }
         if($('#tipo_cliente').val()==0){
-            $('#dni_ruc').mask('99999999999');
+            $('#ruc_cliente').mask('99999999999');
         }
     }
 
@@ -783,30 +795,30 @@ fieldset {
 
 
     function agenteRetencion(){
-
-                if($('#s_retencion').val()==1){
-                    $('#div_retencion').show()
-                }else{
-                    $('#div_retencion').hide()
-                    $('#retencion_id').val('')
-
-                }
+        if($('#s_retencion').val()==1){
+            $('#div_retencion').show()
+        }else{
+            $('#div_retencion').hide()
+            $('#retencion_id').val('')
+        }
     }
 
     function validarLineaCredito(){
 
-                if($('#linea_libre').is(':checked')){
-                    $('#linea_libre_valor').prop( "disabled", true )
-                    $('#linea_libre_valor').val('')
+        if($('#linea_libre').is(':checked')){
+            $('#linea_libre_valor').prop( "disabled", true )
+            $('#linea_libre_valor').val('')
 
-                }else{
-                    $('#linea_libre_valor').prop( "disabled", false )
-                }
+        }else{
+            $('#linea_libre_valor').prop( "disabled", false )
+        }
 
     }
 
     function DniRucEnBd(){
-        if($('#dni_ruc').val() != ''){
+        if ($('#tipo_cliente').val()==1) {
+
+            if($('#dni_ruc').val() != ''){
 
             $.ajax({
                 url: '<?=base_url()?>cliente/DniRucEnBd',
@@ -814,35 +826,35 @@ fieldset {
                 dataType: "json",
                 data: {'dni_ruc': $('#dni_ruc').val(), 'cliente_id': $('#cliente_id').val()},
                             success: function(data) {
-                            if (data != '') {
-
-                                if(Object.keys(data) == 'success'){
-                                   return true
-                                }else{
-                                    $.bootstrapGrowl('<h4>'+data[Object.keys(data)]+'</h4>', {
-                                        type: Object.keys(data),
-                                        delay: 2500,
-                                        allow_dismiss: true
-                                    });
-                                    return false
-
+                            if (data != '')
+                                {
+                                    if(Object.keys(data) == 'success'){
+                                       return true
+                                    }else{
+                                            $.bootstrapGrowl('<h4>'+data[Object.keys(data)]+'</h4>', {
+                                                type: Object.keys(data),
+                                                delay: 2500,
+                                                allow_dismiss: true
+                                            });
+                                            return false
+                                        }
                                 }
-
-
                             }
-                        }
 
-            });
-        }
+                        });
+                    }
+                }
 
-    }
+                alert('No valida DNI');
+            }
 
     function validar_ruc_dni(){
-        if(DniRucEnBd() == false){
-            return false
-        }
-        if($('#tipo_cliente').val() == 0 && $('#dni_ruc').val().length != 11){
-                $.bootstrapGrowl('<h4>¡EL campo DNI/RUC debe contener 11 digitos!</h4>', {
+       // if(DniRucEnBd() == false){
+       //     return false
+       // }
+        if($('#tipo_cliente').val() == 0 && $('#ruc_cliente').val().length != 11){
+
+                $.bootstrapGrowl('<h4>¡EL campo RUC debe contener 11 digitos!</h4>', {
                     type: 'warning',
                     delay: 2500,
                     allow_dismiss: true
@@ -850,9 +862,10 @@ fieldset {
 
             $(this).prop('disabled', true);
                 return false
+                $("#ruc_cliente").focus();
 
         }else if($('#tipo_cliente').val() == 1 && $('#dni_ruc').val().length != 8){
-                $.bootstrapGrowl('<h4>¡EL campo DNI/RUC debe contener 8 digitos!</h4>', {
+                $.bootstrapGrowl('<h4>¡EL campo DNI debe contener 8 digitos!</h4>', {
                     type: 'warning',
                     delay: 2500,
                     allow_dismiss: true
