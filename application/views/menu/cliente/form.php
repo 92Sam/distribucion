@@ -689,12 +689,16 @@ fieldset {
 
 
         // Inicio de validacion de tipo de persona
+        <?php if (isset($cliente['tipo_cliente'])) 
+            echo 'verificarTipoCliente('.$cliente['tipo_cliente'].')' 
+        ?>
 
         $("#tipo_cliente").change(function() {
-
             var tipopersona = $("#tipo_cliente").val();
-
-
+            verificarTipoCliente(tipopersona);
+        });
+        
+        function verificarTipoCliente(tipopersona){
                 if (tipopersona == 0 ) {
 
                     $("#ruc_cliente").prop('readonly',false);
@@ -716,8 +720,7 @@ fieldset {
                     $("#representante_id").prop('readonly',true);
                     $("#razon_social").prop('readonly',true);
                 }
-
-        });
+        }
 
         // Fin de validacion de tipo de persona
 
