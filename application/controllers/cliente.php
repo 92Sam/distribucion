@@ -95,6 +95,7 @@ class cliente extends MY_Controller
 
 
             'identificacion' => $_POST['identificacion'],
+            'ruc_cliente' => $_POST['ruc_cliente'],
             'latitud' => $_POST['latitud'],
             'longitud' => $_POST['longitud'],
             'importe_deuda' => !empty($_POST['importe_deuda']) ? $_POST['importe_deuda'] : null,

@@ -32,8 +32,9 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
             <tr>
 
                 <th>ID</th>
+                <th>RUC</th>
                 <th>Raz&oacute;n Social/ Nombre</th>
-                <th>RUC / DNI</th>
+                <th>DNI</th>
                 <th>Representante</th>
                 <th>Direcci&oacute;n</th>
                 <th>Distrito</th>

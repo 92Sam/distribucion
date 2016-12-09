@@ -194,6 +194,7 @@
                 'agente_retencion':$('#s_retencion').val(),
                 'linea_libre':linea_libre,
                 'linea_libre_valor':$('#linea_libre_valor').val(),
+                'ruc_cliente':$('#ruc_cliente').val(),
                 'identificacion':$('#dni_ruc').val(),
                 'latitud' :$('#latitud').val(),
                 'longitud':$('#longitud').val(),
@@ -288,7 +289,7 @@ fieldset {
                             <label class="control-label panel-admin-text">RUC</label>
                         </div>
                         <div class="col-md-4">
-                            <input type="text" name="ruc_cliente" id="ruc_cliente" required="true"  class="form-control" value="<?php if (isset($cliente['identificacion'])) echo $cliente['identificacion']; ?>">
+                            <input type="text" name="ruc_cliente" id="ruc_cliente" required="true"  class="form-control" value="<?php if (isset($cliente['ruc_cliente'])) echo $cliente['ruc_cliente']; ?>">
                         </div>
 
                         <div class="col-md-2">
@@ -714,7 +715,7 @@ fieldset {
             $('#dni_ruc').mask('99999999');
             }
         if($('#tipo_cliente').val()==0){
-            $('#dni_ruc').mask('99999999999');
+            $('#ruc_cliente').mask('99999999999');
         }
     }
 
