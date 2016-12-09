@@ -84,6 +84,7 @@ var region = {
         })
     } ,
     actualizarvendedor: function () {
+        if($("#zona").val() != ''){
             $.ajax({
                 url: baseurl + 'usuario/get_by_usuario',
                 type: 'POST',
@@ -106,6 +107,10 @@ var region = {
                     }
                 }
             })
+        }else{
+            $("#vendedor option").empty();
+            $("#vendedor").trigger('chosen:updated');
+        }
     },
     actualizarzona: function () {
         if ($("#zona").val() == 0) {
