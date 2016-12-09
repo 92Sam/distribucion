@@ -89,7 +89,7 @@ class cliente_model extends CI_Model
             );
             $this->db->insert('cliente_direccion', $direccion);
             */
-            for ($i=0; $i < count($items); $i++) { 
+            for ($i=0; $i < count($items); $i++) {
 
                 if($items[$i][2] == 'true'){
                     $principal = true;
@@ -106,6 +106,7 @@ class cliente_model extends CI_Model
                     );
                 $this->db->insert('cliente_datos', $datos);
 
+                /*
                 if($items[$i][0]==1){
                     $direccion = array(
                         'direccion' => $items[$i][1],
@@ -113,7 +114,7 @@ class cliente_model extends CI_Model
                         'fecha' => $fech,
                         );
                     $this->db->insert('cliente_direccion', $direccion);
-                }
+                }*/
             }
 
 
@@ -167,7 +168,7 @@ class cliente_model extends CI_Model
 
             $this->db->where('cliente_id', $cliente['id_cliente']);
             $this->db->order_by('direccion_id', 'DESC');
-            $query = $this->db->get('cliente_direccion', 1);
+            //$query = $this->db->get('cliente_direccion', 1);
             $direcc = $query->row_array();
 
 
@@ -175,10 +176,10 @@ class cliente_model extends CI_Model
             if(count($items)>0){
 
                 $this->db->where('cliente_id', $cliente['id_cliente']);
-                $this->db->delete('cliente_datos'); 
+                $this->db->delete('cliente_datos');
 
 
-                for ($i=0; $i < count($items); $i++) { 
+                for ($i=0; $i < count($items); $i++) {
 
                     if($items[$i][2] == 'true'){
                         $principal = true;
@@ -195,6 +196,7 @@ class cliente_model extends CI_Model
                         );
                     $this->db->insert('cliente_datos', $datos);
 
+                    /*
                     if($items[$i][0]==1){
                         $direccion = array(
                             'direccion' => $items[$i][1],
@@ -203,6 +205,7 @@ class cliente_model extends CI_Model
                             );
                         $this->db->insert('cliente_direccion', $direccion);
                     }
+                    */
                 }
 
             }
@@ -368,8 +371,8 @@ class cliente_model extends CI_Model
         if(count($data) > 0){
             return true;
         }else{
-            return false;   
-        }   
+            return false;
+        }
 
     }
 

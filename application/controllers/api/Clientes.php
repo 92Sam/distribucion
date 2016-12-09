@@ -90,6 +90,7 @@ class clientes extends REST_Controller
         if(!empty($search['value'])){
             $where_custom="(cliente.id_cliente LIKE '%".$buscar."%' or cliente.razon_social LIKE '%".$buscar."%'
             or cliente.representante LIKE '%".$buscar."%'
+            or cliente.ruc_cliente LIKE '%".$buscar."%'
             or cliente.identificacion LIKE '%".$buscar."%'
             or cli_dat.valor LIKE '%".$buscar."%'
             or ciudad_nombre LIKE '%".$buscar."%' or zona_nombre LIKE '%".$buscar."%'
@@ -117,28 +118,29 @@ class clientes extends REST_Controller
                 $order='id_cliente';
             }
             if($ordenar[0]['column']==1){
-                $order='razon_social';
+                $order='ruc_cliente';
             }
             if($ordenar[0]['column']==2){
-                $order='identificacion';
+                $order='razon_social';
             }
             if($ordenar[0]['column']==3){
-                $order='representante';
+                $order='identificacion';
             }
             if($ordenar[0]['column']==4){
-                $order= 'valor'; //'direccion2';
+                $order='representante';
             }
             if($ordenar[0]['column']==5){
-                $order='ciudad_nombre';
+                $order= 'valor'; //'direccion2';
             }
             if($ordenar[0]['column']==6){
+                $order='ciudad_nombre';
+            }
+            if($ordenar[0]['column']==7){
                 $order='zona_nombre';
             }
-
-            if($ordenar[0]['column']==7){
+            if($ordenar[0]['column']==8){
                 $order='nombre';
             }
-
         }
 
 
@@ -173,14 +175,15 @@ class clientes extends REST_Controller
             $arr = $data;
             $clientjson = array();
             $clientjson[0] = $data['id_cliente'];
-            $clientjson[1] = $data['razon_social'];
-            $clientjson[2] = $data['identificacion'];
-            $clientjson[3] = $data['representante'];
-            $clientjson[4] = $data['valor'];
-            $clientjson[5] = $data['ciudad_nombre'];
-            $clientjson[6] = $data['zona_nombre'];
-            $clientjson[7] = $data['nombre'];
-            $clientjson[8] = null;
+            $clientjson[1] = $data['ruc_cliente'];
+            $clientjson[2] = $data['razon_social'];
+            $clientjson[3] = $data['identificacion'];
+            $clientjson[4] = $data['representante'];
+            $clientjson[5] = $data['valor'];
+            $clientjson[6] = $data['ciudad_nombre'];
+            $clientjson[7] = $data['zona_nombre'];
+            $clientjson[8] = $data['nombre'];
+            $clientjson[9] = null;
 
 
             $arr['id_cliente'] = $data['id_cliente'];

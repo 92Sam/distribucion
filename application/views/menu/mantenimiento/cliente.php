@@ -22,7 +22,7 @@
 			});
 		});
 	});
-	
+
 	function eliminar(id){
 		$.ajax({
 			type: 'POST',
@@ -51,7 +51,7 @@
 						document.getElementById('dni_v').value=value["var_cliente_dni"];
 						document.getElementById('ruc_v').value=value["var_cliente_ruc"];
 						document.getElementById('nombre_v').value=value["var_cliente_nombre"];
-						document.getElementById('direccion_v').value=value["var_cliente_direccion"];
+						//document.getElementById('direccion_v').value=value["var_cliente_direccion"];
 						document.getElementById('telefono_v').value=value["var_cliente_telefono"];
 						document.getElementById('cboTipoTelf_v').value=value["var_constante_descripcion"];
 						document.getElementById('email_v').value=value["var_cliente_email"];
@@ -74,7 +74,7 @@
 						document.getElementById('dni_udp').value=value["var_cliente_dni"];
 						document.getElementById('ruc_udp').value=value["var_cliente_ruc"];
 						document.getElementById('nombre_udp').value=value["var_cliente_nombre"];
-						document.getElementById('direccion_udp').value=value["var_cliente_direccion"];
+						//document.getElementById('direccion_udp').value=value["var_cliente_direccion"];
 						document.getElementById('telefono_udp').value=value["var_cliente_telefono"];
 						selectInCombo('cboTipoTelf_udp',value["int_cliente_tipotelefono"]);
 						document.getElementById('email_udp').value=value["var_cliente_email"];
@@ -85,7 +85,7 @@
 			});
 			return false;
 		}
-		
+
 	}
 
 	function update(){
@@ -101,7 +101,7 @@
 		});
 		return false;
 	}
-	
+
 </script>
 <div class="row-fluid">
 	<div class="span6">
@@ -124,7 +124,7 @@
 		</div>
 		<div class="box-content box-nomargin">
 			<div class="tab-content">
-			
+
 					<div class="tab-pane active" id="basic">
 						<table class='table table-striped table-media dataTable table-bordered' id="tblistaC">
 							<thead>
@@ -165,7 +165,7 @@
 							</tbody>
 						</table>
 					</div>
-					
+
 			</div>
 		</div>
 	</div>
@@ -237,7 +237,7 @@
 											<textarea name="otros" id="otros" class='span10 counter' data-max="200" rows='3'></textarea>
 									</div>
 								</div>
-								
+
 								<div class="form-actions">
 									<button class="btn btn-primary" id="btnGuardar">Guardar</button>
 									<input type="reset" class='btn btn-danger' value="Cancelar">
@@ -249,7 +249,7 @@
 			</div>
 		</div>
 	</div>
-	
+
 	<!-- Modales for Messages -->
 	<div class="modal hide" id="mOK">
 	  <div class="modal-header">
@@ -263,7 +263,7 @@
 	    <a href="#" class="btn btn-primary" data-dismiss="modal" onclick="javascript:window.location.reload();">Close</a>
 	  </div>
 	</div>
-	
+
 	<div class="modal hide" id="mOK1">
 	  <div class="modal-header">
 	    <button type="button" class="close" data-dismiss="modal" onclick="javascript:window.location.reload();">�</button>
@@ -276,7 +276,7 @@
 	    <a href="#" class="btn btn-primary" data-dismiss="modal" onclick="javascript:window.location.reload();">Close</a>
 	  </div>
 	</div>
-	
+
 	<div class="modal hide" id="no1">
 	  <div class="modal-header">
 	    <button type="button" class="close" data-dismiss="modal" onclick="javascript:window.location.reload();">�</button>
@@ -289,7 +289,7 @@
 	    <a href="#" class="btn btn-primary" data-dismiss="modal" onclick="javascript:window.location.reload();">Close</a>
 	  </div>
 	</div>
-	
+
 	<div class="modal hide" id="edit">
 	  <div class="modal-header">
 	    <button type="button" class="close" data-dismiss="modal">�</button>
@@ -358,7 +358,7 @@
 	    <a href="#" class="btn btn-danger" data-dismiss="modal" >Salir</a>
 	  </div>
 	</div>
-	
+
 	<div class="modal hide" id="view">
 	  <div class="modal-header">
 	    <button type="button" class="close" data-dismiss="modal">�</button>
@@ -417,6 +417,6 @@
 	    <a href="#" class="btn btn-danger" data-dismiss="modal">Salir</a>
 	  </div>
 	</div>
-	
+
 </div>
 

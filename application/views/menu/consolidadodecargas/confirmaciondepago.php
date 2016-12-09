@@ -60,8 +60,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
             </div>
             <br>
         </form>
-    </div>
-</div>
+
 <div class="block">
     <!-- Progress Bars Wizard Title -->
 
