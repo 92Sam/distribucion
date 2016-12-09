@@ -288,14 +288,14 @@ fieldset {
                             <label class="control-label panel-admin-text">RUC</label>
                         </div>
                         <div class="col-md-4">
-                            <input type="text" name="ruc_cliente" id="ruc_cliente" required="true"  class="form-control" value="<?php if (isset($cliente['identificacion'])) echo $cliente['identificacion']; ?>">
+                            <input type="text" name="ruc_cliente" id="ruc_cliente" required="true" readonly class="form-control" value="<?php if (isset($cliente['identificacion'])) echo $cliente['identificacion']; ?>">
                         </div>
 
                         <div class="col-md-2">
                             <label class="control-label panel-admin-text">DNI</label>
                         </div>
                         <div class="col-md-4" id="dni_ruc_cont">
-                            <input type="text" name="dni_ruc" id="dni_ruc" required="true"  class="form-control" value="<?php if (isset($cliente['identificacion'])) echo $cliente['identificacion']; ?>">
+                            <input type="text" name="dni_ruc" id="dni_ruc" required="true" readonly class="form-control" value="<?php if (isset($cliente['identificacion'])) echo $cliente['identificacion']; ?>">
                         </div>
                     </div>
                 </div>
@@ -307,7 +307,7 @@ fieldset {
                             <label class="control-label panel-admin-text">Razón Social</label>
                         </div>
                         <div class="col-md-4">
-                            <input type="text" name="razon_social" id="razon_social"  required="true"
+                            <input type="text" name="razon_social" id="razon_social" readonly required="true"
                                    class="form-control"
                                    value="<?php if (isset($cliente['razon_social'])) echo $cliente['razon_social']; ?>">
                         </div>
@@ -316,7 +316,7 @@ fieldset {
                             <label class="control-label panel-admin-text">Representante</label>
                         </div>
                         <div class="col-md-4">
-                            <input type="text" name="representante" id="representante_id"  class="form-control"
+                            <input type="text" name="representante" id="representante_id" readonly class="form-control"
                                    value="<?php if (isset($cliente['representante'])) echo $cliente['representante']; ?>">
                         </div>
                     </div>
@@ -699,10 +699,29 @@ fieldset {
             var tipopersona = $("#tipo_cliente").val();
 
             if (tipopersona == 0 ) {
+                alert(tipopersona);
                 $("#ruc_cliente").prop('readonly',false);
-                $("#dni_ruc").prop('readonly',false);
                 $("#representante_id").prop('readonly',false);
+                $("#razon_social").prop('readonly',false);
+                $("#dni_ruc").prop('readonly',true);
+                $("#dni_ruc").val()="";
 
+            }// Natural es uno "1"
+            else if(tipopersona == 1){
+                alert(tipopersona);
+                $("#ruc_cliente").prop('readonly',true);
+                //$("#ruc_cliente").val()="";
+                $("#representante_id").prop('readonly',false);
+                $("#dni_ruc").prop('readonly',false);
+
+
+            }else
+            {
+                alert(tipopersona);
+                $("#ruc_cliente").prop('readonly',true);
+                $("#dni_ruc").prop('readonly',true);
+                $("#representante_id").prop('readonly',true);
+                $("#razon_social").prop('readonly',true);
             }
 
 
