@@ -50,6 +50,10 @@ var region = {
                     }
                     $("#ciudad_id").html(options);
                     $("#ciudad_id").trigger('chosen:updated');
+                    $("#zona option").empty();
+                    $("#zona").trigger('chosen:updated');
+                    $("#vendedor option").empty();
+                    $("#vendedor").trigger('chosen:updated');
                 }
             }
         })
@@ -73,12 +77,13 @@ var region = {
                     }
                     $("#zona").html(options);
                     $("#zona").trigger('chosen:updated');
+                    $("#vendedor option").empty();
+                    $("#vendedor").trigger('chosen:updated');
                 }
             }
         })
     } ,
     actualizarvendedor: function () {
-        if ($("#vendedor").val() == 0){
             $.ajax({
                 url: baseurl + 'usuario/get_by_usuario',
                 type: 'POST',
@@ -89,7 +94,8 @@ var region = {
                 },
                 success: function (data) {
                     if (data != 'undefined') {
-
+                        $("#vendedor option").empty();
+                        $("#vendedor").trigger('chosen:updated');
                         var options = '<option value="0">Seleccione</option>';
                         for (var i = 0; i < data.length; i++) {
 
@@ -100,7 +106,6 @@ var region = {
                     }
                 }
             })
-         }
     },
     actualizarzona: function () {
         if ($("#zona").val() == 0) {
