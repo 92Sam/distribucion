@@ -274,7 +274,6 @@ fieldset {
                                       <option value="-1" >Seleccione</option>
                                       <option value="1" <?php if (isset($cliente['tipo_cliente']) and $cliente['tipo_cliente'] == 1) echo 'selected' ?>>Natural</option>
                                       <option value="0" <?php if (isset($cliente['tipo_cliente']) and $cliente['tipo_cliente'] == 0) echo 'selected' ?>>Juridico</option>
-
                                 </select>
                         </div>
 
@@ -672,13 +671,47 @@ fieldset {
             validar_ruc_dni()
         })
 
+
+        // Inicio de validacion de tipo de persona
+
+        $("#tipo_cliente").change(function() {
+
+            var tipopersona = $("#tipo_cliente").val();
+            alert(tipopersona);
+
+                if (tipopersona == 0 ) {
+
+                    $("#ruc_cliente").prop('readonly',false);
+                    $("#representante_id").prop('readonly',false);
+                    $("#razon_social").prop('readonly',false);
+                    $("#dni_ruc").prop('readonly',true);
+                    $("#dni_ruc").val()="";
+
+                }// Natural es uno "1"
+                 else if(tipopersona == 1){
+
+                    $("#ruc_cliente").prop('readonly',true);
+                    $("#razon_social").prop('readonly',true);
+                    $("#representante_id").prop('readonly',false);
+                    $("#dni_ruc").prop('readonly',false);
+                    $("#ruc_cliente").val()="";
+                }
+                else {
+                    $("#ruc_cliente").prop('readonly',true);
+                    $("#dni_ruc").prop('readonly',true);
+                    $("#representante_id").prop('readonly',true);
+                    $("#razon_social").prop('readonly',true);
+                }
+
+        });
+
+        // Fin de validacion de tipo de persona
+
         verificarRucDni()
 
         $(tipo_cliente).change(function(){
             $('#dni_ruc').val('')
-            verificarTipoPersona()
             verificarRucDni()
-
         })
 
         $('#tipo').change(function(){
@@ -691,41 +724,6 @@ fieldset {
 
 
     });
-
-    function verificarTipoPersona () {
-       // $(tipo_cliente).change(function(event) {
-
-            // Juridico es cero "0"
-            var tipopersona = $("#tipo_cliente").val();
-
-            if (tipopersona == 0 ) {
-                alert(tipopersona);
-                $("#ruc_cliente").prop('readonly',false);
-                $("#representante_id").prop('readonly',false);
-                $("#razon_social").prop('readonly',false);
-                $("#dni_ruc").prop('readonly',true);
-                $("#dni_ruc").val()="";
-
-            }// Natural es uno "1"
-            else if(tipopersona == 1){
-                alert(tipopersona);
-                $("#ruc_cliente").prop('readonly',true);
-                //$("#ruc_cliente").val()="";
-                $("#representante_id").prop('readonly',false);
-                $("#dni_ruc").prop('readonly',false);
-
-
-            }else
-            {
-                alert(tipopersona);
-                $("#ruc_cliente").prop('readonly',true);
-                $("#dni_ruc").prop('readonly',true);
-                $("#representante_id").prop('readonly',true);
-                $("#razon_social").prop('readonly',true);
-            }
-
-
-        };
 
 
     function verificarRucDni(){
