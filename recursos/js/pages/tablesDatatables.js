@@ -203,7 +203,7 @@ var TablesDatatablesJson = function () {
                             '</a><a class="btn btn-default" data-toggle="tooltip"  title="Eliminar" data-original-title="fa fa-comment-o"'+
                            'onclick="borrar(' +row[0]+ ',\'' +row[1]+ '\');">   <i class="fa fa-trash-o"></i> </a> </div>';
                         },
-                        "targets": 8
+                        "targets": 9
                     }
                 ],
                 //"iDisplayLength": 20,
