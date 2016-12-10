@@ -655,8 +655,8 @@ fieldset {
             </div>
             <div class="modal-footer">
                 <button type="button" id="rm_dato" class="btn btn-primary">
-                <i class="glyphicon glyphicon-trash"></i> Confirmar</button>
-                <button type="button" class="btn btn-default" id='cancelar_rm' >
+                <li class="glyphicon glyphicon-thumbs-up"></li> Confirmar</button>
+                <button type="button" class="btn btn-warning" id='cancelar_rm' >
                 <li class="glyphicon glyphicon-thumbs-down"></li> Cancelar</button>
 
         </div>
@@ -689,15 +689,15 @@ fieldset {
 
 
         // Inicio de validacion de tipo de persona
-        <?php if (isset($cliente['tipo_cliente'])) 
-            echo 'verificarTipoCliente('.$cliente['tipo_cliente'].')' 
+        <?php if (isset($cliente['tipo_cliente']))
+            echo 'verificarTipoCliente('.$cliente['tipo_cliente'].')'
         ?>
 
         $("#tipo_cliente").change(function() {
             var tipopersona = $("#tipo_cliente").val();
             verificarTipoCliente(tipopersona);
         });
-        
+
         function verificarTipoCliente(tipopersona){
                 if (tipopersona == 0 ) {
 
