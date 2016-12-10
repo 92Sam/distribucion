@@ -21,32 +21,32 @@
         var tipopersona = $("#tipo_cliente").val();
         if (tipopersona == 1) {
             if ($("#dni_ruc").val() == '') {
-                mensajeAlerta("Debe ingresar la identificaci&oacute;n");
+               return mensajeAlerta("Debe ingresar la identificaci&oacute;n");
             }
         }
 
         if ($("#grupo_id").val() == '') {
-            mensajeAlerta("Debe seleccionar el grupo");
+            return mensajeAlerta("Debe seleccionar el grupo");
         }
 
         if ($("#id_pais").val() == '') {
-            mensajeAlerta("Debe seleccionar el pais");
+            return mensajeAlerta("Debe seleccionar el pais");
         }
 
         if ($("#estado_id").val() == '') {
-            mensajeAlerta("Debe seleccionar la ciudad");
+            return mensajeAlerta("Debe seleccionar la ciudad");
         }
 
         if ($("#ciudad_id").val() == '') {
-            mensajeAlerta("Debe seleccionar el distrito");
+            return mensajeAlerta("Debe seleccionar el distrito");
         }
 
         if ($("#zona").val() == '') {
-            mensajeAlerta("Debe seleccionar la zona");
+            return mensajeAlerta("Debe seleccionar la zona");
         }
 
         if ($("#vendedor").val() == '') {
-            mensajeAlerta("Debe seleccionar un Vendedor");
+            return mensajeAlerta("Debe seleccionar un Vendedor");
         }
 
         var direccion = false
@@ -66,7 +66,7 @@
         })
 
         if(direccion == false){
-            mensajeAlerta("Debe ingresar una direccion");
+            return mensajeAlerta("Debe ingresar una direccion");
         }
 
          /***** Evaluaci´on de elementos caso telefonos ******/
@@ -78,7 +78,7 @@
         });
 
         if(evaluarElementos.length <= 0){
-            mensajeAlerta("Debe haber una Direccion Marcada como Principal");
+            return mensajeAlerta("Debe haber una Direccion Marcada como Principal");
         }
 
         function mensajeAlerta(mensaje){
