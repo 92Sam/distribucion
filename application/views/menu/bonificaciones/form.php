@@ -32,7 +32,7 @@
                         <div class="col-md-4">
 
                             <select disabled  name="grupos" id="grupos" class='cho form-control filter-input'>
-                                <option style="background-color: yellow;"
+                                <option
                                     value="<?php echo $grupo_clie_id; ?>"
                                     id="<?php echo $grupo_clie; ?>">
                                     <?php echo $grupo_clie; ?></option>
