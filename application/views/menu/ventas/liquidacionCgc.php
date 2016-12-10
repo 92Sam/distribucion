@@ -165,10 +165,10 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                         </div>
 
 
-                        <div class="col-md-3">
+                        <div class="col-md-3" style="display: none">
                            <label class="control-label panel-admin-text"> Saldo a cuenta</label>
                         </div>
-                        <div class="col-md-8">
+                        <div class="col-md-8" style="display: none">
                             <input type="text" readonly value="10" name="acuenta" id="acuenta" required="true"
                                    class="form-control"
                             >
@@ -193,12 +193,11 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                                    required="true"
                                    class="form-control"
                             >
-
                         </div>
-                        <div class="col-md-4">
-                            <input type="checkbox" id="cobrar_todo" style="padding-bottom: 10px;">
+                        <div class="col-md-4" >
+                            <input type="checkbox" id="cobrar_todo" >
                             <label for="cobrar_todo"
-                                   class="control-label"
+                                   class="control-label panel-admin-text"
                                    style="cursor: pointer;">
                                 Cobrar todo
                             </label>
@@ -212,14 +211,19 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                                                           class="form-control"
                                                           style="display:none;">
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" id="" class="btn btn-primary" onclick="validar_estatus()">
-                    <li class="glyphicon glyphicon-thumbs-up"></li> Confirmar</button>
-                    <button type="button" class="btn btn-warning" data-dismiss="modal">
-                    <li class="glyphicon glyphicon-thumbs-down"></li> Cancelar</button>
+
+                    <div class="modal-footer">
+                        <button type="button" id="" class="btn btn-primary" onclick="validar_estatus()">
+                            <li class="glyphicon glyphicon-thumbs-up"></li> Confirmar
+                        </button>
+                        <button type="button" class="btn btn-warning" data-dismiss="modal">
+                            <li class="glyphicon glyphicon-thumbs-down"></li> Cancelar
+                        </button>
+                    </div>
+
 
                 </div>
+
             </div>
             <!-- /.modal-content -->
         </div>

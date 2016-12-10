@@ -5,7 +5,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title">Liquidación de guia de carga - <?php echo $id_consolidado ?></h4>
+                <h4 class="modal-title">N° de Liquidación de Guia de Carga => <?php echo $id_consolidado ?></h4>
             </div>
 
             <div class="modal-body">
@@ -56,13 +56,13 @@
                                 <td style="text-align: center"><?php echo $consolidadoDetalles['razon_social']; ?></td>
                                 <td style="text-align: right"><?php echo MONEDA.' '.number_format($consolidadoDetalles['total'],2) ?></td>
 
-                                <td style="text-align: center"><?php 
+                                <td style="text-align: center"><?php
                                 if($consolidadoDetalles['venta_status'] == 'DEVUELTO PARCIALMENTE' || $consolidadoDetalles['venta_status'] == 'RECHAZADO'){
                                     $devolucion = 'true';
                                 }
 
                                     echo $consolidadoDetalles['venta_status']; ?></td>
-                                
+
                                 <td style="text-align: center">
                                     <?php
                                     if (($status != 'CERRADO'&& $status != 'CONFIRMADO') && $consolidadoDetalles['venta_status'] == PEDIDO_ENVIADO) {
