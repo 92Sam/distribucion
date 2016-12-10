@@ -13,144 +13,48 @@
 
         var tipopersona = $("#tipo_cliente").val();
         if (tipopersona == 0) {
-
             if ($("#razon_social").val() == '') {
-            var growlType = 'warning';
-
-            $.bootstrapGrowl('<h4>Debe ingresar la raz&oacute;n social</h4>', {
-            type: growlType,
-            delay: 2500,
-            allow_dismiss: true
-            });
-
-            $(this).prop('disabled', true);
-            $('#barloadermodal').modal('hide');
-
-            return false;
+                mensajeAlerta("Debe ingresar la raz&oacute;n social");
             }
-
         }
 
         var tipopersona = $("#tipo_cliente").val();
         if (tipopersona == 1) {
             if ($("#dni_ruc").val() == '') {
-            var growlType = 'warning';
-
-            $.bootstrapGrowl('<h4>Debe ingresar la identificaci&oacute;n</h4>', {
-                type: growlType,
-                delay: 2500,
-                allow_dismiss: true
-            });
-
-            $(this).prop('disabled', true);
-            $('#barloadermodal').modal('hide');
-
-            return false;
+                mensajeAlerta("Debe ingresar la identificaci&oacute;n");
             }
         }
 
         if ($("#grupo_id").val() == '') {
-        var growlType = 'warning';
-
-        $.bootstrapGrowl('<h4>Debe seleccionar el grupo</h4>', {
-            type: growlType,
-            delay: 2500,
-            allow_dismiss: true
-        });
-
-        $(this).prop('disabled', true);
-        $('#barloadermodal').modal('hide');
-
-        return false;
+            mensajeAlerta("Debe seleccionar el grupo");
         }
 
         if ($("#id_pais").val() == '') {
-        var growlType = 'warning';
-
-        $.bootstrapGrowl('<h4>Debe seleccionar el pais</h4>', {
-            type: growlType,
-            delay: 2500,
-            allow_dismiss: true
-        });
-
-        $(this).prop('disabled', true);
-        $('#barloadermodal').modal('hide');
-
-        return false;
+            mensajeAlerta("Debe seleccionar el pais");
         }
-
-
 
         if ($("#estado_id").val() == '') {
-        var growlType = 'warning';
-
-        $.bootstrapGrowl('<h4>Debe seleccionar la ciudad</h4>', {
-            type: growlType,
-            delay: 2500,
-            allow_dismiss: true
-        });
-
-        $(this).prop('disabled', true);
-        $('#barloadermodal').modal('hide');
-
-        return false;
+            mensajeAlerta("Debe seleccionar la ciudad");
         }
 
-
         if ($("#ciudad_id").val() == '') {
-        var growlType = 'warning';
-
-        $.bootstrapGrowl('<h4>Debe seleccionar el distrito</h4>', {
-            type: growlType,
-            delay: 2500,
-            allow_dismiss: true
-        });
-
-        $(this).prop('disabled', true);
-        $('#barloadermodal').modal('hide');
-
-        return false;
+            mensajeAlerta("Debe seleccionar el distrito");
         }
 
         if ($("#zona").val() == '') {
-        var growlType = 'warning';
-
-        $.bootstrapGrowl('<h4>Debe seleccionar la zona</h4>', {
-            type: growlType,
-            delay: 2500,
-            allow_dismiss: true
-        });
-
-        $(this).prop('disabled', true);
-        $('#barloadermodal').modal('hide');
-
-        return false;
+            mensajeAlerta("Debe seleccionar la zona");
         }
 
         if ($("#vendedor").val() == '') {
-        var growlType = 'warning';
-        $("#vendedor").focus()
-        $.bootstrapGrowl('<h4>Debe seleccionar un Vendedor</h4>', {
-            type: growlType,
-            delay: 2500,
-            allow_dismiss: true
-        });
-
-        $(this).prop('disabled', true);
-        $('#barloadermodal').modal('hide');
-
-        return false;
+            mensajeAlerta("Debe seleccionar un Vendedor");
         }
 
-
         var direccion = false
-
         $(".fila").each(function(){
 
             if($(this).find('.tipo').attr('id') == '1'){
                 direccion = true
             }
-
             if($(this).find('.principal').attr('id') == '1'){
                var principal = true
             }else{
@@ -160,10 +64,27 @@
             items.push([$(this).find('.tipo').attr('id'), $(this).find('.valor').attr('id'), principal])
 
         })
+
         if(direccion == false){
+            mensajeAlerta("Debe ingresar una direccion");
+        }
+
+         /***** Evaluaci´on de elementos caso telefonos ******/
+        var evaluarElementos = []; 
+        $.each(items,function(){
+            if($(this)[0] == '1' && $(this)[2] == true){ // Direccion
+                evaluarElementos.push($(this));
+            }
+        });
+
+        if(evaluarElementos.length <= 0){
+            mensajeAlerta("Debe haber una Direccion Marcada como Principal");
+        }
+
+        function mensajeAlerta(mensaje){
             var growlType = 'warning';
             $("#vendedor").focus()
-            $.bootstrapGrowl('<h4>Debe ingresar una direccion</h4>', {
+            $.bootstrapGrowl('<h4>'+mensaje+'</h4>', {
                 type: growlType,
                 delay: 2500,
                 allow_dismiss: true
@@ -171,9 +92,9 @@
 
             $(this).prop('disabled', true);
             $('#barloadermodal').modal('hide');
-
             return false
         }
+        /******************************************************/
 
 
         if($('#linea_libre').is(':checked')){
@@ -182,8 +103,8 @@
             var linea_libre = 0
         }
 
-    $('#tipo').attr('disabled', true)
-    $('#valor').attr('disabled', true)
+    // $('#tipo').attr('disabled', true)
+    // $('#valor').attr('disabled', true)
 
 
     $.ajax({
