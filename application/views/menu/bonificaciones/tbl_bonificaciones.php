@@ -10,10 +10,10 @@
         <th>Productos</th>
         <th>Marca Condici&oacute;n</th>
         <th>Grupo Condici&oacute;n</th>
-        <th>Sub Grupo Condici&oacute;n</th>
-        <th>Familia Condici&oacute;n</th>
+        <th>Linea Condici&oacute;n</th>
+        <th>Sub Linea Condici&oacute;n</th>
         <th>Sub Familia Condici&oacute;n</th>
-        <th>L&iacute;nea Condici&oacute;n</th>
+        <th>Talla Condici&oacute;n</th>
         <th>Unidad Condici&oacute;n</th>
         <th>Cantidad Condici&oacute;n</th>
         <th>Bono Producto</th>
@@ -79,13 +79,13 @@
                            data-original-title="fa fa-comment-o"
                            href="#"
                            onclick="editar('<?php echo $bonificaciones["id_bonificacion"] ?>','<?php echo isset($bonificaciones['producto_id']) ? $bonificaciones['producto_id'] : "false" ?>','<?php echo $bonificaciones['bono_producto'] ?>', '<?php echo $id_grupoclie ?>')">
-                            <i class="fa fa-edit"></i>
+                            <i class="glyphicon glyphicon-edit"></i>
                         </a>
 
-                        <?php echo '<a class="btn btn-default" data-toggle="tooltip"
+                        <?php echo '<a class="btn btn-danger" data-toggle="tooltip"
                                      title="Eliminar" data-original-title="fa fa-comment-o"
                                      onclick="borrar(' . $bonificaciones['id_bonificacion'] . ');">'; ?>
-                        <i class="fa fa-trash-o"></i>
+                        <i class="glyphicon glyphicon-trash"></i>
                         </a>
 
                     </div>

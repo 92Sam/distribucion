@@ -51,8 +51,9 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable">', "</
             </form>
             <!-- <button id="btnBuscar" class="btn btn-default" >Buscar</button>  -->
         </div>
-    </div>
-</div>
+
+  <br>
+
 
 <div class="block">
     <!-- Progress Bars Wizard Title -->
@@ -70,7 +71,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable">', "</
 
         <div class="row">
 
-            <a href="javascript:window.location = pdfUrl();" id="generarpdf" class="btn  btn-default btn-lg" data-toggle="tooltip"
+            <a href="javascript:window.location = pdfUrl();" id="generarpdf" class="btn  btn-danger btn-lg" data-toggle="tooltip"
                title="Exportar a PDF" data-original-title="fa fa-file-pdf-o"><i class="fa fa-file-pdf-o fa-fw"></i></a>
             <a href="javascript:window.location = excelUrl();" id="generarexcel" class="btn btn-default btn-lg" data-toggle="tooltip"
                title="Exportar a Excel" data-original-title="fa fa-file-excel-o"><i class="fa fa-file-excel-o fa-fw"></i></a>
@@ -321,12 +322,16 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable">', "</
                     <h4 class="modal-title">Eliminar Bonificación</h4>
                 </div>
                 <div class="modal-body">
-                    <p>Est&aacute; seguro que desea eliminar la Bonificación seleccionada?</p>
+                    <h4>¿Est&aacute; seguro que desea eliminar la Bonificación seleccionada?</h4>
                     <input type="hidden" name="id" id="id_borrar">
                 </div>
                 <div class="modal-footer">
-                    <button type="button" id="confirmar" class="btn btn-primary" onclick="eliminar()">Confirmar</button>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                    <button type="button" id="confirmar" class="btn btn-primary" onclick="eliminar()">
+                         <li class="glyphicon glyphicon-thumbs-up"></li> Confirmar
+                    </button>
+                    <button type="button" class="btn btn-warning" data-dismiss="modal">Cancelar
+                        <li class="glyphicon glyphicon-thumbs-down"></li>
+                    </button>
 
                 </div>
             </div>

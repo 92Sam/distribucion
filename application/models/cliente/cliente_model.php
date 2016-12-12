@@ -63,9 +63,8 @@ class cliente_model extends CI_Model
 
     function insertar($cliente, $items)
     {
-        $identificacion = $cliente['identificacion'];
-        $validar_nombre = sizeof($this->get_by('identificacion', $identificacion));
-
+        $validar_nombre = $this->validarTipoCliente($cliente);
+        
         if ($validar_nombre < 1) {
             $fech = date('Y-m-d');
             $this->db->trans_start();
@@ -375,5 +374,16 @@ class cliente_model extends CI_Model
         }
 
     }
+
+    function validarTipoCliente($cliente){
+        if($cliente['tipo_cliente'] == 1){
+            $identificacion = $cliente['identificacion'];
+            $tabla_campo = 'identificacion';
+        }else{
+            $identificacion = $cliente['ruc_cliente'];
+            $tabla_campo = 'ruc_cliente';
+        }
+        return sizeof($this->get_by($tabla_campo, $identificacion));
+    } 
 
 }

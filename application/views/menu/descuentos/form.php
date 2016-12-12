@@ -14,7 +14,9 @@
                 <div class="row">
                     <div class="form-group">
                         <div class="col-md-1">
-                            Nombre:
+                            <label class="control-label panel-admin-text">
+                               Nombre:
+                            </label>
                         </div>
                         <div class="col-md-6">
                             <input type="text" name="nombre" id="nombre" required="true" class="form-control"
@@ -25,11 +27,11 @@
                                value="<?php if (isset($descuentos['descuento_id'])) echo $descuentos['descuento_id']; ?>">
 
                         <div class="col-md-2">
-                            Grupo seleccionado:
+                           <label class="control-label panel-admin-text"> Grupo Descuento:</label>
                         </div>
                         <div class="col-md-3">
 
-                            <select name="grupos" id="grupos" class='cho form-control filter-input'>
+                            <select disabled name="grupos" id="grupos" class='cho form-control filter-input'>
                                 <option
                                     value="<?php echo $grupo_clie_id; ?>"
                                     id="<?php echo $grupo_clie; ?>">
@@ -46,7 +48,8 @@
                     <div class="col-md-5">
                         <div class="form-group">
                             <div class="col-md-3">
-                                Desde
+                                <label class="control-label panel-admin-text">Desde</label>
+
                             </div>
                             <div class="col-md-10">
                                 <input type="number" id="desde" class="form-control">
@@ -56,7 +59,7 @@
                     <div class="col-md-5">
                         <div class="form-group">
                             <div class="col-md-3">
-                                Hasta
+                                 <label class="control-label panel-admin-text">Hasta</label>
                             </div>
                             <div class="col-md-10">
                                 <input type="number" id="hasta" class="form-control">
@@ -177,11 +180,11 @@
                                                 hasta <?php echo $escala['cantidad_maxima']; ?>
 
                                                 <div class="btn-group">
-                                                    <a class="btn btn-default btn-mini btn-default" data-toggle="tooltip"
+                                                    <a class="btn btn-danger" data-toggle="tooltip"
                                                        title="Eliminar"
                                                        data-original-title="Eliminar"
                                                        onclick="quitarEscala(<?php echo $contador_escala; ?>)">
-                                                        <i class="fa fa-trash-o"></i></a></div>
+                                                        <i class="glyphicon glyphicon-trash"></i></i></a></div>
 
                                                 <div class="lstTabla" id="lstTabla<?php echo $contador_escala; ?>">
                                             </div>
@@ -230,12 +233,12 @@
                                                                 </td>
                                                                 <td class="actions">
                                                                     <div class="btn-group"><a
-                                                                            class="btn btn-default btn-default btn-default"
+                                                                            class="btn btn-danger"
                                                                             data-toggle="tooltip"
                                                                             title="Eliminar"
                                                                             data-original-title="Eliminar"
                                                                             onclick="del_listaProducto(<?= $contador_precios ?>,<?= $productosnoagrupados[$p]["producto_id"] ?>)">
-                                                                            <i class="fa fa-trash-o"></i></a>
+                                                                            <i class="glyphicon glyphicon-trash"></i></i></a>
                                                                     </div>
                                                                 </td>
                                                             </tr>
@@ -288,10 +291,11 @@
             <div class="modal-footer">
                 <div class="form-actions">
 
-                    <button class="btn btn-primary" id="btnGuardar" type="button">Confirmar
+                    <button class="btn btn-primary" id="btnGuardar" type="button">
+                    <li class="glyphicon glyphicon-thumbs-up"></li> Guardar
                     </button>
                     <!-- <button type="button" class="btn"><i class="fa fa-folder-open-o fa-3x text-info"></i><br>Abrir </button>-->
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-warning" data-dismiss="modal"> Cancelar <li class="glyphicon glyphicon-thumbs-down"></li></button>
 
                 </div>
             </div>
@@ -308,15 +312,17 @@
                 <h4 class="modal-title">Confirmar</h4>
             </div>
             <div class="modal-body">
-                <p>Est&aacute; seguro que desea registrar el ingreso de los productos seleccionados?</p>
+                <h4>Est&aacute; seguro que desea registrar el ingreso de los productos seleccionados?</h4>
                 <input type="hidden" name="id" id="id_borrar">
 
             </div>
             <div class="modal-footer">
                 <button type="button" id="botonconfirmar" class="btn btn-primary" onclick="guardardescuento();">
-                    Confirmar
+                  <li class="glyphicon glyphicon-thumbs-up"></li>  Guardar
                 </button>
-                <button type="button" id="cerrar" class="btn btn-default">Cancelar</button>
+                <button type="button" id="cerrar" class="btn btn-warning"> Cancelar
+                <li class="glyphicon glyphicon-thumbs-down"></li>
+                </button>
 
             </div>
         </div>

@@ -83,7 +83,7 @@
 
             <?php if ($consolidado['status'] == 'IMPRESO' || $consolidado['status'] == 'CONFIRMADO' || $consolidado['status'] == 'CERRADO') { ?>
                 <div class="btn-group">
-                    <a class="btn btn-default" data-toggle="tooltip"
+                    <a class="btn btn-warning" data-toggle="tooltip"
                        title="Ver Nota" data-original-title="Ver"
                        href="#"
                        onclick="notaEntrega('<?php if (isset($consolidado['consolidado_id'])) echo $consolidado['consolidado_id']; ?>'); ">
@@ -100,7 +100,7 @@
                 </div>
 
                 <div class="btn-group">
-                    <a class="btn btn-default" data-toggle="tooltip"
+                    <a class="btn btn-warning" data-toggle="tooltip"
                        title="Boletas" data-original-title="Ver"
                        href="#"
                        onclick="docFiscal('<?php if (isset($consolidado['consolidado_id'])) echo $consolidado['consolidado_id']; ?>'); ">

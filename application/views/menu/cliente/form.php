@@ -13,144 +13,48 @@
 
         var tipopersona = $("#tipo_cliente").val();
         if (tipopersona == 0) {
-
             if ($("#razon_social").val() == '') {
-            var growlType = 'warning';
-
-            $.bootstrapGrowl('<h4>Debe ingresar la raz&oacute;n social</h4>', {
-            type: growlType,
-            delay: 2500,
-            allow_dismiss: true
-            });
-
-            $(this).prop('disabled', true);
-            $('#barloadermodal').modal('hide');
-
-            return false;
+                mensajeAlerta("Debe ingresar la raz&oacute;n social");
             }
-
         }
 
         var tipopersona = $("#tipo_cliente").val();
         if (tipopersona == 1) {
             if ($("#dni_ruc").val() == '') {
-            var growlType = 'warning';
-
-            $.bootstrapGrowl('<h4>Debe ingresar la identificaci&oacute;n</h4>', {
-                type: growlType,
-                delay: 2500,
-                allow_dismiss: true
-            });
-
-            $(this).prop('disabled', true);
-            $('#barloadermodal').modal('hide');
-
-            return false;
+               return mensajeAlerta("Debe ingresar la identificaci&oacute;n");
             }
         }
 
         if ($("#grupo_id").val() == '') {
-        var growlType = 'warning';
-
-        $.bootstrapGrowl('<h4>Debe seleccionar el grupo</h4>', {
-            type: growlType,
-            delay: 2500,
-            allow_dismiss: true
-        });
-
-        $(this).prop('disabled', true);
-        $('#barloadermodal').modal('hide');
-
-        return false;
+            return mensajeAlerta("Debe seleccionar el grupo");
         }
 
         if ($("#id_pais").val() == '') {
-        var growlType = 'warning';
-
-        $.bootstrapGrowl('<h4>Debe seleccionar el pais</h4>', {
-            type: growlType,
-            delay: 2500,
-            allow_dismiss: true
-        });
-
-        $(this).prop('disabled', true);
-        $('#barloadermodal').modal('hide');
-
-        return false;
+            return mensajeAlerta("Debe seleccionar el pais");
         }
-
-
 
         if ($("#estado_id").val() == '') {
-        var growlType = 'warning';
-
-        $.bootstrapGrowl('<h4>Debe seleccionar la ciudad</h4>', {
-            type: growlType,
-            delay: 2500,
-            allow_dismiss: true
-        });
-
-        $(this).prop('disabled', true);
-        $('#barloadermodal').modal('hide');
-
-        return false;
+            return mensajeAlerta("Debe seleccionar la ciudad");
         }
 
-
         if ($("#ciudad_id").val() == '') {
-        var growlType = 'warning';
-
-        $.bootstrapGrowl('<h4>Debe seleccionar el distrito</h4>', {
-            type: growlType,
-            delay: 2500,
-            allow_dismiss: true
-        });
-
-        $(this).prop('disabled', true);
-        $('#barloadermodal').modal('hide');
-
-        return false;
+            return mensajeAlerta("Debe seleccionar el distrito");
         }
 
         if ($("#zona").val() == '') {
-        var growlType = 'warning';
-
-        $.bootstrapGrowl('<h4>Debe seleccionar la zona</h4>', {
-            type: growlType,
-            delay: 2500,
-            allow_dismiss: true
-        });
-
-        $(this).prop('disabled', true);
-        $('#barloadermodal').modal('hide');
-
-        return false;
+            return mensajeAlerta("Debe seleccionar la zona");
         }
 
         if ($("#vendedor").val() == '') {
-        var growlType = 'warning';
-        $("#vendedor").focus()
-        $.bootstrapGrowl('<h4>Debe seleccionar un Vendedor</h4>', {
-            type: growlType,
-            delay: 2500,
-            allow_dismiss: true
-        });
-
-        $(this).prop('disabled', true);
-        $('#barloadermodal').modal('hide');
-
-        return false;
+            return mensajeAlerta("Debe seleccionar un Vendedor");
         }
 
-
         var direccion = false
-
         $(".fila").each(function(){
 
             if($(this).find('.tipo').attr('id') == '1'){
                 direccion = true
             }
-
             if($(this).find('.principal').attr('id') == '1'){
                var principal = true
             }else{
@@ -160,10 +64,27 @@
             items.push([$(this).find('.tipo').attr('id'), $(this).find('.valor').attr('id'), principal])
 
         })
+
         if(direccion == false){
+            return mensajeAlerta("Debe ingresar una direccion");
+        }
+
+         /***** Evaluaci´on de elementos caso telefonos ******/
+        var evaluarElementos = []; 
+        $.each(items,function(){
+            if($(this)[0] == '1' && $(this)[2] == true){ // Direccion
+                evaluarElementos.push($(this));
+            }
+        });
+
+        if(evaluarElementos.length <= 0){
+            return mensajeAlerta("Debe haber una Direccion Marcada como Principal");
+        }
+
+        function mensajeAlerta(mensaje){
             var growlType = 'warning';
             $("#vendedor").focus()
-            $.bootstrapGrowl('<h4>Debe ingresar una direccion</h4>', {
+            $.bootstrapGrowl('<h4>'+mensaje+'</h4>', {
                 type: growlType,
                 delay: 2500,
                 allow_dismiss: true
@@ -171,9 +92,9 @@
 
             $(this).prop('disabled', true);
             $('#barloadermodal').modal('hide');
-
             return false
         }
+        /******************************************************/
 
 
         if($('#linea_libre').is(':checked')){
@@ -182,8 +103,8 @@
             var linea_libre = 0
         }
 
-    $('#tipo').attr('disabled', true)
-    $('#valor').attr('disabled', true)
+    // $('#tipo').attr('disabled', true)
+    // $('#valor').attr('disabled', true)
 
 
     $.ajax({
@@ -655,8 +576,8 @@ fieldset {
             </div>
             <div class="modal-footer">
                 <button type="button" id="rm_dato" class="btn btn-primary">
-                <i class="glyphicon glyphicon-trash"></i> Confirmar</button>
-                <button type="button" class="btn btn-default" id='cancelar_rm' >
+                <li class="glyphicon glyphicon-thumbs-up"></li> Confirmar</button>
+                <button type="button" class="btn btn-warning" id='cancelar_rm' >
                 <li class="glyphicon glyphicon-thumbs-down"></li> Cancelar</button>
 
         </div>
@@ -689,12 +610,16 @@ fieldset {
 
 
         // Inicio de validacion de tipo de persona
+        <?php if (isset($cliente['tipo_cliente']))
+            echo 'verificarTipoCliente('.$cliente['tipo_cliente'].')'
+        ?>
 
         $("#tipo_cliente").change(function() {
-
             var tipopersona = $("#tipo_cliente").val();
+            verificarTipoCliente(tipopersona);
+        });
 
-
+        function verificarTipoCliente(tipopersona){
                 if (tipopersona == 0 ) {
 
                     $("#ruc_cliente").prop('readonly',false);
@@ -716,8 +641,7 @@ fieldset {
                     $("#representante_id").prop('readonly',true);
                     $("#razon_social").prop('readonly',true);
                 }
-
-        });
+        }
 
         // Fin de validacion de tipo de persona
 
