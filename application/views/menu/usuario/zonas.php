@@ -36,7 +36,7 @@
                         <tr style="background-color:#55c862;">
                             <th><label class="label remove-padding">Lunes</th>
                             <th><label class="label remove-padding">Martes</th>
-                            <th><label class="label remove-padding">Miercoles</th>
+                            <th><label class="label remove-padding">Mi&eacute;rcoles</th>
                             <th><label class="label remove-padding">Jueves</th>
                             <th><label class="label remove-padding">Viernes</th>
                             <th><label class="label remove-padding">S&aacute;bado</th>

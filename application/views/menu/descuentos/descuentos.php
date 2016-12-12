@@ -50,18 +50,19 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable">', "</
                 </div>
             </form>
         </div>
-        <br>
-
-    <div class="block">
-        <!-- Progress Bars Wizard Title -->
-        <div class="row" id="loading" style="display: none;">
-            <div class="col-md-12 text-center">
-                <div class="loading-icon"></div>
-            </div>
-        </div>
-        <div id="lstTabla" class="table-responsive"></div>
-
     </div>
+</div>
+
+<div class="block">
+    <!-- Progress Bars Wizard Title -->
+    <div class="row" id="loading" style="display: none;">
+        <div class="col-md-12 text-center">
+            <div class="loading-icon"></div>
+        </div>
+    </div>
+    <div id="lstTabla" class="table-responsive"></div>
+
+</div>
 
 
 <script type="text/javascript">
@@ -1031,13 +1032,13 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable">', "</
                     <h4 class="modal-title">Eliminar Grupo</h4>
                 </div>
                 <div class="modal-body">
-                    <h4>Est&aacute; seguro que desea eliminar el descuento seleccionado?</h4>
+                    <p>Est&aacute; seguro que desea eliminar el descuento seleccionado?</p>
                     <input type="hidden" name="id" id="id_borrar">
                     <input type="hidden" name="nombre" id="nom_borrar">
                 </div>
                 <div class="modal-footer">
-                    <button type="button" id="confirmar" class="btn btn-primary" onclick="eliminar()"> <li class="glyphicon glyphicon-thumbs-up"></li> Confirmar</button>
-                    <button type="button" class="btn btn-warning" data-dismiss="modal">Cancelar <li class="glyphicon glyphicon-thumbs-down"></li></button>
+                    <button type="button" id="confirmar" class="btn btn-primary" onclick="eliminar()">Confirmar</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
 
                 </div>
             </div>

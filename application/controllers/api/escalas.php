@@ -77,6 +77,25 @@ class escalas extends REST_Controller
         }
     }
 
+    public function ver_genventa_get()
+    {
+        $id = $this->get('id');
+        $gruclie = $this->get('grupo');
+
+        if (empty($id)) {
+            $this->response(array(), 200);
+        }
+
+        $data = array();
+        $data['escalas'] = $this->escalas->get_by2('producto', $id, $gruclie, true);
+
+        if ($data) {
+            $this->response($data, 200);
+        } else {
+            $this->response(array(), 200);
+        }
+    }
+
     // Save
     public function create_get()
     {

@@ -95,12 +95,14 @@ class descuentos extends MY_Controller
 			$where = " where  descuentos.descuento_id='" . $id . "'";
             
 			$datax['productosnoagrupados'] = $this->descuentos_model->edit_descuentos($where, false);
+            //var_dump($datax['productosnoagrupados']);
             
 			$datax['sizenoagrupados'] = sizeof($datax['productosnoagrupados']);
             
 			$datax['sizeescalas'] = sizeof($datax['escalas']);
 
             $datax['prod_precios'] = $this->descuentos_model->get_prod_precioventa();
+            //var_dump($datax['prod_precios']);
 
         }
 

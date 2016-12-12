@@ -988,9 +988,9 @@ function getBonificacion(id, productoeliminar, lista_temporal) {
 
         $.ajax({
             type: 'GET',
-            data: {'id': id, 'array': true},
+            data: {'id': id, 'grupo':grupo_id , 'array': true},
             dataType: 'JSON',
-            url: ruta + 'api/Bonificaciones/ver',
+            url: ruta + 'api/Bonificaciones/ver_genventa',
             success: function (data) {
                 var data = data.bonificaciones;
                 if (data.length > 0) {
@@ -2070,9 +2070,9 @@ function getEscalas(id) {
     if (id) {
         $.ajax({
             type: 'GET',
-            data: {'id': id},
+            data: {'id': id, 'grupo': grupo_id},
             dataType: 'JSON',
-            url: ruta + 'api/escalas/ver',
+            url: ruta + 'api/escalas/ver_genventa',
             success: function (data) {
                 escalaData = data.escalas;
             },

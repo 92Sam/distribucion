@@ -18,36 +18,20 @@
                 <div class="row">
                     <div class="form-group">
                         <div class="col-md-2">
-                            <label class="control-label panel-admin-text">Fec. Vencimiento</label>
+                            <label>Fecha de Vencimiento</label>
                         </div>
                         <div class="col-md-4">
-                            <input type="text" name="fecha_bonificacion" id="fecha_bonificacion" required="true" readonly
+                            <input type="text" name="fecha_bonificacion" id="fecha_bonificacion" required="true"
                                    class="input-small input-datepicker form-control"
                                    value="<?php if (isset($bonificaciones['fecha'])) echo date('d-m-Y',strtotime($bonificaciones['fecha'])); ?>"/>
                         </div>
-
-                        <div class="col-md-2">
-                            <label class="control-label panel-admin-text">Grupo Descuento</label>
-                        </div>
-                        <div class="col-md-4">
-
-                            <select disabled  name="grupos" id="grupos" class='cho form-control filter-input'>
-                                <option
-                                    value="<?php echo $grupo_clie_id; ?>"
-                                    id="<?php echo $grupo_clie; ?>">
-                                    <?php echo $grupo_clie; ?></option>
-                            </select>
-                        </div>
-
                     </div>
-
                 </div>
-                <br>
                 <div class="row">
                     <div class="form-group">
 
                         <div class="col-md-2">
-                            <label class="control-label panel-admin-text">Producto Condición</label>
+                            <label>Productos Condición</label>
                         </div>
                         <div class="col-md-4">
 
@@ -89,7 +73,7 @@
                         </div>
 
                         <div class="col-md-2">
-                            <label class="control-label panel-admin-text">Bono Producto</label>
+                            <label>Bono Producto</label>
                         </div>
                         <div class="col-md-4">
 
@@ -109,7 +93,7 @@
                 <div class="row">
                     <div class="form-group">
                         <div class="col-md-2">
-                            <label class="control-label panel-admin-text">Unidad Condición</label>
+                            <label>Unidad Condición</label>
                         </div>
                         <div class="col-md-4">
 
@@ -118,14 +102,14 @@
                                 <?php foreach ($unidades as $unidad): ?>
                                     <option
                                         value="<?php echo $unidad['id_unidad'] ?>" <?php if (isset($bonificaciones['id_unidad']) and $bonificaciones['id_unidad'] == $unidad['id_unidad']) echo 'selected' ?>><?= $unidad['nombre_unidad'] ?></option>
-                                <?php endforeach; ?>
+                                <?php endforeach; ?>    
 
                             </select>
 
                         </div>
 
                         <div class="col-md-2">
-                            <label class="control-label panel-admin-text">Bono Unidad</label>
+                            <label>Bono Unidad</label>
                         </div>
                         <div class="col-md-4">
                             <select name="bono_unidad" id="bono_unidad" required="true"
@@ -142,7 +126,7 @@
                 <div class="row">
                     <div class="form-group">
                         <div class="col-md-2">
-                            <label class="control-label panel-admin-text">Marca Condición</label>
+                            <label>Marca Condición</label>
                         </div>
                         <div class="col-md-4">
 
@@ -156,7 +140,7 @@
 
                         </div>
                         <div class="col-md-2">
-                            <label class="control-label panel-admin-text"> Bono Cantidad</label>
+                            <label>Cantidad Bono</label>
                         </div>
                         <div class="col-md-4">
                             <input type="number" name="bono_cantidad" id="bono_cantidad" required="true"
@@ -170,7 +154,7 @@
 
                     <div class="form-group">
                         <div class="col-md-2">
-                            <label class="control-label panel-admin-text">Grupo Condición</label>
+                            <label>Grupo Condición</label>
                         </div>
                         <div class="col-md-4">
 
@@ -184,7 +168,18 @@
 
                         </div>
 
+                        <div class="col-md-2">
+                            <label>Grupo seleccionado</label>
+                        </div>
+                        <div class="col-md-4">
 
+                            <select name="grupos" id="grupos" class='cho form-control filter-input'>
+                                <option
+                                    value="<?php echo $grupo_clie_id; ?>"
+                                    id="<?php echo $grupo_clie; ?>">
+                                    <?php echo $grupo_clie; ?></option>
+                            </select>
+                        </div>
                     </div>
 
                 </div>
@@ -193,7 +188,7 @@
                 <div class="row">
                     <div class="form-group">
                         <div class="col-md-2">
-                            <label class="control-label panel-admin-text">Linea Condicion</label>
+                            <label>Sub Grupos</label>
                         </div>
                         <div class="col-md-4">
 
@@ -215,7 +210,7 @@
                 <div class="row">
                     <div class="form-group">
                         <div class="col-md-2">
-                            <label class="control-label panel-admin-text">SubLinea Condición</label>
+                            <label>Familia Condición</label>
                         </div>
                         <div class="col-md-4">
 
@@ -234,7 +229,7 @@
                     <div class="form-group">
 
                         <div class="col-md-2">
-                            <label class="control-label panel-admin-text">SubFamilia Condicion</label>
+                            <label>Sub Familia</label>
                         </div>
                         <div class="col-md-4">
 
@@ -257,7 +252,7 @@
                 <div class="row">
                     <div class="form-group">
                         <div class="col-md-2">
-                            <label class="control-label panel-admin-text">Talla Condición</label>
+                            <label>Línea Condición</label>
                         </div>
                         <div class="col-md-4">
 
@@ -277,7 +272,7 @@
                 <div class="row">
                     <div class="form-group">
                         <div class="col-md-2">
-                            <label class="control-label panel-admin-text">Cantidad Condición</label>
+                            <label>Cantidad Condición</label>
                         </div>
                         <div class="col-md-4">
                             <input type="number" name="cantidad_condicion" id="cantidad_condicion" required="true"
@@ -294,10 +289,9 @@
 
             <div class="modal-footer">
                 <button type="button" id="" class="btn btn-primary" onclick="grupo.guardar()">
-                   <li class="glyphicon glyphicon-thumbs-up"></li> Guardar
+                    Confirmar
                 </button>
-                <button type="button" class="btn btn-warning" data-dismiss="modal"> Cancelar
-                <li class="glyphicon glyphicon-thumbs-down"></li>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar
                 </button>
 
             </div>
@@ -404,3 +398,4 @@
     });
 
 </script>
+ 

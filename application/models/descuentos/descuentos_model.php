@@ -216,8 +216,14 @@ class descuentos_model extends CI_Model
         $this->db->trans_start();
         $this->db->where('descuento_id', $descuento['descuento_id']);
         $this->db->update('descuentos', $descuento);
-        $sql = "select * from descuentos join escalas on escalas.regla_descuento=descuentos.descuento_id where descuento_id= ".$descuento['descuento_id'];
-        $query = $this->db->query($sql);
+
+        //$sql = "select * from descuentos join escalas on escalas.regla_descuento=descuentos.descuento_id where descuento_id= ".$descuento['descuento_id'];
+        $this->db->select('*');
+        $this->db->from('descuentos');
+        $this->db->join('escalas', 'escalas.regla_descuento = descuento_id');
+        $this->db->where('descuento_id', $descuento['descuento_id']);
+        $query = $this->db->get();
+        //$query = $this->db->query($sql);
         $buscar_escalas = $query->result_array();
 
         for ($i = 0; $i < count($buscar_escalas); $i++) {

@@ -33,6 +33,24 @@ class escalas_model extends CI_Model
 		}
     }
 
+    function get_by2($campo, $valor, $valor2, $result = false)
+    {
+        $this->db->where($campo, $valor);
+        $this->db->where('descuentos.id_grupos_cliente', $valor2);
+        $this->db->select('escalas.*, escala_producto.*, producto.producto_nombre, unidades.nombre_unidad');
+        $this->db->join('escalas', 'escalas.escala_id = escala_producto.escala', 'left');
+        $this->db->join('producto', 'escala_producto.producto = producto.producto_id', 'left');
+        $this->db->join('unidades', 'escala_producto.unidad = unidades.id_unidad', 'left');
+        $this->db->join('descuentos', 'descuentos.descuento_id = escalas.regla_descuento', 'left');
+        $query = $this->db->get('escala_producto');
+
+        if ($result == true) {
+            return $query->result_array();
+        } else {
+            return $query->row_array();
+        }
+    }
+
     function insertar($array = array())
     {
         $this->db->trans_start();

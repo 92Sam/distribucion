@@ -31,7 +31,7 @@
                     <a href="#promocion" data-toggle="tab">Bonificaciones</a>
                 </li>
                 <li role="presentation">
-                    <a href="#descuento" data-toggle="tab">Descuentos</a>
+                    <a href="#descuento" data-toggle="tab">Descuento</a>
                 </li>
                 <!--<li role="presentation">
                     <a href="#imagenes" data-toggle="tab">Im&aacute;genes</a>
@@ -75,7 +75,7 @@
                         <?php if ($columna->nombre_columna == 'producto_nombre') { ?>
                             <div class="form-group">
                                 <div class="col-md-3">
-                                    <label class="control-label panel-admin-text">Nombre:</label>
+                                    <label class="control-label">Nombre:</label>
                                 </div>
 
                                 <div class="col-md-8">
@@ -90,7 +90,7 @@
                         <?php if ($columna->nombre_columna == 'producto_descripcion' and $columna->activo == 1) { ?>
                             <div class="form-group">
                                 <div class="col-md-3">
-                                    <label class="control-label panel-admin-text">Descripcion:</label>
+                                    <label class="control-label">Descripcion:</label>
                                 </div>
                                 <div class="col-md-8">
                                     <input type="text" name="producto_descripcion" id="producto_descripcion"
@@ -103,7 +103,7 @@
                         <?php if ($columna->nombre_columna == 'producto_marca' and $columna->activo == 1) { ?>
                             <div class="form-group">
                                 <div class="col-md-3">
-                                    <label for="linea" class="control-label panel-admin-text">Marca:</label>
+                                    <label for="linea" class="control-label">Marca:</label>
                                 </div>
                                 <div class="col-md-8">
                                     <select name="producto_marca" id="producto_marca" class='cho form-control'>
@@ -121,7 +121,7 @@
                         <?php if ($columna->nombre_columna == 'producto_linea' and $columna->activo == 1) { ?>
                             <div class="form-group">
                                 <div class="col-md-3">
-                                    <label for="producto_linea" class="control-label panel-admin-text">Talla:</label>
+                                    <label for="producto_linea" class="control-label">L&iacute;nea:</label>
                                 </div>
                                 <div class="col-md-8">
                                     <select name="producto_linea" id="producto_linea" class='cho form-control'>
@@ -139,7 +139,7 @@
                         <?php if ($columna->nombre_columna == 'producto_familia' and $columna->activo == 1) { ?>
                             <div class="form-group">
                                 <div class="col-md-3">
-                                    <label for="producto_familia" class="control-label panel-admin-text">Sub Linea:</label>
+                                    <label for="producto_familia" class="control-label">Familia:</label>
                                 </div>
                                 <div class="col-md-8">
                                     <select name="producto_familia" id="producto_familia" class='cho form-control'>
@@ -158,7 +158,7 @@
                         <?php if ($columna->nombre_columna == 'producto_subfamilia' and $columna->activo == 1) { ?>
                             <div class="form-group">
                                 <div class="col-md-3">
-                                    <label for="producto_subfamilia" class="control-label panel-admin-text">Sub Familia:</label>
+                                    <label for="producto_subfamilia" class="control-label">Sub Familia:</label>
                                 </div>
                                 <div class="col-md-8">
                                     <select name="producto_subfamilia" id="producto_subfamilia"
@@ -179,7 +179,7 @@
                         <?php if ($columna->nombre_columna == 'produto_grupo' and $columna->activo == 1) { ?>
                             <div class="form-group">
                                 <div class="col-md-3">
-                                    <label for="grupo" class="control-label panel-admin-text">Grupo:</label>
+                                    <label for="grupo" class="control-label">Grupo:</label>
                                 </div>
                                 <div class="col-md-8">
                                     <select name="produto_grupo" id="produto_grupo" class='cho form-control'>
@@ -198,7 +198,7 @@
                         <?php if ($columna->nombre_columna == 'producto_subgrupo' and $columna->activo == 1) { ?>
                             <div class="form-group">
                                 <div class="col-md-3">
-                                    <label for="subgrupo" class="control-label panel-admin-text">Linea:</label>
+                                    <label for="subgrupo" class="control-label">Sub Grupo:</label>
                                 </div>
                                 <div class="col-md-8">
                                     <select name="producto_subgrupo" id="producto_subgrupo" class='cho form-control'>
@@ -216,7 +216,7 @@
                         <!-- FIN SUB GRUPO-->
                         <?php if ($columna->nombre_columna == 'producto_proveedor' and $columna->activo == 1) { ?>
                             <div class="form-group">
-                                <div class="col-md-3"><label class="control-label panel-admin-text">Proveedor:</label></div>
+                                <div class="col-md-3"><label class="control-label">Proveedor:</label></div>
                                 <div class="col-md-8">
                                     <select name="producto_proveedor" id="producto_proveedor" class='cho form-control'>
                                         <option value="">Seleccione</option>
@@ -234,7 +234,7 @@
                         <?php if ($columna->nombre_columna == 'producto_stockminimo' and $columna->activo == 1) { ?>
                             <div class="form-group">
                                 <div class="col-md-3">
-                                    <label for="stockmin" class="control-label panel-admin-text">Stock M&iacute;nimo:</label>
+                                    <label for="stockmin" class="control-label">Stock M&iacute;nimo:</label>
                                 </div>
 
                                 <div class="col-md-8">
@@ -254,7 +254,7 @@
                         <?php if ($columna->nombre_columna == 'producto_impuesto') { ?>
                             <div class="form-group">
                                 <div class="col-md-3">
-                                    <label for="impuesto" class="control-label panel-admin-text">Impuesto:</label>
+                                    <label for="impuesto" class="control-label">Impuesto:</label>
                                 </div>
                                 <div class="col-md-8">
                                     <select name="producto_impuesto" id="producto_impuesto" class='cho form-control'>
@@ -272,7 +272,7 @@
                         <?php if ($columna->nombre_columna == 'producto_largo' and $columna->activo == 1) { ?>
                             <div class="form-group">
                                 <div class="col-md-3">
-                                    <label for="impuesto" class="control-label panel-admin-text">Largo:</label>
+                                    <label for="impuesto" class="control-label">Largo:</label>
                                 </div>
                                 <div class="col-md-8">
 
@@ -288,7 +288,7 @@
                         <?php if ($columna->nombre_columna == 'producto_ancho' and $columna->activo == 1) { ?>
                             <div class="form-group">
                                 <div class="col-md-3">
-                                    <label for="impuesto" class="control-label panel-admin-text">Ancho:</label>
+                                    <label for="impuesto" class="control-label">Ancho:</label>
                                 </div>
                                 <div class="col-md-8">
 
@@ -304,7 +304,7 @@
                         <?php if ($columna->nombre_columna == 'producto_alto' and $columna->activo == 1) { ?>
                             <div class="form-group">
                                 <div class="col-md-3">
-                                    <label for="impuesto" class="control-label panel-admin-text">Alto:</label>
+                                    <label for="impuesto" class="control-label">Alto:</label>
                                 </div>
                                 <div class="col-md-8">
 
@@ -324,7 +324,7 @@
                                 <div class="form-group row">
 
                                     <div class="col-md-3">
-                                        <label for="impuesto" class="control-label panel-admin-text">Estado</label>
+                                        <label for="impuesto" class="control-label">Estado</label>
                                     </div>
 
                                     <div class="col-md-8">
@@ -349,7 +349,7 @@
                         <?php if ($columna->nombre_columna == 'presentacion' and $columna->activo == 1) { ?>
                             <div class="form-group">
                                 <div class="col-md-3">
-                                    <label for="impuesto" class="control-label panel-admin-text">Presentacion</label>
+                                    <label for="impuesto" class="control-label">Presentacion</label>
                                 </div>
                                 <div class="col-md-8">
 
@@ -364,7 +364,7 @@
                         <?php if ($columna->nombre_columna == 'producto_peso' and $columna->activo == 1) { ?>
                             <div class="form-group">
                                 <div class="col-md-3">
-                                    <label for="impuesto" class="control-label panel-admin-text">Peso:</label>
+                                    <label for="impuesto" class="control-label">Peso:</label>
                                 </div>
                                 <div class="col-md-8">
 
@@ -381,7 +381,7 @@
                         <?php if ($columna->nombre_columna == 'producto_nota' and $columna->activo == 1) { ?>
                             <div class="form-group">
                                 <div class="col-md-3">
-                                    <label for="impuesto" class="control-label panel-admin-text">Nota:</label>
+                                    <label for="impuesto" class="control-label">Nota:</label>
                                 </div>
                                 <div class="col-md-8">
                             <textarea name="producto_nota" id="producto_nota"
@@ -392,7 +392,7 @@
                         <?php if ($columna->nombre_columna == 'producto_cualidad') { ?>
                             <div class="form-group">
                                 <div class="col-md-3">
-                                    <label for="impuesto" class="control-label panel-admin-text">Cualidad:</label>
+                                    <label for="impuesto" class="control-label">Cualidad:</label>
                                 </div>
                                 <div class="col-md-8">
 
@@ -439,6 +439,11 @@
                             <th>Descripci&oacute;n</th>
                             <th>Unidades</th>
                             <th>Metro Cubicos</th>
+
+
+
+
+
 
 
                             <?php foreach ($precios as $precio):
@@ -720,10 +725,10 @@
         </div>
         <div class="modal-footer">
             <div class="text-right">
-                <button class="btn btn-primary" type="button" onclick="guardarproducto()" id="btnGuardar">
-                    <li class="glyphicon glyphicon-thumbs-up"></li> Guardar
+                <button class="btn btn-default" type="button" onclick="guardarproducto()" id="btnGuardar"><i
+                        class="fa fa-save"></i> Guardar
                 </button>
-                <input type="reset" class='btn btn-warning' value="Cancelar" data-dismiss="modal">
+                <input type="reset" class='btn btn-default' value="Cancelar" data-dismiss="modal">
             </div>
         </div>
 

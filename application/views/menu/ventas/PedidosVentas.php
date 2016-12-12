@@ -293,13 +293,18 @@ fieldset {
                     <div class="row panel">
                         <div class="form-group">
                             <div class="col-md-2">
-                                <label for="cboTipDoc" class="control-label panel-admin-text">Cliente</label>
+                                <label for="cboTipDoc" class="control-label panel-admin-text">Cliente:</label>
                             </div>
                             <div class="col-md-5">
                                 <span
                                     id="clienteinformativo"><?php if (isset($venta[0]['cliente'])) echo $venta[0]['cliente'] ?></span>
                             </div>
-
+                            <div class="col-md-1">
+                                <label for="gruclie" class="control-label panel-admin-text">Grupo:</label>
+                            </div>
+                            <div class="col-md-2">
+                                <input type="text" id="gruclie" name="grupo_cliente" readonly="readonly" class="form-control">
+                            </div>
                         </div>
                     </div>
 
@@ -696,6 +701,39 @@ fieldset {
     </div>
 
     <script type="text/javascript">
+
+        var clientes = [];
+        var grupo_id = "";
+        var grupo_name = "";
+
+        <?php foreach ($clientes as $clie): ?>
+
+            clientes.push({
+                'id_cliente': '<?=$clie['id_cliente']?>',
+                'grupo_id': '<?=$clie['grupo_id']?>',
+                'grupo_name': '<?=$clie['nombre_grupos_cliente']?>',
+            });
+
+        <?php endforeach; ?>
+
+        function get_gruclie() {
+
+            var sele = $("#id_cliente option:selected").val();
+
+            for (var i = 0; i < clientes.length; i++) {
+
+                if (clientes[i].id_cliente == sele) {
+                    grupo_id = clientes[i].grupo_id;
+                    grupo_name = clientes[i].grupo_name;
+
+                    $('#gruclie').val(grupo_name);
+
+                    break;
+                }
+            }
+        }
+
+
         function estado_oiginal() {
 
             $('#confirmacion2').modal('show')
@@ -814,6 +852,7 @@ fieldset {
                         var cboModPag = '<?= isset($venta[0]['id_condiciones']) ? $venta[0]['id_condiciones'] : ''?>';
 
                         $("#cboModPag").val(cboModPag).trigger("chosen:updated");
+                        get_gruclie();
                         activarText_ModoPago();
 
                     }
@@ -840,7 +879,7 @@ fieldset {
 
             $.ajax({
                 url: '<?=base_url()?>venta/zonaVendedor',
-                 type: "post",
+                type: "post",
                 dataType: "json",
                 data: {'vendedor_id': $('#vendedor').val(), 'dia': n},
                 success: function(data) {
@@ -858,11 +897,11 @@ fieldset {
                         obtenerClientesZona(dataRand);
                         $('#zona').val(dataRand)
                         $("#zona").trigger('chosen:updated');
-                        
+
                     }else{
                         resetCampos('zona');
                     }
-                // zonaclientes()
+                    // zonaclientes()
 
                 }
             });
@@ -877,20 +916,20 @@ fieldset {
 
                 $.ajax({
                     url: '<?=base_url()?>venta/clienteDireccion',
-                     type: "post",
+                    type: "post",
                     dataType: "json",
                     data: {'cliente_id': $('#id_cliente').val()},
                     success: function(data) {
                         if (data != '') {
-                                 for (i = 0; i < data.length; i++) {
-                                     $('#direccion_entrega_np').append('<option value=' + data[i].id + '>' + data[i].valor + '</option>')
-                                     if(data[i].principal == 1){
+                            for (i = 0; i < data.length; i++) {
+                                $('#direccion_entrega_np').append('<option value=' + data[i].id + '>' + data[i].valor + '</option>')
+                                if(data[i].principal == 1){
 
-                                        $('#direccion_principal').append('<option value=' + data[i].id + '>' + data[i].valor + '</option>')
-                                     }
+                                    $('#direccion_principal').append('<option value=' + data[i].id + '>' + data[i].valor + '</option>')
+                                }
 
-                                     $('#direccion_entrega_doc').append('<option value=' + data[i].id + '>' + data[i].valor + '</option>')
-                                 }
+                                $('#direccion_entrega_doc').append('<option value=' + data[i].id + '>' + data[i].valor + '</option>')
+                            }
                             $("#direccion_entrega_np").trigger('chosen:updated');
                             $("#direccion_principal").trigger('chosen:updated');
                             $("#direccion_entrega_doc").trigger('chosen:updated');
@@ -900,108 +939,108 @@ fieldset {
             }
         }
 
-    function dataCliente(){
-        if($("#id_cliente").val()!=''){
+        function dataCliente(){
+            if($("#id_cliente").val()!=''){
 
+                $.ajax({
+                    url: '<?=base_url()?>venta/dataCliente',
+                    type: "post",
+                    dataType: "json",
+                    data: {'cliente_id': $('#id_cliente').val()},
+                    success: function(data) {
+                        if (data != '') {
+                            $('#contacto_nt').val(data[0].representante)
+                            $('#retencion').val(data[0].linea_credito_valor)
+                            $('#deuda_actual').val(data[0].importe_deuda)
+
+                            if(data[0].tipo_cliente == 0 && $('#tipo_documento').val() == 'FACTURA'){
+                                $('#ruc_dc').val(data[0].identificacion)
+                                $('#razon_social').val(data[0].razon_social)
+                            }
+
+
+                        }
+                    }
+                });
+            }
+        }
+
+        // Evento de Zonas
+        $('#zona').change(function(){
+            // zonaclientes()
+            obtenerClientesZona($(this).val());
+            resetCampos('id_cliente');
+        })
+
+
+        function resetCampos(campo_id){
+            if($('#'+campo_id).is('select')){
+                $('#'+campo_id+' option').remove();
+                $('#'+campo_id).append('<option value="">Seleccione</option>');
+                $('#'+campo_id).trigger('chosen:updated');
+            }
+        }
+
+        function obtenerClientesZona(zona_id){
+// Metodo Ajax 
+            if(zona_id != ''){
+                $.ajax({
+                    url: '<?=base_url()?>venta/clientesIdZona',
+                    type: "post",
+                    dataType: "json",
+                    data: {'zona_id': zona_id},
+                    success: function(data) {
+                        if (data != '') {
+                            $('#id_cliente option').remove();
+                            $('#id_cliente').append('<option value="">Seleccione</option>');
+                            for (i = 0; i < data.length; i++) {
+                                $('#id_cliente').append('<option value=' + data[i].id_cliente + '>' + data[i].representante + '</option>')
+                            }
+                            $("#id_cliente").trigger('chosen:updated');
+                        }
+                    }
+                });
+            }else{
+                resetCampos('id_cliente');
+            }
+        }
+
+        function obtenerClientes(){
+// Metodo Ajax
             $.ajax({
-                url: '<?=base_url()?>venta/dataCliente',
-                 type: "post",
+                url: '<?=base_url()?>venta/listaClientes',
+                type: "post",
                 dataType: "json",
-                data: {'cliente_id': $('#id_cliente').val()},
                 success: function(data) {
                     if (data != '') {
-                        $('#contacto_nt').val(data[0].representante)
-                        $('#retencion').val(data[0].linea_credito_valor)
-                        $('#deuda_actual').val(data[0].importe_deuda)
-
-                        if(data[0].tipo_cliente == 0 && $('#tipo_documento').val() == 'FACTURA'){
-                            $('#ruc_dc').val(data[0].identificacion)
-                            $('#razon_social').val(data[0].razon_social)
+                        $('#id_cliente option').remove();
+                        $('#id_cliente').append('<option value="">Seleccione</option>');
+                        for (i = 0; i < data.length; i++) {
+                            $('#id_cliente').append('<option value=' + data[i].id_cliente + '>' + data[i].representante + '</option>')
                         }
-
-
+                        $("#id_cliente").trigger('chosen:updated');
                     }
                 }
             });
         }
-    }
 
-// Evento de Zonas
-$('#zona').change(function(){
-    // zonaclientes()
-    obtenerClientesZona($(this).val());
-    resetCampos('id_cliente');
-})
-
-
-function resetCampos(campo_id){
-    if($('#'+campo_id).is('select')){
-        $('#'+campo_id+' option').remove();
-        $('#'+campo_id).append('<option value="">Seleccione</option>');
-        $('#'+campo_id).trigger('chosen:updated');
-    }
-}
-
-function obtenerClientesZona(zona_id){
-// Metodo Ajax 
-    if(zona_id != ''){
-        $.ajax({
-            url: '<?=base_url()?>venta/clientesIdZona',
-            type: "post",
-            dataType: "json",
-            data: {'zona_id': zona_id},
-            success: function(data) {
-                if (data != '') {
-                    $('#id_cliente option').remove();
-                    $('#id_cliente').append('<option value="">Seleccione</option>');          
-                     for (i = 0; i < data.length; i++) {
-                         $('#id_cliente').append('<option value=' + data[i].id_cliente + '>' + data[i].representante + '</option>')
-                     }
-                    $("#id_cliente").trigger('chosen:updated');
-                }
-            }
-        });
-    }else{
-        resetCampos('id_cliente');
-    }
- }
-
-function obtenerClientes(){
-// Metodo Ajax
-    $.ajax({
-        url: '<?=base_url()?>venta/listaClientes',
-        type: "post",
-        dataType: "json",
-        success: function(data) {
-            if (data != '') {
-                $('#id_cliente option').remove();
-                $('#id_cliente').append('<option value="">Seleccione</option>');
-                 for (i = 0; i < data.length; i++) {
-                     $('#id_cliente').append('<option value=' + data[i].id_cliente + '>' + data[i].representante + '</option>')
-                 }
-                $("#id_cliente").trigger('chosen:updated');
-            }
+        function getElementOptionRand(id_input){
+            alert(id_input)
+            var arrayRand = [];
+            $(id_input).children().each(function(index,value){
+                console.log(value);
+                arrayRand.push($(value).val())
+            });
+            return arrayRand[Math.floor(Math.random()*arrayRand.length)];
         }
-    });
- }
 
-function getElementOptionRand(id_input){    
-    alert(id_input)
-    var arrayRand = [];
-    $(id_input).children().each(function(index,value){
-        console.log(value);
-        arrayRand.push($(value).val())
-    });
-    return arrayRand[Math.floor(Math.random()*arrayRand.length)];
-}
-
-function contruirSelect(data,element_id){
-    for (i = 0; i < data.length; i++) {
-        $('#'+element_id).append('<option value=' + data[i].zona_id + '>' + data[i].zona_nombre + '</option>')
-    }
-    $("#"+element_id).trigger('chosen:updated');
-}
-//////////////////////////
+        function contruirSelect(data,element_id){
+            for (i = 0; i < data.length; i++) {
+                $('#'+element_id).append('<option value=' + data[i].zona_id + '>' + data[i].zona_nombre + '</option>')
+            }
+            $("#"+element_id).trigger('chosen:updated');
+        }
+        //////////////////////////
 
         $(document).ready(function () {
 
@@ -1031,7 +1070,7 @@ function contruirSelect(data,element_id){
             // console.log(data);
             // var zonaRand = getElementOptionRand("#zona");
             // $("#zona").trigger('chosen:updated');
-            
+
             // Evento Click Checkbox
             $('#todasZonas').click(function(){
                 if($('#todasZonas').is(':checked')){
@@ -1062,6 +1101,7 @@ function contruirSelect(data,element_id){
             $("#id_cliente").change(function(){
                 clienteDireccion()
                 dataCliente()
+                get_gruclie();
             })
 
             $("#id_cliente").change(function () {
@@ -1124,6 +1164,8 @@ function contruirSelect(data,element_id){
             $('ul.setup-panel li.active a').trigger('click');
 
             $('#activate-step-2').on('click', function (e) {
+
+
                 $('ul.setup-panel li:eq(1)').removeClass('disabled');
                 $('ul.setup-panel li a[href="#step-2"]').trigger('click');
                 $(this).remove();

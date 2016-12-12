@@ -90,6 +90,33 @@ class bonificaciones extends REST_Controller
         }
     }
 
+    public function ver_genventa_get()
+    {
+        $id = $this->get('id');
+        $gruclie = $this->get('grupo');
+
+        if (empty($id)) {
+            $this->response(array(), 200);
+        }
+
+        $data = array();
+        $data['bonificaciones'] = array();
+        $bonificaciones=$this->bonificacion->get_all_by_condiciones2($id,$gruclie);
+        foreach($bonificaciones as $bono){
+
+            $bono['bonificaciones_has_producto'] = $this->bonificacion->bonificaciones_has_producto('id_bonificacion', $bono['id_bonificacion']);
+
+            $data['bonificaciones'][]=$bono;
+        }
+        if ($data) {
+            $this->response($data, 200);
+        } else {
+            $this->response(array(), 200);
+        }
+    }
+
+
+
     // Save
     public function create_get()
     {

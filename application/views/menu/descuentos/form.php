@@ -14,9 +14,7 @@
                 <div class="row">
                     <div class="form-group">
                         <div class="col-md-1">
-                            <label class="control-label panel-admin-text">
-                               Nombre:
-                            </label>
+                            Nombre:
                         </div>
                         <div class="col-md-6">
                             <input type="text" name="nombre" id="nombre" required="true" class="form-control"
@@ -27,11 +25,11 @@
                                value="<?php if (isset($descuentos['descuento_id'])) echo $descuentos['descuento_id']; ?>">
 
                         <div class="col-md-2">
-                           <label class="control-label panel-admin-text"> Grupo Descuento:</label>
+                            Grupo seleccionado:
                         </div>
                         <div class="col-md-3">
 
-                            <select disabled name="grupos" id="grupos" class='cho form-control filter-input'>
+                            <select name="grupos" id="grupos" class='cho form-control filter-input'>
                                 <option
                                     value="<?php echo $grupo_clie_id; ?>"
                                     id="<?php echo $grupo_clie; ?>">
@@ -48,8 +46,7 @@
                     <div class="col-md-5">
                         <div class="form-group">
                             <div class="col-md-3">
-                                <label class="control-label panel-admin-text">Desde</label>
-
+                                Desde
                             </div>
                             <div class="col-md-10">
                                 <input type="number" id="desde" class="form-control">
@@ -59,7 +56,7 @@
                     <div class="col-md-5">
                         <div class="form-group">
                             <div class="col-md-3">
-                                 <label class="control-label panel-admin-text">Hasta</label>
+                                Hasta
                             </div>
                             <div class="col-md-10">
                                 <input type="number" id="hasta" class="form-control">
@@ -180,11 +177,11 @@
                                                 hasta <?php echo $escala['cantidad_maxima']; ?>
 
                                                 <div class="btn-group">
-                                                    <a class="btn btn-danger" data-toggle="tooltip"
+                                                    <a class="btn btn-default btn-mini btn-default" data-toggle="tooltip"
                                                        title="Eliminar"
                                                        data-original-title="Eliminar"
                                                        onclick="quitarEscala(<?php echo $contador_escala; ?>)">
-                                                        <i class="glyphicon glyphicon-trash"></i></i></a></div>
+                                                        <i class="fa fa-trash-o"></i></a></div>
 
                                                 <div class="lstTabla" id="lstTabla<?php echo $contador_escala; ?>">
                                             </div>
@@ -222,7 +219,7 @@
                                                                 <td><?= $productosnoagrupados[$p]['nombre_unidad'] ?>
                                                                 </td>
                                                                 <?php foreach ($prod_precios as $pp) {
-                                                                    if ($pp['producto_id'] == $productosnoagrupados[$p]["producto_id"]) { ?>
+                                                                    if ($pp['producto_id'] == $productosnoagrupados[$p]["producto_id"] && $pp['id_unidad'] == $productosnoagrupados[$p]['id_unidad']) { ?>
                                                                       <td width="15%"><?= $pp['precio'] ?></td>
                                                                     <?}
                                                                 }?>
@@ -233,12 +230,12 @@
                                                                 </td>
                                                                 <td class="actions">
                                                                     <div class="btn-group"><a
-                                                                            class="btn btn-danger"
+                                                                            class="btn btn-default btn-default btn-default"
                                                                             data-toggle="tooltip"
                                                                             title="Eliminar"
                                                                             data-original-title="Eliminar"
                                                                             onclick="del_listaProducto(<?= $contador_precios ?>,<?= $productosnoagrupados[$p]["producto_id"] ?>)">
-                                                                            <i class="glyphicon glyphicon-trash"></i></i></a>
+                                                                            <i class="fa fa-trash-o"></i></a>
                                                                     </div>
                                                                 </td>
                                                             </tr>
@@ -291,11 +288,10 @@
             <div class="modal-footer">
                 <div class="form-actions">
 
-                    <button class="btn btn-primary" id="btnGuardar" type="button">
-                    <li class="glyphicon glyphicon-thumbs-up"></li> Guardar
+                    <button class="btn btn-primary" id="btnGuardar" type="button">Confirmar
                     </button>
                     <!-- <button type="button" class="btn"><i class="fa fa-folder-open-o fa-3x text-info"></i><br>Abrir </button>-->
-                    <button type="button" class="btn btn-warning" data-dismiss="modal"> Cancelar <li class="glyphicon glyphicon-thumbs-down"></li></button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
 
                 </div>
             </div>
@@ -312,17 +308,15 @@
                 <h4 class="modal-title">Confirmar</h4>
             </div>
             <div class="modal-body">
-                <h4>Est&aacute; seguro que desea registrar el ingreso de los productos seleccionados?</h4>
+                <p>Est&aacute; seguro que desea registrar el ingreso de los productos seleccionados?</p>
                 <input type="hidden" name="id" id="id_borrar">
 
             </div>
             <div class="modal-footer">
                 <button type="button" id="botonconfirmar" class="btn btn-primary" onclick="guardardescuento();">
-                  <li class="glyphicon glyphicon-thumbs-up"></li>  Guardar
+                    Confirmar
                 </button>
-                <button type="button" id="cerrar" class="btn btn-warning"> Cancelar
-                <li class="glyphicon glyphicon-thumbs-down"></li>
-                </button>
+                <button type="button" id="cerrar" class="btn btn-default">Cancelar</button>
 
             </div>
         </div>
