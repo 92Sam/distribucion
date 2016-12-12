@@ -79,7 +79,8 @@ class rcliente_estado_model extends CI_Model
             venta.total as total_deuda, 
             credito.dec_credito_montodebito as actual,
             (venta.total - credito.dec_credito_montodebito)  as credito,
-            venta.venta_status as venta_estado
+            venta.venta_status as venta_estado,
+            DATEDIFF(CURDATE(), (historial_pedido_proceso.created_at)) as atraso
         ")
             ->from('venta')
             ->join('historial_pedido_proceso', 'historial_pedido_proceso.pedido_id = venta.venta_id')
@@ -142,12 +143,37 @@ class rcliente_estado_model extends CI_Model
             $cobranza->detalles = $this->db->select("
                 historial_pagos_clientes.historial_fecha as fecha,
                 historial_pagos_clientes.historial_monto as monto,
-                metodos_pago.nombre_metodo as tipo_pago_nombre
+                metodos_pago.nombre_metodo as tipo_pago_nombre,
+                historial_pagos_clientes.historial_estatus as estado,
             ")
                 ->from('historial_pagos_clientes')
                 ->join('metodos_pago', 'metodos_pago.id_metodo = historial_pagos_clientes.historial_tipopago')
                 ->where('credito_id', $cobranza->venta_id)
                 ->get()->result();
+
+            $pagado_pendientes = $this->db->select("
+                SUM(historial_pagos_clientes.historial_monto) as monto,
+            ")
+                ->from('historial_pagos_clientes')
+                ->join('metodos_pago', 'metodos_pago.id_metodo = historial_pagos_clientes.historial_tipopago')
+                ->where('credito_id', $cobranza->venta_id)
+                ->where('historial_pagos_clientes.historial_estatus', 'PENDIENTE')
+                ->group_by('credito_id')
+                ->get()->row();
+
+            $cobranza->pagado_pendientes = isset($pagado_pendientes->monto) ? $pagado_pendientes->monto : 0;
+
+            $pagado_confirmado = $this->db->select("
+                SUM(historial_pagos_clientes.historial_monto) as monto,
+            ")
+                ->from('historial_pagos_clientes')
+                ->join('metodos_pago', 'metodos_pago.id_metodo = historial_pagos_clientes.historial_tipopago')
+                ->where('credito_id', $cobranza->venta_id)
+                ->where('historial_pagos_clientes.historial_estatus', 'CONFIRMADO')
+                ->group_by('credito_id')
+                ->get()->row();
+
+            $cobranza->pagado_confirmados = isset($pagado_confirmado->monto) ? $pagado_confirmado->monto : 0;
         }
 
         return $cobranzas;

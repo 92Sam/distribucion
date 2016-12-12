@@ -64,8 +64,8 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                         <td class="center"><?= $bancos['banco_id'] ?></td>
                         <td><?= $bancos['banco_nombre'] ?></td>
                         <td><?= $bancos['banco_numero_cuenta'] ?></td>
-                        <td><?= $bancos['banco_saldo'] ?></td>
-                        <td><?= $bancos['banco_cuenta_contable'] ?></td>
+                        <td><?= $bancos['saldo'] ?></td>
+                        <td><?= $bancos['descripcion'] ?> | <?= $bancos['moneda_id'] == 1 ? 'SOLES' : "DOLARES" ?></td>
                         <td><?= $bancos['banco_titular'] ?></td>
 
                         <td class="center">
@@ -127,7 +127,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
 
     function editar(id) {
 
-        $("#agregar").load('<?= $ruta ?>banco/form/'+id);
+        $("#agregar").load('<?= $ruta ?>banco/form/' + id);
         $('#agregar').modal('show');
 
     }
@@ -139,14 +139,14 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
     }
 
     var grupo = {
-        ajaxgrupo : function(){
-            return  $.ajax({
-                url:'<?= base_url()?>banco'
+        ajaxgrupo: function () {
+            return $.ajax({
+                url: '<?= base_url()?>banco'
 
             })
         },
-        guardar : function () {
-            
+        guardar: function () {
+
             if ($("#nombre").val() == '') {
                 var growlType = 'warning';
 
@@ -220,9 +220,9 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
         }
     }
 
-    function eliminar(){
+    function eliminar() {
 
-        App.formSubmitAjax($("#formeliminar").attr('action'), grupo.ajaxgrupo, 'borrar', 'formeliminar' );
+        App.formSubmitAjax($("#formeliminar").attr('action'), grupo.ajaxgrupo, 'borrar', 'formeliminar');
 
     }
 </script>
@@ -260,4 +260,6 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
 <!-- /.modal-dialog -->
 </div>
 
-<script>$(function(){ TablesDatatables.init(); });</script>
+<script>$(function () {
+        TablesDatatables.init();
+    });</script>

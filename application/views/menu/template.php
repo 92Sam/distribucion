@@ -347,7 +347,7 @@ $primary_nav = array(
 
             array(
                 'name' => 'Pagos Pendientes',
-                'url' => $ruta . 'venta/pagospendientes',
+                'url' => $ruta . 'pago_pendiente/pagos',
                 'icon' => 'gi gi-wallet',
                 'slug' => 'pagospendientescobranzas'
             ),
@@ -1276,7 +1276,7 @@ $primary_nav = array(
                             <?php } ?>
                             <?php if ($this->usuarios_grupos_model->user_has_perm($this->session->userdata('nUsuCodigo'), 'pagospendiente')) { ?>
                                 <li>
-                                <a class="menulink" href="<?= $ruta ?>venta/pagospendientes">Pagos Pendientes</a>
+                                <a class="menulink" href="<?= $ruta ?>pago_pendiente/pagos">Pagos Pendientes</a>
                                 </li><?php } ?>
                             <?php if ($this->usuarios_grupos_model->user_has_perm($this->session->userdata('nUsuCodigo'), 'estadodecuenta')) { ?>
 

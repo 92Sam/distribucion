@@ -7,19 +7,11 @@ class banco extends MY_Controller
     {
         parent::__construct();
         $this->load->model('banco/banco_model');
-        //$this->very_sesion();
     }
 
-   /* function very_sesion()
-    {
-        if (!$this->session->userdata('nUsuCodigo')) {
-            redirect(base_url() . 'inicio');
-        }
-    }*/
 
     function index()
     {
-        //$data="";
 
         if ($this->session->flashdata('success') != FALSE) {
             $data ['success'] = $this->session->flashdata('success');
@@ -32,7 +24,7 @@ class banco extends MY_Controller
         $dataCuerpo['cuerpo'] = $this->load->view('menu/banco/banco', $data, true);
         if ($this->input->is_ajax_request()) {
             echo $dataCuerpo['cuerpo'];
-        }else{
+        } else {
             $this->load->view('menu/template', $dataCuerpo);
         }
     }
@@ -44,10 +36,15 @@ class banco extends MY_Controller
         if ($id != FALSE) {
             $data['banco'] = $this->banco_model->get_by('banco_id', $id);
         }
+
+        $data['caja_actual'] = $this->db->get_where('caja', array('moneda_id' => '1', 'local_id' => $this->session->userdata('int_local_id')))->row();
+
+        $data['cajas'] = $this->db->get_where('caja', array('estado' => 1))->result();
+        $data['caja_cuentas'] = $this->db->get_where('caja_desglose', array('estado' => 1))->result();
         $this->load->view('menu/banco/form', $data);
     }
 
-  
+
     function guardar()
     {
 
@@ -60,6 +57,7 @@ class banco extends MY_Controller
             'banco_cuenta_contable' => $this->input->post('cuenta_contable'),
             'banco_titular' => $this->input->post('titular'),
             'banco_status' => 1,
+            'cuenta_id' => $this->input->post('cuentas_select')
         );
 
         if (empty($id)) {
@@ -71,7 +69,7 @@ class banco extends MY_Controller
         }
 
         if ($resultado == TRUE) {
-            $json['success']= 'Solicitud Procesada con exito';
+            $json['success'] = 'Solicitud Procesada con exito';
         } else {
             $json['error'] = 'Ha ocurrido un error al procesar la Solicitud';
         }
