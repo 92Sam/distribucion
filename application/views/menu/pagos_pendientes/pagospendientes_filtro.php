@@ -57,16 +57,6 @@
             </div>
 
             <div class="row">
-                <label class="control-label">Vendedor:</label>
-                <select id="vendedor_id" name="vendedor_id" class="form-control">
-                    <option value="0">Todos</option>
-                    <?php foreach ($vendedores as $vendedor): ?>
-                        <option value="<?= $vendedor->nUsuCodigo ?>"><?= $vendedor->nombre ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-
-            <div class="row">
                 <label class="control-label" style="cursor: pointer;">
                     <input id="zonas_all" type="checkbox" checked> Zonas del Vendedor:
                 </label><br>
@@ -91,50 +81,33 @@
                 </select>
             </div>
 
-            <div class="row">
-                <label class="control-label">Estado:</label>
-                <select id="estado" class="form-control">
-                    <option value="0">Todos</option>
-                    <option value="1">Cancelados</option>
-                    <option value="2">Pendientes</option>
-                </select>
-            </div>
-
         </div>
     </div>
 
     <div class="row">
         <div class="col-md-2">
-            <label class="control-label" style="padding-top: 8px;">Fecha de Venta:</label>
+            <label class="control-label">Vendedor:</label>
         </div>
-        <div class="col-md-2">
-            <input id="fecha_ini" type="text" class="form-control input-datepicker" value="<?= date('01-m-Y') ?>"
-                   style="cursor: pointer;" readonly>
+        <div class="col-md-4">
+            <select id="vendedor_id" name="vendedor_id" class="form-control">
+                <option value="0">Todos</option>
+                <?php foreach ($vendedores as $vendedor): ?>
+                    <option value="<?= $vendedor->nUsuCodigo ?>"><?= $vendedor->nombre ?></option>
+                <?php endforeach; ?>
+            </select>
         </div>
 
-
-        <div class="col-md-2">
-            <input id="fecha_fin" type="text" class="form-control input-datepicker" value="<?= date('d-m-Y') ?>"
-                   style="cursor: pointer;" readonly>
-        </div>
 
         <div class="col-md-3">
-            <input type="checkbox" id="incluir_fecha" checked>
-            <label for="incluir_fecha"
-                   class="control-label"
-                   style="cursor: pointer;">
-                Incluir Filtro de Fecha
-            </label>
+
         </div>
 
         <div class="col-md-1">
-            <br>
             <button type="button" class="btn btn-default form-control btn_buscar">
                 <i class="fa fa-search"></i>
             </button>
         </div>
         <div class="col-md-1">
-            <br>
             <button type="button" class="btn btn-primary tcharm-trigger form-control">
                 <i class="fa fa-plus"></i>
             </button>
@@ -181,9 +154,6 @@
         'vendedor_id': '<?=$cliente["vendedor_a"]?>',
     });
     <?php endforeach; ?>
-
-    console.log(vendedor_zonas);
-
 
     $(document).ready(function () {
 

@@ -29,8 +29,7 @@ class pago_pendiente extends MY_Controller
                     'fecha_flag' => 0,
                     'vendedor_id' => $this->input->post('vendedor_id'),
                     'cliente_id' => $this->input->post('cliente_id'),
-                    'zonas_id' => json_decode($this->input->post('zonas_id')),
-                    'estado' => $this->input->post('estado')
+                    'zonas_id' => json_decode($this->input->post('zonas_id'))
                 ));
 
 
@@ -83,7 +82,8 @@ class pago_pendiente extends MY_Controller
         $this->load->view('menu/pagos_pendientes/dialog_pagar_pedido', $data);
     }
 
-    function ejecutar_pagar_nota_pedido($id){
+    function ejecutar_pagar_nota_pedido($id)
+    {
         $data = array(
             'pago_id' => $this->input->post('pago_id'),
             'banco_id' => $this->input->post('banco_id'),
@@ -108,7 +108,8 @@ class pago_pendiente extends MY_Controller
         $this->load->view('menu/pagos_pendientes/dialog_pagar_cliente', $data);
     }
 
-    function ejecutar_pagar_cliente($id){
+    function ejecutar_pagar_cliente($id)
+    {
         $data = array(
             'pago_id' => $this->input->post('pago_id'),
             'banco_id' => $this->input->post('banco_id'),
@@ -126,7 +127,32 @@ class pago_pendiente extends MY_Controller
         $data['pagos'] = $this->venta_cobro_model->get_pagos_by_vendedor($id);
         $data['venta'] = $this->venta_cobro_model->get_cobranza_by_venta($id);
 
+        $data['metodos_pago'] = $this->db->get_where('metodos_pago', array('status_metodo' => 1))->result();
+        $data['bancos'] = $this->db->get_where('banco', array('banco_status' => 1))->result();
+
         $this->load->view('menu/pagos_pendientes/dialog_liquidar_pago', $data);
+    }
+
+    function ejecutar_liquidar_pago($id)
+    {
+        $data = array(
+            'pago_id' => $this->input->post('pago_id'),
+            'banco_id' => $this->input->post('banco_id'),
+            'num_oper' => $this->input->post('num_oper'),
+            'importe' => $this->input->post('importe'),
+            'historial_id' => json_decode($this->input->post('historial_id'))
+        );
+
+        $this->venta_cobro_model->pagar_by_vendedor($id, $data);
+
+        $this->liquidar_pago($id);
+    }
+
+    function eliminar_liquidar_pago($id, $vendedor_id)
+    {
+        $this->venta_cobro_model->eliminar_pago($id);
+
+        $this->liquidar_pago($vendedor_id);
     }
 }
 

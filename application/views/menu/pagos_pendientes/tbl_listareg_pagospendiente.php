@@ -18,6 +18,11 @@
         color: #fff;
     }
 
+    .b-primary {
+        background-color: #1493D1 !important;
+        color: #fff;
+    }
+
 </style>
 
 <?php foreach ($clientes as $cliente): ?>
@@ -45,9 +50,9 @@
                     <?= MONEDA ?>
                     <?= number_format($cliente->vendedor_pendiente, 2) ?>
                 </label>
-                <button style="float: right" type="button" class="b-default luquidar_pago"
+                <button style="float: right" type="button" class="b-primary luquidar_pago"
                         data-vendedor_id="<?= $cliente->vendedor_id ?>">
-                    <i class="fa fa-search"></i>
+                    <i class="fa fa-money"></i>
                 </button>
             </td>
             <th>Total Saldo</th>
@@ -57,9 +62,9 @@
                     <?= MONEDA ?>
                     <?= number_format($cliente->subtotal_venta - $cliente->subtotal_pago, 2) ?>
                 </label>
-                <button style="float: right" type="button" class="b-default pagar_cliente"
+                <button style="float: right" type="button" class="b-primary pagar_cliente"
                         data-cliente_id="<?= $cliente->cliente_id ?>">
-                    <i class="fa fa-search"></i>
+                    <i class="fa fa-money"></i>
                 </button>
             </td>
         </tr>
@@ -90,9 +95,9 @@
                         <?= MONEDA . ' ' . number_format($cobranza->credito, 2) ?>
                     </label>
                     <?php if ($cobranza->credito > 0): ?>
-                        <button style="float: right" type="button" class="b-default pagar_pedido"
+                        <button style="float: right" type="button" class="b-primary pagar_pedido"
                                 data-pedido_id="<?= $cobranza->venta_id ?>">
-                            <i class="fa fa-search"></i>
+                            <i class="fa fa-money"></i>
                         </button>
                     <?php endif; ?>
                 </td>

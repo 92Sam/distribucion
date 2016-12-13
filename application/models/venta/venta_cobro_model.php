@@ -51,9 +51,11 @@ class venta_cobro_model extends CI_Model
 
         foreach ($clientes as $cliente) {
             $cliente->cobranzas = $this->get_cobranzas_detalles($cliente->cliente_id, $params);
+
+            $cliente->vendedor_pendiente = $this->get_vendedor_pendiente($cliente->vendedor_id);
         }
 
-        return $this->get_vendedor_pendiente($clientes);
+        return $clientes;
     }
 
     function get_cobranzas_detalles($cliente_id, $params)
@@ -120,22 +122,13 @@ class venta_cobro_model extends CI_Model
         return $cobranzas;
     }
 
-    function get_vendedor_pendiente($clientes)
+    function get_vendedor_pendiente($vendedor_id)
     {
-        $vendedor = array();
-        foreach ($clientes as $cliente) {
-            foreach ($cliente->cobranzas as $cobranza) {
-                if (!isset($vendedor[$cliente->vendedor_id]))
-                    $vendedor[$cliente->vendedor_id] = 0;
-                $vendedor[$cliente->vendedor_id] += $cobranza->pagado_pendientes;
-            }
-        }
-
-        foreach ($clientes as $cliente) {
-            $cliente->vendedor_pendiente = $vendedor[$cliente->vendedor_id];
-        }
-
-        return $clientes;
+        $pagos = $this->get_pagos_by_vendedor($vendedor_id);
+        $result = 0;
+        foreach ($pagos->pendientes as $pago)
+            $result += $pago->monto;
+        return $result;
     }
 
     function get_pagos($pedido_id, $estado = "")
@@ -161,6 +154,7 @@ class venta_cobro_model extends CI_Model
 
         $this->db->select("
                 historial_pagos_clientes.credito_id as venta_id,
+                historial_pagos_clientes.historial_id as historial_id,
                 historial_pagos_clientes.historial_fecha as fecha,
                 historial_pagos_clientes.historial_monto as monto,
                 historial_pagos_clientes.historial_tipopago as pago_id,
@@ -174,9 +168,10 @@ class venta_cobro_model extends CI_Model
             ->join('metodos_pago', 'metodos_pago.id_metodo = historial_pagos_clientes.historial_tipopago')
             ->join('banco', 'banco.banco_id = historial_pagos_clientes.historial_banco_id', 'left')
             ->where('credito_id', $pedido_id);
-        if ($estado == 'PENDIENTE')
+        if ($estado == 'PENDIENTE') {
+            $this->db->where('historial_pagos_clientes.vendedor_id', NULL);
             $this->db->where('historial_pagos_clientes.historial_estatus', $estado);
-        elseif ($estado == 'CONFIRMADO')
+        } elseif ($estado == 'CONFIRMADO')
             $this->db->where('historial_pagos_clientes.historial_estatus', $estado);
 
         $cobranza->detalles = $this->db->get()->result();
@@ -212,6 +207,7 @@ class venta_cobro_model extends CI_Model
 
             foreach ($cobranza->pagos_pendientes->detalles as $pago) {
                 $temp = new stdClass();
+                $temp->id = $pago->historial_id;
                 $temp->documento = $cobranza->documento_serie . ' - ' . $cobranza->documento_numero;
                 $temp->pago_nombre = $pago->pago_nombre;
                 $temp->pago_id = $pago->pago_id;
@@ -226,6 +222,39 @@ class venta_cobro_model extends CI_Model
             }
         }
 
+        $this->db->select("
+                historial_pagos_clientes.credito_id as venta_id,
+                historial_pagos_clientes.historial_id as historial_id,
+                historial_pagos_clientes.historial_fecha as fecha,
+                historial_pagos_clientes.historial_monto as monto,
+                historial_pagos_clientes.historial_tipopago as pago_id,
+                metodos_pago.nombre_metodo as pago_nombre,
+                banco.banco_nombre as banco_nombre,
+                banco.banco_id as banco_id,
+                historial_pagos_clientes.pago_data as num_oper,
+                historial_pagos_clientes.historial_estatus as estado
+            ")
+            ->from('historial_pagos_clientes')
+            ->join('metodos_pago', 'metodos_pago.id_metodo = historial_pagos_clientes.historial_tipopago')
+            ->join('banco', 'banco.banco_id = historial_pagos_clientes.historial_banco_id', 'left')
+            ->where('vendedor_id', $vendedor_id)
+            ->where('historial_pagos_clientes.historial_estatus', 'ESPERA');
+
+        $pagos = $this->db->get()->result();
+
+        foreach ($pagos as $pago) {
+            $temp = new stdClass();
+            $temp->id = $pago->historial_id;
+            $temp->documento = $cobranza->documento_serie . ' - ' . $cobranza->documento_numero;
+            $temp->pago_nombre = $pago->pago_nombre;
+            $temp->pago_id = $pago->pago_id;
+            $temp->monto = $pago->monto;
+            $temp->banco_nombre = $pago->banco_nombre;
+            $temp->num_oper = $pago->num_oper;
+
+            $result->espera[] = $temp;
+        }
+
         return $result;
     }
 
@@ -238,6 +267,7 @@ class venta_cobro_model extends CI_Model
             documento_venta.documento_Serie as documento_serie, 
             documento_venta.documento_Numero as documento_numero,
             usuario.nombre as vendedor_nombre,
+            usuario.nUsuCodigo as vendedor_id,
             venta.total as total_deuda, 
             credito.dec_credito_montodebito as actual, 
             (venta.total - credito.dec_credito_montodebito)  as saldo, 
@@ -290,6 +320,51 @@ class venta_cobro_model extends CI_Model
 
         $this->db->where('id_venta', $venta_id);
         $this->db->update('credito', array('dec_credito_montodebito' => $historial_pago['monto_restante']));
+    }
+
+    function pagar_by_vendedor($id, $data)
+    {
+        $historial_pago = array(
+            'historial_fecha' => date('Y-m-d H:i:s'),
+            'historial_monto' => $data['importe'],
+            'historial_tipopago' => $data['pago_id'],
+            'monto_restante' => 0,
+            'historial_usuario' => $this->session->userdata('nUsuCodigo'),
+            'historial_estatus' => 'ESPERA',
+            'pago_data' => $data['num_oper'],
+            'vendedor_id' => $id
+        );
+        if ($historial_pago['historial_tipopago'] == 4)
+            $historial_pago['historial_banco_id'] = $data['banco_id'];
+
+        $this->db->insert('historial_pagos_clientes', $historial_pago);
+        $result = $this->db->insert_id();
+
+        foreach ($data['historial_id'] as $historial) {
+            $this->db->where('historial_id', $historial->id);
+            $this->db->update('historial_pagos_clientes', array('vendedor_id' => $result));
+        }
+    }
+
+    function eliminar_pago($id)
+    {
+        $pago = $this->db->get_where('historial_pagos_clientes', array('historial_id' => $id))->row();
+
+        if ($pago->historial_estatus == 'PENDIENTE') {
+            $credito = $this->db->get_where('credito', array('id_venta' => $pago->credito_id))->row();
+            $this->db->where('id_venta', $pago->credito_id);
+            $this->db->update('credito', array('dec_credito_montodebito' => $credito->dec_credito_montodebito - $pago->historial_monto));
+
+            $this->db->where('historial_id', $id);
+            $this->db->delete('historial_pagos_clientes');
+        }
+        if ($pago->historial_estatus == 'ESPERA') {
+            $this->db->where('vendedor_id', $id);
+            $this->db->update('historial_pagos_clientes', array('vendedor_id' => NULL));
+
+            $this->db->where('historial_id', $id);
+            $this->db->delete('historial_pagos_clientes');
+        }
     }
 
     function pagar_cliente($cliente_id, $data)
