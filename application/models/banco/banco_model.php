@@ -1,16 +1,21 @@
-<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+<?php if (!defined('BASEPATH')) exit('No direct script access allowed');
 
-class banco_model extends CI_Model {
+class banco_model extends CI_Model
+{
 
-	function __construct() {
-		parent::__construct();
-	}
+    function __construct()
+    {
+        parent::__construct();
+    }
 
     function get_all()
     {
-        $query = $this->db->where('banco_status', 1);
-        $query = $this->db->get('banco');
-        return $query->result_array();
+        return $this->db->select('banco.*, caja_desglose.saldo as saldo, caja_desglose.descripcion as descripcion, caja.moneda_id as moneda_id')
+            ->from('banco')
+            ->join('caja_desglose', 'caja_desglose.id = banco.cuenta_id', 'left')
+            ->join('caja', 'caja.id = caja_desglose.caja_id', 'left')
+            ->where('banco_status', 1)
+            ->get()->result_array();
     }
 
     function get_by($campo, $valor)

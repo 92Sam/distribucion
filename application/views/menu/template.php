@@ -301,12 +301,6 @@ $primary_nav = array(
                 'icon' => 'fa  fa-truck',
                 'slug' => 'liquidacioncdc'
             ),
-            array(
-                'name' => 'Confirmar entrega de dinero',
-                'url' => $ruta . 'consolidadodecargas/confirmarentregadedinero',
-                'icon' => 'gi gi-ok',
-                'slug' => 'confirmacionentregadinero'
-            ),
         )
     ),
     // Clientes
@@ -344,14 +338,30 @@ $primary_nav = array(
         'name' => 'COBRANZAS',
         'slug' => 'cobranzas',
         'sub' => array(
-
             array(
                 'name' => 'Pagos Pendientes',
-                'url' => $ruta . 'venta/pagospendientes',
+                'url' => $ruta . 'pago_pendiente/pagos',
                 'icon' => 'gi gi-wallet',
                 'slug' => 'pagospendientescobranzas'
             ),
             array(
+                'name' => 'Confirmar Cobranzas',
+                'url' => $ruta . 'pago_pendiente/confirmar_pago',
+                'icon' => 'gi gi-ok',
+                'slug' => 'liquidarcobranzas'
+            ),
+            array(
+                'name' => 'Confirmar Liquidaci&oacute;n',
+                'url' => $ruta . 'consolidadodecargas/confirmarentregadedinero',
+                'icon' => 'gi gi-ok',
+                'slug' => 'confirmacionentregadinero'
+            )
+        )
+    ),
+
+    //lo q estaba en el menu de cobranzas
+    /*
+     *     array(
                 'name' => 'Liquidar Cobranzas',
                 'url' => $ruta . 'venta/liquidacion',
                 'icon' => 'gi gi-ok',
@@ -368,11 +378,7 @@ $primary_nav = array(
                 'url' => $ruta . 'venta/pagosadelantados',
                 'icon' => 'gi gi-history',
                 'slug' => 'pagosadelantados'
-            ),
-
-        )
-    ),
-
+            ),*/
 
     // Ingresos
     array(
@@ -1251,7 +1257,8 @@ $primary_nav = array(
                                 </li>
                                 <li class="divider"></li>
                                 <li>
-                                    <a href="<?= $ruta; ?>logout"><i class="fa fa-ban fa-fw pull-right"></i> Cerrar Sesión</a>
+                                    <a href="<?= $ruta; ?>logout"><i class="fa fa-ban fa-fw pull-right"></i> Cerrar
+                                        Sesión</a>
                                 </li>
                             </ul>
                         </li>
@@ -1276,7 +1283,7 @@ $primary_nav = array(
                             <?php } ?>
                             <?php if ($this->usuarios_grupos_model->user_has_perm($this->session->userdata('nUsuCodigo'), 'pagospendiente')) { ?>
                                 <li>
-                                <a class="menulink" href="<?= $ruta ?>venta/pagospendientes">Pagos Pendientes</a>
+                                <a class="menulink" href="<?= $ruta ?>pago_pendiente/pagos">Pagos Pendientes</a>
                                 </li><?php } ?>
                             <?php if ($this->usuarios_grupos_model->user_has_perm($this->session->userdata('nUsuCodigo'), 'estadodecuenta')) { ?>
 

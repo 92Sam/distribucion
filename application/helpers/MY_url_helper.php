@@ -1,5 +1,22 @@
 <?php
 
+function getCajaBanco($banco_id)
+{
+    $CI =& get_instance();
+    $result = $CI->db->select('caja_desglose.*, caja.moneda_id')
+        ->from('banco')
+        ->join('caja_desglose', 'banco.cuenta_id = caja_desglose.id')
+        ->join('caja', 'caja.id = caja_desglose.caja_id')
+        ->where('banco_id', $banco_id)
+        ->get()->row();
+
+    $moneda = '';
+    if ($result != NULL)
+        $moneda = $result->moneda_id == 1 ? MONEDA : DOLAR;
+
+    return $result != NULL ? $result->descripcion . ' (' . $moneda . ')' : 'No definido';
+}
+
 function sumCod($cod, $length = 4)
 {
     $len = $length;

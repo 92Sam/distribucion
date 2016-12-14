@@ -38,15 +38,6 @@ class reporte extends MY_Controller
                 echo $this->load->view('menu/reports/cobranzas/tabla', $data, true);
                 break;
             }
-            case 'pdf': {
-                break;
-            }
-            case 'excel': {
-                break;
-            }
-            case 'graphic': {
-                break;
-            }
             default: {
 
                 $data['cobranzas'] = $this->rcobranza_model->get_cobranzas(array(
@@ -96,15 +87,6 @@ class reporte extends MY_Controller
                 echo $this->load->view('menu/reports/cliente_estado/tabla', $data, true);
                 break;
             }
-            case 'pdf': {
-                break;
-            }
-            case 'excel': {
-                break;
-            }
-            case 'graphic': {
-                break;
-            }
             default: {
 
                 $data['clientes'] = $this->rcliente_estado_model->get_estado_cuenta(array(
@@ -152,15 +134,6 @@ class reporte extends MY_Controller
 
 
                 echo $this->load->view('menu/reports/stock_transito/tabla', $data, true);
-                break;
-            }
-            case 'pdf': {
-                break;
-            }
-            case 'excel': {
-                break;
-            }
-            case 'graphic': {
                 break;
             }
             default: {
@@ -216,15 +189,6 @@ class reporte extends MY_Controller
                     $data['desglose'] = 'Clientes';
 
                 echo $this->load->view('menu/reports/ventas/tabla', $data, true);
-                break;
-            }
-            case 'pdf': {
-                break;
-            }
-            case 'excel': {
-                break;
-            }
-            case 'graphic': {
                 break;
             }
             default: {

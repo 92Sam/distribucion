@@ -36,7 +36,6 @@ class rcobranza_model extends CI_Model
             ->where('historial_pedido_proceso.proceso_id', PROCESO_LIQUIDAR)
             ->where('venta.venta_status !=', 'RECHAZADO')
             ->where('venta.venta_status !=', 'ANULADO')
-            ->where('venta.total > credito.dec_credito_montodebito')
             ->where_in('credito.var_credito_estado', array(CREDITO_DEBE, CREDITO_ACUENTA));
 
         if (isset($params['fecha_ini']) && isset($params['fecha_fin']) && $params['fecha_flag'] == 1) {
@@ -87,6 +86,21 @@ class rcobranza_model extends CI_Model
         $cobranzas = $this->db->get()->result();
 
         foreach ($cobranzas as $cobranza) {
+
+            $pagado_pendientes = $this->db->select("
+                SUM(historial_pagos_clientes.historial_monto) as monto,
+            ")
+                ->from('historial_pagos_clientes')
+                ->join('metodos_pago', 'metodos_pago.id_metodo = historial_pagos_clientes.historial_tipopago')
+                ->where('credito_id', $cobranza->venta_id)
+                ->where('historial_pagos_clientes.historial_estatus', 'PENDIENTE')
+                ->group_by('credito_id')
+                ->get()->row();
+
+            $cobranza->pagado_pendientes = isset($pagado_pendientes->monto) ? $pagado_pendientes->monto : 0;
+            $cobranza->actual = $cobranza->actual - $cobranza->pagado_pendientes;
+            $cobranza->saldo = $cobranza->saldo + $cobranza->pagado_pendientes;
+
             $generado = $this->db->select('pagado')->from('venta')
                 ->where('venta.venta_id', $cobranza->venta_id)->get()->row();
 
@@ -116,6 +130,8 @@ class rcobranza_model extends CI_Model
                 ->from('historial_pagos_clientes')
                 ->join('metodos_pago', 'metodos_pago.id_metodo = historial_pagos_clientes.historial_tipopago')
                 ->where('credito_id', $cobranza->venta_id)
+                ->where('historial_pagos_clientes.historial_estatus', 'CONFIRMADO')
+                ->order_by('historial_pagos_clientes.historial_fecha', 'ASC ')
                 ->get()->result();
         }
 

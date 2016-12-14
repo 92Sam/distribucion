@@ -25,6 +25,21 @@ class cajas_model extends CI_Model
         return $result;
     }
 
+    function getCajasSelect()
+    {
+        return $this->db->select('
+            caja_desglose.id as cuenta_id,
+            caja.moneda_id as moneda_id, 
+            caja_desglose.principal as principal,
+            caja_desglose.descripcion as descripcion
+            ')
+            ->from('caja_desglose')
+            ->join('caja', 'caja.id = caja_desglose.caja_id')
+            ->where('caja.estado', 1)
+            ->where('caja_desglose.estado', 1)
+            ->where('caja_desglose.retencion', 0)
+            ->get()->result();
+    }
 
 
     function get($id)
@@ -53,6 +68,22 @@ class cajas_model extends CI_Model
         } else {
             $this->db->insert('caja', $caja);
             return $this->db->insert_id();
+        }
+    }
+
+    function update_saldo($id, $saldo, $ingreso = TRUE)
+    {
+        $cuenta = $this->get_cuenta($id);
+
+        if ($ingreso == TRUE) {
+            $new_saldo = $cuenta->saldo + $saldo;
+        } elseif ($ingreso == FALSE) {
+            $new_saldo = $cuenta->saldo - $saldo;
+        }
+
+        if ($new_saldo >= 0) {
+            $this->db->where('id', $id);
+            $this->db->update('caja_desglose', array('saldo' => $new_saldo));
         }
     }
 
@@ -107,8 +138,7 @@ class cajas_model extends CI_Model
                 'ref_id' => '',
                 'ref_val' => $data['motivo'],
             ));
-        }
-        else if ($data['tipo_ajuste'] == 'TRASPASO') {
+        } else if ($data['tipo_ajuste'] == 'TRASPASO') {
             //HAGO EL EGRESO
             $saldo = $cuenta->saldo - $data['importe'];
             $saldo_old = $cuenta->saldo;
@@ -137,8 +167,8 @@ class cajas_model extends CI_Model
             $saldo_old = $cuenta_destino->saldo;
 
             $tasa = "";
-                if($cuenta->caja_id != $cuenta_destino->caja_id)
-                    $tasa = $data['tasa'];
+            if ($cuenta->caja_id != $cuenta_destino->caja_id)
+                $tasa = $data['tasa'];
 
             $this->db->where('id', $data['cuenta_id']);
             $this->db->update('caja_desglose', array(
