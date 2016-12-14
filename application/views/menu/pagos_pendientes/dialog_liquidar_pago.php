@@ -330,9 +330,7 @@
             var id = $(this).val();
 
             if ($(this).prop('checked')) {
-
                 importe = parseFloat(importe) + parseFloat($('#monto_' + id).html().trim());
-alert(parseFloat($('#monto_' + id).html().trim()));
             }
         });
         $("#importe").val(formatPrice(importe));
