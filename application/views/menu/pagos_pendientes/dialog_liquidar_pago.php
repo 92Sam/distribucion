@@ -101,8 +101,8 @@
                                 <td><input type="checkbox" class="select_all" value="<?= $pago->id ?>"></td>
                                 <td><?= $pago->documento ?></td>
                                 <td>
-                                    <?= MONEDA . ' ' ?>
-                                    <span id="monto_<?= $pago->id ?>"><?= number_format($pago->monto, 2) ?></span>
+                                    <?= MONEDA . ' ' ?> <?= number_format($pago->monto, 2) ?>
+                                    <span style="display: none;" id="monto_<?= $pago->id ?>"><?= number_format($pago->monto, 2, '.', '') ?></span>
                                 </td>
                                 <td>
                                     <div class="btn-group">
@@ -330,10 +330,11 @@
             var id = $(this).val();
 
             if ($(this).prop('checked')) {
-                importe += parseFloat($('#monto_' + id).html().trim());
+
+                importe = parseFloat(importe) + parseFloat($('#monto_' + id).html().trim());
+alert(parseFloat($('#monto_' + id).html().trim()));
             }
         });
-
         $("#importe").val(formatPrice(importe));
     }
 
