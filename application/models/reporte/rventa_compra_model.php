@@ -35,8 +35,8 @@ class rventa_compra_model extends CI_Model
 
             $temp->cantidad_venta = $ventas->total_completado;
             $temp->importe_venta = $ventas->importe_completado;
-            $temp->pagado_venta = $ventas->importe_cobranza;
-            $temp->saldo_venta = $ventas->importe_completado - $ventas->importe_cobranza;
+            $temp->pagado_venta = $ventas->importe_completado - $ventas->importe_cobranza;
+            $temp->saldo_venta = $ventas->importe_cobranza;
 
             $temp->cantidad_compra = $compras->total_completado - $compras->total_pendiente;
             $temp->importe_compra = $compras->importe_completado;

@@ -39,11 +39,11 @@ class rcliente_estado_model extends CI_Model
         if (isset($params['estado']) && $params['estado'] != 0) {
             switch ($params['estado']) {
                 case 1: {
-                    $this->db->where('(venta.total - credito.dec_credito_montodebito) <= 0');
+                    $this->db->where('credito.var_credito_estado', CREDITO_CANCELADO);
                     break;
                 }
                 case 2: {
-                    $this->db->where('(venta.total - credito.dec_credito_montodebito) > 0');
+                    $this->db->where_in('credito.var_credito_estado', array(CREDITO_DEBE, CREDITO_ACUENTA));
                     break;
                 }
             }
@@ -62,6 +62,41 @@ class rcliente_estado_model extends CI_Model
 
         foreach ($clientes as $cliente) {
             $cliente->cobranzas = $this->get_cobranzas_by_cliente($cliente->cliente_id, $params);
+
+            $this->db->select("
+                SUM(historial_pagos_clientes.historial_monto) as monto,
+            ")
+                ->from('historial_pagos_clientes')
+                ->join('venta', 'venta.venta_id = historial_pagos_clientes.credito_id')
+                ->join('credito', 'credito.id_venta = historial_pagos_clientes.credito_id')
+                ->join('historial_pedido_proceso', 'historial_pedido_proceso.pedido_id = venta.venta_id')
+                ->where('historial_pedido_proceso.proceso_id', PROCESO_LIQUIDAR)
+                ->where('venta.venta_status !=', 'RECHAZADO')
+                ->where('venta.venta_status !=', 'ANULADO')
+                ->where('venta.id_cliente', $cliente->cliente_id)
+                ->where('historial_pagos_clientes.historial_estatus', 'PENDIENTE');
+
+            if (isset($params['fecha_ini']) && isset($params['fecha_fin']) && $params['fecha_flag'] == 1) {
+                $this->db->where('historial_pedido_proceso.created_at >=', date('Y-m-d H:i:s', strtotime($params['fecha_ini'] . ' 00:00:00')));
+                $this->db->where('historial_pedido_proceso.created_at <=', date('Y-m-d H:i:s', strtotime($params['fecha_fin'] . ' 23:59:59')));
+            }
+
+            if (isset($params['estado']) && $params['estado'] != 0) {
+                switch ($params['estado']) {
+                    case 1: {
+                        $this->db->where('credito.var_credito_estado', CREDITO_CANCELADO);
+                        break;
+                    }
+                    case 2: {
+                        $this->db->where_in('credito.var_credito_estado', array(CREDITO_DEBE, CREDITO_ACUENTA));
+                        break;
+                    }
+                }
+            }
+            $pagado_pendientes = $this->db->get()->row();
+
+            $cliente->pagado_pendientes = isset($pagado_pendientes->monto) ? $pagado_pendientes->monto : 0;
+            $cliente->subtotal_pago -= $cliente->pagado_pendientes;
         }
 
         return $clientes;
@@ -89,6 +124,9 @@ class rcliente_estado_model extends CI_Model
             ->where('historial_pedido_proceso.proceso_id', PROCESO_LIQUIDAR)
             ->where('venta.id_cliente', $cliente_id);
 
+        $this->db->where('venta.venta_status !=', 'ANULADO');
+        $this->db->where('venta.venta_status !=', 'RECHAZADO');
+
         if (isset($params['fecha_ini']) && isset($params['fecha_fin']) && $params['fecha_flag'] == 1) {
             $this->db->where('historial_pedido_proceso.created_at >=', date('Y-m-d H:i:s', strtotime($params['fecha_ini'] . ' 00:00:00')));
             $this->db->where('historial_pedido_proceso.created_at <=', date('Y-m-d H:i:s', strtotime($params['fecha_fin'] . ' 23:59:59')));
@@ -97,28 +135,34 @@ class rcliente_estado_model extends CI_Model
         if (isset($params['estado']) && $params['estado'] != 0) {
             switch ($params['estado']) {
                 case 1: {
-                    $this->db->where('venta.venta_status !=', 'RECHAZADO');
-                    $this->db->where('venta.venta_status !=', 'ANULADO');
-                    $this->db->where('(venta.total - credito.dec_credito_montodebito) <= 0');
+                    $this->db->where('credito.var_credito_estado', CREDITO_CANCELADO);
                     break;
                 }
                 case 2: {
-                    $this->db->where('(venta.total - credito.dec_credito_montodebito) > 0');
-                    $this->db->where('venta.venta_status !=', 'RECHAZADO');
-                    $this->db->where('venta.total > credito.dec_credito_montodebito');
                     $this->db->where_in('credito.var_credito_estado', array(CREDITO_DEBE, CREDITO_ACUENTA));
                     break;
                 }
             }
-        } else {
-            $this->db->where('venta.venta_status !=', 'RECHAZADO');
-            $this->db->where('venta.venta_status !=', 'ANULADO');
         }
 
 
         $cobranzas = $this->db->get()->result();
 
         foreach ($cobranzas as $cobranza) {
+            $pagado_pendientes = $this->db->select("
+                SUM(historial_pagos_clientes.historial_monto) as monto,
+            ")
+                ->from('historial_pagos_clientes')
+                ->join('metodos_pago', 'metodos_pago.id_metodo = historial_pagos_clientes.historial_tipopago')
+                ->where('credito_id', $cobranza->venta_id)
+                ->where('historial_pagos_clientes.historial_estatus', 'PENDIENTE')
+                ->group_by('credito_id')
+                ->get()->row();
+
+            $cobranza->pagado_pendientes = isset($pagado_pendientes->monto) ? $pagado_pendientes->monto : 0;
+            $cobranza->actual = $cobranza->actual - $cobranza->pagado_pendientes;
+            $cobranza->credito = $cobranza->credito + $cobranza->pagado_pendientes;
+
             $generado = $this->db->select('pagado')->from('venta')
                 ->where('venta.venta_id', $cobranza->venta_id)->get()->row();
 
@@ -149,6 +193,8 @@ class rcliente_estado_model extends CI_Model
                 ->from('historial_pagos_clientes')
                 ->join('metodos_pago', 'metodos_pago.id_metodo = historial_pagos_clientes.historial_tipopago')
                 ->where('credito_id', $cobranza->venta_id)
+                ->where('historial_pagos_clientes.historial_estatus', 'CONFIRMADO')
+                ->order_by('historial_pagos_clientes.historial_fecha', 'ASC ')
                 ->get()->result();
 
             $pagado_pendientes = $this->db->select("

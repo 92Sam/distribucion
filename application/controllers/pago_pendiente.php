@@ -7,6 +7,7 @@ class pago_pendiente extends MY_Controller
     {
         parent::__construct();
         $this->load->model('historial/historial_pedido_model');
+        $this->load->model('cajas/cajas_model');
         $this->load->model('cliente/cliente_model');
         $this->load->model('usuario/usuario_model');
         $this->load->model('zona/zona_model');
@@ -60,6 +61,37 @@ class pago_pendiente extends MY_Controller
                 }
             }
         }
+    }
+
+    function confirmar_pago($action = "", $id = FALSE)
+    {
+
+        switch ($action) {
+            case 'filter': {
+                $data['pagos'] = $this->venta_cobro_model->get_pagos_by_vendedor($id);
+
+                $data['cajas'] = $this->cajas_model->getCajasSelect();
+
+                echo $this->load->view('menu/pagos_pendientes/confirmar_tabla', $data, true);
+                break;
+            }
+            default: {
+                $data['pagos'] = $this->venta_cobro_model->get_pagos_by_vendedor();
+                $data['vendedores'] = $this->usuario_model->select_all_by_roll('Vendedor');
+                $data['cajas'] = $this->cajas_model->getCajasSelect();
+
+                $data['reporte_tabla'] = $this->load->view('menu/pagos_pendientes/confirmar_tabla', $data, true);
+                $dataCuerpo['cuerpo'] = $this->load->view('menu/pagos_pendientes/confirmar_pago', $data, true);
+                if ($this->input->is_ajax_request()) {
+                    echo $dataCuerpo['cuerpo'];
+                } else {
+                    $this->load->view('menu/template', $dataCuerpo);
+                }
+                break;
+            }
+        }
+
+
     }
 
     function ver_pagos($id)
@@ -125,7 +157,10 @@ class pago_pendiente extends MY_Controller
     function liquidar_pago($id)
     {
         $data['pagos'] = $this->venta_cobro_model->get_pagos_by_vendedor($id);
-        $data['venta'] = $this->venta_cobro_model->get_cobranza_by_venta($id);
+        $data['venta'] = $this->db->select('
+            usuario.nombre as vendedor_nombre,
+            usuario.nUsuCodigo as vendedor_id
+        ')->from('usuario')->where('nUsuCodigo', $id)->get()->row();
 
         $data['metodos_pago'] = $this->db->get_where('metodos_pago', array('status_metodo' => 1))->result();
         $data['bancos'] = $this->db->get_where('banco', array('banco_status' => 1))->result();
@@ -146,6 +181,27 @@ class pago_pendiente extends MY_Controller
         $this->venta_cobro_model->pagar_by_vendedor($id, $data);
 
         $this->liquidar_pago($id);
+    }
+
+    function confirmar_liquidar_pago($id)
+    {
+        $cuenta_id = $this->input->post('cuenta_id');
+        $this->venta_cobro_model->confirmar_pago($id, $cuenta_id);
+
+        header('Content-Type: application/json');
+        echo json_encode(array('success' => 1));
+    }
+
+    function confirmar_liquidar_pago_seleccion()
+    {
+        $historial_id = json_decode($this->input->post('historial_id'));
+        foreach ($historial_id as $hid){
+
+        $this->venta_cobro_model->confirmar_pago($hid->id, $hid->cuenta_id);
+        }
+
+        header('Content-Type: application/json');
+        echo json_encode(array('success' => 1));
     }
 
     function eliminar_liquidar_pago($id, $vendedor_id)

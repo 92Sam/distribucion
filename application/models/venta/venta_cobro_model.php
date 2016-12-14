@@ -5,6 +5,8 @@ class venta_cobro_model extends CI_Model
     function __construct()
     {
         parent::__construct();
+        $this->load->model('cajas/cajas_model');
+        $this->load->model('cajas/cajas_mov_model');
     }
 
     function get_pagos_pendientes($params = array())
@@ -179,23 +181,26 @@ class venta_cobro_model extends CI_Model
         return $cobranza;
     }
 
-    function get_pagos_by_vendedor($vendedor_id)
+    function get_pagos_by_vendedor($vendedor_id = FALSE)
     {
         $this->db->select("
             venta.venta_id as venta_id,
             documento_venta.nombre_tipo_documento as documento_nombre, 
             documento_venta.documento_Serie as documento_serie, 
-            documento_venta.documento_Numero as documento_numero, 
+            documento_venta.documento_Numero as documento_numero,
+             usuario.nombre as vendedor_nombre
         ")
             ->from('venta')
+            ->join('usuario', 'usuario.nUsuCodigo = venta.id_vendedor')
             ->join('historial_pedido_proceso', 'historial_pedido_proceso.pedido_id = venta.venta_id')
             ->join('credito', 'credito.id_venta = venta.venta_id')
             ->join('documento_venta', 'venta.numero_documento = documento_venta.id_tipo_documento')
             ->join('historial_pagos_clientes', 'historial_pagos_clientes.credito_id = venta.venta_id')
             ->where('historial_pedido_proceso.proceso_id', PROCESO_LIQUIDAR)
             ->where('historial_pagos_clientes.historial_estatus', 'PENDIENTE')
-            ->where('venta.id_vendedor', $vendedor_id)
             ->group_by('venta.venta_id');
+        if ($vendedor_id != FALSE)
+            $this->db->where('venta.id_vendedor', $vendedor_id);
 
         $cobranzas = $this->db->get()->result();
         $result = new stdClass();
@@ -208,11 +213,13 @@ class venta_cobro_model extends CI_Model
             foreach ($cobranza->pagos_pendientes->detalles as $pago) {
                 $temp = new stdClass();
                 $temp->id = $pago->historial_id;
-                $temp->documento = $cobranza->documento_serie . ' - ' . $cobranza->documento_numero;
+                $temp->documento = 'Venta: ' . $cobranza->documento_serie . ' - ' . $cobranza->documento_numero;
+                $temp->vendedor_nombre = $cobranza->vendedor_nombre;
                 $temp->pago_nombre = $pago->pago_nombre;
                 $temp->pago_id = $pago->pago_id;
                 $temp->monto = $pago->monto;
                 $temp->banco_nombre = $pago->banco_nombre;
+                $temp->banco_id = $pago->banco_id;
                 $temp->num_oper = $pago->num_oper;
 
                 if ($pago->pago_id == '3')
@@ -232,24 +239,29 @@ class venta_cobro_model extends CI_Model
                 banco.banco_nombre as banco_nombre,
                 banco.banco_id as banco_id,
                 historial_pagos_clientes.pago_data as num_oper,
-                historial_pagos_clientes.historial_estatus as estado
+                historial_pagos_clientes.historial_estatus as estado,
+                usuario.nombre as vendedor_nombre
             ")
             ->from('historial_pagos_clientes')
             ->join('metodos_pago', 'metodos_pago.id_metodo = historial_pagos_clientes.historial_tipopago')
             ->join('banco', 'banco.banco_id = historial_pagos_clientes.historial_banco_id', 'left')
-            ->where('vendedor_id', $vendedor_id)
+            ->join('usuario', 'usuario.nUsuCodigo = historial_pagos_clientes.vendedor_id')
             ->where('historial_pagos_clientes.historial_estatus', 'ESPERA');
+        if ($vendedor_id != FALSE)
+            $this->db->where('vendedor_id', $vendedor_id);
 
         $pagos = $this->db->get()->result();
 
         foreach ($pagos as $pago) {
             $temp = new stdClass();
             $temp->id = $pago->historial_id;
-            $temp->documento = $cobranza->documento_serie . ' - ' . $cobranza->documento_numero;
+            $temp->documento = 'Conjunto de Efectivos';
+            $temp->vendedor_nombre = $pago->vendedor_nombre;
             $temp->pago_nombre = $pago->pago_nombre;
             $temp->pago_id = $pago->pago_id;
             $temp->monto = $pago->monto;
             $temp->banco_nombre = $pago->banco_nombre;
+            $temp->banco_id = $pago->banco_id;
             $temp->num_oper = $pago->num_oper;
 
             $result->espera[] = $temp;
@@ -320,6 +332,7 @@ class venta_cobro_model extends CI_Model
 
         $this->db->where('id_venta', $venta_id);
         $this->db->update('credito', array('dec_credito_montodebito' => $historial_pago['monto_restante']));
+
     }
 
     function pagar_by_vendedor($id, $data)
@@ -344,6 +357,79 @@ class venta_cobro_model extends CI_Model
             $this->db->where('historial_id', $historial->id);
             $this->db->update('historial_pagos_clientes', array('vendedor_id' => $result));
         }
+    }
+
+    function confirmar_pago($id, $cuenta_id)
+    {
+        $pago = $this->db->get_where('historial_pagos_clientes', array('historial_id' => $id))->row();
+
+        $data_mov = array(
+            'usuario_id' => $this->session->userdata('nUsuCodigo'),
+            'fecha_mov' => $pago->historial_fecha,
+            'movimiento' => 'INGRESO',
+            'operacion' => 'COBRANZA',
+            'medio_pago' => $pago->historial_tipopago,
+            'saldo' => $pago->historial_monto,
+            'ref_id' => $id,
+            'ref_val' => $pago->pago_data,
+        );
+        $cuenta = NULL;
+
+        if ($pago->historial_tipopago == 3 || $pago->historial_tipopago == 5) {
+            $cuenta = $this->cajas_model->get_cuenta($cuenta_id);
+
+        } elseif ($pago->historial_tipopago == 4) {
+            $banco = $this->db->get_where('banco', array('banco_id' => $pago->historial_banco_id))->row();
+            $cuenta = $this->cajas_model->get_cuenta($banco->cuenta_id);
+
+        } elseif ($pago->historial_tipopago == 7) {
+            $cuenta = $this->db->select('caja_desglose.*')->from('caja_desglose')
+                ->join('caja', 'caja.id = caja_desglose.caja_id')
+                ->where('retencion', 1)
+                ->where('moneda_id', 1)->get()->row();
+        }
+
+        if ($cuenta != NULL) {
+            $data_mov['caja_desglose_id'] = $cuenta->id;
+            $data_mov['saldo_old'] = $cuenta->saldo;
+            $this->cajas_mov_model->save_mov($data_mov);
+
+            $this->cajas_model->update_saldo($cuenta->id, $pago->historial_monto);
+
+            if ($pago->historial_estatus == 'PENDIENTE') {
+                $this->db->where('historial_id', $id);
+                $this->db->update('historial_pagos_clientes', array('historial_estatus' => 'CONFIRMADO'));
+
+            } elseif ($pago->historial_estatus == 'ESPERA') {
+                $confirmar = $this->db->get_where('historial_pagos_clientes', array(
+                    'historial_estatus !=' => 'ESPERA',
+                    'historial_estatus !=' => 'CERRADO',
+                    'historial_estatus' => 'PENDIENTE',
+                    'vendedor_id' => $id
+                ))->result();
+
+                foreach ($confirmar as $pago) {
+                    $this->db->where('historial_id', $pago->historial_id);
+                    $this->db->update('historial_pagos_clientes', array('historial_estatus' => 'CONFIRMADO'));
+                }
+                $this->db->where('historial_id', $id);
+                $this->db->update('historial_pagos_clientes', array('historial_estatus' => 'CERRADO'));
+            }
+        }
+
+        $creditos = $this->db->select('credito.id_venta as credito_id')->from('credito')
+            ->where('credito.dec_credito_montodebito >= credito.dec_credito_montodeuda')
+            ->where_in('credito.var_credito_estado', array(CREDITO_DEBE, CREDITO_ACUENTA))->get()->result();
+        foreach ($creditos as $credito) {
+            $this->db->where('historial_pagos_clientes.credito_id', $credito->credito_id);
+            $this->db->where('historial_pagos_clientes.historial_estatus', 'PENDIENTE');
+            $this->db->from('historial_pagos_clientes');
+            if ($this->db->count_all_results() == 0) {
+                $this->db->where('id_venta', $credito->credito_id);
+                $this->db->update('credito', array('var_credito_estado' => CREDITO_CANCELADO));
+            }
+        }
+
     }
 
     function eliminar_pago($id)

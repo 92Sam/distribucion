@@ -83,13 +83,12 @@ class rventas_model extends CI_Model
             $this->db->where('historial_pedido_proceso.proceso_id', PROCESO_LIQUIDAR);
             $this->db->where('venta.venta_status !=', 'RECHAZADO');
             $this->db->where('venta.venta_status !=', 'ANULADO')
-                ->where('venta.total <= credito.dec_credito_montodebito');
+                ->where('credito.var_credito_estado', CREDITO_CANCELADO);
         }
 
         if ($estado == 'RECHAZADO') {
             $this->db->where('historial_pedido_proceso.proceso_id', PROCESO_LIQUIDAR);
-            $this->db->where_in('venta.venta_status', array('RECHAZADO', 'ANULADO'))
-                ->where('venta.total > credito.dec_credito_montodebito');
+            $this->db->where_in('venta.venta_status', array('RECHAZADO', 'ANULADO'));
         }
 
         if ($estado == 'PROCESO') {
@@ -99,8 +98,8 @@ class rventas_model extends CI_Model
 
         if ($estado == 'COBRANZAS') {
             $this->db->where('historial_pedido_proceso.proceso_id', PROCESO_LIQUIDAR)
+                ->where('venta.venta_status !=', 'ANULADO')
                 ->where('venta.venta_status !=', 'RECHAZADO')
-                ->where('venta.total > credito.dec_credito_montodebito')
                 ->where_in('credito.var_credito_estado', array(CREDITO_DEBE, CREDITO_ACUENTA));
         }
 
@@ -118,18 +117,18 @@ class rventas_model extends CI_Model
         $this->aplicar_from();
         if ($estado == 'COMPLETADO') {
             $this->db->select('SUM(venta.total) as total');
-            $this->db->where('historial_pedido_proceso.proceso_id', PROCESO_LIQUIDAR);
-            $this->db->where('venta.venta_status !=', 'RECHAZADO');
-            $this->db->where('venta.venta_status !=', 'ANULADO');
+
         }
 
         if ($estado == 'COBRANZAS') {
-            $this->db->select('SUM(credito.dec_credito_montodebito) as total');
-            $this->db->where('historial_pedido_proceso.proceso_id', PROCESO_LIQUIDAR)
+            $this->db->select('SUM(credito.dec_credito_montodebito) as total')
                 ->where('venta.venta_status !=', 'RECHAZADO')
-                ->where('venta.total > credito.dec_credito_montodebito')
-                ->where_in('credito.var_credito_estado', array(CREDITO_DEBE, CREDITO_ACUENTA));
+                ->where_in('credito.var_credito_estado', array(CREDITO_DEBE, CREDITO_ACUENTA, CREDITO_CANCELADO));
         }
+
+        $this->db->where('historial_pedido_proceso.proceso_id', PROCESO_LIQUIDAR);
+        $this->db->where('venta.venta_status !=', 'RECHAZADO');
+        $this->db->where('venta.venta_status !=', 'ANULADO');
 
         $this->aplicar_filtros($params);
 
@@ -140,7 +139,30 @@ class rventas_model extends CI_Model
 
         $result = $this->db->get()->row();
 
-        return $result->total;
+        if ($estado == 'COMPLETADO')
+            return $result->total;
+        elseif ($estado == 'COBRANZAS') {
+            $this->db->select("
+                SUM(historial_pagos_clientes.historial_monto) as monto,
+            ")
+                ->from('historial_pagos_clientes')
+                ->join('venta', 'venta.venta_id = historial_pagos_clientes.credito_id')
+                ->join('cliente', 'venta.id_cliente = cliente.id_cliente')
+                ->join('usuario', 'venta.id_vendedor = usuario.nUsuCodigo')
+                ->join('zonas', 'cliente.id_zona = zonas.zona_id')
+                ->join('credito', 'credito.id_venta = historial_pagos_clientes.credito_id')
+                ->join('historial_pedido_proceso', 'historial_pedido_proceso.pedido_id = venta.venta_id')
+                ->where('historial_pedido_proceso.proceso_id', PROCESO_LIQUIDAR)
+                ->where('venta.venta_status !=', 'RECHAZADO')
+                ->where('venta.venta_status !=', 'ANULADO')
+                ->where('historial_pagos_clientes.historial_estatus', 'PENDIENTE');
+
+            $this->aplicar_filtros($params);
+            $pagado_pendientes = $this->db->get()->row();
+            $pagado_pendientes = isset($pagado_pendientes->monto) ? $pagado_pendientes->monto : 0;
+
+            return $result->total == 0 ? 0 : $result->total - $pagado_pendientes;
+        }
     }
 
     function aplicar_desglose($params, $desglose_id)

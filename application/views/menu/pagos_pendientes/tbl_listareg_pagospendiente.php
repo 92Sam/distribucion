@@ -50,7 +50,7 @@
                     <?= MONEDA ?>
                     <?= number_format($cliente->vendedor_pendiente, 2) ?>
                 </label>
-                <button style="float: right" type="button" class="b-primary luquidar_pago"
+                <button style="float: right" type="button" class="b-primary luiquidar_pago"
                         data-vendedor_id="<?= $cliente->vendedor_id ?>">
                     <i class="fa fa-money"></i>
                 </button>
@@ -161,7 +161,7 @@
 
         });
 
-        $(".luquidar_pago").on('click', function () {
+        $(".luiquidar_pago").on('click', function () {
             var id = $(this).attr('data-vendedor_id');
 
             $.ajax({
