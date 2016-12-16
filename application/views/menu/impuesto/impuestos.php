@@ -46,6 +46,7 @@
 
                 <th>ID</th>
                 <th>Nombre</th>
+                <th>Porcentaje Impuesto</th>
 
                 <th class="desktop ocultar">Acciones</th>
 
@@ -60,6 +61,7 @@
 
                         <td class="center"><?= $impuesto['id_impuesto'] ?></td>
                         <td><?= $impuesto['nombre_impuesto'] ?></td>
+                        <td><?= $impuesto['porcentaje_impuesto']." %" ?></td>
 
 
                         <td class="center ocultar">
