@@ -50,14 +50,16 @@
                 <thead>
                 <tr>
                     <th>ID Usuario</th>
-                    <th>Uername</th>
-                    <th>Ubicaci&oacute;n</th>
+                    <th>DNI</th>
+                    <th>Nombre</th>
+                    <th>Usuario</th>
+                    <!-- <th>Ubicaci&oacute;n</th> -->
                     <th>Cargo&nbsp;&nbsp;</th>
-                    <th>Genero</th>
-                    <th>Sueldo</th>
+                    <!-- <th>Genero</th> -->
+                    <!-- <th>Sueldo</th> -->
                     <th>Zonas</th>
                     <th>Acceso Movil</th>
-                    <th>Status</th>
+                    <th>Estado</th>
                     <th>Accion</th>
                 </tr>
                 </thead>
@@ -66,11 +68,13 @@
                     <?php foreach ($lstUsuario as $usu): ?>
                         <tr>
                             <td style="text-align: center;"><?php echo $usu->nUsuCodigo; ?></td>
+                            <td style="text-align: center;"><?php echo $usu->identificacion; ?></td>
+                            <td style="text-align: center;"><?php echo $usu->nombre; ?></td>
                             <td style="text-align: center;"><?php echo $usu->username; ?></td>
-                            <td><?php echo $usu->local_nombre; ?></td>
+                            <!-- <td><?php echo $usu->local_nombre; ?></td> -->
                             <td><?php echo $usu->nombre_grupos_usuarios; ?></td>
-                            <td><?php echo $usu->genero; ?></td>
-                            <td><?php echo $usu->sueldo; ?></td>
+                            <!-- <td><?php echo $usu->genero; ?></td> -->
+                            <!-- <td><?php echo $usu->sueldo; ?></td> -->
                             <td class='actions_big'>
                                 <div class="btn-group">
                                     <a style="cursor:pointer;"
