@@ -45,7 +45,7 @@
             return mensajeAlerta("Debe seleccionar la zona");
         }
 
-        if ($("#vendedor").val() == '') {
+        if (/^(''|0)$/.test($("#vendedor").val())) {
             return mensajeAlerta("Debe seleccionar un Vendedor");
         }
 

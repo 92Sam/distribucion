@@ -116,7 +116,7 @@ class bonificaciones extends MY_Controller
         $data['grupo_clie_id'] = $grupo_id;
 
         $grupo_name = $this->clientes_grupos_model->get_by('id_grupos_cliente', $grupo_id);
-        $data['grupo_clie'] = $grupo_name['nombre_grupos_cliente'];
+        $data['grupo_clie'] = isset($grupo_name['nombre_grupos_cliente']) ? $grupo_name['nombre_grupos_cliente'] : null;
 
         if ($id != FALSE && $id != 'false') {
             $data['bonificaciones'] = $this->bonificaciones_model->get_by('id_bonificacion', $id);

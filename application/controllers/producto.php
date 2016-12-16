@@ -199,7 +199,7 @@ class producto extends MY_Controller
             $where_or = false;
             $nombre_in = false;
             $where_in = false;
-            $select = 'producto.*, marcas.nombre_marca, familia.nombre_familia, grupos.nombre_grupo, proveedor.proveedor_nombre, impuestos.nombre_impuesto, impuestos.porcentaje_impuesto,
+            $select = 'producto.*, lineas.nombre_linea, marcas.nombre_marca, familia.nombre_familia, grupos.nombre_grupo, proveedor.proveedor_nombre, impuestos.nombre_impuesto, impuestos.porcentaje_impuesto,
          subfamilia.nombre_subfamilia,subgrupo.nombre_subgrupo';
             $from = "producto";
             $join = array('lineas', 'marcas', 'familia', 'grupos', 'proveedor', 'impuestos', 'subgrupo', 'subfamilia');
@@ -534,6 +534,7 @@ $join = array('lineas', 'marcas', 'familia', 'grupos', 'proveedor', 'impuestos',
         // var_dump($data['columnas']);
         $data['precios_producto'] = array();
         if ($id != FALSE) {
+            $data["grupos_clie"] = $this->clientes_grupos_model->get_all();
             $data['producto'] = $this->producto_model->get_by_id($id);
             $data['promociones'] = $this->bonificaciones_model->get_all_by_condiciones($id);
             $data['descuentos'] = $this->descuentos_model->descuentoProducto('producto_id', $id);
