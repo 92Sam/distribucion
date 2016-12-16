@@ -608,7 +608,7 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
 
                             array_push($kardex, $item_kardex);
                         }
-                    }else{
+                    } else {
                         $item_kardex = array(
                             'dkardexFecha' => date('Y-m-d H:i:s:u'),
                             'ckardexReferencia' => $estadonuevo,
@@ -625,7 +625,7 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
                             'cKardexTipoDocumentoFiscal' => $documento_fiscal['documento_tipo'],
                             'cKardexNumeroDocumentoFiscal' => $documento_fiscal['documento_numero'],
                             'cKardexNumeroSerieFiscal' => $documento_fiscal['documento_serie'],
-                            'cKardexEstado' =>  $query_detalle_venta[0]['venta_status'],
+                            'cKardexEstado' => $query_detalle_venta[0]['venta_status'],
                             'stockUManterior' => $total_unidades_minimas_viejas,
                             'stockUMactual' => $suma_cantidades,
                             'cKardexCliente' => $venta_cabecera['id_cliente'],
@@ -1009,7 +1009,7 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
                     }
                     //var_dump($query_detalle_venta_bk);
                     // echo $query_detalle_venta_bk['cantidad'];
-                 //   echo $query_detalle_venta_bk['cantidad'];
+                    //   echo $query_detalle_venta_bk['cantidad'];
 
 
                     if (isset($query_detalle_venta_bk['cantidad'])) {
@@ -1074,7 +1074,7 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
 
                             array_push($kardex, $item_kardex);
                         }
-                    }else{
+                    } else {
 
                         $item_kardex = array(
                             'dkardexFecha' => date('Y-m-d H:i:s:u'),
@@ -1289,7 +1289,7 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
                             // echo $row->cantidad;
 
                             //  echo $query_detalle_venta_bk['cantidad'] - $row->cantidad;
-                           // echo $query_detalle_venta_bk['cantidad'];
+                            // echo $query_detalle_venta_bk['cantidad'];
                             if (isset($query_detalle_venta_bk['cantidad'])) {
                                 if ($query_detalle_venta_bk['cantidad'] - $data[$j]['cantidad'] > 0) {
                                     $item_kardex = array(
@@ -1353,7 +1353,7 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
 
                                     array_push($kardex, $item_kardex);
                                 }
-                            }else{
+                            } else {
 
                                 $item_kardex = array(
                                     'dkardexFecha' => date('Y-m-d H:i:s:u'),
@@ -1371,14 +1371,14 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
                                     'cKardexTipoDocumentoFiscal' => $documento_fiscal['documento_tipo'],
                                     'cKardexNumeroDocumentoFiscal' => $documento_fiscal['documento_numero'],
                                     'cKardexNumeroSerieFiscal' => $documento_fiscal['documento_serie'],
-                                    'cKardexEstado' =>  $query_detalle_venta[0]['venta_status'],
+                                    'cKardexEstado' => $query_detalle_venta[0]['venta_status'],
                                     'stockUManterior' => $total_unidades_minimas_viejas,
                                     'stockUMactual' => $suma_cantidades,
                                     'cKardexCliente' => $venta_cabecera['id_cliente'],
                                     'cKardexProveedor' => null,
                                 );
 
-                               // var_dump($item_kardex);
+                                // var_dump($item_kardex);
                                 array_push($kardex, $item_kardex);
                             }
 
@@ -1414,7 +1414,7 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
                 }
             }
 
-         //   var_dump($kardex);
+            //   var_dump($kardex);
             if (sizeof($kardex) > 0) {
                 $this->db->insert_batch('kardex_fiscal', $kardex);
             }
@@ -1906,7 +1906,7 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
                 // echo $row->cantidad;
 
                 // echo $query_detalle_venta_bk['cantidad'] - $row->cantidad;
-               // echo $query_detalle_venta_bk['cantidad']." -- ";
+                // echo $query_detalle_venta_bk['cantidad']." -- ";
                 if (isset($query_detalle_venta_bk['cantidad'])) {
                     if ($query_detalle_venta_bk['cantidad'] - $row->cantidad > 0) {
                         $item_kardex = array(
@@ -1973,7 +1973,7 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
 
                         $this->db->insert('kardex', $item_kardex);
                     }
-                }else{
+                } else {
 
                     // CALCULOS DE UNDIAD DE MEDIDA
                     $query = $this->db->query("SELECT * FROM unidades_has_producto WHERE producto_id='$id_producto' order by orden asc");
@@ -1995,46 +1995,44 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
 
                     $suma_cantidades = $total_unidades_minimas_viejas - $total_unidades_minimas;
 
-                   $item_kardex = array(
-                      'dkardexFecha' => date('Y-m-d H:i:s:u'),
-                      'ckardexReferencia' => $estadonuevo,
-                      'cKardexProducto' =>$row->id_producto,
-                      'nKardexCantidad' => $row->cantidad,
-                      'nKardexPrecioUnitario' => $row->precio,
-                      'nKardexPrecioTotal' =>$row->precio * ($row->cantidad ),
-                      'cKardexUsuario' => $venta_cabecera['id_vendedor'],
-                      'cKardexOperacion' => VENTA,
-                      'cKardexUnidadMedida' => $unidad_minima['id_unidad'],
-                      'cKardexAlmacen' => $venta_cabecera['local_id'],
-                      'cKardexTipo' => SALIDA,
-                      'cKardexIdOperacion' => $venta_id,
-                       'cKardexTipoDocumento' => NOTA_ENTREGA,
-                       'cKardexNumeroDocumento' => $query_detalle_venta[0]['documento_Numero'],
-                       'cKardexNumeroSerie' => $query_detalle_venta[0]['documento_Serie'],
-                       'cKardexEstado' => $query_detalle_venta[0]['venta_status'],
-                      'stockUManterior' => $unidades_minimas_inventario,
-                      'stockUMactual' => $suma_cantidades,
-                       'cKardexTipoDocumentoFiscal' => $query_detalle_venta[0]['documento_tipo'],
-                       'cKardexNumeroDocumentoFiscal' => $query_detalle_venta[0]['documento_numero'],
-                       'cKardexNumeroSerieFiscal' => $query_detalle_venta[0]['documento_serie'],
-                       'cKardexCliente' => $query_detalle_venta[0]['id_cliente'],
-                      'cKardexProveedor' => null,
-                  );
+                    $item_kardex = array(
+                        'dkardexFecha' => date('Y-m-d H:i:s:u'),
+                        'ckardexReferencia' => $estadonuevo,
+                        'cKardexProducto' => $row->id_producto,
+                        'nKardexCantidad' => $row->cantidad,
+                        'nKardexPrecioUnitario' => $row->precio,
+                        'nKardexPrecioTotal' => $row->precio * ($row->cantidad),
+                        'cKardexUsuario' => $venta_cabecera['id_vendedor'],
+                        'cKardexOperacion' => VENTA,
+                        'cKardexUnidadMedida' => $unidad_minima['id_unidad'],
+                        'cKardexAlmacen' => $venta_cabecera['local_id'],
+                        'cKardexTipo' => SALIDA,
+                        'cKardexIdOperacion' => $venta_id,
+                        'cKardexTipoDocumento' => NOTA_ENTREGA,
+                        'cKardexNumeroDocumento' => $query_detalle_venta[0]['documento_Numero'],
+                        'cKardexNumeroSerie' => $query_detalle_venta[0]['documento_Serie'],
+                        'cKardexEstado' => $query_detalle_venta[0]['venta_status'],
+                        'stockUManterior' => $unidades_minimas_inventario,
+                        'stockUMactual' => $suma_cantidades,
+                        'cKardexTipoDocumentoFiscal' => $query_detalle_venta[0]['documento_tipo'],
+                        'cKardexNumeroDocumentoFiscal' => $query_detalle_venta[0]['documento_numero'],
+                        'cKardexNumeroSerieFiscal' => $query_detalle_venta[0]['documento_serie'],
+                        'cKardexCliente' => $query_detalle_venta[0]['id_cliente'],
+                        'cKardexProveedor' => null,
+                    );
                     $this->db->insert('kardex', $item_kardex);
                 }
 
 
                 if ($venta_cabecera['venta_status'] == PEDIDO_GENERADO && $venta_cabecera['devolver'] != 'true') {
-                   // $this->db->insert('detalle_venta_backup', $detalle_item);
-                    array_push($venta_backup_items,$detalle_item);
+                    // $this->db->insert('detalle_venta_backup', $detalle_item);
+                    array_push($venta_backup_items, $detalle_item);
                 }
 
 
             }
 
         }
-
-
 
 
         /************************************/
@@ -2047,8 +2045,6 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
             $this->db->delete('detalle_venta_backup');
             $this->db->insert_batch('detalle_venta_backup', $venta_backup_items);
         }
-
-
 
 
         /**Credito o contado*/
@@ -2069,7 +2065,7 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
     }
 
 
-    function  updateVentaTipo($venta_cabecera)
+    function updateVentaTipo($venta_cabecera)
     {
 
         $credito = array(
@@ -2468,7 +2464,7 @@ WHERE detalle_venta.id_venta='$id' group by detalle_venta.id_detalle");
         $this->db->trans_off();
     }
 
-    function  get_credito_by_venta($venta)
+    function get_credito_by_venta($venta)
     {
 
         $this->db->select('*, consolidado_detalle.confirmacion_monto_cobrado_caja,consolidado_detalle.confirmacion_monto_cobrado_bancos, venta.pagado, venta.total');
@@ -2713,7 +2709,7 @@ WHERE detalle_venta.id_venta='$id' group by detalle_venta.id_detalle");
     }
 
 
-    function  getUtilidades($select, $where, $retorno, $group)
+    function getUtilidades($select, $where, $retorno, $group)
     {
         $this->db->select($select);
         $this->db->from('detalle_venta');
@@ -2765,7 +2761,7 @@ LEFT JOIN ingreso ON ingreso.id_ingreso = detalleingreso.id_ingreso WHERE id_pro
 
     }
 
-    function  getDetalleVenta($retorno, $order, $where)
+    function getDetalleVenta($retorno, $order, $where)
     {
         $this->db->select('unidades.*,detalle_venta.*,producto.*,venta.fecha,venta.venta_id AS numero,venta.venta_status AS estado,local_nombre');
         $this->db->from('detalle_venta');
@@ -2808,7 +2804,7 @@ LEFT JOIN ingreso ON ingreso.id_ingreso = detalleingreso.id_ingreso WHERE id_pro
         }
     }
 
-    function  get_estatus($id)
+    function get_estatus($id)
     {
         $this->db->where('venta_id', $id);
         $query = $this->db->get('venta');
@@ -3394,19 +3390,20 @@ where v.venta_id=" . $id_venta . " group by tr.id_detalle order by 1 ";
     }
 
 
-    function zonaVendedor($vendedor_id, $dia)
+    function zonaVendedor($vendedor_id = FALSE, $dia)
     {
         $this->db->select('*');
         $this->db->from('usuario u');
-        $this->db->join('usuario_has_zona uhz', 'uhz.id_usuario = u.nUsuCodigo', 'left');
-        $this->db->join('zonas z', 'z.zona_id = uhz.id_zona', 'left');
-        if($dia!=null){
-            $this->db->join('zona_dias zd', 'zd.id_zona = z.zona_id ', 'left');
+        $this->db->join('usuario_has_zona uhz', 'uhz.id_usuario = u.nUsuCodigo');
+        $this->db->join('zonas z', 'z.zona_id = uhz.id_zona');
+        if ($dia != null) {
+            $this->db->join('zona_dias zd', 'zd.id_zona = z.zona_id ');
             $this->db->where('zd.dia_semana', $dia);
         }
-        $this->db->where('u.nUsuCodigo', $vendedor_id);
+        if ($vendedor_id != FALSE)
+            $this->db->where('u.nUsuCodigo', $vendedor_id);
 
-        $query = $this->db->get();
+        $query = $this->db->group_by('z.zona_id')->get();
         return $query->result_array();
     }
 
@@ -3432,11 +3429,53 @@ where v.venta_id=" . $id_venta . " group by tr.id_detalle order by 1 ";
         return $query->result_array();
     }
 
-    function dataClienteIdZona($id_zona){
+    function getDeudaCliente($cliente_id){
+        $this->db->select("
+            SUM(venta.total) as subtotal_venta,
+            SUM(credito.dec_credito_montodebito) as subtotal_pago
+        ")
+            ->from('cliente')
+            ->join('venta', 'venta.id_cliente = cliente.id_cliente')
+            ->join('credito', 'credito.id_venta = venta.venta_id')
+            ->join('historial_pedido_proceso', 'historial_pedido_proceso.pedido_id = venta.venta_id')
+            ->join('zonas', 'cliente.id_zona = zonas.zona_id')
+            ->join('usuario', 'venta.id_vendedor = usuario.nUsuCodigo')
+            ->where('cliente.cliente_status', 1)
+            ->where('historial_pedido_proceso.proceso_id', PROCESO_LIQUIDAR)
+            ->where('venta.venta_status !=', 'RECHAZADO')
+            ->where('venta.venta_status !=', 'ANULADO')
+            ->group_by('cliente.id_cliente');
+        $this->db->where('cliente.id_cliente', $cliente_id);
+
+        $cliente = $this->db->get()->row();
+
+        $this->db->select("
+                SUM(historial_pagos_clientes.historial_monto) as monto,
+            ")
+            ->from('historial_pagos_clientes')
+            ->join('venta', 'venta.venta_id = historial_pagos_clientes.credito_id')
+            ->join('credito', 'credito.id_venta = historial_pagos_clientes.credito_id')
+            ->join('historial_pedido_proceso', 'historial_pedido_proceso.pedido_id = venta.venta_id')
+            ->where('historial_pedido_proceso.proceso_id', PROCESO_LIQUIDAR)
+            ->where('venta.venta_status !=', 'RECHAZADO')
+            ->where('venta.venta_status !=', 'ANULADO')
+            ->where('venta.id_cliente', $cliente_id)
+            ->where('historial_pagos_clientes.historial_estatus', 'PENDIENTE');
+
+        $pagado_pendientes = $this->db->get()->row();
+
+        $cliente->pagado_pendientes = isset($pagado_pendientes->monto) ? $pagado_pendientes->monto : 0;
+        $cliente->subtotal_pago -= $cliente->pagado_pendientes;
+
+        return array('deuda' => $cliente->subtotal_venta - $cliente->subtotal_pago);
+    }
+
+    function dataClienteIdZona($id_zona)
+    {
         $this->db->select('*');
         $this->db->from('cliente c');
         $this->db->where('c.id_zona', $id_zona);
-        $this->db->order_by('c.representante','asc');
+        $this->db->order_by('c.representante', 'asc');
 
         $query = $this->db->get();
         return $query->result_array();

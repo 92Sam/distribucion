@@ -78,10 +78,11 @@ class venta extends MY_Controller
         $useradmin = $this->session->userdata('admin');
         if ($useradmin == 1) {
             $data["clientes"] = $this->cliente_model->get_all();
+            $data['zonas'] = $this->venta_model->zonaVendedor(FALSE, date('N'));
         } else {
             $vendedor = $this->session->userdata('nUsuCodigo');
-
             $data["clientes"] = $this->cliente_model->get_all($vendedor);
+            $data['zonas'] = $this->venta_model->zonaVendedor($vendedor, date('N'));
         }
 //var_dump($data["clientes"]);
 
@@ -1087,7 +1088,7 @@ class venta extends MY_Controller
             $monto = $row['historial_monto'];
             $count++;
 
-            $html .=   "<tr>
+            $html .= "<tr>
                             <td>" . $count . "</td>
                             <td>" . $documento . "</td>
                             <td>" . $cliente . "</td>
@@ -3212,7 +3213,7 @@ class venta extends MY_Controller
         documento_Serie, documento_Numero, usuario.nombre,liquidacion_fecha, ,cajero.nombre as cajero,
           metodos_pago.*';
         $from = "historial_pagos_clientes";
-        $join = array('venta', 'cliente', 'documento_venta', 'metodos_pago', 'liquidacion_cobranza_detalle', 'usuario','liquidacion_cobranza', 'usuario as cajero' ,'(SELECT c.cliente_id, c.tipo, c.valor as direccion, c.principal, COUNT(*) FROM cliente_datos c WHERE c.tipo =1 GROUP BY c.cliente_id, c.tipo ) cli_dat', '(SELECT c1.cliente_id, c1.tipo, c1.valor as telefono1, c1.principal, COUNT(*) FROM cliente_datos c1 WHERE c1.tipo =2 GROUP BY c1.cliente_id, c1.tipo  ) cli_dat2');
+        $join = array('venta', 'cliente', 'documento_venta', 'metodos_pago', 'liquidacion_cobranza_detalle', 'usuario', 'liquidacion_cobranza', 'usuario as cajero', '(SELECT c.cliente_id, c.tipo, c.valor as direccion, c.principal, COUNT(*) FROM cliente_datos c WHERE c.tipo =1 GROUP BY c.cliente_id, c.tipo ) cli_dat', '(SELECT c1.cliente_id, c1.tipo, c1.valor as telefono1, c1.principal, COUNT(*) FROM cliente_datos c1 WHERE c1.tipo =2 GROUP BY c1.cliente_id, c1.tipo  ) cli_dat2');
         $campos_join = array('historial_pagos_clientes.credito_id=venta.venta_id', 'cliente.id_cliente=venta.id_cliente',
             'documento_venta.id_tipo_documento=venta.numero_documento', 'metodos_pago.id_metodo=historial_pagos_clientes.historial_tipopago',
             'liquidacion_cobranza_detalle.pago_id=historial_pagos_clientes.historial_id',
@@ -3351,7 +3352,7 @@ class venta extends MY_Controller
         documento_Serie, documento_Numero,
           metodos_pago.*';
         $from = "historial_pagos_clientes";
-        $join = array('venta', 'cliente', 'documento_venta', 'metodos_pago', 'liquidacion_cobranza_detalle','(SELECT c.cliente_id, c.tipo, c.valor as direccion, c.principal, COUNT(*) FROM cliente_datos c WHERE c.tipo =1 GROUP BY c.cliente_id, c.tipo ) cli_dat', '(SELECT c1.cliente_id, c1.tipo, c1.valor as telefono1, c1.principal, COUNT(*) FROM cliente_datos c1 WHERE c1.tipo =2 GROUP BY c1.cliente_id, c1.tipo  ) cli_dat2');
+        $join = array('venta', 'cliente', 'documento_venta', 'metodos_pago', 'liquidacion_cobranza_detalle', '(SELECT c.cliente_id, c.tipo, c.valor as direccion, c.principal, COUNT(*) FROM cliente_datos c WHERE c.tipo =1 GROUP BY c.cliente_id, c.tipo ) cli_dat', '(SELECT c1.cliente_id, c1.tipo, c1.valor as telefono1, c1.principal, COUNT(*) FROM cliente_datos c1 WHERE c1.tipo =2 GROUP BY c1.cliente_id, c1.tipo  ) cli_dat2');
         $campos_join = array('historial_pagos_clientes.credito_id=venta.venta_id', 'cliente.id_cliente=venta.id_cliente',
             'documento_venta.id_tipo_documento=venta.numero_documento', 'metodos_pago.id_metodo=historial_pagos_clientes.historial_tipopago',
             'liquidacion_cobranza_detalle.pago_id=historial_pagos_clientes.historial_id', 'cli_dat.cliente_id = cliente.id_cliente', 'cli_dat2.cliente_id = cliente.id_cliente');
@@ -4246,17 +4247,22 @@ class venta extends MY_Controller
     }
 
 
-
     function zonaVendedor()
     {
-        if($this->input->post('dia') != ''){
+        $useradmin = $this->session->userdata('admin');
+        if ($this->input->post('dia') != '') {
             $dia = $this->input->post('dia');
-        }else {
+        } else {
             $dia = null;
         }
-        $zona_vendedor = $this->venta_model->zonaVendedor($this->input->post('vendedor_id'), $dia);
-        die(json_encode($zona_vendedor));
+        $vendedor = $this->input->post('vendedor_id');
 
+        $useradmin = $this->db->get_where('usuario', array('nUsuCodigo' => $vendedor))->row();
+
+        if ($useradmin->admin == 1)
+            $vendedor = FALSE;
+        $zona_vendedor = $this->venta_model->zonaVendedor($vendedor, $dia);
+        die(json_encode($zona_vendedor));
     }
 
 
@@ -4272,13 +4278,29 @@ class venta extends MY_Controller
         die(json_encode($cliente_direccion));
     }
 
-    function clientesIdZona(){
+    function dataClienteDeuda()
+    {
+        die(json_encode($this->venta_model->getDeudaCliente($this->input->post('cliente_id'))));
+    }
+
+    function clientesIdZona()
+    {
         $cliente_direccion = $this->venta_model->dataClienteIdZona($this->input->post('zona_id'));
         die(json_encode($cliente_direccion));
     }
 
-    function listaClientes(){
+    function listaClientes()
+    {
         die(json_encode($this->cliente_model->get_all()));
+    }
+
+    function get_precio_escalas(){
+        $this->load->model('unidades_has_precio/unidades_has_precio_model', 'unidadPrecio');
+        $producto_id = $this->input->post('producto_id');
+        $unidad_id = $this->input->post('unidad_id');
+        $grupo_id = $this->input->post('grupo_id');
+        
+        echo json_encode($this->unidadPrecio->get_max_min_precio($producto_id, $unidad_id, $grupo_id));
     }
 }
 

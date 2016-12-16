@@ -1,12 +1,47 @@
-<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+<?php if (!defined('BASEPATH')) exit('No direct script access allowed');
 
 class unidades_has_precio_model extends CI_Model
 {
     private $table = 'unidades_has_precio';
 
-    function __construct() {
+    function __construct()
+    {
         parent::__construct();
         $this->load->database();
+    }
+
+    function get_max_min_precio($producto_id, $unidad_id, $grupo_id)
+    {
+        $default_price = $this->db->get_where('unidades_has_precio', array(
+            'id_producto' => $producto_id,
+            'id_unidad' => $unidad_id,
+            'id_precio' => 3
+        ))->row();
+
+        $this->db->select('MIN(precio) as precio');
+        $min = $this->aplicar_filtro($producto_id, $unidad_id, $grupo_id);
+        $min = $min->precio != NULL ? $min->precio : $default_price->precio;
+
+        $this->db->select('MAX(precio) as precio');
+        $max = $this->aplicar_filtro($producto_id, $unidad_id, $grupo_id);
+        $max = $max->precio != NULL ? $max->precio : $default_price->precio;
+
+        return array(
+            'max' => $max,
+            'min' => $min,
+            'default' => $default_price->precio
+        );
+    }
+
+    private function aplicar_filtro($producto_id, $unidad_id, $grupo_id)
+    {
+        return $this->db->from('escala_producto')
+            ->join('escalas', 'escalas.escala_id = escala_producto.escala')
+            ->join('descuentos', 'descuentos.descuento_id = escalas.regla_descuento')
+            ->where('descuentos.id_grupos_cliente', $grupo_id)
+            ->where('escala_producto.producto', $producto_id)
+            ->where('escala_producto.unidad', $unidad_id)->get()->row();
+
     }
 
     function get_all_by($id_unidad, $id_producto)
@@ -22,7 +57,7 @@ class unidades_has_precio_model extends CI_Model
 
     function get_precio_has_producto_list($condicion)
     {
-        $sql=$this->db->query("SELECT precios.nombre_precio,precios.id_precio,
+        $sql = $this->db->query("SELECT precios.nombre_precio,precios.id_precio,
  unidades_has_precio.*, producto.producto_nombre, unidades.nombre_unidad, orden,grupos.id_grupo, grupos.nombre_grupo FROM precios JOIN unidades_has_precio
 ON unidades_has_precio.`id_precio`= precios.`id_precio`
 JOIN producto ON producto.`producto_id`=unidades_has_precio.`id_producto`
@@ -30,14 +65,14 @@ left JOIN grupos ON grupos.`id_grupo`=producto.`produto_grupo`
 JOIN unidades ON unidades.`id_unidad`=unidades_has_precio.`id_unidad`
  JOIN unidades_has_producto ON  unidades_has_producto.`id_unidad`=unidades_has_precio.`id_unidad` AND
 unidades_has_producto.`producto_id`=unidades_has_precio.`id_producto`
-WHERE mostrar_precio=1 AND estatus_precio=1 AND producto.producto_estatus=1 AND producto.producto_activo=1 ".$condicion."
+WHERE mostrar_precio=1 AND estatus_precio=1 AND producto.producto_estatus=1 AND producto.producto_activo=1 " . $condicion . "
 GROUP BY id_producto, precios.id_precio,unidades_has_precio.`id_unidad` ORDER BY orden asc, grupos.nombre_grupo asc");
         return $sql->result_array();
     }
 
     function get_precio_has_producto()
     {
-        $sql=$this->db->query("SELECT precios.nombre_precio,precios.id_precio,
+        $sql = $this->db->query("SELECT precios.nombre_precio,precios.id_precio,
  unidades_has_precio.*, producto.producto_nombre, unidades.nombre_unidad, orden,grupos.id_grupo, grupos.nombre_grupo FROM precios JOIN unidades_has_precio
 ON unidades_has_precio.`id_precio`= precios.`id_precio`
 JOIN producto ON producto.`producto_id`=unidades_has_precio.`id_producto`
@@ -49,7 +84,6 @@ WHERE mostrar_precio=1 AND estatus_precio=1 AND producto.producto_estatus=1  AND
 GROUP BY id_producto, precios.id_precio,unidades_has_precio.`id_unidad` ORDER BY orden asc, grupos.nombre_grupo asc");
         return $sql->result_array();
     }
-
 
 
     public function traer_by($select = false, $from = false, $join = false, $campos_join = false, $tipo_join, $where = false, $nombre_in, $where_in,

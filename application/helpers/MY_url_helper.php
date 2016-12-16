@@ -1,5 +1,6 @@
 <?php
 
+
 function getCajaBanco($banco_id)
 {
     $CI =& get_instance();
@@ -47,6 +48,33 @@ function restCod($cod)
 function last_day($year, $mes)
 {
     return date("d", (mktime(0, 0, 0, $mes + 1, 1, $year) - 1));
+}
+
+function get_day_week($day)
+{
+    switch ($day) {
+        case 1: {
+            return 'Lunes';
+        }
+        case 2: {
+            return 'Martes';
+        }
+        case 3:{
+            return 'Miercoles';
+        }
+        case 4:{
+            return 'Jueves';
+        }
+        case 5:{
+            return 'Viernes';
+        }
+        case 6:{
+            return 'S&acute;bado';
+        }
+        case 7:{
+            return 'Domingo';
+        }
+    }
 }
 
 function getMes($num)
