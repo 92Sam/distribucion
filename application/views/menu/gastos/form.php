@@ -14,10 +14,10 @@
                 <div class="row">
                     <div class="form-group">
                         <div class="col-md-3">
-                            <label>Fecha</label>
+                            <label class="control-label panel-admin-text">Fecha</label>
                         </div>
                         <div class="col-md-9">
-                            <input type="text" name="fecha" id="fecha" required="true"
+                            <input type="text" name="fecha" id="fecha" required="true" readonly
                                    class="input-small input-datepicker form-control"
                                    value="<?php if (isset($gastos['fecha'])) echo $gastos['fecha']; ?>"/>
 
@@ -29,7 +29,7 @@
                 <div class="row">
                     <div class="form-group">
                         <div class="col-md-3">
-                            <label>Descripci&oacute;n</label>
+                            <label class="control-label panel-admin-text">Descripci&oacute;n</label>
                         </div>
                         <div class="col-md-9">
                             <input type="text" name="descripcion" id="descripcion" required="true" class="form-control"
@@ -41,7 +41,7 @@
                 <div class="row">
                     <div class="form-group">
                         <div class="col-md-3">
-                            <label>Total</label>
+                            <label class="control-label panel-admin-text">Total</label>
                         </div>
                         <div class="col-md-9">
                             <input type="number" name="total" id="total" required="true" class="form-control"
@@ -52,7 +52,7 @@
                 <div class="row">
                     <div class="form-group">
                         <div class="col-md-3">
-                            <label>Tipo de Gasto</label>
+                            <label class="control-label panel-admin-text">Tipo de Gasto</label>
                         </div>
                         <div class="col-md-9">
 
@@ -71,14 +71,14 @@
                 <div class="row">
                     <div class="form-group">
                         <div class="col-md-3">
-                            <label>Local</label>
+                            <label class="control-label panel-admin-text">Local</label>
                         </div>
                         <div class="col-md-9">
 
                             <select name="local_id" id="local_id" required="true" class="form-control">
                                 <option value="">Seleccione</option>
                                 <?php foreach ($local as $local): ?>
-                                    <option
+                                    <option select
                                         value="<?php echo $local['int_local_id'] ?>" <?php if (isset($gastos['local_id']) and $gastos['local_id'] == $local['int_local_id']) echo 'selected' ?>><?= $local['local_nombre'] ?></option>
                                 <?php endforeach ?>
                             </select>
@@ -90,8 +90,10 @@
             </div>
 
             <div class="modal-footer">
-                <button type="button" id="" class="btn btn-primary" onclick="grupo.guardar()" >Confirmar</button>
-                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                <button type="button" id="" class="btn btn-primary" onclick="grupo.guardar()" >
+                <li class="glyphicon glyphicon-thumbs-up"></li> Confirmar</button>
+                <button type="button" class="btn btn-warning" data-dismiss="modal">
+                Cancelar <li class="glyphicon glyphicon-thumbs-down"></li></button>
 
             </div>
             <!-- /.modal-content -->
