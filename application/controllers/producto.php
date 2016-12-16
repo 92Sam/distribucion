@@ -1355,6 +1355,53 @@ $join = array('lineas', 'marcas', 'familia', 'grupos', 'proveedor', 'impuestos',
         $data['columnas'] = $this->columnas;
 
 
+        $estiloInformacion = array(
+            'font' => array(
+                'name'  => 'Arial',
+                'size' =>10,
+                'color' => array(
+                    'rgb' => '000000'
+                )
+            ),
+            'borders' => array(
+                    'allborders' => array(
+                        'outline' => PHPExcel_Style_Border::BORDER_THIN ,
+                        'color' => array(
+                          'rgb' => '3a2a47'
+                        )
+                    )
+            )
+        );
+
+        $estiloTituloReporte = array(
+            'font' => array(
+                'name'      => 'Arial',
+                'bold'      => true,
+                'italic'    => false,
+                'strike'    => false,
+                'size'      =>  12,
+                'color'     => array(
+                    'rgb' => 'FFFFFF'
+                )
+            ),
+            'fill' => array(
+              'type'  => PHPExcel_Style_Fill::FILL_SOLID,
+              'color' => array(
+                    'argb' => 'FF459136')
+          ),
+            'borders' => array(
+                'allborders' => array(
+                    'style' => PHPExcel_Style_Border::BORDER_THIN
+                )
+            ),
+            'alignment' => array(
+                'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
+                'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER,
+                'rotation' => 0,
+                'wrap' => TRUE
+            )
+        );
+
         // configuramos las propiedades del documento
         $this->phpexcel->getProperties()
             //->setCreator("Arkos Noem Arenom")
@@ -1365,57 +1412,80 @@ $join = array('lineas', 'marcas', 'familia', 'grupos', 'proveedor', 'impuestos',
             ->setKeywords("Stock")
             ->setCategory("Stock");
 
-        $this->phpexcel->getActiveSheet()->getStyle('C')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
-        $this->phpexcel->getActiveSheet()->getStyle('E')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
-        $this->phpexcel->getActiveSheet()->getColumnDimension('B')->setAutoSize('true');
-        $this->phpexcel->getActiveSheet()->getColumnDimension('C')->setAutoSize('true');
-        $this->phpexcel->getActiveSheet()->getColumnDimension('E')->setAutoSize('true');
-        $this->phpexcel->getActiveSheet()->getColumnDimension('F')->setAutoSize('true');
-        $this->phpexcel->getActiveSheet()->getColumnDimension('G')->setAutoSize('true');
-        $this->phpexcel->getActiveSheet()->getColumnDimension('I')->setAutoSize('true');
-        $this->phpexcel->getActiveSheet()->getColumnDimension('J')->setAutoSize('true');
-        $this->phpexcel->getActiveSheet()->getColumnDimension('K')->setAutoSize('true');
+        // Columnas de A a Z 26 elementos Maximo    
+        $columnas = range("A","Z");
+
+        // Configuraci´on de Elementos Titulo
+        for($i = 'A'; $i <= 'M'; $i++){
+            if($i == 'A' || $i == 'C' || $i == 'E'){   
+            $this->phpexcel->getActiveSheet()->getStyle($i)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+            }
+            $this->phpexcel->getActiveSheet()->getColumnDimension($i)->setAutoSize('true');
+        }
+        
+        $this->phpexcel->getActiveSheet()->getStyle('A2:M2')->applyFromArray($estiloTituloReporte);
+        // Configuraci´on de Elementos
+
+        // Llenado de Titulo
+        $this->phpexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(0, 1,'ListaStock');
+        $this->phpexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(1, 1, 'Fecha '.date('d-m-Y h:m:s'));
+
         $c = 0;
         foreach ($data['columnas'] as $col) {
             if ($col->mostrar == TRUE) {
-                $this->phpexcel->setActiveSheetIndex(0)
-                    ->setCellValueByColumnAndRow($c, 1, $col->nombre_mostrar);
+                $this->phpexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($c, 2, $col->nombre_mostrar);
                 $c++;
             }
-        }
-        $this->phpexcel->setActiveSheetIndex(0)
-            ->setCellValueByColumnAndRow($c, 1, 'UM');
+        } 
 
         $this->phpexcel->setActiveSheetIndex(0)
-            ->setCellValueByColumnAndRow($c + 1, 1, 'Cantidad');
+            ->setCellValueByColumnAndRow($c, 2, 'UM');
 
         $this->phpexcel->setActiveSheetIndex(0)
-            ->setCellValueByColumnAndRow($c + 2, 1, 'Fraccion');
+            ->setCellValueByColumnAndRow($c + 1, 2, 'Cantidad');
+
+        $this->phpexcel->setActiveSheetIndex(0)
+            ->setCellValueByColumnAndRow($c + 2, 2, 'Fraccion');
 
         $co = 0;
-        $row = 2;
+        $row = 3;
+        // Llenado de Titulo
+
+        // Llenado de Elementos
+        $c = 0;
         foreach ($data['lstProducto'] as $pd):
             if ($pd['producto_activo'] == 1) $pd['producto_activo'] = "Activo"; else $pd['producto_activo'] = "Inactivo";
             foreach ($data['columnas'] as $coll) {
-                if (array_key_exists($coll->nombre_columna, $pd) and $coll->mostrar == TRUE) {
+                if (array_key_exists($coll->nombre_columna, $pd) and $coll->mostrar == TRUE)
+                {
 
-                    $this->phpexcel->setActiveSheetIndex(0)
-                        ->setCellValueByColumnAndRow($co++, $row, $pd[$coll->nombre_join]);
+                    $this->phpexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($co++, $row, ucwords(strtolower($pd[$coll->nombre_join])));
 
+                    // Se setean los valores del Para el Estilo de la columnas
+                    $this->phpexcel->getActiveSheet()->getStyle($columnas[$c].$row)->applyFromArray($estiloInformacion);
 
+                    $c++;
                 }
             }
             $this->phpexcel->setActiveSheetIndex(0)
-                ->setCellValueByColumnAndRow($c, $row, $pd['nombre_unidad']);
+                ->setCellValueByColumnAndRow($c, $row, ucwords(strtolower($pd['nombre_unidad'])));
 
             $this->phpexcel->setActiveSheetIndex(0)
                 ->setCellValueByColumnAndRow($c + 1, $row, $pd['cantidad']);
 
             $this->phpexcel->setActiveSheetIndex(0)
                 ->setCellValueByColumnAndRow($c + 2, $row, $pd['fraccion']);
+
+            $this->phpexcel->getActiveSheet()->getStyle($columnas[$c].$row)->applyFromArray($estiloInformacion);
+
+
             $row++;
             $co = 0;
+            $c = 0; //Reinicio las columnas
         endforeach;
+        // Llenado de Elementos
+
+
 // Renombramos la hoja de trabajo
         $this->phpexcel->getActiveSheet()->setTitle('Lista Stock');
 
