@@ -541,7 +541,7 @@ function alertModal(message, type, disabled) {
     }
 }
 
-function hacerventa(imprimir) {
+function hacerventa(imprimir, flag) {
     if ($('#tipo_documento').val() == 'FACTURA') {
         if ($('#razon_social').val() == '') {
             $.bootstrapGrowl('<h4>Debe ingresar razon social</h4>', {
@@ -649,7 +649,7 @@ function hacerventa(imprimir) {
                                 $("#generarventa").modal('hide');
                             }
 
-                            if (imprimir == 0) {
+                            if (imprimir == 0 && flag == undefined) {
                                 alertModal('<h4>Felicidades</h4> <p>La venta se ha guardado</p>', 'success', false);
 
 
@@ -689,8 +689,13 @@ function hacerventa(imprimir) {
                                 }, 1000)
 
                             }
-                            else {
+                            else if (flag == undefined) {
                                 cargaData_Impresion(data.idventa);
+                            }
+                            else if (flag == 1) {
+                                alertModal('<h4>Felicidades</h4> <p>La venta ha sido editada correctamente</p>', 'success', false);
+                                $("#ventamodal").modal('hide');
+                                $('.btn_buscar').click();
                             }
                         } else {
                             alertModal('<h4>Error</h4> <p>Ha ocurrido un error al guardar la venta</p>', 'warning', true);
@@ -1589,8 +1594,8 @@ function calculatotales(producto_id, producto_nombre, unidad_nombre, cantidad, p
     tr +=
         "<td>" + parseFloat(Math.ceil(subtotal * 10) / 10) + "</td>" +
         "<td>";
-    if (precio_sugerido > 0) {
-        //tr += "<a href='#' data-toggle='tooltip' tittle='Aceptar Precio Sugerido' data-original-title='Aceptar Precio Sugerido' onclick='aplicarPrecioSugerido(" + count + ", " + cantidad + ", " + porcentaje_impuesto + ",  \"" + cualidad + "\", " + precio_sugerido + ", " + producto_id + " )' class='btn btn-default'><i class='fa fa-check-circle'></i> </a>";
+    if (precio_sugerido > 0 && $("#edit_pedido").val() == 1) {
+        tr += "<a href='#' data-toggle='tooltip' tittle='Aceptar Precio Sugerido' data-original-title='Aceptar Precio Sugerido' onclick='aplicarPrecioSugerido(" + count + ", " + cantidad + ", " + porcentaje_impuesto + ",  \"" + cualidad + "\", " + precio_sugerido + ", " + producto_id + " )' class='btn btn-default'><i class='fa fa-check-circle'></i> </a>";
     }
     tr += "</td><td>";
     if (bono === 'false') {

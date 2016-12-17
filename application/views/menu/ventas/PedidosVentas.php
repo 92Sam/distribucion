@@ -76,6 +76,9 @@
         <input type="hidden" name="idventa" id="idventa"
                value="<?php if (isset($venta[0]['venta_id'])) echo $venta[0]['venta_id']; ?>">
 
+        <input type="hidden" name="edit_pedido" id="edit_pedido"
+               value="0">
+
         <input type="hidden" name="estatus_consolidado" id="estatus_consolidado"
                value="<?php if (isset($estatus_consolidado)) echo $estatus_consolidado; ?>">
 

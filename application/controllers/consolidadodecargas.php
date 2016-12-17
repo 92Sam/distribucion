@@ -141,6 +141,14 @@ class consolidadodecargas extends MY_Controller
         echo json_encode($json);
     }
 
+    function editar_consolidado($consolidado_id)
+    {
+        $data['metros_cubicos'] = $this->input->post('metros');
+        $data['pedidos_id'] = json_decode($this->input->post('pedidos_id'));
+
+        $this->consolidado_model->editar_consolidado($consolidado_id, $data);
+    }
+
     function liquidacion()
     {
 

@@ -11,6 +11,23 @@ class consolidado_model extends CI_Model
         $this->load->model('historial/historial_pedido_model');
     }
 
+    function editar_consolidado($consolidado_id, $data)
+    {
+        foreach ($data['pedidos_id'] as $pedido_id) {
+            $this->db->insert('consolidado_detalle', array(
+                'consolidado_id' => $consolidado_id,
+                'pedido_id' => $pedido_id
+            ));
+
+            $this->db->where('venta_id', $pedido_id);
+            $this->db->update('venta', array('venta_status' => 'ENVIADO'));
+        }
+        $consolidado = $this->db->get_where('consolidado_carga', array('consolidado_id' => $consolidado_id))->row();
+
+        $this->db->where('consolidado_id', $consolidado_id);
+        $this->db->update('consolidado_carga', array('metros_cubicos' => $consolidado->metros_cubicos + $data['metros_cubicos']));
+    }
+
 
     function get_all()
     {
@@ -39,18 +56,18 @@ class consolidado_model extends CI_Model
         $this->db->join('usuario', 'usuario.nUsuCodigo=camiones.id_trabajadores', 'left');
         $this->db->join('consolidado_detalle', 'consolidado_detalle.consolidado_id=consolidado_carga.consolidado_id', 'left');
 
-        if ($where['estado'] == -1){
+        if ($where['estado'] == -1) {
             $this->db->where('status <>', 'CONFIRMADO');
-        }else{
+        } else {
             $this->db->where('status', $where['estado']);
         }
 
-          if ($where['fecha_ini'] != null && $where['fecha_fin'] != null) {
+        if ($where['fecha_ini'] != null && $where['fecha_fin'] != null) {
             if (isset($where['fecha_ini']) && isset($where['fecha_fin'])) {
                 $this->db->where('fecha >=', date('Y-m-d H:i:s', strtotime($where['fecha_ini'] . " 00:00:00")));
                 $this->db->where('fecha <=', date('Y-m-d H:i:s', strtotime($where['fecha_fin'] . " 23:59:59")));
             }
-          }
+        }
 
         $this->db->group_by('consolidado_id');
         $query = $this->db->get();
@@ -68,18 +85,18 @@ class consolidado_model extends CI_Model
         $this->db->join('consolidado_detalle', 'consolidado_detalle.consolidado_id=consolidado_carga.consolidado_id', 'left');
 
 
-        if ($where['status'] != null && $where['status'] != -1){
-          $this->db->where('status', $where['status']);
-        }else{
-          $condicion = "(status = 'CONFIRMADO' OR status = 'CERRADO')";
-          $this->db->where($condicion);
+        if ($where['status'] != null && $where['status'] != -1) {
+            $this->db->where('status', $where['status']);
+        } else {
+            $condicion = "(status = 'CONFIRMADO' OR status = 'CERRADO')";
+            $this->db->where($condicion);
         }
 
         if (isset($where['fecha_ini']) && isset($where['fecha_fin'])) {
-          if ($where['fecha_ini'] != null && $where['fecha_fin'] != null) {
-            $this->db->where('fecha >=', date('Y-m-d H:i:s', strtotime($where['fecha_ini'] . " 00:00:00")));
-            $this->db->where('fecha <=', date('Y-m-d H:i:s', strtotime($where['fecha_fin'] . " 23:59:59")));
-          }
+            if ($where['fecha_ini'] != null && $where['fecha_fin'] != null) {
+                $this->db->where('fecha >=', date('Y-m-d H:i:s', strtotime($where['fecha_ini'] . " 00:00:00")));
+                $this->db->where('fecha <=', date('Y-m-d H:i:s', strtotime($where['fecha_fin'] . " 23:59:59")));
+            }
         }
 
         $this->db->group_by('consolidado_id');
@@ -159,7 +176,7 @@ class consolidado_model extends CI_Model
     function get_details_by($where)
     {
 
-       $this->db->select('venta.*,consolidado_detalle.pedido_id,consolidado_detalle.detalle_id, consolidado_detalle.consolidado_id,
+        $this->db->select('venta.*,consolidado_detalle.pedido_id,consolidado_detalle.detalle_id, consolidado_detalle.consolidado_id,
          consolidado_detalle.confirmacion_caja_id, consolidado_detalle.confirmacion_banco_id, consolidado_detalle.liquidacion_monto_cobrado,
          consolidado_detalle.confirmacion_monto_cobrado_bancos,consolidado_detalle.confirmacion_monto_cobrado_caja, cliente.*,documento_venta.*,banco.*,
          liquidacion_monto_cobrado as montocobradoliquidacion,venta_backup.total as totalbackup

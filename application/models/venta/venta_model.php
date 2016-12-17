@@ -2845,7 +2845,7 @@ LEFT JOIN ingreso ON ingreso.id_ingreso = detalleingreso.id_ingreso WHERE id_pro
         return $query->result();
     }
 
-    function get_ventas_by($condicion)
+    function get_ventas_by($condicion, $completado = FALSE)
     {
         $this->db->select('venta.*, cliente.*, zonas.zona_nombre, local.*,condiciones_pago.*,documento_venta.*,usuario.*,
         (select SUM(metros_cubicos*detalle_venta.cantidad) from unidades_has_producto join detalle_venta
@@ -2862,6 +2862,12 @@ LEFT JOIN ingreso ON ingreso.id_ingreso = detalleingreso.id_ingreso WHERE id_pro
         $this->db->join('documento_venta', 'documento_venta.id_tipo_documento=venta.numero_documento');
         $this->db->join('usuario', 'usuario.nUsuCodigo=venta.id_vendedor');
         $this->db->order_by('venta.venta_id', 'desc');
+        if ($completado != FALSE) {
+            $this->db->where('venta_status !=', PEDIDO_GENERADO);
+            $this->db->where('venta_status !=', PEDIDO_ANULADO);
+            $this->db->where('venta_status !=', PEDIDO_ENVIADO);
+            unset($condicion['venta_status']);
+        }
         $this->db->where($condicion);
         $query = $this->db->get();
 
@@ -3429,7 +3435,8 @@ where v.venta_id=" . $id_venta . " group by tr.id_detalle order by 1 ";
         return $query->result_array();
     }
 
-    function getDeudaCliente($cliente_id){
+    function getDeudaCliente($cliente_id)
+    {
         $this->db->select("
             SUM(venta.total) as subtotal_venta,
             SUM(credito.dec_credito_montodebito) as subtotal_pago
@@ -3449,6 +3456,10 @@ where v.venta_id=" . $id_venta . " group by tr.id_detalle order by 1 ";
 
         $cliente = $this->db->get()->row();
 
+        if ($cliente == NULL) {
+            return array('deuda' => 0);
+        }
+
         $this->db->select("
                 SUM(historial_pagos_clientes.historial_monto) as monto,
             ")
@@ -3464,7 +3475,7 @@ where v.venta_id=" . $id_venta . " group by tr.id_detalle order by 1 ";
 
         $pagado_pendientes = $this->db->get()->row();
 
-        $cliente->pagado_pendientes = isset($pagado_pendientes->monto) ? $pagado_pendientes->monto : 0;
+        $cliente->pagado_pendientes = $pagado_pendientes->monto != NULL ? $pagado_pendientes->monto : 0;
         $cliente->subtotal_pago -= $cliente->pagado_pendientes;
 
         return array('deuda' => $cliente->subtotal_venta - $cliente->subtotal_pago);

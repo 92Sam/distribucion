@@ -69,7 +69,7 @@ function get_day_week($day)
             return 'Viernes';
         }
         case 6:{
-            return 'S&acute;bado';
+            return 'S&aacute;bado';
         }
         case 7:{
             return 'Domingo';
