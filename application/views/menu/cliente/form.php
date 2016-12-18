@@ -25,6 +25,10 @@
             }
         }
 
+        if ($("#representante_id").val() == '') {
+            return mensajeAlerta("Debe ingresar el nombre del representante");
+        }
+
         if ($("#grupo_id").val() == '') {
             return mensajeAlerta("Debe seleccionar el grupo");
         }
@@ -40,6 +44,8 @@
         if ($("#ciudad_id").val() == '') {
             return mensajeAlerta("Debe seleccionar el distrito");
         }
+
+
 
         if ($("#zona").val() == '') {
             return mensajeAlerta("Debe seleccionar la zona");
@@ -70,7 +76,7 @@
         }
 
          /***** Evaluaci´on de elementos caso telefonos ******/
-        var evaluarElementos = []; 
+        var evaluarElementos = [];
         $.each(items,function(){
             if($(this)[0] == '1' && $(this)[2] == true){ // Direccion
                 evaluarElementos.push($(this));
@@ -78,7 +84,7 @@
         });
 
         if(evaluarElementos.length <= 0){
-            return mensajeAlerta("Debe haber una Direccion Marcada como Principal");
+            return mensajeAlerta("Debe haber una direccion marcada como principal");
         }
 
         function mensajeAlerta(mensaje){
