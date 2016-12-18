@@ -185,7 +185,8 @@ class venta extends MY_Controller
 
                         'importe' => $this->input->post('importe', true),
                         'diascondicionpagoinput' => $this->input->post('diascondicionpagoinput', true),
-                        'tipo_documento' => $this->input->post('tipo_documento', true)
+                        'tipo_documento' => $this->input->post('tipo_documento', true),
+                        'retencion' => $this->input->post('retencion', true)
 
                     );
 

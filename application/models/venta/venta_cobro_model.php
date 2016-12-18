@@ -499,11 +499,9 @@ class venta_cobro_model extends CI_Model
         $venta = $this->db->select("
             venta.venta_id as venta_id,
             venta.total as total_deuda,
-            cliente.agente_retencion as retencion,
-            cliente.linea_credito_valor as retencion_valor,
+            venta.retencion as retencion,
         ")
             ->from('venta')
-            ->join('cliente', 'venta.id_cliente = cliente.id_cliente')
             ->where('venta_id', $venta_id)->get()->row();
 
         $cobro = $this->db->get_where('historial_pagos_clientes', array(
@@ -512,8 +510,7 @@ class venta_cobro_model extends CI_Model
         ))->row();
 
         $retencion->pedido_id = $venta->venta_id;
-        $retencion->retencion = $venta->retencion == 1 ? TRUE : FALSE;
-        $retencion->retencion_valor = $venta->retencion_valor != NULL ? $venta->retencion_valor : 0;
+        $retencion->retencion = $venta->retencion != NULL ? $venta->retencion : 0;
         $retencion->cobro_estado = $cobro != NULL ? $cobro->historial_estatus : 'NO_COBRADO';
 
         return $retencion;

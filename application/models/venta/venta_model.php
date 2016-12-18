@@ -71,7 +71,8 @@ class venta_model extends CI_Model
             'tipo_doc_fiscal' => $venta_cabecera['tipo_documento'],
             'numero_documento' => $id_documento,
             'pagado' => $venta_cabecera['importe'],
-            'venta_tipo' => $venta_tipo
+            'venta_tipo' => $venta_tipo,
+            'retencion' => $venta_cabecera['retencion']
         );
 
         $this->db->insert('venta', $venta);
@@ -543,7 +544,7 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
                         $estadonuevo .= ($query_detalle_venta[0]['venta_tipo'] == VENTA_ENTREGA) ? PEDIDO_EDICION : VENTA_EDICION;
                     }
 
-                    
+
                     if (isset($query_detalle_venta_bk['cantidad'])) {
                         if ($query_detalle_venta_bk['cantidad'] - $data->cantidad > 0) {
                             $item_kardex = array(
