@@ -542,11 +542,8 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
                     } else {
                         $estadonuevo .= ($query_detalle_venta[0]['venta_tipo'] == VENTA_ENTREGA) ? PEDIDO_EDICION : VENTA_EDICION;
                     }
-                    //var_dump($query_detalle_venta_bk);
-                    // echo $query_detalle_venta_bk['cantidad'];
-                    // echo $row->cantidad;
 
-                    echo $query_detalle_venta_bk['cantidad'] - $row->cantidad;
+                    
                     if (isset($query_detalle_venta_bk['cantidad'])) {
                         if ($query_detalle_venta_bk['cantidad'] - $data->cantidad > 0) {
                             $item_kardex = array(

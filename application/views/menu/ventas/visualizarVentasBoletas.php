@@ -40,7 +40,7 @@
 <div class="modal-dialog modal-lg">
     <div class="modal-content">
         <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <button type="button" class="close" onclick="$('#noteDeEntrega').modal('hide')" aria-hidden="true">&times;</button>
             <h4 class="modal-title">Vista Previa</h4>
         </div>
         <div class="modal-body" id="notaiprimir">
@@ -240,7 +240,7 @@
         </div>
         <div class="modal-footer">
 
-            <a href="#" class="btn btn-default" data-dismiss="modal">Cerrar</a>
+            <a href="#" class="btn btn-default" onclick="$('#noteDeEntrega').modal('hide')">Cerrar</a>
             <a href="#" tabindex="0" type="button" id="imprimir" class="btn btn-primary"> <i class="fa fa-print"></i>Imprimir</a>
         </div>
     </div>

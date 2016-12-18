@@ -152,6 +152,15 @@ class consolidadodecargas extends MY_Controller
         echo json_encode(array('result' => $result));
     }
 
+    function cambiar_fecha()
+    {
+        $data['consolidado_id'] = $this->input->post('id');
+        $data['fecha'] = date('Y-m-d H:i:s', strtotime($this->input->post('fecha') . " " . date('H:i:s')));
+
+        $this->db->where('consolidado_id', $data['consolidado_id']);
+        $this->db->update('consolidado_carga', array('fecha' => $data['fecha']));
+    }
+
     function liquidacion()
     {
 

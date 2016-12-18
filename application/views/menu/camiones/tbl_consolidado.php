@@ -53,13 +53,12 @@
 
                 <td class="center"><?= $campoConsolidado['consolidado_id'] ?></td>
                 <td><span
-                        style="display: none;"><?= date('YmdHis', strtotime($campoConsolidado['fecha'])) ?></span><?= date('d-m-Y', strtotime($campoConsolidado['fecha'])) ?>
-                    <a data-id="<?= $campoConsolidado['consolidado_id'] ?>"
-                       style="float: right;" class="btn btn-sm cambiar_fecha" data-toggle="tooltip"
-                       title="Editar Fecha" data-original-title="Editar Fecha"
-                       href="#">
-                        <i class="fa fa-edit"></i>
-                    </a>
+                        style="display: none;"><?= date('YmdHis', strtotime($campoConsolidado['fecha'])) ?></span>
+                    <input type="text" class="form-control cambiar_fecha" readonly
+                           style="width: 100px; padding: 2px 2px; cursor: pointer; color: #2CA8E4; text-align: center; border: 1px solid #2CA8E4;"
+                           value="<?= date('d-m-Y', strtotime($campoConsolidado['fecha'])) ?>"
+                           data-id="<?= $campoConsolidado['consolidado_id'] ?>">
+
                 </td>
                 <td><?= $campoConsolidado['camiones_placa'] ?></td>
                 <td><?= $campoConsolidado['nombre'] ?></td>
@@ -105,17 +104,33 @@
 </table>
 
 <script>
-    TablesDatatables.init(1);
 
-    $('.cambiar_fecha').datepicker({
-        weekStart: 1,
-        format: 'dd-mm-yyyy'
+    var fecha_flag = true;
+
+    $(document).ready(function () {
+        TablesDatatables.init(1);
+
+        $('.cambiar_fecha').datepicker({
+            weekStart: 1,
+            format: 'dd-mm-yyyy'
+        });
+
+        $('.cambiar_fecha').on('change', function (e) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            if (fecha_flag)
+                cambiar_fecha($(this).attr('data-id'), $(this).val());
+            $(this).datepicker('hide');
+        });
     });
+
 
     function cambiar_fecha(id, fecha) {
 
+        fecha_flag = false;
+
         $.ajax({
-            url: '<?php echo $ruta . 'consolidadodecargas/cambiar_fecha'; ?>',
+            url: '<?php echo base_url('consolidadodecargas/cambiar_fecha'); ?>',
             type: 'POST',
             data: {"id": id, 'fecha': fecha},
             headers: {
@@ -123,8 +138,12 @@
             },
             success: function (data) {
                 $("#btn_buscar").click();
+            },
+            complete: function () {
+                fecha_flag = true;
             }
         });
+
 
     }
 </script>

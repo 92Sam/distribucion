@@ -14,8 +14,8 @@
 
                     <tr class="#alineacion">
 
-                        <th style="text-align: center">ID</th>
                         <th style="text-align: center">Documento</th>
+                        <th style="text-align: center">N&uacute;mero</th>
                         <th style="text-align: center">Cantidad Bultos</th>
                         <th style="text-align: center">Cliente</th>
                         <th style="text-align: center">Importe Pedido</th>
@@ -28,10 +28,14 @@
                     <?php
                     $total_bultos = 0;
                     $total_importe = 0;
+
+                    $total_factura = 0;
+                    $total_boleta = 0;
                     foreach ($consolidadoDetalles as $detalle) { ?>
                         <tr>
-
-                            <td style="text-align: center"><?php echo $detalle['venta_id']; ?></td>
+                            <?php if ($detalle['tipo_doc_fiscal'] == 'FACTURA') $total_factura++; ?>
+                            <?php if ($detalle['tipo_doc_fiscal'] == 'BOLETA DE VENTA') $total_boleta++; ?>
+                            <td style="text-align: center"><?php echo $detalle['tipo_doc_fiscal']; ?></td>
                             <td style="text-align: center"><?php echo 'NE - ' . $detalle['documento_Numero']; ?></td>
                             <td style="text-align: center"><?php echo number_format($detalle['bulto'], 0);
                                 $total_bultos += $detalle['bulto']; ?>
@@ -48,14 +52,14 @@
                                    href="#"
                                    onclick="notaEntrega('<?= isset($consolidado['consolidado_id']) ? $consolidado['consolidado_id'] : 0 ?>', '<?php echo $detalle['venta_id']; ?>'); ">
                                     <i class="fa fa-print fa-fw" id="ic"></i></a>
-                                    <?php if ($consolidado['status'] == 'ABIERTO'): ?>
+                                <?php if ($consolidado['status'] == 'ABIERTO'): ?>
                                     <a class="btn btn-sm btn-warning" data-toggle="tooltip"
                                        style="margin-left: 5px;"
                                        title="Eliminar del Consolidado" data-original-title="Eliminar del Consolidado"
                                        href="#"
                                        onclick="eliminar_pedido('<?= $consolidado['consolidado_id'] ?>', '<?php echo $detalle['venta_id']; ?>'); ">
                                         <i class="fa fa-remove" id="ic"></i></a>
-                                        <?php endif; ?>
+                                <?php endif; ?>
                             </td>
 
                         </tr>
@@ -91,29 +95,33 @@
 
             <?php if ($consolidado['status'] == 'IMPRESO' || $consolidado['status'] == 'CONFIRMADO' || $consolidado['status'] == 'CERRADO') { ?>
                 <div class="btn-group">
-                    <a class="btn btn-sm btn-warning" data-toggle="tooltip"
+                    <a class="btn btn-sm btn-primary" data-toggle="tooltip"
                        title="Ver Nota" data-original-title="Ver"
                        href="#"
                        onclick="notaEntrega('<?php if (isset($consolidado['consolidado_id'])) echo $consolidado['consolidado_id']; ?>'); ">
                         <span>Notas de Entrega</span>
                     </a>
                 </div>
+                <?php if($total_factura != 0):?>
                 <div class="btn-group">
-                    <a class="btn btn-sm btn-default" data-toggle="tooltip"
+                    <a class="btn btn-sm btn-primary" data-toggle="tooltip"
                        title="Facturas" data-original-title="Ver"
                        href="#"
                        onclick="docFiscalFact('<?php if (isset($consolidado['consolidado_id'])) echo $consolidado['consolidado_id']; ?>'); ">
                         <span>Facturas</span>
                     </a>
                 </div>
+                    <?php endif;?>
 
+                <?php if($total_boleta != 0):?>
                 <div class="btn-group">
-                    <a class="btn btn-sm btn-warning" data-toggle="tooltip"
+                    <a class="btn btn-sm btn-primary" data-toggle="tooltip"
                        title="Boletas" data-original-title="Ver"
                        href="#"
                        onclick="docFiscal('<?php if (isset($consolidado['consolidado_id'])) echo $consolidado['consolidado_id']; ?>'); ">
                         <span>Boletas de ventas</span>
                     </a>
+                    <?php endif;?>
                 </div>
             <?php } ?>
 
@@ -150,7 +158,6 @@
 
     }
 
-    
 
     function eliminar_pedido(id, venta_id) {
 
