@@ -7,7 +7,6 @@ class consolidadodecargas extends MY_Controller
     function __construct()
     {
         parent::__construct();
-        //$this->very_sesion();
         $this->load->model('consolidadodecargas/consolidado_model');
         $this->load->model('venta/venta_model');
         $this->load->model('banco/banco_model');
@@ -17,13 +16,6 @@ class consolidadodecargas extends MY_Controller
         $this->load->library('phpExcel/PHPExcel.php');
 
     }
-
-    /* function very_sesion()
-     {
-         if (!$this->session->userdata('nUsuCodigo')) {
-             redirect(base_url() . 'inicio');
-         }
-     }*/
 
     function index()
     {
@@ -143,10 +135,21 @@ class consolidadodecargas extends MY_Controller
 
     function editar_consolidado($consolidado_id)
     {
-        $data['metros_cubicos'] = $this->input->post('metros');
+        $data['metros_cubicos'] = $this->input->post('metros_c');
         $data['pedidos_id'] = json_decode($this->input->post('pedidos_id'));
 
         $this->consolidado_model->editar_consolidado($consolidado_id, $data);
+    }
+
+    function eliminar_pedido_consolidado()
+    {
+        $data['consolidado_id'] = $this->input->post('id');
+        $data['venta_id'] = json_decode($this->input->post('venta_id'));
+
+        $result = $this->consolidado_model->eliminar_pedido_consolidado($data['consolidado_id'], $data['venta_id']);
+
+        header('Content-Type: application/json');
+        echo json_encode(array('result' => $result));
     }
 
     function liquidacion()
@@ -403,7 +406,7 @@ class consolidadodecargas extends MY_Controller
         $cerrar = $this->consolidado_model->cambiarEstatus($id, $estatus);
 
         $c_detalles = $this->db->get_where('consolidado_detalle', array('consolidado_id' => $id))->result();
-        foreach ($c_detalles as $detalle){
+        foreach ($c_detalles as $detalle) {
             $this->historial_pedido_model->insertar_pedido(PROCESO_LIQUIDAR, array(
                 'pedido_id' => $detalle->pedido_id,
                 'responsable_id' => $this->session->userdata('nUsuCodigo')

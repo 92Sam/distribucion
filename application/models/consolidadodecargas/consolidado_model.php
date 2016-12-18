@@ -13,6 +13,8 @@ class consolidado_model extends CI_Model
 
     function editar_consolidado($consolidado_id, $data)
     {
+        $consolidado = $this->db->get_where('consolidado_carga', array('consolidado_id' => $consolidado_id))->row();
+
         foreach ($data['pedidos_id'] as $pedido_id) {
             $this->db->insert('consolidado_detalle', array(
                 'consolidado_id' => $consolidado_id,
@@ -21,11 +23,58 @@ class consolidado_model extends CI_Model
 
             $this->db->where('venta_id', $pedido_id);
             $this->db->update('venta', array('venta_status' => 'ENVIADO'));
+
+            $this->historial_pedido_model->insertar_pedido(PROCESO_ASIGNAR, array(
+                'pedido_id' => $pedido_id,
+                'responsable_id' => $this->session->userdata('nUsuCodigo'),
+                'fecha_plan' => $consolidado->fecha
+            ));
         }
-        $consolidado = $this->db->get_where('consolidado_carga', array('consolidado_id' => $consolidado_id))->row();
 
         $this->db->where('consolidado_id', $consolidado_id);
         $this->db->update('consolidado_carga', array('metros_cubicos' => $consolidado->metros_cubicos + $data['metros_cubicos']));
+    }
+
+    function eliminar_pedido_consolidado($consolidado_id, $pedido_id)
+    {
+        $consolidado = $this->db->get_where('consolidado_carga', array('consolidado_id' => $consolidado_id))->row();
+
+        $this->db->where('venta_id', $pedido_id);
+        $this->db->update('venta', array('venta_status' => 'GENERADO'));
+
+        $this->db->where('pedido_id', $pedido_id);
+        $this->db->where('proceso_id', PROCESO_GENERAR);
+        $this->db->update('historial_pedido_proceso', array('actual' => '1'));
+
+        $historial = $this->db->get_where('historial_pedido_proceso', array(
+            'pedido_id' => $pedido_id,
+            'proceso_id' => PROCESO_ASIGNAR
+        ))->row();
+
+        if ($historial != NULL) {
+            $this->db->where('historial_pedido_proceso_id', $historial->id);
+            $this->db->delete('historial_pedido_detalle');
+
+            $this->db->where('id', $historial->id);
+            $this->db->delete('historial_pedido_proceso');
+        }
+
+        $this->db->where('consolidado_id', $consolidado_id);
+        $this->db->where('pedido_id', $pedido_id);
+        $this->db->delete('consolidado_detalle');
+
+        $this->db->where('consolidado_id', $consolidado_id);
+        $this->db->from('consolidado_detalle');
+
+        if ($this->db->count_all_results() == 0) {
+            $this->db->where('consolidado_id', $consolidado_id);
+            $this->db->delete('consolidado_carga');
+
+            return 1;
+        } else return 2;
+
+        //$this->db->where('consolidado_id', $consolidado_id);
+        //$this->db->update('consolidado_carga', array('metros_cubicos' => $consolidado->metros_cubicos));
     }
 
 

@@ -26,45 +26,53 @@
                     </thead>
                     <tbody>
                     <?php
-            $total_bultos =0;
-            $total_importe =0;
+                    $total_bultos = 0;
+                    $total_importe = 0;
                     foreach ($consolidadoDetalles as $detalle) { ?>
                         <tr>
 
                             <td style="text-align: center"><?php echo $detalle['venta_id']; ?></td>
-                            <td style="text-align: center"><?php echo 'NE - '.$detalle['documento_Numero']; ?></td>
-                            <td style="text-align: center"><?php echo number_format($detalle['bulto'],0);
-                                $total_bultos += $detalle['bulto'];?>
+                            <td style="text-align: center"><?php echo 'NE - ' . $detalle['documento_Numero']; ?></td>
+                            <td style="text-align: center"><?php echo number_format($detalle['bulto'], 0);
+                                $total_bultos += $detalle['bulto']; ?>
                             </td>
                             <td style="text-align: center"><?php echo $detalle['representante']; ?></td>
 
-                            <td style="text-align: right;"><?php echo MONEDA.' '.number_format($detalle['total'],2);
-                                $total_importe +=$detalle['total'];?>
+                            <td style="text-align: right;"><?php echo MONEDA . ' ' . number_format($detalle['total'], 2);
+                                $total_importe += $detalle['total']; ?>
                             </td>
                             <td style="text-align: center"><?php echo $detalle['venta_status']; ?> </td>
                             <td style="text-align: center">
-                                <a class="btn btn-primary" data-toggle="tooltip"
+                                <a class="btn btn-sm btn-primary" data-toggle="tooltip"
                                    title="Imprimir" data-original-title="Imprimir"
                                    href="#"
                                    onclick="notaEntrega('<?= isset($consolidado['consolidado_id']) ? $consolidado['consolidado_id'] : 0 ?>', '<?php echo $detalle['venta_id']; ?>'); ">
-                                    <i class="fa fa-print fa-fw" id="ic"></i>
+                                    <i class="fa fa-print fa-fw" id="ic"></i></a>
+                                    <?php if ($consolidado['status'] == 'ABIERTO'): ?>
+                                    <a class="btn btn-sm btn-warning" data-toggle="tooltip"
+                                       style="margin-left: 5px;"
+                                       title="Eliminar del Consolidado" data-original-title="Eliminar del Consolidado"
+                                       href="#"
+                                       onclick="eliminar_pedido('<?= $consolidado['consolidado_id'] ?>', '<?php echo $detalle['venta_id']; ?>'); ">
+                                        <i class="fa fa-remove" id="ic"></i></a>
+                                        <?php endif; ?>
                             </td>
 
                         </tr>
                         <?php
-                    }?>
+                    } ?>
 
                     <tr style="background-color: #C6EFCE">
-                    <td></td>
-                    <td style="text-align: right; font-size: 13px"><?php echo '<strong style="fond-family:bold;">Total Bultos => <strong>'; ?></td>
-                    <td style="text-align: center; font-weight: bold; font-size: 13px"><?php echo number_format($total_bultos,0) ?></td>
-                    <td style="text-align: right; font-size: 13px"><?php echo '<strong style="fond-family:bold;">Total Importe Pedido => <strong>'; ?></td>
-                    <td style="text-align: right; font-weight: bold; font-size: 13px"><?php echo MONEDA.' '.number_format($total_importe,2) ?></td>
-                    <td></td>
-                    <td></td>
+                        <td></td>
+                        <td style="text-align: right; font-size: 13px"><?php echo '<strong style="fond-family:bold;">Total Bultos => <strong>'; ?></td>
+                        <td style="text-align: center; font-weight: bold; font-size: 13px"><?php echo number_format($total_bultos, 0) ?></td>
+                        <td style="text-align: right; font-size: 13px"><?php echo '<strong style="fond-family:bold;">Total Importe Pedido => <strong>'; ?></td>
+                        <td style="text-align: right; font-weight: bold; font-size: 13px"><?php echo MONEDA . ' ' . number_format($total_importe, 2) ?></td>
+                        <td></td>
+                        <td></td>
 
 
-                        </tr>
+                    </tr>
                     </tbody>
                 </table>
             </div>
@@ -72,7 +80,7 @@
 
 
             <div class="btn-group">
-                <a class="btn btn-default" data-toggle="tooltip"
+                <a class="btn btn-sm btn-default" data-toggle="tooltip"
                    title="Ver" data-original-title="Ver"
                    href="#"
                    onclick="impirmirGuia('<?php if (isset($consolidado['consolidado_id'])) echo $consolidado['consolidado_id']; ?>'); ">
@@ -83,7 +91,7 @@
 
             <?php if ($consolidado['status'] == 'IMPRESO' || $consolidado['status'] == 'CONFIRMADO' || $consolidado['status'] == 'CERRADO') { ?>
                 <div class="btn-group">
-                    <a class="btn btn-warning" data-toggle="tooltip"
+                    <a class="btn btn-sm btn-warning" data-toggle="tooltip"
                        title="Ver Nota" data-original-title="Ver"
                        href="#"
                        onclick="notaEntrega('<?php if (isset($consolidado['consolidado_id'])) echo $consolidado['consolidado_id']; ?>'); ">
@@ -91,7 +99,7 @@
                     </a>
                 </div>
                 <div class="btn-group">
-                    <a class="btn btn-default" data-toggle="tooltip"
+                    <a class="btn btn-sm btn-default" data-toggle="tooltip"
                        title="Facturas" data-original-title="Ver"
                        href="#"
                        onclick="docFiscalFact('<?php if (isset($consolidado['consolidado_id'])) echo $consolidado['consolidado_id']; ?>'); ">
@@ -100,7 +108,7 @@
                 </div>
 
                 <div class="btn-group">
-                    <a class="btn btn-warning" data-toggle="tooltip"
+                    <a class="btn btn-sm btn-warning" data-toggle="tooltip"
                        title="Boletas" data-original-title="Ver"
                        href="#"
                        onclick="docFiscal('<?php if (isset($consolidado['consolidado_id'])) echo $consolidado['consolidado_id']; ?>'); ">
@@ -136,6 +144,36 @@
                 success: function (data) {
                     $("#noteDeEntrega").html(data);
                     $("#noteDeEntrega").modal('show');
+                }
+            });
+        }
+
+    }
+
+    
+
+    function eliminar_pedido(id, venta_id) {
+
+        var venta = 0;
+        if (venta_id != undefined)
+            venta = venta_id;
+        {
+            $.ajax({
+                url: '<?php echo $ruta . 'consolidadodecargas/eliminar_pedido_consolidado'; ?>',
+                type: 'POST',
+                data: {"id": id, 'venta_id': venta},
+                headers: {
+                    Accept: 'application/json'
+                },
+                success: function (data) {
+                    if (data.result == 1) {
+                        $('#consolidadoDocumento').modal('hide');
+                        $("#btn_buscar").click();
+                    }
+                    else if (data.result == 2) {
+                        $("#consolidadoDocumento").html($('#loading').html());
+                        $("#consolidadoDocumento").load('<?= $ruta ?>consolidadodecargas/verDetalles/' + id);
+                    }
                 }
             });
         }

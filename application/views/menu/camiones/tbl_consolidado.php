@@ -1,20 +1,32 @@
 <style>
-    .btn-other{
+    .btn-other {
         background-color: #3b3b1f;
         color: #fff;
     }
 
-    .b-default{
+    .b-default {
         background-color: #55c862;
         color: #fff;
     }
-    .b-warning{
+
+    .b-warning {
         background-color: #f7be64;
         color: #fff;
     }
-    .b-primary{
+
+    .b-primary {
         background-color: #2CA8E4;
         color: #fff;
+    }
+
+    .table td {
+        font-weight: normal;
+        font-size: 11px;
+        vertical-align: middle !important;
+    }
+
+    .btn-group-sm > .btn, .btn-sm {
+        font-size: 10px;
     }
 </style>
 
@@ -42,6 +54,12 @@
                 <td class="center"><?= $campoConsolidado['consolidado_id'] ?></td>
                 <td><span
                         style="display: none;"><?= date('YmdHis', strtotime($campoConsolidado['fecha'])) ?></span><?= date('d-m-Y', strtotime($campoConsolidado['fecha'])) ?>
+                    <a data-id="<?= $campoConsolidado['consolidado_id'] ?>"
+                       style="float: right;" class="btn btn-sm cambiar_fecha" data-toggle="tooltip"
+                       title="Editar Fecha" data-original-title="Editar Fecha"
+                       href="#">
+                        <i class="fa fa-edit"></i>
+                    </a>
                 </td>
                 <td><?= $campoConsolidado['camiones_placa'] ?></td>
                 <td><?= $campoConsolidado['nombre'] ?></td>
@@ -58,14 +76,14 @@
                         if ($campoConsolidado['status'] == 'IMPRESO')
                             $color = 'other';
 
-                        echo '<a class="btn btn-' . $color . '" data-toggle="tooltip"
+                        echo '<a class="btn btn-sm btn-' . $color . '" data-toggle="tooltip"
                                             title="Consolidado Documentos" data-original-title="Consolidado Documentos"
                                             href="#" onclick="VerConsolidado(' . $campoConsolidado['consolidado_id'] . '); ">'; ?>
                         Consolidado
                         </a>
                         <?php
 
-                        echo '<a class="btn btn-warning" data-toggle="tooltip"
+                        echo '<a class="btn btn-sm btn-warning" data-toggle="tooltip"
                                             title="Imprimir" data-original-title="Imprimir"
                                             href="#" onclick="alertImprimir(' . $campoConsolidado['consolidado_id'] . '); ">'; ?>
                         <i class="fa fa-print fa-fw" id="ic"></i><span
@@ -73,13 +91,6 @@
                         </a>
 
 
-                        <?php //if ($campoConsolidado['status'] == 'ABIERTO' || $this->session->userdata('admin') == true) { ?>
-                        <?php if ($campoConsolidado['status'] == 'ABIERTO') { ?>
-                            <button class="btn btn-default" data-toggle="tooltip"
-                                    title="Editar" data-original-title="fa fa-comment-o"
-                                    onclick="editarconsolidado(<?php echo $campoConsolidado['consolidado_id'] ?>,<?php echo $campoConsolidado['metrosc'] ?>);">
-                                <i class="fa fa-edit"></i></button>
-                        <?php } ?>
                     </div>
 
                     <input type="hidden" id="metrosc" name="metrosc"
@@ -95,4 +106,25 @@
 
 <script>
     TablesDatatables.init(1);
+
+    $('.cambiar_fecha').datepicker({
+        weekStart: 1,
+        format: 'dd-mm-yyyy'
+    });
+
+    function cambiar_fecha(id, fecha) {
+
+        $.ajax({
+            url: '<?php echo $ruta . 'consolidadodecargas/cambiar_fecha'; ?>',
+            type: 'POST',
+            data: {"id": id, 'fecha': fecha},
+            headers: {
+                Accept: 'application/json'
+            },
+            success: function (data) {
+                $("#btn_buscar").click();
+            }
+        });
+
+    }
 </script>
