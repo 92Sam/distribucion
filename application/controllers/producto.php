@@ -1430,22 +1430,44 @@ $join = array('lineas', 'marcas', 'familia', 'grupos', 'proveedor', 'impuestos',
         $this->phpexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(0, 1,'ListaStock');
         $this->phpexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(1, 1, 'Fecha '.date('d-m-Y h:m:s'));
 
+
+        $data['columnas_new'][] = ['nombre_columna' => 'nombre_unidad','nombre_mostrar' => 'UM','mostrar' => 1];
+        $data['columnas_new'][] = ['nombre_columna' => 'cantidad','nombre_mostrar' => 'Cantidad','mostrar' => 1];
+        $data['columnas_new'][] = ['nombre_columna' => 'fraccion','nombre_mostrar' => 'Fraccion','mostrar' => 1];
+        $data['columnas_new'][] = ['nombre_columna' => 'activo','nombre_mostrar' => 'Fraccion','mostrar' => 1];
+
+        $columShow = ['producto_id','producto_nombre','producto_marca','produto_grupo','producto_subgrupo','producto_familia','producto_subfamilia','producto_linea','presentacion','nombre_unidad','cantidad','fraccion','producto_activo'];
+        $columnasNomalizadas = [];
+
+        foreach ($data['columnas_new'] as $col) {
+            $tmp = new stdClass;
+            $tmp->nombre_columna = $col['nombre_columna'];
+            $tmp->nombre_mostrar = $col['nombre_mostrar'];
+            $tmp->mostrar = $col['mostrar'];
+            array_push($data['columnas'], $tmp);
+        }
+
         $c = 0;
-        foreach ($data['columnas'] as $col) {
-            if ($col->mostrar == TRUE) {
-                $this->phpexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($c, 2, $col->nombre_mostrar);
-                $c++;
+        foreach ($columShow as $key2 => $value) {
+            foreach ($data['columnas'] as $key => $col) {
+                if ($col->mostrar == TRUE ) {
+                    if($col->nombre_columna == $value){
+                        if($col->nombre_mostrar == "Sub Grupo"){
+                            $nombre_mostrar = 'Linea';
+                        }elseif($col->nombre_mostrar == 'Familia') {
+                            $nombre_mostrar = 'Sub Linea';
+                        }elseif($col->nombre_mostrar == 'Linea') {
+                            $nombre_mostrar = 'Talla';
+                        }else{
+                            $nombre_mostrar = $col->nombre_mostrar;
+                        }
+                        array_push($columnasNomalizadas, $col);
+                        $this->phpexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($c,2,$nombre_mostrar);
+                    $c++;
+                    }
+                }
             }
-        } 
-
-        $this->phpexcel->setActiveSheetIndex(0)
-            ->setCellValueByColumnAndRow($c, 2, 'UM');
-
-        $this->phpexcel->setActiveSheetIndex(0)
-            ->setCellValueByColumnAndRow($c + 1, 2, 'Cantidad');
-
-        $this->phpexcel->setActiveSheetIndex(0)
-            ->setCellValueByColumnAndRow($c + 2, 2, 'Fraccion');
+        }
 
         $co = 0;
         $row = 3;
@@ -1455,11 +1477,11 @@ $join = array('lineas', 'marcas', 'familia', 'grupos', 'proveedor', 'impuestos',
         $c = 0;
         foreach ($data['lstProducto'] as $pd):
             if ($pd['producto_activo'] == 1) $pd['producto_activo'] = "Activo"; else $pd['producto_activo'] = "Inactivo";
-            foreach ($data['columnas'] as $coll) {
+            foreach ($columnasNomalizadas as $coll) {
                 if (array_key_exists($coll->nombre_columna, $pd) and $coll->mostrar == TRUE)
                 {
-
-                    $this->phpexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($co++, $row, ucwords(strtolower($pd[$coll->nombre_join])));
+                    $value = isset($coll->nombre_join) ? $coll->nombre_join : $coll->nombre_columna;
+                    $this->phpexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($co++, $row, ucwords(strtolower($pd[$value])));
 
                     // Se setean los valores del Para el Estilo de la columnas
                     $this->phpexcel->getActiveSheet()->getStyle($columnas[$c].$row)->applyFromArray($estiloInformacion);
@@ -1467,14 +1489,6 @@ $join = array('lineas', 'marcas', 'familia', 'grupos', 'proveedor', 'impuestos',
                     $c++;
                 }
             }
-            $this->phpexcel->setActiveSheetIndex(0)
-                ->setCellValueByColumnAndRow($c, $row, ucwords(strtolower($pd['nombre_unidad'])));
-
-            $this->phpexcel->setActiveSheetIndex(0)
-                ->setCellValueByColumnAndRow($c + 1, $row, $pd['cantidad']);
-
-            $this->phpexcel->setActiveSheetIndex(0)
-                ->setCellValueByColumnAndRow($c + 2, $row, $pd['fraccion']);
 
             $this->phpexcel->getActiveSheet()->getStyle($columnas[$c].$row)->applyFromArray($estiloInformacion);
 
