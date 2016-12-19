@@ -2988,7 +2988,7 @@ LEFT JOIN ingreso ON ingreso.id_ingreso = detalleingreso.id_ingreso WHERE id_pro
  pd.producto_cualidad, pd.producto_id as producto_id, pd.venta_sin_stock, tr.precio_sugerido, tr.cantidad as cantidad ,tr.precio as preciounitario, tr.id_detalle,
 tr.detalle_importe as importe, v.fecha as fechaemision, cre.dec_credito_montodeuda,
 p.nombre as vendedor,p.nUsuCodigo as id_vendedor,t.nombre_tipo_documento as descripcion, t.documento_Serie as serie, t.documento_Numero as numero, t.nombre_tipo_documento,df.documento_tipo,
-c.razon_social as cliente, c.id_cliente as cliente_id, cli_dat.valor as direccion_cliente,c.representante as representanteCliente,cli_dat2.valor as telefonoC1,
+c.razon_social as cliente, c.id_cliente as cliente_id, cli_dat.valor as direccion_cliente,c.representante as representante,cli_dat2.valor as telefonoC1,
  c.identificacion as documento_cliente, cp.id_condiciones, cp.nombre_condiciones, v.venta_status,v.venta_tipo, u.id_unidad, u.nombre_unidad, u.abreviatura,
  i.porcentaje_impuesto, up.unidades, up.orden,
  (select config_value from configuraciones where config_key='" . EMPRESA_NOMBRE . "') as RazonSocialEmpresa,

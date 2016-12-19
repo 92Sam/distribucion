@@ -12,6 +12,7 @@ class clientes extends REST_Controller
         parent::__construct();
 
         $this->load->model('cliente/cliente_model');
+        $this->load->model('cliente_datos/cliente_datos_model');
         $this->load->model('usuario/usuario_model');
         $this->load->model('api/api_model', 'api');
         $this->load->model('venta/venta_model', 'venta');
@@ -170,6 +171,7 @@ class clientes extends REST_Controller
         $array['clientes'] = array();
         $array['clientesjson'] = array();
 
+
         $count=0;
         foreach ($datas['clientes'] as $data) {
             $arr = $data;
@@ -185,6 +187,7 @@ class clientes extends REST_Controller
             $clientjson[8] = $data['nombre'];
             $clientjson[9] = null;
 
+            $arr['cliente_datos'] = $this->cliente_datos_model->get_all_by($data['id_cliente']);
 
             $arr['id_cliente'] = $data['id_cliente'];
             $arr['id'] = $data['id_cliente'];
@@ -217,20 +220,27 @@ class clientes extends REST_Controller
             $array['clientes'][] = $arr;
             $array['clientesjson'][] = $clientjson;
 
+
             $count++;
         }
+
 
         $array['data'] = $array['clientesjson'];
         $array['draw'] = $draw;//esto debe venir por post
         $array['recordsTotal'] = $total;
         $array['recordsFiltered'] = $total; // esto dbe venir por post
 
+
+
         if ($datas) {
             $this->response($array, 200);
         } else {
             $this->response(array(), 200);
         }
+
     }
+
+
 
     // Show
     public function ver_get()

@@ -128,7 +128,7 @@ class pedidos extends REST_Controller
         $data['pedido']['impuesto'] = $pedido_detalle[0]['impuesto'];
         $data['pedido']['documento_tipo'] = $pedido_detalle[0]['documento_tipo'];
         $data['pedido']['cliente_id'] = $pedido_detalle[0]['cliente_id'];
-        $data['pedido']['cliente'] = $pedido_detalle[0]['cliente'];
+        $data['pedido']['cliente'] = $pedido_detalle[0]['representante'];
         $data['pedido']['id_condiciones'] = $pedido_detalle[0]['id_condiciones'];
         $data['pedido']['nombre_condiciones'] = $pedido_detalle[0]['nombre_condiciones'];
         $data['pedido']['venta_status'] = $pedido_detalle[0]['venta_status'];

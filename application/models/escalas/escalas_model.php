@@ -20,10 +20,11 @@ class escalas_model extends CI_Model
     function get_by($campo, $valor, $result = false)
     {
 		$this->db->where($campo, $valor);
-        $this->db->select('escalas.*, escala_producto.*, producto.producto_nombre, unidades.nombre_unidad');
+        $this->db->select('escalas.*, escala_producto.*, producto.producto_nombre, unidades.nombre_unidad, descuentos.id_grupos_cliente');
         $this->db->join('escalas', 'escalas.escala_id = escala_producto.escala', 'left');
         $this->db->join('producto', 'escala_producto.producto = producto.producto_id', 'left');
         $this->db->join('unidades', 'escala_producto.unidad = unidades.id_unidad', 'left');
+        $this->db->join('descuentos', 'escalas.regla_descuento = descuentos.descuento_id', 'left');
         $query = $this->db->get('escala_producto');
 		
 		if ($result == true) {
