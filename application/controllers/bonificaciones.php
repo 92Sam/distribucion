@@ -514,6 +514,7 @@ class bonificaciones extends MY_Controller
         $columna[] = "Bono producto";
         $columna[] = "Bono cantidad";
         
+        
         for ($i = 0; $i < count($columna); $i++) {
 
             $this->phpexcel->setActiveSheetIndex(0)

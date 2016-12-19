@@ -1448,6 +1448,7 @@ $join = array('lineas', 'marcas', 'familia', 'grupos', 'proveedor', 'impuestos',
         }
 
         $c = 0;
+        // Nuevo recorrido de elementos
         foreach ($columShow as $key2 => $value) {
             foreach ($data['columnas'] as $key => $col) {
                 if ($col->mostrar == TRUE ) {
