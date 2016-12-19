@@ -29,7 +29,7 @@
             <th style="text-align: center;">Documento</th>
             <th style="text-align: center;">Cliente</th>
             <th style="text-align: center;">Vendedor</th>
-            <th style="text-align: center;">Fecha Venta</th>
+            <th style="text-align: center;">Fecha Pedido</th>
 
             <th style="text-align: center;">Estado</th>
             <th style="text-align: center;">Zona</th>
@@ -256,7 +256,7 @@ else echo 0; ?>/0"
 
 
     $(function () {
-        
+
 
         if ($("#estatus").val() == 'GENERADO') {
             $("#select_all").show();
