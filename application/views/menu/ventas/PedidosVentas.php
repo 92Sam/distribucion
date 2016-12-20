@@ -468,7 +468,7 @@
                                 </div>
                             </div>
 
-                            <div class="row">
+                            <div class="row" style="display: none;">
                                 <br>
                                 <br>
                                 <div class="form-group">
@@ -1041,7 +1041,7 @@
         }
 
         function obtenerClientesZona(zona_id) {
-// Metodo Ajax 
+// Metodo Ajax
             if (zona_id != '') {
                 $.ajax({
                     url: '<?=base_url()?>venta/clientesIdZona',
