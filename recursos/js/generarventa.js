@@ -697,6 +697,11 @@ function hacerventa(imprimir, flag) {
                                 $("#ventamodal").modal('hide');
                                 $('.btn_buscar').click();
                             }
+                            else if (flag == 2) {
+                                alertModal('<h4>Felicidades</h4> <p>La venta ha sido modificada correctamente</p>', 'success', false);
+                                $("#total").val(formatPrice($("#totApagar").val()));
+                                $("#ventamodal").modal('hide');
+                            }
                         } else {
                             alertModal('<h4>Error</h4> <p>Ha ocurrido un error al guardar la venta</p>', 'warning', true);
                             $("#realizarventa").removeClass('disabled');

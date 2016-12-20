@@ -51,6 +51,10 @@ class cliente_model extends CI_Model
         return $query->result_array();
     }
 
+    function get_clientes($data = array()){
+        
+    }
+
     function get_by($campo, $valor)
     {
         $this->db->where($campo, $valor);

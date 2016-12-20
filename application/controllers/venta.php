@@ -117,6 +117,7 @@ class venta extends MY_Controller
     function editar_pedido()
     {
         $venta_id = $this->input->post('idventa');
+        $devolver = $this->input->post('devolver');
 
         $data["clientes"] = $this->cliente_model->get_all();
 
@@ -133,6 +134,8 @@ class venta extends MY_Controller
 
         $data["venta_id"] = $venta_id;
         $data["precios"] = $this->precios->get_precios();
+
+        $data['devolver'] = $devolver;
 
         $data["venta"] = $this->venta_model->obtener_venta($venta_id);
 

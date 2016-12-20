@@ -31,7 +31,7 @@
     <input type="hidden" name="url_refresh" id="url_refresh"
            value="<?php echo isset($preciosugerido) ? '//consultar?buscar=pedidos' : '/pedidos'; ?>">
     <input type="hidden" name="venta_status" id="venta_status"
-           value="<?php echo isset($devolver) ? PEDIDO_DEVUELTO : PEDIDO_GENERADO ?>">
+           value="<?php echo $devolver == 1 ? PEDIDO_DEVUELTO : PEDIDO_GENERADO ?>">
     <input type="hidden" name="venta_tipo" id="venta_tipo"
            value="<?= VENTA_ENTREGA ?>">
     <input type="hidden" name="diascondicionpagoinput" id="diascondicionpagoinput"
@@ -41,6 +41,9 @@
 
     <input type="hidden" name="edit_pedido" id="edit_pedido"
            value="1">
+
+    <input type="hidden" name="devolver_pedido" id="devolver_pedido"
+           value="<?= $devolver ?>">
 
     <input type="hidden" name="estatus_consolidado" id="estatus_consolidado"
            value="<?php if (isset($estatus_consolidado)) echo $estatus_consolidado; ?>">
@@ -109,7 +112,7 @@
 
                         <div class="col-md-3 text-right">
                             <button class="btn btn-primary" type="button" id="realizarventa"
-                                    onclick="javascript:hacerventa(0, 1);">
+                                    onclick="javascript:hacerventa(0, '<?= $devolver == 1 ? 2 : 1 ?>');">
                                 <li class="glyphicon glyphicon-thumbs-up"></li>
                                 Editar Pedido
                             </button>
@@ -789,7 +792,6 @@
             $("#direccion_entrega_np").trigger('chosen:updated');
 
         })
-
 
 
         function tipoDoc() {

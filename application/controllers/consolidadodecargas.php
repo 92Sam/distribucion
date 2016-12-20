@@ -164,13 +164,9 @@ class consolidadodecargas extends MY_Controller
     function liquidacion()
     {
 
-        if ($this->session->flashdata('success') != FALSE) {
-            $data ['success'] = $this->session->flashdata('success');
-        }
-        if ($this->session->flashdata('error') != FALSE) {
-            $data ['error'] = $this->session->flashdata('error');
-        }
-        $data = array();
+        $data['metodos_pago'] = $this->db->get_where('metodos_pago', array('status_metodo' => 1))->result();
+        $data['bancos'] = $this->db->get_where('banco', array('banco_status' => 1))->result();
+        
         $dataCuerpo['cuerpo'] = $this->load->view('menu/ventas/liquidacionCgc', $data, true);
 
 
@@ -196,6 +192,7 @@ class consolidadodecargas extends MY_Controller
                 $this->consolidado_model->get_details_by($where);
 
         }
+
         //var_dump($data['consolidado']);
         $data['id_consolidado'] = $id;
         $this->load->view('menu/consolidadodecargas/consolidadoLiquidacion', $data);
