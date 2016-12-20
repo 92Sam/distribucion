@@ -246,14 +246,14 @@ $(document).ready(function () {
         if (repo.loading) return repo.text;
 
         var markup = "<div class='select2-result-repository clearfix'>" +
-            "<div class='select2-result-repository__title'>" + repo.id_cliente + " - " + repo.razon_social + "</div>" +
+            "<div class='select2-result-repository__title'>" + repo.id_cliente + " - " + repo.representante + "</div>" +
             "</div>";
 
         return markup;
     }
 
     function formatRepoSelection(repo) {
-        return repo.razon_social || repo.text;
+        return repo.representante || repo.text;
     }
 
     setTimeout(function () {

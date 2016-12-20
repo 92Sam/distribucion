@@ -168,7 +168,7 @@
                                     <option value="">Seleccione</option>
                                     <?php foreach ($clientes as $cl): ?>
                                         <option
-                                            value="<?= $cl['id_cliente']; ?>"><?= $cl['razon_social'] ?></option>
+                                            value="<?= $cl['id_cliente']; ?>"><?= $cl['representante'] ?></option>
                                     <?php endforeach; ?>
                                 </select>
                                 <input type="hidden" id="current_cliente_id" value="">
@@ -985,14 +985,14 @@
                     data: {'cliente_id': $('#id_cliente').val()},
                     success: function (data) {
                         if (data != '') {
-                            $('#clienteinformativo').val(data[0].razon_social);
+                            $('#clienteinformativo').val(data[0].representante);
 
                             $('#contacto_nt').val(data[0].representante);
                             $('#retencion').val(data[0].linea_credito_valor);
                             $('#dni_nt').val(data[0].identificacion);
 
-                            $('#ruc_dc').val(data[0].ruc_cliente)
-                            $('#razon_social').val(data[0].razon_social)
+                            $('#ruc_dc').val(data[0].ruc_cliente);
+                            $('#razon_social').val(data[0].razon_social);
                         }
                     }
                 });

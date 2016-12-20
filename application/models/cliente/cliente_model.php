@@ -22,7 +22,7 @@ class cliente_model extends CI_Model
 
     function get_all($id_vendedor = null, $filter = null, $page = 0, $limit = 0)
     {
-        $this->db->select('distinct(cliente.id_cliente),cliente.*, cli_dat.*, cli_dat2.*, ciudades.*,estados.*,pais.*, grupos_cliente.*,  zonas.* , usuario.nombre');
+        $this->db->select('cliente.id_cliente,cliente.*, cli_dat.*, cli_dat2.*, ciudades.*,estados.*,pais.*, grupos_cliente.*,  zonas.* , usuario.nombre');
         $this->db->from('cliente');
         $this->db->join('ciudades', 'ciudades.ciudad_id=cliente.ciudad_id');
         $this->db->join('estados', 'ciudades.estado_id=estados.estados_id');
@@ -33,6 +33,7 @@ class cliente_model extends CI_Model
         $this->db->join('(SELECT c.cliente_id, c.tipo, c.valor as direccion, c.principal, COUNT(*) FROM cliente_datos c WHERE c.tipo =1 GROUP BY c.cliente_id, c.tipo) cli_dat', 'cli_dat.cliente_id = cliente.id_cliente');
         $this->db->join('(SELECT c1.cliente_id, c1.tipo, c1.valor as telefono1, c1.principal, COUNT(*) FROM cliente_datos c1 WHERE c1.tipo =2 GROUP BY c1.cliente_id, c1.tipo  ) cli_dat2', 'cli_dat2.cliente_id = cliente.id_cliente', 'left');
 
+        $this->db->group_by('cliente.id_cliente');
         $this->db->where('cliente.cliente_status', 1);
 
         // Vendedor ID
@@ -49,10 +50,6 @@ class cliente_model extends CI_Model
         $query = $this->db->get();
 
         return $query->result_array();
-    }
-
-    function get_clientes($data = array()){
-        
     }
 
     function get_by($campo, $valor)
