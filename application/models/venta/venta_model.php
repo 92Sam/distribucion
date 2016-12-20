@@ -7,7 +7,7 @@ class venta_model extends CI_Model
         parent::__construct();
     }
 
-    function insertar_venta($venta_cabecera, $detalle, $montoboletas)
+    function insertar_venta($venta_cabecera, $detalle, $montoboletas, $retencion)
     {
         $this->db->trans_start(true);
         $this->db->trans_begin();
@@ -71,7 +71,8 @@ class venta_model extends CI_Model
             'tipo_doc_fiscal' => $venta_cabecera['tipo_documento'],
             'numero_documento' => $id_documento,
             'pagado' => $venta_cabecera['importe'],
-            'venta_tipo' => $venta_tipo
+            'venta_tipo' => $venta_tipo,
+            'retencion' => $retencion
         );
 
         $this->db->insert('venta', $venta);
@@ -1447,7 +1448,7 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
 
 
 //ESTE METODO SOLAENTE SE USA EN DEVOLUCION DEVENTAS O EDICION/DEVOLUCION DE PEDIDOS . OJO
-    function actualizar_venta($venta_cabecera, $detalle = false, $montoboletas)
+    function actualizar_venta($venta_cabecera, $detalle = false, $montoboletas, $retencion)
     {
         $this->db->trans_start(true);
         $this->db->trans_begin();
@@ -1461,6 +1462,7 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
             'subtotal' => $venta_cabecera['subtotal'],
             'total_impuesto' => $venta_cabecera['total_impuesto'],
             'total' => $venta_cabecera['total'],
+            'retencion' => $retencion
             //  'pagado' => $venta_cabecera['importe'],
 
         );

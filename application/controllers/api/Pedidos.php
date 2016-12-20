@@ -288,8 +288,9 @@ class pedidos extends REST_Controller
 
             if (!empty($post)) {
                 $montoboletas = $post['MONTO_BOLETAS_VENTA'];
+                $retencion = $post['retencion'];
 
-                $save = $this->ventas->insertar_venta($pedido, $detalle, $montoboletas);
+                $save = $this->ventas->insertar_venta($pedido, $detalle, $montoboletas, $retencion);
                 if ($save === false) {
                     $this->response(array('status' => 'failed'));
                 } else {
@@ -309,6 +310,7 @@ class pedidos extends REST_Controller
         $post = $this->input->get(null, true);
         $montoboletas = $post['MONTO_BOLETAS_VENTA'];
         $newclient = $post['id_cliente'];
+        $retencion = $post['retencion'];
 
         // Lista de pedido
         $total = 0;
@@ -371,7 +373,7 @@ class pedidos extends REST_Controller
 
             );
             if (!empty($post)) {
-                $save = $this->ventas->actualizar_venta($pedido, $detalle, $montoboletas);
+                $save = $this->ventas->actualizar_venta($pedido, $detalle, $montoboletas, $retencion);
                 if ($save === false) {
                     $this->response(array('status' => 'failed'));
                 } else {
