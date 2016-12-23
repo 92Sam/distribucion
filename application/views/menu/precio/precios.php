@@ -29,7 +29,7 @@
     <!-- Progress Bars Wizard Title -->
 
 
-    <a class="btn btn-primary" onclick="agregargrupo();">
+    <a class="btn btn-primary ocultar" onclick="agregargrupo();">
         <i class="fa fa-plus "> Nuevo</i>
     </a>
     <br>
@@ -47,7 +47,7 @@
                 <th>Nombre</th>
                 <th>Mostrar</th>
 
-                <th class="desktop">Acciones</th>
+                <th class="desktop ocultar">Acciones</th>
 
             </tr>
             </thead>
@@ -65,7 +65,7 @@
                                 echo "checked";
                             } ?>  disabled></td>
 
-                        <td class="center">
+                        <td class="center ocultar">
                             <div class="btn-group">
                                 <?php
 
@@ -97,6 +97,7 @@
 
 
 <script type="text/javascript">
+$('.ocultar').hide();
 
     function borrargrupo(id, nom) {
 

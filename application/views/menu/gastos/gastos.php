@@ -64,12 +64,12 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                                 echo '<a class="btn btn-default" data-toggle="tooltip"
                                             title="Editar" data-original-title="fa fa-comment-o"
                                             href="#" onclick="editar(' . $gastos['id_gastos'] . ');">'; ?>
-                                <i class="fa fa-edit"></i>
+                                <i class="glyphicon glyphicon-edit"></i>
                                 </a>
-                                <?php echo '<a class="btn btn-default" data-toggle="tooltip"
+                                <?php echo '<a class="btn btn-danger" data-toggle="tooltip"
                                      title="Eliminar" data-original-title="fa fa-comment-o"
                                      onclick="borrar(' . $gastos['id_gastos'] . ');">'; ?>
-                                <i class="fa fa-trash-o"></i>
+                                <i class="glyphicon glyphicon-trash"></i>
                                 </a>
 
                             </div>
@@ -152,7 +152,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
             if ($("#descripcion").val() == '') {
                 var growlType = 'warning';
 
-                $.bootstrapGrowl('<h4>Debe ingresar la descripcion</h4>', {
+                $.bootstrapGrowl('<h4>Debe ingresar la descripción</h4>', {
                     type: growlType,
                     delay: 2500,
                     allow_dismiss: true
@@ -234,12 +234,14 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                     <h4 class="modal-title">Eliminar Gasto</h4>
                 </div>
                 <div class="modal-body">
-                    <p>Est&aacute; seguro que desea eliminar el Gasto seleccionado?</p>
+                    <h4>Est&aacute; seguro que desea eliminar el Gasto seleccionado?</h4>
                     <input type="hidden" name="id" id="id_borrar">
                 </div>
                 <div class="modal-footer">
-                          <button type="button" id="confirmar" class="btn btn-primary" onclick="eliminar()">Confirmar</button>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                          <button type="button" id="confirmar" class="btn btn-primary" onclick="eliminar()">
+                          <li class="glyphicon glyphicon-thumbs-up"></li> Guardar</button>
+                    <button type="button" class="btn btn-warning" data-dismiss="modal">
+                    <li class="glyphicon glyphicon-thumbs-down"></li> Cancelar</button>
 
                 </div>
             </div>

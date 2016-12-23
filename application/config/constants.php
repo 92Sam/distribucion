@@ -136,3 +136,13 @@ define('PROCESO_MODIFICAR', 5);
 define('PROCESO_ASIGNAR', 2);
 define('PROCESO_IMPRIMIR', 3);
 define('PROCESO_LIQUIDAR', 4);
+
+//CONSTANTES DE DATOS CLIENTES
+define('CDIRECCION', 1);
+define('CTELEFONO', 2);
+define('CCORREO', 3);
+define('CWEB', 4);
+define('CNOTA', 5);
+define('CGERENTE_DNI', 6);
+define('CCONTACTO_NOMBRE', 7);
+define('CCONTACTO_DNI', 8);
