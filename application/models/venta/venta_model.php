@@ -2854,7 +2854,8 @@ LEFT JOIN ingreso ON ingreso.id_ingreso = detalleingreso.id_ingreso WHERE id_pro
          on detalle_venta.id_producto=unidades_has_producto.producto_id where detalle_venta.id_venta=venta.venta_id
          and detalle_venta.unidad_medida=unidades_has_producto.id_unidad) as total_metos_cubicos,  (select count(id_detalle)
          from detalle_venta where id_venta=venta.venta_id and precio_sugerido>0) as preciosugerido,
-            (select count(id_producto) from detalle_venta where id_venta = venta.venta_id ) as cantidad_productos');
+            (select count(id_producto) from detalle_venta where id_venta = venta.venta_id ) as cantidad_productos,
+            grupos_cliente.*');
 
         $this->db->from('venta');
         $this->db->join('cliente', 'cliente.id_cliente=venta.id_cliente');
@@ -2863,6 +2864,7 @@ LEFT JOIN ingreso ON ingreso.id_ingreso = detalleingreso.id_ingreso WHERE id_pro
         $this->db->join('condiciones_pago', 'condiciones_pago.id_condiciones=venta.condicion_pago');
         $this->db->join('documento_venta', 'documento_venta.id_tipo_documento=venta.numero_documento');
         $this->db->join('usuario', 'usuario.nUsuCodigo=venta.id_vendedor');
+        $this->db->join('grupos_cliente', 'grupos_cliente.id_grupos_cliente = cliente.grupo_id');
         $this->db->order_by('venta.venta_id', 'desc');
         $this->db->where($condicion);
         $query = $this->db->get();
