@@ -33,7 +33,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
     <!-- Progress Bars Wizard Title -->
 
 
-    <a class="btn btn-primary" onclick="agregar();">
+    <a class="btn btn-primary ocultar" onclick="agregar();">
         <i class="fa fa-plus "> Nueva</i>
     </a>
     <br>
@@ -47,7 +47,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                 <th>Nombre</th>
                 <th>Dias</th>
 
-                <th class="desktop">Acciones</th>
+                <th class="desktop ocultar">Acciones</th>
 
             </tr>
             </thead>
@@ -63,7 +63,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                         <td><?= $condicion['dias'] ?></td>
 
 
-                        <td class="center">
+                        <td class="center ocultar">
                             <div class="btn-group">
                                 <?php
 
@@ -115,6 +115,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
 
 
 <script type="text/javascript">
+$('.ocultar').hide();
 
     function borrar(id, nom) {
 

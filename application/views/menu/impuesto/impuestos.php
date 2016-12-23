@@ -30,7 +30,7 @@
     <!-- Progress Bars Wizard Title -->
 
 
-    <a class="btn btn-primary" onclick="agregargrupo();">
+    <a class="btn btn-primary ocultar" onclick="agregargrupo();">
         <i class="fa fa-plus "> Nuevo</i>
     </a>
     <br>
@@ -46,8 +46,9 @@
 
                 <th>ID</th>
                 <th>Nombre</th>
+                <th>Porcentaje Impuesto</th>
 
-                <th class="desktop">Acciones</th>
+                <th class="desktop ocultar">Acciones</th>
 
             </tr>
             </thead>
@@ -60,9 +61,10 @@
 
                         <td class="center"><?= $impuesto['id_impuesto'] ?></td>
                         <td><?= $impuesto['nombre_impuesto'] ?></td>
+                        <td><?= $impuesto['porcentaje_impuesto']." %" ?></td>
 
 
-                        <td class="center">
+                        <td class="center ocultar">
                             <div class="btn-group">
                                 <?php
 
@@ -110,6 +112,7 @@
 
 
 <script type="text/javascript">
+$('.ocultar').hide();
 
     function borrargrupo(id, nom) {
 

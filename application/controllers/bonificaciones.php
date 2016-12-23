@@ -116,7 +116,7 @@ class bonificaciones extends MY_Controller
         $data['grupo_clie_id'] = $grupo_id;
 
         $grupo_name = $this->clientes_grupos_model->get_by('id_grupos_cliente', $grupo_id);
-        $data['grupo_clie'] = $grupo_name['nombre_grupos_cliente'];
+        $data['grupo_clie'] = isset($grupo_name['nombre_grupos_cliente']) ? $grupo_name['nombre_grupos_cliente'] : null;
 
         if ($id != FALSE && $id != 'false') {
             $data['bonificaciones'] = $this->bonificaciones_model->get_by('id_bonificacion', $id);
@@ -426,30 +426,103 @@ class bonificaciones extends MY_Controller
             ->setKeywords("ReporteBonificaciones")
             ->setCategory("ReporteBonificaciones");
 
-        $columna[0] = "ID";
-        $columna[1] = "Vencimiento";
-        $columna[2] = "Estado";
-        $columna[3] = "Productos";
-        $columna[4] = "Marca condicion";
-        $columna[5] = "Grupo condicion";
-        $columna[6] = "Sub grupo condicion";
-        $columna[7] = "Familia condicion";
-        $columna[8] = "Sub familia condicion";
-        $columna[9] = "Linea condicion";
-        $columna[10] = "Unidad condicion";
-        $columna[11] = "Cantidad condicion";
-        $columna[12] = "Bono producto";
-        $columna[13] = "Bono unidad";
-        $columna[14] = "Bono cantidad";
+            $estiloInformacion = array(
+            'font' => array(
+                'name'  => 'Arial',
+                'size' =>10,
+                'color' => array(
+                    'rgb' => '000000'
+                )
+            ),
+            'borders' => array(
+                    'allborders' => array(
+                        'outline' => PHPExcel_Style_Border::BORDER_THIN ,
+                        'color' => array(
+                          'rgb' => '3a2a47'
+                        )
+                    )
+            )
+        );
 
+        $estiloTituloReporte = array(
+            'font' => array(
+                'name'      => 'Arial',
+                'bold'      => true,
+                'italic'    => false,
+                'strike'    => false,
+                'size'      =>  12,
+                'color'     => array(
+                    'rgb' => 'FFFFFF'
+                )
+            ),
+            'fill' => array(
+              'type'  => PHPExcel_Style_Fill::FILL_SOLID,
+              'color' => array(
+                    'argb' => 'FF459136')
+          ),
+            'borders' => array(
+                'allborders' => array(
+                    'style' => PHPExcel_Style_Border::BORDER_THIN
+                )
+            ),
+            'alignment' => array(
+                'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
+                'vertical' => PHPExcel_Style_Alignment::VERTICAL_CENTER,
+                'rotation' => 0,
+                'wrap' => TRUE
+            )
+        );
+
+        $this->phpexcel->getActiveSheet()->getStyle('A2:J2')->applyFromArray($estiloTituloReporte);
+
+         // Llenado de Titulo
+        $this->phpexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(0, 1,'Bonificaciones');
+        $this->phpexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(1, 1, 'Fecha '.date('d-m-Y h:m:s'));
+
+                // Columnas de A a Z 26 elementos Maximo    
+        $columnas = range("A","Z");
+
+        // Configuraci´on de Elementos Titulo
+        for($i = 'A'; $i <= 'J'; $i++){
+            $this->phpexcel->getActiveSheet()->getColumnDimension($i)->setAutoSize('true');
+        }
+
+        // $columna[0] = "ID";
+        // $columna[1] = "Vencimiento";
+        // $columna[2] = "Estado";
+        // $columna[3] = "Productos";
+        // $columna[4] = "Marca condicion";
+        // $columna[5] = "Grupo condicion";
+        // $columna[6] = "Sub grupo condicion";
+        // $columna[7] = "Familia condicion";
+        // $columna[8] = "Sub familia condicion";
+        // $columna[9] = "Linea condicion";
+        // $columna[10] = "Unidad condicion";
+        // $columna[11] = "Cantidad condicion";
+        // $columna[12] = "Bono producto";
+        // $columna[13] = "Bono unidad";
+        // $columna[14] = "Bono cantidad";
+
+        $columna[] = "ID";
+        $columna[] = "Vencimiento";
+        $columna[] = "Estado";
+        $columna[] = "Productos";
+        $columna[] = "Marca condicion";
+        $columna[] = "Grupo condicion";
+        $columna[] = "Unidad condicion";
+        $columna[] = "Cantidad condicion";
+        $columna[] = "Bono producto";
+        $columna[] = "Bono cantidad";
+        
+        
         for ($i = 0; $i < count($columna); $i++) {
 
             $this->phpexcel->setActiveSheetIndex(0)
-                ->setCellValueByColumnAndRow($i, 1, $columna[$i]);
+                ->setCellValueByColumnAndRow($i, 2, $columna[$i]);
 
         }
 
-        $row = 2;
+        $row = 3;
 
         if (count($bonificacioness) > 0) {
             foreach ($bonificacioness as $b) {
@@ -487,17 +560,17 @@ class bonificaciones extends MY_Controller
                 $this->phpexcel->setActiveSheetIndex(0)
                     ->setCellValueByColumnAndRow($col++, $row, $b['nombre_marca']);
 
-                $this->phpexcel->setActiveSheetIndex(0)
-                    ->setCellValueByColumnAndRow($col++, $row, $b['nombre_grupo']);
+                // $this->phpexcel->setActiveSheetIndex(0)
+                //     ->setCellValueByColumnAndRow($col++, $row, $b['nombre_grupo']);
 
-                $this->phpexcel->setActiveSheetIndex(0)
-                    ->setCellValueByColumnAndRow($col++, $row, $b['nombre_subgrupo']);
+                // $this->phpexcel->setActiveSheetIndex(0)
+                //     ->setCellValueByColumnAndRow($col++, $row, $b['nombre_subgrupo']);
 
-                $this->phpexcel->setActiveSheetIndex(0)
-                    ->setCellValueByColumnAndRow($col++, $row, $b['nombre_familia']);
+                // $this->phpexcel->setActiveSheetIndex(0)
+                //     ->setCellValueByColumnAndRow($col++, $row, $b['nombre_familia']);
 
-                $this->phpexcel->setActiveSheetIndex(0)
-                    ->setCellValueByColumnAndRow($col++, $row, $b['nombre_subfamilia']);
+                // $this->phpexcel->setActiveSheetIndex(0)
+                //     ->setCellValueByColumnAndRow($col++, $row, $b['nombre_subfamilia']);
 
                 $this->phpexcel->setActiveSheetIndex(0)
                     ->setCellValueByColumnAndRow($col++, $row, $b['nombre_linea']);
@@ -508,8 +581,8 @@ class bonificaciones extends MY_Controller
                 $this->phpexcel->setActiveSheetIndex(0)
                     ->setCellValueByColumnAndRow($col++, $row, $b['cantidad_condicion']);
 
-                $this->phpexcel->setActiveSheetIndex(0)
-                    ->setCellValueByColumnAndRow($col++, $row, $b['producto_bonificacion']);
+                // $this->phpexcel->setActiveSheetIndex(0)
+                //     ->setCellValueByColumnAndRow($col++, $row, $b['producto_bonificacion']);
 
                 $this->phpexcel->setActiveSheetIndex(0)
                     ->setCellValueByColumnAndRow($col++, $row, $b['unidad_bonificacion']);

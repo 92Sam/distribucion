@@ -170,9 +170,12 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable">', "</
         var p1 = false;
         var p2 = false;
         var grup = $("#grupos option:selected").val();
-
-        $("#agregar").load('<?= $ruta ?>bonificaciones/form/' + id + '/' + p1 + '/' + p2 + '/' + grup);
-        $('#agregar').modal({show: true, keyboard: false, backdrop: 'static'});
+        if(grup != null && grup != ''){
+            $("#agregar").load('<?= $ruta ?>bonificaciones/form/' + id + '/' + p1 + '/' + p2 + '/' + grup);
+            $('#agregar').modal({show: true, keyboard: false, backdrop: 'static'});
+        }else{
+            grupo.error("Debe seleccionar un grupo");
+        }
     }
 
     var grupo = {
@@ -291,6 +294,20 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable">', "</
             }
 
             App.formSubmitAjax($("#formagregar").attr('action'), this.ajaxgrupo, 'agregar', 'formagregar');
+        },
+
+        error: function (mensaje) {
+                var growlType = 'warning';
+
+                $.bootstrapGrowl('<h4>'+mensaje+'</h4>', {
+                    type: growlType,
+                    delay: 2500,
+                    allow_dismiss: true
+                });
+
+                $(this).prop('disabled', true);
+
+                return false;
         }
 
     }

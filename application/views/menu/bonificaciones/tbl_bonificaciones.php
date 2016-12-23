@@ -10,10 +10,10 @@
         <th>Productos</th>
         <th>Marca Condici&oacute;n</th>
         <th>Grupo Condici&oacute;n</th>
-        <th>Sub Grupo Condici&oacute;n</th>
-        <th>Familia Condici&oacute;n</th>
-        <th>Sub Familia Condici&oacute;n</th>
-        <th>L&iacute;nea Condici&oacute;n</th>
+        <!-- <th>Sub Grupo Condici&oacute;n</th> -->
+        <!-- <th>Familia Condici&oacute;n</th> -->
+        <!-- <th>Sub Familia Condici&oacute;n</th> -->
+        <!-- <th>L&iacute;nea Condici&oacute;n</th> -->
         <th>Unidad Condici&oacute;n</th>
         <th>Cantidad Condici&oacute;n</th>
         <th>Bono Producto</th>
@@ -62,10 +62,10 @@
                 </td>
                 <td><?= $bonificaciones['nombre_marca'] ?></td>
                 <td><?= $bonificaciones['nombre_grupo'] ?></td>
-                <td><?= $bonificaciones['nombre_subgrupo'] ?></td>
-                <td><?= $bonificaciones['nombre_familia'] ?></td>
-                <td><?= $bonificaciones['nombre_subfamilia'] ?></td>
-                <td><?= $bonificaciones['nombre_linea'] ?></td>
+                <!-- <td><= $bonificaciones['nombre_subgrupo'] ?></td>
+                <td><= $bonificaciones['nombre_familia'] ?></td>
+                <td><= $bonificaciones['nombre_subfamilia'] ?></td>
+                <td><= $bonificaciones['nombre_linea'] ?></td> -->
                 <td><?= $bonificaciones['nombre_unidad'] ?></td>
                 <td><?= $bonificaciones['cantidad_condicion'] ?></td>
                 <td><?= $bonificaciones['producto_bonificacion'] ?></td>

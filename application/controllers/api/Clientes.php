@@ -61,10 +61,10 @@ class clientes extends REST_Controller
 
         $where = array();
 
-        if($vendedor!='') {
+        if ($vendedor != '') {
             $isadmin = $this->usuario_model->buscar_id($vendedor);
-            if($isadmin->admin==1){
-                $vendedor='';
+            if ($isadmin->admin == 1) {
+                $vendedor = '';
             }
         }
 
@@ -75,28 +75,26 @@ class clientes extends REST_Controller
 
         $where['cliente.cliente_status'] = '1';
 
-        $search=$this->input->get('search');
-        $select2=$this->input->get('select2');
+        $search = $this->input->get('search');
+        $select2 = $this->input->get('select2');
 
-        if(!empty($select2)){
+        if (!empty($select2)) {
 
-            $buscar=$search;
-        }else{
-            $buscar=$search['value'];
+            $buscar = $search;
+        } else {
+            $buscar = $search['value'];
         }
 
 
-        $where_custom=false;
-        if(!empty($search['value'])){
-            $where_custom="(cliente.id_cliente LIKE '%".$buscar."%' or cliente.razon_social LIKE '%".$buscar."%'
-            or cliente.representante LIKE '%".$buscar."%'
-            or cliente.ruc_cliente LIKE '%".$buscar."%'
-            or cliente.identificacion LIKE '%".$buscar."%'
-            or cli_dat.valor LIKE '%".$buscar."%'
-            or ciudad_nombre LIKE '%".$buscar."%' or zona_nombre LIKE '%".$buscar."%'
-            or nombre LIKE '%".$buscar."%')";
+        $where_custom = false;
+        if (!empty($search['value'])) {
+            $where_custom = "(cliente.id_cliente LIKE '%" . $buscar . "%' or cliente.razon_social LIKE '%" . $buscar . "%'
+            or cliente.ruc_cliente LIKE '%" . $buscar . "%'
+            or cli_dat.valor LIKE '%" . $buscar . "%'
+            or ciudad_nombre LIKE '%" . $buscar . "%' or zona_nombre LIKE '%" . $buscar . "%'
+            or nombre LIKE '%" . $buscar . "%')";
         }
-      //  var_dump($like);
+        //  var_dump($like);
 
         $nombre_or = false;
         $where_or = false;
@@ -104,50 +102,50 @@ class clientes extends REST_Controller
         $where_in = false;
         $select = 'distinct(cliente.id_cliente),cliente.*,cli_dat.*, ciudades.*,estados.*,pais.*, grupos_cliente.*, zonas.*, usuario.nombre';
         $from = "cliente";
-        $join = array('ciudades', 'estados', 'pais', 'grupos_cliente', 'zonas','usuario', '(SELECT c.cliente_id, c.tipo, c.valor, c.principal, COUNT(*) FROM cliente_datos c WHERE c.tipo =1 GROUP BY c.cliente_id, c.tipo ) cli_dat');
+        $join = array('ciudades', 'estados', 'pais', 'grupos_cliente', 'zonas', 'usuario', '(SELECT c.cliente_id, c.tipo, c.valor, c.principal, COUNT(*) FROM cliente_datos c WHERE c.tipo =1 GROUP BY c.cliente_id, c.tipo ) cli_dat');
         $campos_join = array('ciudades.ciudad_id=cliente.ciudad_id', 'ciudades.estado_id=estados.estados_id',
-            'pais.id_pais=estados.pais_id', 'grupos_cliente.id_grupos_cliente=cliente.grupo_id', 'zonas.zona_id=cliente.id_zona', 'usuario.nUsuCodigo=cliente.vendedor_a', 'cli_dat.cliente_id = cliente.id_cliente' );
+            'pais.id_pais=estados.pais_id', 'grupos_cliente.id_grupos_cliente=cliente.grupo_id', 'zonas.zona_id=cliente.id_zona', 'usuario.nUsuCodigo=cliente.vendedor_a', 'cli_dat.cliente_id = cliente.id_cliente');
         $tipo_join = false;
 
-        $ordenar=$this->input->get('order');
-        $order=false;
-        $order_dir='desc';
-        if(!empty($ordenar)){
-            $order_dir=$ordenar[0]['dir'];
-            if($ordenar[0]['column']==0){
-                $order='id_cliente';
+        $ordenar = $this->input->get('order');
+        $order = false;
+        $order_dir = 'desc';
+        if (!empty($ordenar)) {
+            $order_dir = $ordenar[0]['dir'];
+            if ($ordenar[0]['column'] == 0) {
+                $order = 'id_cliente';
             }
-            if($ordenar[0]['column']==1){
-                $order='ruc_cliente';
+            if ($ordenar[0]['column'] == 1) {
+                $order = 'ruc_cliente';
             }
-            if($ordenar[0]['column']==2){
-                $order='razon_social';
+            if ($ordenar[0]['column'] == 2) {
+                $order = 'razon_social';
             }
-            if($ordenar[0]['column']==3){
-                $order='identificacion';
+            if ($ordenar[0]['column'] == 3) {
+                $order = 'tipo_cliente';
             }
-            if($ordenar[0]['column']==4){
-                $order='representante';
+            if ($ordenar[0]['column'] == 4) {
+                $order = 'nombre_grupos_cliente';
             }
-            if($ordenar[0]['column']==5){
-                $order= 'valor'; //'direccion2';
+            if ($ordenar[0]['column'] == 5) {
+                $order = 'valor'; //'direccion2';
             }
-            if($ordenar[0]['column']==6){
-                $order='ciudad_nombre';
+            if ($ordenar[0]['column'] == 6) {
+                $order = 'ciudad_nombre';
             }
-            if($ordenar[0]['column']==7){
-                $order='zona_nombre';
+            if ($ordenar[0]['column'] == 7) {
+                $order = 'zona_nombre';
             }
-            if($ordenar[0]['column']==8){
-                $order='nombre';
+            if ($ordenar[0]['column'] == 8) {
+                $order = 'nombre';
             }
         }
 
 
-        $start=0;
-        $limit=false;
+        $start = 0;
+        $limit = false;
         $draw = $this->input->get('draw');
-        if(!empty($draw)) {
+        if (!empty($draw)) {
 
             $start = $this->input->get('start');
             $limit = $this->get('length');
@@ -155,14 +153,12 @@ class clientes extends REST_Controller
         }
 
 
-      // echo $limit;
-     // var_dump($this->input->get(null));
+        // echo $limit;
+        // var_dump($this->input->get(null));
 
         $datas['clientes'] = $this->cliente_model->traer_by($select, $from, $join, $campos_join, $tipo_join, $where,
-            $nombre_in, $where_in, $nombre_or, $where_or, false, $order, "RESULT_ARRAY", $limit, $start,$order_dir,false,$where_custom);
+            $nombre_in, $where_in, $nombre_or, $where_or, false, $order, "RESULT_ARRAY", $limit, $start, $order_dir, false, $where_custom);
         // ($vendedor, $filter, $page, $limit);
-
-
 
 
         $array = array();
@@ -170,15 +166,24 @@ class clientes extends REST_Controller
         $array['clientes'] = array();
         $array['clientesjson'] = array();
 
-        $count=0;
+        $count = 0;
         foreach ($datas['clientes'] as $data) {
+
+            $cliente_tipo = '';
+            if($data['tipo_cliente'] == 0)
+                $cliente_tipo = 'JURIDICO';
+            if($data['tipo_cliente'] == 1 && $data['identificacion'] == 1)
+                $cliente_tipo = 'NATURAL NEGOCIO';
+            if($data['tipo_cliente'] == 1 && $data['identificacion'] == 2)
+                $cliente_tipo = 'NATURAL';
+
             $arr = $data;
             $clientjson = array();
             $clientjson[0] = $data['id_cliente'];
             $clientjson[1] = $data['ruc_cliente'];
             $clientjson[2] = $data['razon_social'];
-            $clientjson[3] = $data['identificacion'];
-            $clientjson[4] = $data['representante'];
+            $clientjson[3] = $cliente_tipo;
+            $clientjson[4] = $data['nombre_grupos_cliente'];
             $clientjson[5] = $data['valor'];
             $clientjson[6] = $data['ciudad_nombre'];
             $clientjson[7] = $data['zona_nombre'];
@@ -224,7 +229,7 @@ class clientes extends REST_Controller
         $array['draw'] = $draw;//esto debe venir por post
         $array['recordsTotal'] = $total;
         $array['recordsFiltered'] = $total; // esto dbe venir por post
-
+//var_dump($array['data']);
         if ($datas) {
             $this->response($array, 200);
         } else {
