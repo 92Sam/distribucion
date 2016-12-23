@@ -54,10 +54,14 @@
                 <td class="center"><?= $campoConsolidado['consolidado_id'] ?></td>
                 <td><span
                         style="display: none;"><?= date('YmdHis', strtotime($campoConsolidado['fecha'])) ?></span>
-                    <input type="text" class="form-control cambiar_fecha" readonly
-                           style="width: 100px; padding: 2px 2px; cursor: pointer; color: #2CA8E4; text-align: center; border: 1px solid #2CA8E4;"
-                           value="<?= date('d-m-Y', strtotime($campoConsolidado['fecha'])) ?>"
-                           data-id="<?= $campoConsolidado['consolidado_id'] ?>">
+                    <?php if ($campoConsolidado['status'] == 'ABIERTO') { ?>
+                        <input type="text" class="form-control cambiar_fecha" readonly
+                               style="width: 100px; padding: 2px 2px; cursor: pointer; color: #2CA8E4; text-align: center; border: 1px solid #2CA8E4;"
+                               value="<?= date('d-m-Y', strtotime($campoConsolidado['fecha'])) ?>"
+                               data-id="<?= $campoConsolidado['consolidado_id'] ?>">
+                    <?php } else { ?>
+                        <?= date('d-m-Y', strtotime($campoConsolidado['fecha'])) ?>
+                    <?php } ?>
 
                 </td>
                 <td><?= $campoConsolidado['camiones_placa'] ?></td>
