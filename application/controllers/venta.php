@@ -232,6 +232,7 @@ class venta extends MY_Controller
 
                         $venta['venta_id'] = $id;
                         $venta['devolver'] = $this->input->post('devolver');
+                        unset($venta['retencion']);
                         $resultado = $this->venta_model->actualizar_venta($venta, $detalle, $montoboletas);
                     }
                     if ($resultado != false) {

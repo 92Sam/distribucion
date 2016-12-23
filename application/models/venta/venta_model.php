@@ -1445,7 +1445,7 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
 
 
 //ESTE METODO SOLAENTE SE USA EN DEVOLUCION DEVENTAS O EDICION/DEVOLUCION DE PEDIDOS . OJO
-    function actualizar_venta($venta_cabecera, $detalle = false, $montoboletas, $retencion)
+    function actualizar_venta($venta_cabecera, $detalle = false, $montoboletas)
     {
         $this->db->trans_start(true);
         $this->db->trans_begin();
@@ -1458,11 +1458,11 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
             'local_id' => $venta_cabecera['local_id'],
             'subtotal' => $venta_cabecera['subtotal'],
             'total_impuesto' => $venta_cabecera['total_impuesto'],
-            'total' => $venta_cabecera['total'],
-            'retencion' => $retencion
-            //  'pagado' => $venta_cabecera['importe'],
-
+            'total' => $venta_cabecera['total']
         );
+
+        if (isset($venta_cabecera['retencion']))
+            $venta['retencion'] = $venta_cabecera['retencion'];
 
         if ($venta_cabecera['devolver'] != 'true') {
 
