@@ -61,10 +61,10 @@ class cliente_model extends CI_Model
         return $query->row_array();
     }
 
-    function insertar($cliente, $items)
+    function insertar($cliente, $items, $cdatos = null)
     {
         $validar_nombre = $this->validarTipoCliente($cliente);
-        
+
         if ($validar_nombre < 1) {
             $fech = date('Y-m-d');
             $this->db->trans_start();
@@ -81,19 +81,48 @@ class cliente_model extends CI_Model
             $this->db->insert('cliente_v', $ven);
 
 
-           /* $direccion = array(
-                'direccion' => $cliente['direccion'],
-                'cliente_id' => $id_usu,
-                'fecha' => $fech,
-            );
-            $this->db->insert('cliente_direccion', $direccion);
-            */
-            for ($i=0; $i < count($items); $i++) {
+            /* $direccion = array(
+                 'direccion' => $cliente['direccion'],
+                 'cliente_id' => $id_usu,
+                 'fecha' => $fech,
+             );
+             $this->db->insert('cliente_direccion', $direccion);
+             */
 
-                if($items[$i][2] == 'true'){
+            if (isset($cdatos['gerente_dni']) && $cdatos['gerente_dni'] != '' && $cliente['tipo_cliente'] == 0) {
+                $this->db->insert('cliente_datos', array(
+                    'cliente_id' => $id_usu,
+                    'tipo' => CGERENTE_DNI,
+                    'valor' => $cdatos['gerente_dni'],
+                    'principal' => 0
+                ));
+            }
+
+            if (isset($cdatos['representante_dni']) && $cdatos['representante_dni'] != '') {
+                $this->db->insert('cliente_datos', array(
+                    'cliente_id' => $id_usu,
+                    'tipo' => CCONTACTO_DNI,
+                    'valor' => $cdatos['representante_dni'],
+                    'principal' => 0
+                ));
+            }
+
+            if (isset($cdatos['representante']) && $cdatos['representante'] != '') {
+                $this->db->insert('cliente_datos', array(
+                    'cliente_id' => $id_usu,
+                    'tipo' => CCONTACTO_NOMBRE,
+                    'valor' => $cdatos['representante'],
+                    'principal' => 0
+                ));
+            }
+
+
+            for ($i = 0; $i < count($items); $i++) {
+
+                if ($items[$i][2] == 'true') {
                     $principal = true;
 
-                }else{
+                } else {
                     $principal = false;
                 }
 
@@ -102,7 +131,7 @@ class cliente_model extends CI_Model
                     'tipo' => $items[$i][0],
                     'valor' => $items[$i][1],
                     'principal' => $principal
-                    );
+                );
                 $this->db->insert('cliente_datos', $datos);
 
                 /*
@@ -115,7 +144,6 @@ class cliente_model extends CI_Model
                     $this->db->insert('cliente_direccion', $direccion);
                 }*/
             }
-
 
 
             try {
@@ -134,9 +162,9 @@ class cliente_model extends CI_Model
         }
     }
 
-    function update($cliente, $items)
+    function update($cliente, $items, $cdatos = null)
     {
-        $produc_exite = $this->get_by('identificacion', $cliente['identificacion']);
+        $produc_exite = $this->get_by('ruc_cliente', $cliente['ruc_cliente']);
         $validar_nombre = sizeof($produc_exite);
         if ($validar_nombre < 1 || ($validar_nombre > 0 && ($produc_exite ['id_cliente'] == $cliente ['id_cliente']))) {
 
@@ -166,24 +194,44 @@ class cliente_model extends CI_Model
 
 
             $this->db->where('cliente_id', $cliente['id_cliente']);
-            $this->db->order_by('direccion_id', 'DESC');
-            //$query = $this->db->get('cliente_direccion', 1);
-            $direcc = $query->row_array();
+            $this->db->delete('cliente_datos');
+
+            if (isset($cdatos['gerente_dni']) && $cdatos['gerente_dni'] != '' && $cliente['tipo_cliente'] == 0) {
+                $this->db->insert('cliente_datos', array(
+                    'cliente_id' => $cliente['id_cliente'],
+                    'tipo' => CGERENTE_DNI,
+                    'valor' => $cdatos['gerente_dni'],
+                    'principal' => 0
+                ));
+            }
+
+            if (isset($cdatos['representante_dni']) && $cdatos['representante_dni'] != '') {
+                $this->db->insert('cliente_datos', array(
+                    'cliente_id' => $cliente['id_cliente'],
+                    'tipo' => CCONTACTO_DNI,
+                    'valor' => $cdatos['representante_dni'],
+                    'principal' => 0
+                ));
+            }
+
+            if (isset($cdatos['representante']) && $cdatos['representante'] != '') {
+                $this->db->insert('cliente_datos', array(
+                    'cliente_id' => $cliente['id_cliente'],
+                    'tipo' => CCONTACTO_NOMBRE,
+                    'valor' => $cdatos['representante'],
+                    'principal' => 0
+                ));
+            }
+
+            if (count($items) > 0) {
 
 
+                for ($i = 0; $i < count($items); $i++) {
 
-            if(count($items)>0){
-
-                $this->db->where('cliente_id', $cliente['id_cliente']);
-                $this->db->delete('cliente_datos');
-
-
-                for ($i=0; $i < count($items); $i++) {
-
-                    if($items[$i][2] == 'true'){
+                    if ($items[$i][2] == 'true') {
                         $principal = true;
 
-                    }else{
+                    } else {
                         $principal = false;
                     }
 
@@ -192,7 +240,7 @@ class cliente_model extends CI_Model
                         'tipo' => $items[$i][0],
                         'valor' => $items[$i][1],
                         'principal' => $principal
-                        );
+                    );
                     $this->db->insert('cliente_datos', $datos);
 
                     /*
@@ -210,16 +258,16 @@ class cliente_model extends CI_Model
             }
 
 
-       /*     if (isset($direcc['direccion']) or sizeof($direcc)!=0) {
-                if ($direcc['direccion'] != $cliente['direccion']) {
-                    $direccion = array(
-                        'direccion' => $cliente['direccion'],
-                        'cliente_id' => $cliente['id_cliente'],
-                        'fecha' => $fech,
-                    );
-                    $this->db->insert('cliente_direccion', $direccion);
-                }
-            }*/
+            /*     if (isset($direcc['direccion']) or sizeof($direcc)!=0) {
+                     if ($direcc['direccion'] != $cliente['direccion']) {
+                         $direccion = array(
+                             'direccion' => $cliente['direccion'],
+                             'cliente_id' => $cliente['id_cliente'],
+                             'fecha' => $fech,
+                         );
+                         $this->db->insert('cliente_direccion', $direccion);
+                     }
+                 }*/
 
 
             $this->db->trans_complete();
@@ -253,7 +301,7 @@ class cliente_model extends CI_Model
         $this->db->update('cliente', $cliente);
         $vendedr = $this->input->post('vendedor', true);
         $fech = date('y-m-d');
-        if(!empty($vendedr) && $vendedr!=0) {
+        if (!empty($vendedr) && $vendedr != 0) {
             $ven = array(
                 'f_asinacion' => $fech,
                 'id_cliente' => $cliente['id_cliente'],
@@ -282,7 +330,7 @@ class cliente_model extends CI_Model
     public function traer_by($select = false, $from = false, $join = false, $campos_join = false, $tipo_join, $where = false, $nombre_in, $where_in,
                              $nombre_or, $where_or,
                              $group = false,
-                             $order = false, $retorno = false, $limit=false, $start=0,$order_dir=false, $like=false,$where_custom)
+                             $order = false, $retorno = false, $limit = false, $start = 0, $order_dir = false, $like = false, $where_custom)
     {
         if ($select != false) {
             $this->db->select($select);
@@ -333,19 +381,19 @@ class cliente_model extends CI_Model
         }
 
         if ($limit != false) {
-            $this->db->limit($limit,$start);
+            $this->db->limit($limit, $start);
         }
         if ($group != false) {
             $this->db->group_by($group);
         }
 
         if ($order != false) {
-            $this->db->order_by($order,$order_dir);
+            $this->db->order_by($order, $order_dir);
         }
 
         $query = $this->db->get();
 
-       // echo $this->db->last_query();
+        // echo $this->db->last_query();
         if ($retorno == "RESULT_ARRAY") {
 
             return $query->result_array();
@@ -359,31 +407,24 @@ class cliente_model extends CI_Model
     }
 
 
-
-  function DniRucEnBd($identificacion, $cliente_id)
+    function DniRucEnBd($identificacion, $cliente_id)
     {
-        $this->db->where('identificacion', $identificacion);
+        $this->db->where('ruc_cliente', $identificacion);
         $this->db->where('id_cliente <>', $cliente_id);
         $sql = $this->db->get('cliente');
         $data = $sql->row_array();
 
-        if(count($data) > 0){
+        if (count($data) > 0) {
             return true;
-        }else{
+        } else {
             return false;
         }
 
     }
 
-    function validarTipoCliente($cliente){
-        if($cliente['tipo_cliente'] == 1){
-            $identificacion = $cliente['identificacion'];
-            $tabla_campo = 'identificacion';
-        }else{
-            $identificacion = $cliente['ruc_cliente'];
-            $tabla_campo = 'ruc_cliente';
-        }
-        return sizeof($this->get_by($tabla_campo, $identificacion));
-    } 
+    function validarTipoCliente($cliente)
+    {
+        return sizeof($this->get_by('ruc_cliente', $cliente['ruc_cliente']));
+    }
 
 }

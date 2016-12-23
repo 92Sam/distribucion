@@ -21,13 +21,13 @@ class cliente extends MY_Controller
 
     }
 
-   /* function very_sesion()
-    {
-        if (!$this->session->userdata('nUsuCodigo')) {
-            redirect(base_url() . 'inicio');
-        }
-    }
-*/
+    /* function very_sesion()
+     {
+         if (!$this->session->userdata('nUsuCodigo')) {
+             redirect(base_url() . 'inicio');
+         }
+     }
+ */
     /** carga cuando listas los clientes*/
     function index()
     {
@@ -46,7 +46,7 @@ class cliente extends MY_Controller
 
         if ($this->input->is_ajax_request()) {
             echo $dataCuerpo['cuerpo'];
-        }else{
+        } else {
             $this->load->view('menu/template', $dataCuerpo);
         }
     }
@@ -61,8 +61,11 @@ class cliente extends MY_Controller
         $data['ciudades'] = $this->ciudad_model->get_all();
         if ($id != FALSE) {
             $data['cliente'] = $this->cliente_model->get_by('id_cliente', $id);
-            $data['cliente_datos'] = $this->cliente_datos_model->get_all_by($id);
+            $data['cliente_datos'] = $this->cliente_datos_model->get_all_by($id, array(
+                1, 2, 3, 4, 5
+            ));
             $data['cliente_v'] = $this->usuario_model->get_all_u2($id);
+            $data['cdatos'] = $this->cliente_datos_model->get_contacto_data($id);
         }
         $data['vendedores'] = $this->usuario_model->get_all_u();
         $data['zonas'] = $this->zona_model->get_all();
@@ -76,16 +79,16 @@ class cliente extends MY_Controller
         $vendedor_id = $_POST['vendedor_a'];
         $zona = $_POST['id_zona'];
 
-        if($_POST['linea_libre']== 1){
+        if ($_POST['linea_libre'] == 1) {
             $linea_libre = true;
-        }else{
+        } else {
             $linea_libre = false;
         }
         $cliente = array(
             'tipo_cliente' => $_POST['tipo_cliente'],
             'ciudad_id' => $_POST['ciudad_id'],
             'grupo_id' => $_POST['grupo_id'],
-            'representante' => $_POST['representante'],
+            'representante' => $_POST['tipo_cliente'] == 0 ? $_POST['gerente_nombre'] : NULL,
             'razon_social' => $_POST['razon_social'],
 
             'agente_retencion' => !empty($_POST['agente_retencion']) ? $_POST['agente_retencion'] : false,
@@ -102,25 +105,29 @@ class cliente extends MY_Controller
             'id_zona' => !empty($zona) ? $zona : null,
             'vendedor_a' => !empty($vendedor_id) ? $vendedor_id : null,
         );
+
+        $datos = array(
+            'gerente_dni' => $_POST['gerente_dni'],
+            'representante' => $_POST['representante'],
+            'representante_dni' => $_POST['representante_dni']
+        );
+
         if (empty($id)) {
-            $resultado = $this->cliente_model->insertar($cliente, $_POST['items']);
+            $resultado = $this->cliente_model->insertar($cliente, $_POST['items'], $datos);
         } else {
             $cliente['id_cliente'] = $id;
-            $resultado = $this->cliente_model->update($cliente, $_POST['items']);
+            $resultado = $this->cliente_model->update($cliente, $_POST['items'], $datos);
         }
 
-        if ($resultado == TRUE) {
-            $json['success']='Solicitud Procesada con exito';
+        if ($resultado === TRUE) {
+            $json['success'] = 'Solicitud Procesada con exito';
+        } elseif ($resultado === CEDULA_EXISTE) {
+            $json['error'] = CEDULA_EXISTE;
         } else {
             $json['error'] = 'Ha ocurrido un error al procesar la solicitud';
         }
-
-
-        if($resultado===CEDULA_EXISTE){
-            //  $this->session->set_flashdata('error', NOMBRE_EXISTE);
-            $json['error']= CEDULA_EXISTE;
-        }
-       echo json_encode($json);
+        
+        echo json_encode($json);
 
     }
 
@@ -141,7 +148,7 @@ class cliente extends MY_Controller
 
         if ($data['resultado'] != FALSE) {
 
-            $json['success']= 'Se ha eliminado exitosamente';
+            $json['success'] = 'Se ha eliminado exitosamente';
 
 
         } else {
@@ -244,8 +251,8 @@ class cliente extends MY_Controller
             $html .= "<td>" . $familia['identificacion'] . "</td>";
             $html .= "<td>" . $familia['direccion'] . "</td>";
 
-$html .= "<td>" .$familia['ciudad_nombre']. "</td>";
-$html .= "<td>" .$familia['zona_nombre']. "</td>";
+            $html .= "<td>" . $familia['ciudad_nombre'] . "</td>";
+            $html .= "<td>" . $familia['zona_nombre'] . "</td>";
             $html .= "<td>" . $familia['telefono1'] . "</td>";
             $html .= "<td>" . $familia['nombre'] . "</td>";
             $html .= "</tr>";
@@ -269,7 +276,6 @@ $html .= "<td>" .$familia['zona_nombre']. "</td>";
     {
 
 
-
         $clientes = $this->cliente_model->get_all();
 
 
@@ -282,8 +288,6 @@ $html .= "<td>" .$familia['zona_nombre']. "</td>";
         $columna_pdf[6] = "Zona";
         $columna_pdf[7] = "Teléfono ";
         $columna_pdf[8] = "Vendedor ";
-
-
 
 
         // configuramos las propiedades del documento
@@ -309,9 +313,9 @@ $html .= "<td>" .$familia['zona_nombre']. "</td>";
         $c = 0;
         foreach ($columna_pdf as $col) {
 
-                $this->phpexcel->setActiveSheetIndex(0)
-                    ->setCellValueByColumnAndRow($c, 1, $col);
-                $c++;
+            $this->phpexcel->setActiveSheetIndex(0)
+                ->setCellValueByColumnAndRow($c, 1, $col);
+            $c++;
 
         }
         $col = 0;
@@ -371,16 +375,15 @@ $html .= "<td>" .$familia['zona_nombre']. "</td>";
     }
 
 
-
-  function DniRucEnBd()
+    function DniRucEnBd()
     {
         $resultado = $this->cliente_model->DniRucEnBd($this->input->post('dni_ruc'), !empty($_POST['cliente_id']) ? $_POST['cliente_id'] : '');
 
-         if ($resultado == true) {
-            $json['warning'] = 'El dato DNI/RUC ya existe';
-        } else {
-            $json['success']='DNI/RUC admitida';
+        $json = array();
+        if ($resultado == true) {
+            $json['error'] = '1';
         }
+
         echo json_encode($json);
 
     }
