@@ -1445,7 +1445,7 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
 
 
 //ESTE METODO SOLAENTE SE USA EN DEVOLUCION DEVENTAS O EDICION/DEVOLUCION DE PEDIDOS . OJO
-    function actualizar_venta($venta_cabecera, $detalle = false, $montoboletas)
+    function actualizar_venta($venta_cabecera, $detalle = false, $montoboletas, $retencion)
     {
         $this->db->trans_start(true);
         $this->db->trans_begin();
@@ -1459,6 +1459,7 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
             'subtotal' => $venta_cabecera['subtotal'],
             'total_impuesto' => $venta_cabecera['total_impuesto'],
             'total' => $venta_cabecera['total'],
+            'retencion' => $retencion
             //  'pagado' => $venta_cabecera['importe'],
 
         );
@@ -2850,7 +2851,8 @@ LEFT JOIN ingreso ON ingreso.id_ingreso = detalleingreso.id_ingreso WHERE id_pro
          on detalle_venta.id_producto=unidades_has_producto.producto_id where detalle_venta.id_venta=venta.venta_id
          and detalle_venta.unidad_medida=unidades_has_producto.id_unidad) as total_metos_cubicos,  (select count(id_detalle)
          from detalle_venta where id_venta=venta.venta_id and precio_sugerido>0) as preciosugerido,
-            (select count(id_producto) from detalle_venta where id_venta = venta.venta_id ) as cantidad_productos');
+            (select count(id_producto) from detalle_venta where id_venta = venta.venta_id ) as cantidad_productos,
+            grupos_cliente.*');
 
         $this->db->from('venta');
         $this->db->join('cliente', 'cliente.id_cliente=venta.id_cliente');
@@ -2859,6 +2861,7 @@ LEFT JOIN ingreso ON ingreso.id_ingreso = detalleingreso.id_ingreso WHERE id_pro
         $this->db->join('condiciones_pago', 'condiciones_pago.id_condiciones=venta.condicion_pago');
         $this->db->join('documento_venta', 'documento_venta.id_tipo_documento=venta.numero_documento');
         $this->db->join('usuario', 'usuario.nUsuCodigo=venta.id_vendedor');
+        $this->db->join('grupos_cliente', 'grupos_cliente.id_grupos_cliente = cliente.grupo_id');
         $this->db->order_by('venta.venta_id', 'desc');
         if ($completado != FALSE) {
             $this->db->where('venta_status !=', PEDIDO_GENERADO);
@@ -2992,7 +2995,7 @@ LEFT JOIN ingreso ON ingreso.id_ingreso = detalleingreso.id_ingreso WHERE id_pro
  pd.producto_cualidad, pd.producto_id as producto_id, pd.venta_sin_stock, tr.precio_sugerido, tr.cantidad as cantidad ,tr.precio as preciounitario, tr.id_detalle,
 tr.detalle_importe as importe, v.fecha as fechaemision, cre.dec_credito_montodeuda,
 p.nombre as vendedor,p.nUsuCodigo as id_vendedor,t.nombre_tipo_documento as descripcion, t.documento_Serie as serie, t.documento_Numero as numero, t.nombre_tipo_documento,df.documento_tipo,
-c.razon_social as cliente, c.id_cliente as cliente_id, cli_dat.valor as direccion_cliente,c.representante as representanteCliente,cli_dat2.valor as telefonoC1,
+c.razon_social as cliente, c.id_cliente as cliente_id, cli_dat.valor as direccion_cliente,c.representante as representante,cli_dat2.valor as telefonoC1,
  c.identificacion as documento_cliente, cp.id_condiciones, cp.nombre_condiciones, v.venta_status,v.venta_tipo, u.id_unidad, u.nombre_unidad, u.abreviatura,
  i.porcentaje_impuesto, up.unidades, up.orden,
  (select config_value from configuraciones where config_key='" . EMPRESA_NOMBRE . "') as RazonSocialEmpresa,
