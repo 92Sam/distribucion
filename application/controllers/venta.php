@@ -232,8 +232,12 @@ class venta extends MY_Controller
 
                         $venta['venta_id'] = $id;
                         $venta['devolver'] = $this->input->post('devolver');
+
+                        //quito retencion pq no edito aqui ese campo
                         unset($venta['retencion']);
                         $resultado = $this->venta_model->actualizar_venta($venta, $detalle, $montoboletas);
+                        
+                        $this->historial_pedido_model->editar_pedido(PROCESO_GENERAR, $resultado);
                     }
                     if ($resultado != false) {
                         if ($this->input->post('devolver') == 'true') {

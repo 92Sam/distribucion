@@ -184,7 +184,7 @@ class producto extends MY_Controller
         $total = $this->producto_model->count_all();
         $start = 0;
         $limit = false;
-        $search=$this->input->get('search');
+        $search = $this->input->get('search');
 
         $draw = $this->input->get('draw');
         if (!empty($draw)) {
@@ -193,76 +193,73 @@ class producto extends MY_Controller
             $limit = $this->input->get('length');
         }
 
-            $where = array();
-            $where['producto_estatus'] = 1;
-            $nombre_or = false;
-            $where_or = false;
-            $nombre_in = false;
-            $where_in = false;
-            $select = 'producto.*, lineas.nombre_linea, marcas.nombre_marca, familia.nombre_familia, grupos.nombre_grupo, proveedor.proveedor_nombre, impuestos.nombre_impuesto, impuestos.porcentaje_impuesto,
+        $where = array();
+        $where['producto_estatus'] = 1;
+        $nombre_or = false;
+        $where_or = false;
+        $nombre_in = false;
+        $where_in = false;
+        $select = 'producto.*, lineas.nombre_linea, marcas.nombre_marca, familia.nombre_familia, grupos.nombre_grupo, proveedor.proveedor_nombre, impuestos.nombre_impuesto, impuestos.porcentaje_impuesto,
          subfamilia.nombre_subfamilia,subgrupo.nombre_subgrupo';
-            $from = "producto";
-            $join = array('lineas', 'marcas', 'familia', 'grupos', 'proveedor', 'impuestos', 'subgrupo', 'subfamilia');
+        $from = "producto";
+        $join = array('lineas', 'marcas', 'familia', 'grupos', 'proveedor', 'impuestos', 'subgrupo', 'subfamilia');
 
 
-            $campos_join = array('lineas.id_linea=producto.producto_linea', 'marcas.id_marca=producto.producto_marca',
-                'familia.id_familia=producto.producto_familia', 'grupos.id_grupo=producto.produto_grupo',
-                'proveedor.id_proveedor=producto.producto_proveedor', 'impuestos.id_impuesto=producto.producto_impuesto',  'subgrupo.id_subgrupo = producto.producto_subgrupo',
-                'subfamilia.id_subfamilia = producto.producto_subfamilia');
-            $tipo_join = array('left', 'left', 'left', 'left', 'left', 'left', 'left', 'left');
+        $campos_join = array('lineas.id_linea=producto.producto_linea', 'marcas.id_marca=producto.producto_marca',
+            'familia.id_familia=producto.producto_familia', 'grupos.id_grupo=producto.produto_grupo',
+            'proveedor.id_proveedor=producto.producto_proveedor', 'impuestos.id_impuesto=producto.producto_impuesto', 'subgrupo.id_subgrupo = producto.producto_subgrupo',
+            'subfamilia.id_subfamilia = producto.producto_subfamilia');
+        $tipo_join = array('left', 'left', 'left', 'left', 'left', 'left', 'left', 'left');
 
 
-            $search = $this->input->get('search');
-            $columns = $this->input->get('columns');
-            $buscar = $search['value'];
-            $where_custom = false;
-            if (!empty($search['value'])) {
+        $search = $this->input->get('search');
+        $columns = $this->input->get('columns');
+        $buscar = $search['value'];
+        $where_custom = false;
+        if (!empty($search['value'])) {
 
-                $buscarcod = $buscar;
-                if (is_numeric($buscar)) {
-                    $buscarcod = restCod($buscar);
-                }
+            $buscarcod = $buscar;
+            if (is_numeric($buscar)) {
+                $buscarcod = restCod($buscar);
+            }
 
-                $where_custom = "(producto.producto_id = '" . $buscarcod . "' or producto.producto_nombre LIKE '%" . $buscar . "%'
+            $where_custom = "(producto.producto_id = '" . $buscarcod . "' or producto.producto_nombre LIKE '%" . $buscar . "%'
             or marcas.nombre_marca LIKE '%" . $buscar . "%' or grupos.nombre_grupo LIKE '%" . $buscar . "%'
             or subgrupo.nombre_subgrupo LIKE '%" . $buscar . "%' or familia.nombre_familia LIKE '%" . $buscar . "%'
             or subfamilia.nombre_subfamilia LIKE '%" . $buscar . "%' or lineas.nombre_linea LIKE '%" . $buscar . "%'
             or producto.presentacion LIKE '%" . $buscar . "%' or producto.producto_activo LIKE '%" . $buscar . "%')";
+        }
+
+
+        $ordenar = $this->input->get('order');
+        $order = false;
+        $order_dir = 'asc';
+        if (!empty($ordenar)) {
+            $order_dir = $ordenar[0]['dir'];
+            if ($ordenar[0]['column'] == 0) {
+                $order = 'producto.producto_id';
+            }
+            if ($ordenar[0]['column'] == 1) {
+                $order = 'producto.producto_nombre';
+            }
+            if ($ordenar[0]['column'] == 2) {
+                $order = 'marcas.nombre_marca ';
+            }
+            if ($ordenar[0]['column'] == 3) {
+                $order = 'familia.nombre_familia';
+            }
+            if ($ordenar[0]['column'] == 4) {
+                $order = 'subfamilia.nombre_subfamilia';
             }
 
 
-            $ordenar = $this->input->get('order');
-            $order = false;
-            $order_dir = 'asc';
-            if (!empty($ordenar)) {
-                $order_dir = $ordenar[0]['dir'];
-                if ($ordenar[0]['column'] == 0) {
-                    $order = 'producto.producto_id';
-                }
-                if ($ordenar[0]['column'] == 1) {
-                    $order = 'producto.producto_nombre';
-                }
-                if ($ordenar[0]['column'] == 2) {
-                    $order = 'marcas.nombre_marca ';
-                }
-                if ($ordenar[0]['column'] == 3) {
-                    $order = 'familia.nombre_familia';
-                }
-                if ($ordenar[0]['column'] == 4) {
-                    $order = 'subfamilia.nombre_subfamilia';
-                }
-               
-                
+        }
 
-            }
+        $group = 'producto_id';
 
-            $group = 'producto_id';
+        $productos = $this->producto_model->traer_by($select, $from, $join, $campos_join, $tipo_join, $where,
+            $nombre_in, $where_in, $nombre_or, $where_or, $group, $order, "RESULT_ARRAY", $limit, $start, $order_dir, false, $where_custom);
 
-            $productos = $this->producto_model->traer_by($select, $from, $join, $campos_join, $tipo_join, $where,
-                $nombre_in, $where_in, $nombre_or, $where_or, $group, $order, "RESULT_ARRAY", $limit, $start, $order_dir, false, $where_custom);
-
-
-       
 
         foreach ($productos as $producto) {
             $PRODUCTOjson = array();
@@ -319,7 +316,7 @@ class producto extends MY_Controller
         $total = $this->producto_model->count_all();
         $start = 0;
         $limit = false;
-        $search=$this->input->get('search');
+        $search = $this->input->get('search');
 
         $draw = $this->input->get('draw');
         if (!empty($draw)) {
@@ -328,87 +325,86 @@ class producto extends MY_Controller
             $limit = $this->input->get('length');
         }
 
-            $where = array();
-            $where['producto_estatus'] = 1;
-            $nombre_or = false;
-            $where_or = false;
-            $nombre_in = false;
-            $where_in = false;
-            $select = 'producto.*, unidades_has_producto.id_unidad, unidades.nombre_unidad, inventario.id_inventario, inventario.id_local, inventario.cantidad, inventario.fraccion ,lineas.nombre_linea,
+        $where = array();
+        $where['producto_estatus'] = 1;
+        $nombre_or = false;
+        $where_or = false;
+        $nombre_in = false;
+        $where_in = false;
+        $select = 'producto.*, unidades_has_producto.id_unidad, unidades.nombre_unidad, inventario.id_inventario, inventario.id_local, inventario.cantidad, inventario.fraccion ,lineas.nombre_linea,
          marcas.nombre_marca, familia.nombre_familia, grupos.nombre_grupo, proveedor.proveedor_nombre, impuestos.nombre_impuesto, impuestos.porcentaje_impuesto,
          subfamilia.nombre_subfamilia,subgrupo.nombre_subgrupo';
-            $from = "producto";
-            $join = array('lineas', 'marcas', 'familia', 'grupos', 'proveedor', 'impuestos', '(SELECT DISTINCT inventario.id_producto, inventario.id_inventario, inventario.cantidad, inventario.fraccion, inventario.id_local FROM inventario  ORDER by id_inventario DESC ) as inventario',
-                'unidades_has_producto', 'unidades', 'subgrupo', 'subfamilia');
+        $from = "producto";
+        $join = array('lineas', 'marcas', 'familia', 'grupos', 'proveedor', 'impuestos', '(SELECT DISTINCT inventario.id_producto, inventario.id_inventario, inventario.cantidad, inventario.fraccion, inventario.id_local FROM inventario  ORDER by id_inventario DESC ) as inventario',
+            'unidades_has_producto', 'unidades', 'subgrupo', 'subfamilia');
 
-            /*
+        /*
 $join = array('lineas', 'marcas', 'familia', 'grupos', 'proveedor', 'impuestos', '(SELECT DISTINCT inventario.id_producto, inventario.id_inventario, inventario.cantidad, inventario.fraccion, inventario.id_local FROM inventario WHERE inventario.id_local=' . $local . '  ORDER by id_inventario DESC ) as inventario',
-                'unidades_has_producto', 'unidades', 'subgrupo', 'subfamilia');
-            */
+            'unidades_has_producto', 'unidades', 'subgrupo', 'subfamilia');
+        */
 
-            $campos_join = array('lineas.id_linea=producto.producto_linea', 'marcas.id_marca=producto.producto_marca',
-                'familia.id_familia=producto.producto_familia', 'grupos.id_grupo=producto.produto_grupo',
-                'proveedor.id_proveedor=producto.producto_proveedor', 'impuestos.id_impuesto=producto.producto_impuesto', 'inventario.id_producto=producto.producto_id',
-                'unidades_has_producto.producto_id=producto.producto_id and unidades_has_producto.orden=1', 'unidades.id_unidad=unidades_has_producto.id_unidad', 'subgrupo.id_subgrupo = producto.producto_subgrupo',
-                'subfamilia.id_subfamilia = producto.producto_subfamilia');
-            $tipo_join = array('left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 'left');
+        $campos_join = array('lineas.id_linea=producto.producto_linea', 'marcas.id_marca=producto.producto_marca',
+            'familia.id_familia=producto.producto_familia', 'grupos.id_grupo=producto.produto_grupo',
+            'proveedor.id_proveedor=producto.producto_proveedor', 'impuestos.id_impuesto=producto.producto_impuesto', 'inventario.id_producto=producto.producto_id',
+            'unidades_has_producto.producto_id=producto.producto_id and unidades_has_producto.orden=1', 'unidades.id_unidad=unidades_has_producto.id_unidad', 'subgrupo.id_subgrupo = producto.producto_subgrupo',
+            'subfamilia.id_subfamilia = producto.producto_subfamilia');
+        $tipo_join = array('left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 'left');
 
 
-            $search = $this->input->get('search');
-            $columns = $this->input->get('columns');
-            $buscar = $search['value'];
-            $where_custom = false;
-            if (!empty($search['value'])) {
+        $search = $this->input->get('search');
+        $columns = $this->input->get('columns');
+        $buscar = $search['value'];
+        $where_custom = false;
+        if (!empty($search['value'])) {
 
-                $buscarcod = $buscar;
-                if (is_numeric($buscar)) {
-                    $buscarcod = restCod($buscar);
-                }
+            $buscarcod = $buscar;
+            if (is_numeric($buscar)) {
+                $buscarcod = restCod($buscar);
+            }
 
-                $where_custom = "(producto.producto_id = '" . $buscarcod . "' or producto.producto_nombre LIKE '%" . $buscar . "%'
+            $where_custom = "(producto.producto_id = '" . $buscarcod . "' or producto.producto_nombre LIKE '%" . $buscar . "%'
             or marcas.nombre_marca LIKE '%" . $buscar . "%' or grupos.nombre_grupo LIKE '%" . $buscar . "%'
             or subgrupo.nombre_subgrupo LIKE '%" . $buscar . "%' or familia.nombre_familia LIKE '%" . $buscar . "%'
             or subfamilia.nombre_subfamilia LIKE '%" . $buscar . "%' or lineas.nombre_linea LIKE '%" . $buscar . "%'
             or producto.presentacion LIKE '%" . $buscar . "%' or unidades.nombre_unidad LIKE '%" . $buscar . "%')";
+        }
+
+
+        $ordenar = $this->input->get('order');
+        $order = false;
+        $order_dir = 'desc';
+        if (!empty($ordenar)) {
+            $order_dir = $ordenar[0]['dir'];
+            if ($ordenar[0]['column'] == 0) {
+                $order = 'producto.producto_id';
+            }
+            if ($ordenar[0]['column'] == 1) {
+                $order = 'producto.producto_nombre';
+            }
+            if ($ordenar[0]['column'] == 2) {
+                $order = 'marcas.nombre_marca ';
+            }
+            if ($ordenar[0]['column'] == 3) {
+                $order = 'familia.nombre_familia';
+            }
+            if ($ordenar[0]['column'] == 4) {
+                $order = 'subfamilia.nombre_subfamilia';
+            }
+            if ($ordenar[0]['column'] == 5) {
+                $order = 'lineas.nombre_linea';
+            }
+            if ($ordenar[0]['column'] == 6) {
+                $order = 'producto.presentacion';
+            }
+            if ($ordenar[0]['column'] == 7) {
+                $order = 'unidades.nombre_unidad';
             }
 
+        }
 
-            $ordenar = $this->input->get('order');
-            $order = false;
-            $order_dir = 'desc';
-            if (!empty($ordenar)) {
-                $order_dir = $ordenar[0]['dir'];
-                if ($ordenar[0]['column'] == 0) {
-                    $order = 'producto.producto_id';
-                }
-                if ($ordenar[0]['column'] == 1) {
-                    $order = 'producto.producto_nombre';
-                }
-                if ($ordenar[0]['column'] == 2) {
-                    $order = 'marcas.nombre_marca ';
-                }
-                if ($ordenar[0]['column'] == 3) {
-                    $order = 'familia.nombre_familia';
-                }
-                if ($ordenar[0]['column'] == 4) {
-                    $order = 'subfamilia.nombre_subfamilia';
-                }
-                if ($ordenar[0]['column'] == 5) {
-                    $order = 'lineas.nombre_linea';
-                }
-                if ($ordenar[0]['column'] == 6) {
-                    $order = 'producto.presentacion';
-                }
-                if ($ordenar[0]['column'] == 7) {
-                    $order = 'unidades.nombre_unidad';
-                }
+        $group = 'producto_id';
 
-            }
-
-            $group = 'producto_id';
-
-            $productos = $this->producto_model->traer_by($select, $from, $join, $campos_join, $tipo_join, $where, $nombre_in, $where_in, $nombre_or, $where_or, false, $order, "RESULT_ARRAY", $limit, $start,$order_dir,false,$where_custom);
-
+        $productos = $this->producto_model->traer_by($select, $from, $join, $campos_join, $tipo_join, $where, $nombre_in, $where_in, $nombre_or, $where_or, false, $order, "RESULT_ARRAY", $limit, $start, $order_dir, false, $where_custom);
 
 
         foreach ($productos as $producto) {
@@ -1357,38 +1353,38 @@ $join = array('lineas', 'marcas', 'familia', 'grupos', 'proveedor', 'impuestos',
 
         $estiloInformacion = array(
             'font' => array(
-                'name'  => 'Arial',
-                'size' =>10,
+                'name' => 'Arial',
+                'size' => 10,
                 'color' => array(
                     'rgb' => '000000'
                 )
             ),
             'borders' => array(
-                    'allborders' => array(
-                        'outline' => PHPExcel_Style_Border::BORDER_THIN ,
-                        'color' => array(
-                          'rgb' => '3a2a47'
-                        )
+                'allborders' => array(
+                    'outline' => PHPExcel_Style_Border::BORDER_THIN,
+                    'color' => array(
+                        'rgb' => '3a2a47'
                     )
+                )
             )
         );
 
         $estiloTituloReporte = array(
             'font' => array(
-                'name'      => 'Arial',
-                'bold'      => true,
-                'italic'    => false,
-                'strike'    => false,
-                'size'      =>  12,
-                'color'     => array(
+                'name' => 'Arial',
+                'bold' => true,
+                'italic' => false,
+                'strike' => false,
+                'size' => 12,
+                'color' => array(
                     'rgb' => 'FFFFFF'
                 )
             ),
             'fill' => array(
-              'type'  => PHPExcel_Style_Fill::FILL_SOLID,
-              'color' => array(
+                'type' => PHPExcel_Style_Fill::FILL_SOLID,
+                'color' => array(
                     'argb' => 'FF459136')
-          ),
+            ),
             'borders' => array(
                 'allborders' => array(
                     'style' => PHPExcel_Style_Border::BORDER_THIN
@@ -1413,31 +1409,31 @@ $join = array('lineas', 'marcas', 'familia', 'grupos', 'proveedor', 'impuestos',
             ->setCategory("Stock");
 
         // Columnas de A a Z 26 elementos Maximo    
-        $columnas = range("A","Z");
+        $columnas = range("A", "Z");
 
         // Configuraci´on de Elementos Titulo
-        for($i = 'A'; $i <= 'M'; $i++){
-            if($i == 'A' || $i == 'C' || $i == 'E'){   
-            $this->phpexcel->getActiveSheet()->getStyle($i)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+        for ($i = 'A'; $i <= 'M'; $i++) {
+            if ($i == 'A' || $i == 'C' || $i == 'E') {
+                $this->phpexcel->getActiveSheet()->getStyle($i)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
             }
             $this->phpexcel->getActiveSheet()->getColumnDimension($i)->setAutoSize('true');
         }
-        
+
         $this->phpexcel->getActiveSheet()->getStyle('A2:M2')->applyFromArray($estiloTituloReporte);
         // Configuraci´on de Elementos
 
         // Llenado de Titulo
-        $this->phpexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(0, 1,'ListaStock');
-        $this->phpexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(1, 1, 'Fecha '.date('d-m-Y h:m:s'));
+        $this->phpexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(0, 1, 'ListaStock');
+        $this->phpexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(1, 1, 'Fecha ' . date('d-m-Y h:m:s'));
 
 
-        $data['columnas_new'][] = ['nombre_columna' => 'nombre_unidad','nombre_mostrar' => 'UM','mostrar' => 1];
-        $data['columnas_new'][] = ['nombre_columna' => 'cantidad','nombre_mostrar' => 'Cantidad','mostrar' => 1];
-        $data['columnas_new'][] = ['nombre_columna' => 'fraccion','nombre_mostrar' => 'Fraccion','mostrar' => 1];
-        $data['columnas_new'][] = ['nombre_columna' => 'activo','nombre_mostrar' => 'Fraccion','mostrar' => 1];
+        $data['columnas_new'][] = array('nombre_columna' => 'nombre_unidad', 'nombre_mostrar' => 'UM', 'mostrar' => 1);
+        $data['columnas_new'][] = array('nombre_columna' => 'cantidad', 'nombre_mostrar' => 'Cantidad', 'mostrar' => 1);
+        $data['columnas_new'][] = array('nombre_columna' => 'fraccion', 'nombre_mostrar' => 'Fraccion', 'mostrar' => 1);
+        $data['columnas_new'][] = array('nombre_columna' => 'activo', 'nombre_mostrar' => 'Fraccion', 'mostrar' => 1);
 
-        $columShow = ['producto_id','producto_nombre','producto_marca','produto_grupo','producto_subgrupo','producto_familia','producto_subfamilia','producto_linea','presentacion','nombre_unidad','cantidad','fraccion','producto_activo'];
-        $columnasNomalizadas = [];
+        $columShow = array('producto_id', 'producto_nombre', 'producto_marca', 'produto_grupo', 'producto_subgrupo', 'producto_familia', 'producto_subfamilia', 'producto_linea', 'presentacion', 'nombre_unidad', 'cantidad', 'fraccion', 'producto_activo');
+        $columnasNomalizadas = array();
 
         foreach ($data['columnas_new'] as $col) {
             $tmp = new stdClass;
@@ -1451,20 +1447,20 @@ $join = array('lineas', 'marcas', 'familia', 'grupos', 'proveedor', 'impuestos',
         // Nuevo recorrido de elementos
         foreach ($columShow as $key2 => $value) {
             foreach ($data['columnas'] as $key => $col) {
-                if ($col->mostrar == TRUE ) {
-                    if($col->nombre_columna == $value){
-                        if($col->nombre_mostrar == "Sub Grupo"){
+                if ($col->mostrar == TRUE) {
+                    if ($col->nombre_columna == $value) {
+                        if ($col->nombre_mostrar == "Sub Grupo") {
                             $nombre_mostrar = 'Linea';
-                        }elseif($col->nombre_mostrar == 'Familia') {
+                        } elseif ($col->nombre_mostrar == 'Familia') {
                             $nombre_mostrar = 'Sub Linea';
-                        }elseif($col->nombre_mostrar == 'Linea') {
+                        } elseif ($col->nombre_mostrar == 'Linea') {
                             $nombre_mostrar = 'Talla';
-                        }else{
+                        } else {
                             $nombre_mostrar = $col->nombre_mostrar;
                         }
                         array_push($columnasNomalizadas, $col);
-                        $this->phpexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($c,2,$nombre_mostrar);
-                    $c++;
+                        $this->phpexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($c, 2, $nombre_mostrar);
+                        $c++;
                     }
                 }
             }
@@ -1479,19 +1475,18 @@ $join = array('lineas', 'marcas', 'familia', 'grupos', 'proveedor', 'impuestos',
         foreach ($data['lstProducto'] as $pd):
             if ($pd['producto_activo'] == 1) $pd['producto_activo'] = "Activo"; else $pd['producto_activo'] = "Inactivo";
             foreach ($columnasNomalizadas as $coll) {
-                if (array_key_exists($coll->nombre_columna, $pd) and $coll->mostrar == TRUE)
-                {
+                if (array_key_exists($coll->nombre_columna, $pd) and $coll->mostrar == TRUE) {
                     $value = isset($coll->nombre_join) ? $coll->nombre_join : $coll->nombre_columna;
                     $this->phpexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($co++, $row, ucwords(strtolower($pd[$value])));
 
                     // Se setean los valores del Para el Estilo de la columnas
-                    $this->phpexcel->getActiveSheet()->getStyle($columnas[$c].$row)->applyFromArray($estiloInformacion);
+                    $this->phpexcel->getActiveSheet()->getStyle($columnas[$c] . $row)->applyFromArray($estiloInformacion);
 
                     $c++;
                 }
             }
 
-            $this->phpexcel->getActiveSheet()->getStyle($columnas[$c].$row)->applyFromArray($estiloInformacion);
+            $this->phpexcel->getActiveSheet()->getStyle($columnas[$c] . $row)->applyFromArray($estiloInformacion);
 
 
             $row++;

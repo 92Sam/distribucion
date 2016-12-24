@@ -3432,8 +3432,27 @@ where v.venta_id=" . $id_venta . " group by tr.id_detalle order by 1 ";
         $this->db->from('cliente c');
         $this->db->where('c.id_cliente', $cliente_id);
 
-        $query = $this->db->get();
-        return $query->result_array();
+        $query = $this->db->get()->row_array();
+
+        $temp = $this->db->get_where('cliente_datos', array(
+            'cliente_id' => $cliente_id,
+            'tipo' => CGERENTE_DNI
+        ))->row();
+        $query['gerente_dni'] = $temp != NULL ? $temp->valor : '';
+
+        $temp = $this->db->get_where('cliente_datos', array(
+            'cliente_id' => $cliente_id,
+            'tipo' => CCONTACTO_DNI
+        ))->row();
+        $query['contacto_dni'] = $temp != NULL ? $temp->valor : '';
+
+        $temp = $this->db->get_where('cliente_datos', array(
+            'cliente_id' => $cliente_id,
+            'tipo' => CCONTACTO_NOMBRE
+        ))->row();
+        $query['contacto_nombre'] = $temp != NULL ? $temp->valor : '';
+
+        return $query;
     }
 
     function getDeudaCliente($cliente_id)

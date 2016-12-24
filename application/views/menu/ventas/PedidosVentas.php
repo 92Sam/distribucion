@@ -168,7 +168,7 @@
                                     <option value="">Seleccione</option>
                                     <?php foreach ($clientes as $cl): ?>
                                         <option
-                                            value="<?= $cl['id_cliente']; ?>"><?= $cl['representante'] ?></option>
+                                            value="<?= $cl['id_cliente']; ?>"><?= $cl['razon_social'] ?></option>
                                     <?php endforeach; ?>
                                 </select>
                                 <input type="hidden" id="current_cliente_id" value="">
@@ -212,6 +212,19 @@
                 <div class="row">
                     <div id='div_nota_pedido' class="col-md-12 fieldset">
                         <span class="legend">Datos de Entrega</span>
+                        <div class="row div_documento" style="display: none;">
+                            <div class="col-md-4">
+                                <label
+                                    for="direccion_entrega_np"
+                                    class="control-label panel-admin-text">
+                                    Direccion Principal</label>
+                            </div>
+                            <div class="col-md-8">
+                                <input type="text" name="direccion_principal" readonly id="direccion_principal"
+                                       class='form-control'>
+                            </div>
+                        </div>
+                        <br>
                         <div class="row">
                             <div class="col-md-4">
                                 <label
@@ -229,40 +242,6 @@
                         <br>
                         <div class="row">
                             <div style="padding: 5px 15px; float: left; width: 48%;">
-                                <h4>Nota de Pedido</h4>
-                                <div class="row">
-                                    <div class="col-md-4">
-                                        <label for="contacto_nt" class="control-label panel-admin-text">DNI</label>
-                                    </div>
-                                    <div class="col-md-8">
-                                        <input type="text" name="dni_nt" class="form-control" id="dni_nt"
-                                               readonly>
-                                    </div>
-                                </div>
-                                <br>
-                                <div class="row">
-                                    <div class="col-md-4">
-                                        <label for="contacto_nt" class="control-label panel-admin-text">Contacto</label>
-                                    </div>
-                                    <div class="col-md-8">
-                                        <input type="text" name="contacto_nt" class="form-control" id="contacto_nt"
-                                               readonly>
-                                    </div>
-                                </div>
-                                <br>
-                            </div>
-
-                            <div id="div_documento" style="padding: 5px 15px; float: right; width: 48%;">
-                                <h4>Documento</h4>
-                                <div class="row">
-                                    <div class="col-md-4">
-                                        <label for="contacto_nt" class="control-label panel-admin-text">RUC</label>
-                                    </div>
-                                    <div class="col-md-8">
-                                        <input type="text" name="ruc_dc" class="form-control" id="ruc_dc" readonly>
-                                    </div>
-                                </div>
-                                <br>
                                 <div class="row">
                                     <div class="col-md-4">
                                         <label for="razon_social" class="control-label panel-admin-text">Razon
@@ -273,22 +252,65 @@
                                                readonly>
                                     </div>
                                 </div>
-                                <br>
-                                <div class="row">
+
+                                <div class="row div_documento" style="display: none;">
+                                    <br>
                                     <div class="col-md-4">
-                                        <label for="direccion_principal" class="control-label panel-admin-text">Direcci&oacute;n
-                                            Principal</label>
+                                        <label for="contacto_nt" class="control-label panel-admin-text">Gerente</label>
                                     </div>
                                     <div class="col-md-8">
-                                        <select name="direccion_principal" readonly id="direccion_principal"
-                                                class='form-control'
-                                                required="true">
-                                            <option value="">Seleccione</option>
-                                        </select>
+                                        <input type="text" name="gerente_nombre" class="form-control"
+                                               id="gerente_nombre"
+                                               readonly>
                                     </div>
                                 </div>
                                 <br>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <label for="contacto_nt"
+                                               class="control-label panel-admin-text">Representante</label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <input type="text" name="representante" class="form-control" id="representante"
+                                               readonly>
+                                    </div>
+                                </div>
+                            </div>
 
+                            <div style="padding: 5px 15px; float: right; width: 48%;">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <label for="contacto_nt" class="control-label panel-admin-text">RUC /
+                                            DNI</label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <input type="text" name="ruc_dc" class="form-control" id="ruc_dc" readonly>
+                                    </div>
+                                </div>
+
+                                <div class="row div_documento" style="display: none;">
+                                    <br>
+                                    <div class="col-md-4">
+                                        <label for="contacto_nt" class="control-label panel-admin-text">Gerente
+                                            DNI</label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <input type="text" name="gerente_dni" class="form-control" id="gerente_dni"
+                                               readonly>
+                                    </div>
+                                </div>
+                                <br>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <label for="contacto_nt" class="control-label panel-admin-text">Representante
+                                            DNI</label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <input type="text" name="representante_dni" class="form-control"
+                                               id="representante_dni"
+                                               readonly>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <br>
@@ -948,35 +970,34 @@
                             for (var i = 0; i < data.length; i++) {
                                 if (data[i].principal == 1) {
                                     $('#direccion_entrega_np').append('<option selected value=' + data[i].id + '>' + data[i].valor + '</option>');
-                                    $('#direccion_principal').append('<option selected value=' + data[i].id + '>' + data[i].valor + '</option>');
+                                    $('#direccion_principal').val(data[i].valor);
                                 }
                                 else
                                     $('#direccion_entrega_np').append('<option value=' + data[i].id + '>' + data[i].valor + '</option>');
 
-                                //$('#direccion_entrega_doc').append('<option value=' + data[i].id + '>' + data[i].valor + '</option>')
                             }
                             $("#direccion_entrega_np").trigger('chosen:updated');
-                            $("#direccion_principal").trigger('chosen:updated');
-                            //$("#direccion_entrega_doc").trigger('chosen:updated');
                         }
                     }
                 });
             }
 
             $("#direccion_entrega_np").trigger('chosen:updated');
-            $("#direccion_principal").trigger('chosen:updated');
         }
 
         function dataCliente() {
-            $('#contacto_nt').val('');
-            $('#retencion').val(0);
-
             $('#clienteinformativo').val('');
 
             $('#ruc_dc').val('');
-            $('#dni_nt').val('');
             $('#razon_social').val('');
 
+            $('#gerente_dni').val('');
+            $('#gerente_nombre').val('');
+
+            $('#representante_dni').val('');
+            $('#representante').val('');
+
+            $('#retencion').val(0);
             if ($("#id_cliente").val() != '') {
                 $.ajax({
                     url: '<?=base_url()?>venta/dataCliente',
@@ -985,14 +1006,20 @@
                     data: {'cliente_id': $('#id_cliente').val()},
                     success: function (data) {
                         if (data != '') {
-                            $('#clienteinformativo').val(data[0].representante);
+                            $('#clienteinformativo').val(data.razon_social);
 
-                            $('#contacto_nt').val(data[0].representante);
-                            $('#retencion').val(data[0].linea_credito_valor);
-                            $('#dni_nt').val(data[0].identificacion);
+                            $('#ruc_dc').val(data.ruc_cliente);
+                            $('#razon_social').val(data.razon_social);
 
-                            $('#ruc_dc').val(data[0].ruc_cliente);
-                            $('#razon_social').val(data[0].razon_social);
+                            $('#gerente_dni').val(data.gerente_dni);
+                            $('#gerente_nombre').val(data.representante);
+
+                            $('#representante_dni').val(data.contacto_dni);
+                            $('#representante').val(data.contacto_nombre);
+
+                            $('#retencion').val(data.linea_credito_valor);
+
+
                         }
                     }
                 });
@@ -1053,7 +1080,7 @@
                             $('#id_cliente option').remove();
                             $('#id_cliente').append('<option value="">Seleccione</option>');
                             for (i = 0; i < data.length; i++) {
-                                $('#id_cliente').append('<option value=' + data[i].id_cliente + '>' + data[i].representante + '</option>')
+                                $('#id_cliente').append('<option value=' + data[i].id_cliente + '>' + data[i].razon_social + '</option>')
                             }
                             $("#id_cliente").trigger('change');
                             $("#id_cliente").trigger('chosen:updated');
@@ -1076,7 +1103,7 @@
                         $('#id_cliente option').remove();
                         $('#id_cliente').append('<option value="">Seleccione</option>');
                         for (i = 0; i < data.length; i++) {
-                            $('#id_cliente').append('<option value=' + data[i].id_cliente + '>' + data[i].representante + '</option>')
+                            $('#id_cliente').append('<option value=' + data[i].id_cliente + '>' + data[i].razon_social + '</option>')
                         }
                         $("#id_cliente").trigger('chosen:updated');
                     }
@@ -1173,15 +1200,11 @@
             );
 
             function tipoDoc() {
-                if ($('#tipo_documento').val() != '') {
-                    $('#content_opcion').show()
-                    if ($('#tipo_documento').val() == 'FACTURA') {
-                        $('#div_documento').show()
-                    } else {
-                        $('#div_documento').hide()
-                    }
+                $('#content_opcion').show()
+                if ($('#tipo_documento').val() == 'FACTURA') {
+                    $('.div_documento').show()
                 } else {
-                    $('#content_opcion').hide()
+                    $('.div_documento').hide()
                 }
             }
 
