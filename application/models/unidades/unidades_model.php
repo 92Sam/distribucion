@@ -13,6 +13,61 @@ class unidades_model extends CI_Model
 
     }
 
+    //$cantidad es la cantidad normal y su fraccion
+    //return la cantidad minima de expresion de un producto
+    public function convert_minimo_um($producto_id, $cantidad, $fraccion = 0)
+    {
+        $orden_max = $this->db->select_max('orden', 'orden')
+            ->where('producto_id', $producto_id)->get('unidades_has_producto')->row();
+        if ($orden_max->orden == 1)
+            return $cantidad;
+
+        $orden_min = $this->db->select_min('orden', 'orden')
+            ->where('producto_id', $producto_id)->get('unidades_has_producto')->row();
+        $this->db->select('unidades_has_producto.id_unidad as um_id, unidades_has_producto.unidades as um_number, unidades_has_producto.orden as orden');
+        $this->db->from('unidades_has_producto');
+        $this->db->where('producto_id', $producto_id);
+        $this->db->where('orden', $orden_min->orden);
+        $unidad = $this->db->get()->row();
+        return ($cantidad * $unidad->um_number) + $fraccion;
+    }
+
+    //return la cantidad minima basado en su um_id
+    public function convert_minimo_by_um($producto_id, $um_id, $cantidad)
+    {
+        $orden_max = $this->db->select_max('orden', 'orden')
+            ->where('producto_id', $producto_id)->get('unidades_has_producto')->row();
+
+        $this->db->select('unidades_has_producto.id_unidad as um_id, unidades_has_producto.unidades as um_number, unidades_has_producto.orden as orden');
+        $this->db->from('unidades_has_producto');
+        $this->db->where('producto_id', $producto_id);
+        $this->db->where('id_unidad', $um_id);
+        $unidad = $this->db->get()->row();
+
+        if ($unidad->orden == $orden_max->orden) return $cantidad;
+
+        return $unidad->um_number * $cantidad;
+    }
+
+    function get_um_min_by_producto($producto_id)
+    {
+        $orden_max = $this->db->select_max('orden', 'orden')
+            ->where('producto_id', $producto_id)->get('unidades_has_producto')->row();
+
+        $minima_unidad = $this->db->select('id_unidad as um_id')
+            ->where('producto_id', $producto_id)
+            ->where('orden', $orden_max->orden)
+            ->get('unidades_has_producto')->row();
+
+        return $minima_unidad->um_id;
+    }
+
+    function get_nombre_unidad($id)
+    {
+        $temp = $this->get_by('id_unidad', $id);
+        return $temp['nombre_unidad'];
+    }
+
     function get_unidades()
     {
         $this->db->where('estatus_unidad', 1);

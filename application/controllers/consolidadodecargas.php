@@ -166,7 +166,7 @@ class consolidadodecargas extends MY_Controller
 
         $data['metodos_pago'] = $this->db->get_where('metodos_pago', array('status_metodo' => 1))->result();
         $data['bancos'] = $this->db->get_where('banco', array('banco_status' => 1))->result();
-        
+
         $dataCuerpo['cuerpo'] = $this->load->view('menu/ventas/liquidacionCgc', $data, true);
 
 
@@ -626,6 +626,12 @@ class consolidadodecargas extends MY_Controller
 
     function pdf($id)
     {
+
+        $consolidado = $this->db->get_where('consolidado_carga', array('consolidado_id' => $id))->row();
+
+        if ($consolidado->status == 'ABIERTO')
+            $this->venta_model->set_kardex_by_consolidado($id);
+
         $data['notasdeentrega'] = $this->consolidado_model->get_documentoVenta_by_id($id, false);
         $data['detalleProducto'] = $this->consolidado_model->get_detalle_backup($id);
         //   var_dump($data['notasdeentrega']);

@@ -197,7 +197,6 @@ class venta extends MY_Controller
                     if (empty($lista_bonos)) $lista_bonos = null;
                     $bonos = json_decode($lista_bonos);
                     $detalle = json_decode($this->input->post('lst_producto', true));
-                    //var_dump($bonos);
                     if ($bonos) {
                         foreach ($bonos as $item) {
                             $bono = Array();
@@ -214,8 +213,10 @@ class venta extends MY_Controller
                         }
                     }
 
+                    //var_dump($detalle);
+                    
                     $id = $this->input->post('idventa');
-                    $montoboletas = $this->session->userdata('MONTO_BOLETAS_VENTA');
+                        $montoboletas = $this->session->userdata('MONTO_BOLETAS_VENTA');
                     if (empty($id)) {
                         $resultado = $this->venta_model->insertar_venta($venta, $detalle, $montoboletas);
                         $id = $resultado;
@@ -232,6 +233,7 @@ class venta extends MY_Controller
 
                         $venta['venta_id'] = $id;
                         $venta['devolver'] = $this->input->post('devolver');
+                        //$venta['estatus_actual'] = PEDIDO_DEVUELTO;
 
                         //quito retencion pq no edito aqui ese campo
                         unset($venta['retencion']);

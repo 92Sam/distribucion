@@ -3,7 +3,7 @@
 <script src="<?php echo $ruta; ?>recursos/js/generarventa.js"></script>
 <div id="inentariocontainer" style="display: none;"></div>
 <input type="hidden" id="producto_cualidad" value="">
-<input type="hidden" id="devolver" value="<?php echo isset($devolver) ? 'true' : 'false'; ?>">
+<input type="hidden" id="devolver" value="<?php echo isset($devolver) ? 1 : 0; ?>">
 <input type="hidden" id="coso_id" value="<?php echo isset($coso_id) ? $coso_id : 'false'; ?>">
 <input type="hidden" id="preciosugerido" value="<?php echo isset($preciosugerido) ? 'true' : 'false'; ?>">
 <input type="hidden" id="idlocal" value="<?= $this->session->userdata('id_local'); ?>">
