@@ -114,6 +114,34 @@ class venta extends MY_Controller
         }
     }
 
+    function editar_pedido()
+    {
+        $venta_id = $this->input->post('idventa');
+        $devolver = $this->input->post('devolver');
+
+        $data["clientes"] = $this->cliente_model->get_all();
+
+        $venta = $this->db->get_where('venta', array('venta_id' => $venta_id))->row();
+        $data['cliente'] = $this->db->select('
+            cliente.id_cliente as cliente_id,
+            cliente.razon_social as cliente_nombre,
+            cliente.grupo_id as grupo_id,
+            grupos_cliente.nombre_grupos_cliente as grupo_nombre
+            ')
+            ->from('cliente')
+            ->join('grupos_cliente', 'grupos_cliente.id_grupos_cliente = cliente.grupo_id')
+            ->where('cliente.id_cliente', $venta->id_cliente)->get()->row();
+
+        $data["venta_id"] = $venta_id;
+        $data["precios"] = $this->precios->get_precios();
+
+        $data['devolver'] = $devolver;
+
+        $data["venta"] = $this->venta_model->obtener_venta($venta_id);
+
+        echo $this->load->view('menu/ventas/EditarPedidosVentas', $data, true);
+    }
+
     function venta_backup()
     {
         $idventa = $this->input->post('idventa');
@@ -160,7 +188,8 @@ class venta extends MY_Controller
 
                         'importe' => $this->input->post('importe', true),
                         'diascondicionpagoinput' => $this->input->post('diascondicionpagoinput', true),
-                        'tipo_documento' => $this->input->post('tipo_documento', true)
+                        'tipo_documento' => $this->input->post('tipo_documento', true),
+                        'retencion' => $this->input->post('retencion', true)
 
                     );
 
@@ -436,21 +465,32 @@ class venta extends MY_Controller
 
     function get_ventas()
     {
+        $completado = false;
         $condicion = array();
         if ($this->input->post('id_local') != "") {
             $condicion['local_id'] = $this->input->post('id_local');
             $data['local'] = $this->input->post('id_local');
         }
-        if ($this->input->post('desde') != "") {
-            $condicion['fecha >= '] = date('Y-m-d', strtotime($this->input->post('desde'))) . " " . date('H:i:s', strtotime('0:0:0'));
-            $data['fecha_desde'] = date('Y-m-d', strtotime($this->input->post('desde'))) . " " . date('H:i:s', strtotime('0:0:0'));
+
+        $fecha_flag = $this->input->post('fecha_flag');
+        if ($fecha_flag == 1) {
+            if ($this->input->post('desde') != "") {
+                $condicion['fecha >= '] = date('Y-m-d', strtotime($this->input->post('desde'))) . " " . date('H:i:s', strtotime('0:0:0'));
+                $data['fecha_desde'] = date('Y-m-d', strtotime($this->input->post('desde'))) . " " . date('H:i:s', strtotime('0:0:0'));
+            }
+            if ($this->input->post('hasta') != "") {
+                $condicion['fecha <='] = date('Y-m-d', strtotime($this->input->post('hasta'))) . " " . date('H:i:s', strtotime('23:59:59'));
+                $data['fecha_hasta'] = date('Y-m-d', strtotime($this->input->post('hasta'))) . " " . date('H:i:s', strtotime('23:59:59'));
+            }
         }
-        if ($this->input->post('hasta') != "") {
-            $condicion['fecha <='] = date('Y-m-d', strtotime($this->input->post('hasta'))) . " " . date('H:i:s', strtotime('23:59:59'));
-            $data['fecha_hasta'] = date('Y-m-d', strtotime($this->input->post('hasta'))) . " " . date('H:i:s', strtotime('23:59:59'));
-        }
+
         if ($this->input->post('estatus') != "") {
-            $condicion['venta_status'] = $this->input->post('estatus');
+
+            if ($this->input->post('estatus') == PEDIDO_ENTREGADO) {
+                $completado = true;
+            } else
+                $condicion['venta_status'] = $this->input->post('estatus');
+
             $data['estatus'] = $this->input->post('estatus');
         }
         if ($this->input->post('vendedor') != "") {
@@ -481,13 +521,14 @@ class venta extends MY_Controller
             $data['productos_cons'] = $this->consolidado_model->get_pedidos_by($condicionpedidos);
         }
 
-        $data['venta'] = $this->venta_model->get_ventas_by($condicion);
+        $data['venta'] = $this->venta_model->get_ventas_by($condicion, $completado);
         $ventas = $data['venta'];
         foreach ($ventas as $venta) {
             $id_cliente = $venta->id_cliente;
-            $deuda = $this->validar_deuda($id_cliente);
-            if ($deuda == true) {
+            $deuda = $this->venta_model->getDeudaCliente($id_cliente);
+            if ($deuda['deuda'] > 0) {
                 $venta->deudor = 1;
+                $venta->deuda = $deuda['deuda'];
             }
         }
 
@@ -1782,6 +1823,11 @@ class venta extends MY_Controller
             $data['vendedores'] = $this->usuario_model->select_all_by_roll('Vendedor');
             $data['clientes'] = $this->cliente_model->get_all();
             $data['zonas'] = $this->zona_model->get_all();
+            $data['consolidados'] = $this->consolidado_model->getData(array(
+                'estado' => 'ABIERTO',
+                'fecha_ini' => NULL,
+                'fecha_fin' => NULL
+            ));
             $vista = 'bandejaPedidos';
         } else {
             $vista = 'reporteVenta';
@@ -4294,12 +4340,13 @@ class venta extends MY_Controller
         die(json_encode($this->cliente_model->get_all()));
     }
 
-    function get_precio_escalas(){
+    function get_precio_escalas()
+    {
         $this->load->model('unidades_has_precio/unidades_has_precio_model', 'unidadPrecio');
         $producto_id = $this->input->post('producto_id');
         $unidad_id = $this->input->post('unidad_id');
         $grupo_id = $this->input->post('grupo_id');
-        
+
         echo json_encode($this->unidadPrecio->get_max_min_precio($producto_id, $unidad_id, $grupo_id));
     }
 }

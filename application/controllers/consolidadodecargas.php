@@ -7,7 +7,6 @@ class consolidadodecargas extends MY_Controller
     function __construct()
     {
         parent::__construct();
-        //$this->very_sesion();
         $this->load->model('consolidadodecargas/consolidado_model');
         $this->load->model('venta/venta_model');
         $this->load->model('banco/banco_model');
@@ -17,13 +16,6 @@ class consolidadodecargas extends MY_Controller
         $this->load->library('phpExcel/PHPExcel.php');
 
     }
-
-    /* function very_sesion()
-     {
-         if (!$this->session->userdata('nUsuCodigo')) {
-             redirect(base_url() . 'inicio');
-         }
-     }*/
 
     function index()
     {
@@ -141,16 +133,40 @@ class consolidadodecargas extends MY_Controller
         echo json_encode($json);
     }
 
+    function editar_consolidado($consolidado_id)
+    {
+        $data['metros_cubicos'] = $this->input->post('metros_c');
+        $data['pedidos_id'] = json_decode($this->input->post('pedidos_id'));
+
+        $this->consolidado_model->editar_consolidado($consolidado_id, $data);
+    }
+
+    function eliminar_pedido_consolidado()
+    {
+        $data['consolidado_id'] = $this->input->post('id');
+        $data['venta_id'] = json_decode($this->input->post('venta_id'));
+
+        $result = $this->consolidado_model->eliminar_pedido_consolidado($data['consolidado_id'], $data['venta_id']);
+
+        header('Content-Type: application/json');
+        echo json_encode(array('result' => $result));
+    }
+
+    function cambiar_fecha()
+    {
+        $data['consolidado_id'] = $this->input->post('id');
+        $data['fecha'] = date('Y-m-d H:i:s', strtotime($this->input->post('fecha') . " " . date('H:i:s')));
+
+        $this->db->where('consolidado_id', $data['consolidado_id']);
+        $this->db->update('consolidado_carga', array('fecha' => $data['fecha']));
+    }
+
     function liquidacion()
     {
 
-        if ($this->session->flashdata('success') != FALSE) {
-            $data ['success'] = $this->session->flashdata('success');
-        }
-        if ($this->session->flashdata('error') != FALSE) {
-            $data ['error'] = $this->session->flashdata('error');
-        }
-        $data = array();
+        $data['metodos_pago'] = $this->db->get_where('metodos_pago', array('status_metodo' => 1))->result();
+        $data['bancos'] = $this->db->get_where('banco', array('banco_status' => 1))->result();
+        
         $dataCuerpo['cuerpo'] = $this->load->view('menu/ventas/liquidacionCgc', $data, true);
 
 
@@ -176,6 +192,7 @@ class consolidadodecargas extends MY_Controller
                 $this->consolidado_model->get_details_by($where);
 
         }
+
         //var_dump($data['consolidado']);
         $data['id_consolidado'] = $id;
         $this->load->view('menu/consolidadodecargas/consolidadoLiquidacion', $data);
@@ -395,7 +412,7 @@ class consolidadodecargas extends MY_Controller
         $cerrar = $this->consolidado_model->cambiarEstatus($id, $estatus);
 
         $c_detalles = $this->db->get_where('consolidado_detalle', array('consolidado_id' => $id))->result();
-        foreach ($c_detalles as $detalle){
+        foreach ($c_detalles as $detalle) {
             $this->historial_pedido_model->insertar_pedido(PROCESO_LIQUIDAR, array(
                 'pedido_id' => $detalle->pedido_id,
                 'responsable_id' => $this->session->userdata('nUsuCodigo')

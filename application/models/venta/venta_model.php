@@ -7,7 +7,7 @@ class venta_model extends CI_Model
         parent::__construct();
     }
 
-    function insertar_venta($venta_cabecera, $detalle, $montoboletas, $retencion)
+    function insertar_venta($venta_cabecera, $detalle, $montoboletas)
     {
         $this->db->trans_start(true);
         $this->db->trans_begin();
@@ -72,7 +72,7 @@ class venta_model extends CI_Model
             'numero_documento' => $id_documento,
             'pagado' => $venta_cabecera['importe'],
             'venta_tipo' => $venta_tipo,
-            'retencion' => $retencion
+            'retencion' => $venta_cabecera['retencion']
         );
 
         $this->db->insert('venta', $venta);
@@ -543,11 +543,8 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
                     } else {
                         $estadonuevo .= ($query_detalle_venta[0]['venta_tipo'] == VENTA_ENTREGA) ? PEDIDO_EDICION : VENTA_EDICION;
                     }
-                    //var_dump($query_detalle_venta_bk);
-                    // echo $query_detalle_venta_bk['cantidad'];
-                    // echo $row->cantidad;
 
-                    echo $query_detalle_venta_bk['cantidad'] - $row->cantidad;
+
                     if (isset($query_detalle_venta_bk['cantidad'])) {
                         if ($query_detalle_venta_bk['cantidad'] - $data->cantidad > 0) {
                             $item_kardex = array(
@@ -1448,7 +1445,7 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
 
 
 //ESTE METODO SOLAENTE SE USA EN DEVOLUCION DEVENTAS O EDICION/DEVOLUCION DE PEDIDOS . OJO
-    function actualizar_venta($venta_cabecera, $detalle = false, $montoboletas, $retencion)
+    function actualizar_venta($venta_cabecera, $detalle = false, $montoboletas)
     {
         $this->db->trans_start(true);
         $this->db->trans_begin();
@@ -1462,7 +1459,6 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
             'subtotal' => $venta_cabecera['subtotal'],
             'total_impuesto' => $venta_cabecera['total_impuesto'],
             'total' => $venta_cabecera['total'],
-            'retencion' => $retencion
             //  'pagado' => $venta_cabecera['importe'],
 
         );
@@ -2847,15 +2843,14 @@ LEFT JOIN ingreso ON ingreso.id_ingreso = detalleingreso.id_ingreso WHERE id_pro
         return $query->result();
     }
 
-    function get_ventas_by($condicion)
+    function get_ventas_by($condicion, $completado = FALSE)
     {
         $this->db->select('venta.*, cliente.*, zonas.zona_nombre, local.*,condiciones_pago.*,documento_venta.*,usuario.*,
         (select SUM(metros_cubicos*detalle_venta.cantidad) from unidades_has_producto join detalle_venta
          on detalle_venta.id_producto=unidades_has_producto.producto_id where detalle_venta.id_venta=venta.venta_id
          and detalle_venta.unidad_medida=unidades_has_producto.id_unidad) as total_metos_cubicos,  (select count(id_detalle)
          from detalle_venta where id_venta=venta.venta_id and precio_sugerido>0) as preciosugerido,
-            (select count(id_producto) from detalle_venta where id_venta = venta.venta_id ) as cantidad_productos,
-            grupos_cliente.*');
+            (select count(id_producto) from detalle_venta where id_venta = venta.venta_id ) as cantidad_productos');
 
         $this->db->from('venta');
         $this->db->join('cliente', 'cliente.id_cliente=venta.id_cliente');
@@ -2864,8 +2859,13 @@ LEFT JOIN ingreso ON ingreso.id_ingreso = detalleingreso.id_ingreso WHERE id_pro
         $this->db->join('condiciones_pago', 'condiciones_pago.id_condiciones=venta.condicion_pago');
         $this->db->join('documento_venta', 'documento_venta.id_tipo_documento=venta.numero_documento');
         $this->db->join('usuario', 'usuario.nUsuCodigo=venta.id_vendedor');
-        $this->db->join('grupos_cliente', 'grupos_cliente.id_grupos_cliente = cliente.grupo_id');
         $this->db->order_by('venta.venta_id', 'desc');
+        if ($completado != FALSE) {
+            $this->db->where('venta_status !=', PEDIDO_GENERADO);
+            $this->db->where('venta_status !=', PEDIDO_ANULADO);
+            $this->db->where('venta_status !=', PEDIDO_ENVIADO);
+            unset($condicion['venta_status']);
+        }
         $this->db->where($condicion);
         $query = $this->db->get();
 
@@ -2992,7 +2992,7 @@ LEFT JOIN ingreso ON ingreso.id_ingreso = detalleingreso.id_ingreso WHERE id_pro
  pd.producto_cualidad, pd.producto_id as producto_id, pd.venta_sin_stock, tr.precio_sugerido, tr.cantidad as cantidad ,tr.precio as preciounitario, tr.id_detalle,
 tr.detalle_importe as importe, v.fecha as fechaemision, cre.dec_credito_montodeuda,
 p.nombre as vendedor,p.nUsuCodigo as id_vendedor,t.nombre_tipo_documento as descripcion, t.documento_Serie as serie, t.documento_Numero as numero, t.nombre_tipo_documento,df.documento_tipo,
-c.razon_social as cliente, c.id_cliente as cliente_id, cli_dat.valor as direccion_cliente,c.representante as representante,cli_dat2.valor as telefonoC1,
+c.razon_social as cliente, c.id_cliente as cliente_id, cli_dat.valor as direccion_cliente,c.representante as representanteCliente,cli_dat2.valor as telefonoC1,
  c.identificacion as documento_cliente, cp.id_condiciones, cp.nombre_condiciones, v.venta_status,v.venta_tipo, u.id_unidad, u.nombre_unidad, u.abreviatura,
  i.porcentaje_impuesto, up.unidades, up.orden,
  (select config_value from configuraciones where config_key='" . EMPRESA_NOMBRE . "') as RazonSocialEmpresa,
@@ -3433,7 +3433,8 @@ where v.venta_id=" . $id_venta . " group by tr.id_detalle order by 1 ";
         return $query->result_array();
     }
 
-    function getDeudaCliente($cliente_id){
+    function getDeudaCliente($cliente_id)
+    {
         $this->db->select("
             SUM(venta.total) as subtotal_venta,
             SUM(credito.dec_credito_montodebito) as subtotal_pago
@@ -3453,6 +3454,10 @@ where v.venta_id=" . $id_venta . " group by tr.id_detalle order by 1 ";
 
         $cliente = $this->db->get()->row();
 
+        if ($cliente == NULL) {
+            return array('deuda' => 0);
+        }
+
         $this->db->select("
                 SUM(historial_pagos_clientes.historial_monto) as monto,
             ")
@@ -3468,7 +3473,7 @@ where v.venta_id=" . $id_venta . " group by tr.id_detalle order by 1 ";
 
         $pagado_pendientes = $this->db->get()->row();
 
-        $cliente->pagado_pendientes = isset($pagado_pendientes->monto) ? $pagado_pendientes->monto : 0;
+        $cliente->pagado_pendientes = $pagado_pendientes->monto != NULL ? $pagado_pendientes->monto : 0;
         $cliente->subtotal_pago -= $cliente->pagado_pendientes;
 
         return array('deuda' => $cliente->subtotal_venta - $cliente->subtotal_pago);

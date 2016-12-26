@@ -45,7 +45,7 @@
                     ?>
                     <div class="btn-group">
 
-                        <a class="btn btn-<?= $color ?>" data-toggle="tooltip"
+                        <a class="btn btn-sm btn-<?= $color ?>" data-toggle="tooltip"
                            title="Ver" data-original-title="fa fa-comment-o"
                            href="#"
                            onclick="VerConsolidado(<?= $campoConsolidado['consolidado_id'] ?>,'<?= $campoConsolidado['status'] ?>'); ">
@@ -53,7 +53,7 @@
                         </a>
                         <?php } else {
                             ?>
-                            <a class="btn btn-<?= $color ?>" data-toggle="tooltip"
+                            <a class="btn btn-sm btn-<?= $color ?>" data-toggle="tooltip"
                                title="Ver" data-original-title="fa fa-comment-o"
                                href="#"
                                onclick="VerConsolidado(<?= $campoConsolidado['consolidado_id'] ?>,'<?= $campoConsolidado['status'] ?>'); ">

@@ -15,7 +15,7 @@
     </div>
 </div>
 <?php
-echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "</div>");
+echo validation_errors('<div class="alert alert-danger alert-dismissable">', "</div>");
 ?>
 <div class="block">
     <!-- Progress Bars Wizard Title -->

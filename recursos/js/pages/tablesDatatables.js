@@ -40,7 +40,7 @@ var TablesDatatables = function () {
                 retrieve: true,
 
                columnDefs: [
-                    { width: '16%', targets: 0 }
+                    { targets: 0 }
                 ],
                 "iDisplayLength": 20,
                 fixedColumns: true,

@@ -68,7 +68,7 @@
                                     <option
                                         value="<?= $pago->id_metodo ?>"><?= $pago->nombre_metodo ?></option>
                                 <?php endif; ?>
-                                <?php if ($pago->id_metodo == 7 && $retencion->retencion == true && $retencion->cobro_estado == 'NO_COBRADO'): ?>
+                                <?php if ($pago->id_metodo == 7 && $retencion->retencion != 0 && $retencion->cobro_estado == 'NO_COBRADO'): ?>
                                     <option
                                         value="<?= $pago->id_metodo ?>"><?= $pago->nombre_metodo ?></option>
                                 <?php endif; ?>
@@ -165,7 +165,6 @@
 
     retencion.pedido_id = '<?=$retencion->pedido_id?>';
     retencion.retencion = '<?=$retencion->retencion?>';
-    retencion.retencion_valor = '<?=$retencion->retencion_valor?>';
     retencion.cobro_estado = '<?=$retencion->cobro_estado?>';
 
     $(document).ready(function () {
@@ -277,7 +276,7 @@
                 $("#num_oper_label").html('N&uacute;mero de Retenci&oacute;n');
                 $("#importe").attr('readonly', 'readonly');
                 $("#importe").val(calcular_retencion());
-                $("#retencion").val(retencion.retencion_valor);
+                $("#retencion").val(retencion.retencion);
                 $("#retencion_block").show();
             }
 
@@ -285,7 +284,7 @@
 
         $("#retencion").on('keyup', function () {
             var ret_val = parseFloat($(this).val()) > 0 ? parseFloat($(this).val()) : 0;
-            retencion.retencion_valor = ret_val;
+            retencion.retencion = ret_val;
             if ($(this).val() != "")
                 $(this).val(ret_val);
             $("#importe").val(calcular_retencion());
@@ -294,7 +293,7 @@
     });
 
     function calcular_retencion() {
-        var ret_val = parseFloat(retencion.retencion_valor) > 0 ? parseFloat(retencion.retencion_valor) : 0;
+        var ret_val = parseFloat(retencion.retencion) > 0 ? parseFloat(retencion.retencion) : 0;
         var venta_total = parseFloat($("#venta_total").val());
 
         return formatPrice(parseFloat(venta_total * ret_val / 100));

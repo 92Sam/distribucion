@@ -74,8 +74,8 @@
 
                                         ?>
                                         <button type="button" id="liquidar"
-                                                onclick="liquidarPedido(<?php echo $consolidadoDetalles['pedido_id'] ?>, <?php echo $consolidadoDetalles['pagado'] ?>, <?php echo $consolidadoDetalles['total'] ?>,<?php echo $consolidadoDetalles['consolidado_id'] ?>,'<?= $consolidadoDetalles['venta_status'] ?>',<?= $consolidadoDetalles['montocobradoliquidacion'] ?>,<?= $consolidadoDetalles['totalbackup'] ?>);"
-                                                class="btn btn-default"><i class="fa fa-refresh"></i>
+                                                onclick="liquidarPedido(<?php echo $consolidadoDetalles['pedido_id'] ?>, <?php echo $consolidadoDetalles['pagado'] ?>, <?php echo $consolidadoDetalles['total'] ?>,<?php echo $consolidadoDetalles['consolidado_id'] ?>,'ENTREGADO',<?= $consolidadoDetalles['montocobradoliquidacion'] ?>,<?= $consolidadoDetalles['totalbackup'] ?>);"
+                                                class="btn btn-sm btn-default"><i class="fa fa-refresh"></i>
                                             Liquidar
                                         </button>
                                     <?php }
@@ -97,7 +97,7 @@
                                             ?>
                                             <button type="button" id="liquidar"
                                                     onclick="liquidarPedido(<?php echo $consolidadoDetalles['pedido_id'] ?>, <?php echo $consolidadoDetalles['pagado'] ?>, <?php echo $consolidadoDetalles['total'] ?>,<?php echo $consolidadoDetalles['consolidado_id'] ?>,'<?= $consolidadoDetalles['venta_status'] ?>',<?= $consolidadoDetalles['montocobradoliquidacion'] ?>,<?= $consolidadoDetalles['totalbackup'] ?>);"
-                                                    class="btn btn-primary"><i class="fa fa-refresh"></i>
+                                                    class="btn btn-sm btn-primary"><i class="fa fa-refresh"></i>
                                                 Cambiar
                                             </button>
 
@@ -125,7 +125,7 @@
                 <?php
 
                 if (isset($liquidar) && $liquidar == true && $status == 'IMPRESO') { ?>
-                    <button type="button" id="" class="btn btn-primary" onclick="grupo.cerrarLiquidacion()">
+                    <button type="button" id="" class="btn btn-sm btn-primary" onclick="grupo.cerrarLiquidacion()">
                         <li class="glyphicon glyphicon-thumbs-up"></li> Cerrar Liquidación
                     </button>
 
@@ -133,16 +133,16 @@
                 if (($status != 'CERRADO' && $status != 'CONFIRMADO')) {
                 } else {
                     ?>
-                    <button type="button" class="btn btn-danger" data-dismiss="modal">
+                    <button type="button" class="btn btn-sm btn-danger" data-dismiss="modal">
                     <li class="glyphicon glyphicon-thumbs-down"></li> Salir</button>
                     <div style="float:left; margin-right: 10px">
-                        <button type="button" class="btn btn-info"
+                        <button type="button" class="btn btn-sm btn-info"
                                 onclick="pedidoDevolucion(<?php echo $id_consolidado ?>);">
                             <i class="fa fa-print"></i> Devoluciones
                         </button>
                     </div>
                     <div style="float:left;">
-                        <button type="button" class="btn btn-info"
+                        <button type="button" class="btn btn-sm btn-info"
                                 onclick="pedidoPreCancelacion(<?php echo $id_consolidado ?>);">
                             <i class="fa fa-print"></i> Pre-Cancelación
                         </button>
