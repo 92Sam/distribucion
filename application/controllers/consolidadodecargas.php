@@ -627,11 +627,6 @@ class consolidadodecargas extends MY_Controller
     function pdf($id)
     {
 
-        $consolidado = $this->db->get_where('consolidado_carga', array('consolidado_id' => $id))->row();
-
-        if ($consolidado->status == 'ABIERTO')
-            $this->venta_model->set_kardex_by_consolidado($id);
-
         $data['notasdeentrega'] = $this->consolidado_model->get_documentoVenta_by_id($id, false);
         $data['detalleProducto'] = $this->consolidado_model->get_detalle_backup($id);
         //   var_dump($data['notasdeentrega']);
