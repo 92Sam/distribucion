@@ -80,7 +80,6 @@ class venta_model extends CI_Model
 
         ///// backup de venta
         $venta['venta_id'] = $venta_id;
-        $this->db->insert('venta_backup', $venta);
 
 
         foreach ($detalle as $row) {
@@ -223,8 +222,6 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
 
             $this->db->insert('detalle_venta', $detalle_item);
 
-            /***********************esto s para la tabla detalle_venta_backup******************************/
-            $this->db->insert('detalle_venta_backup', $detalle_item);
             /************************************/
 
             if (count($inventario_existente) > 0) {
@@ -353,69 +350,7 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
 
         $this->db->where('venta_id', $venta_cabecera['venta_id']);
         $this->db->update('venta', $venta);
-        if ($venta_cabecera['venta_status'] == PEDIDO_GENERADO && $venta_cabecera['devolver'] != 1) {
-            $this->db->where('venta_id', $venta_cabecera['venta_id']);
-            $this->db->update('venta_backup', $venta);
-        }
 
-
-        $sql_venta = $this->db->query("SELECT * FROM venta_backup where venta_id='$venta_id' ");
-
-        $query_venta = $sql_venta->result_array();
-
-
-        ///// se actualiza el backup de la tabla venta
-        if (isset($venta_cabecera['estatus_actual']) and
-            $venta_cabecera['estatus_actual'] == PEDIDO_DEVUELTO and $venta_cabecera['venta_status'] != PEDIDO_DEVUELTO
-        ) {
-
-
-            foreach ($query_venta as $row) {
-
-                $venta_backup = array(
-                    'id_cliente' => $row['id_cliente'],
-                    'fecha' => $row['fecha'],
-                    'local_id' => $row['local_id'],
-                    'subtotal' => $row['subtotal'],
-                    'numero_documento' => $row['numero_documento'],
-                    'venta_status' => $venta_cabecera['venta_status'],
-                    'condicion_pago' => $row['condicion_pago'],
-                    'total_impuesto' => $row['total_impuesto'],
-                    'total' => $row['total'],
-                    'pagado' => $row['pagado'],
-                    'venta_tipo' => $row['venta_tipo'],
-                    'retencion' => $row['retencion']
-                );
-                $this->db->where('venta_id', $venta_id);
-                $this->db->update('venta', $venta_backup);
-            }
-
-
-            $this->db->where('id_venta', $venta_id);
-            $this->db->delete('detalle_venta');
-
-
-            $sql_detalle = $this->db->query("SELECT * FROM detalle_venta_backup where id_venta='$venta_id' ");
-
-            $query_detalle_venta_backup = $sql_detalle->result_array();
-
-            foreach ($query_detalle_venta_backup as $row) {
-
-                $detalle_item = array(
-                    'id_venta' => $venta_id,
-                    'id_producto' => $row['id_producto'],
-                    'precio' => $row['precio'],
-                    'precio_sugerido' => $row['precio_sugerido'],
-                    'cantidad' => $row['cantidad'],
-                    'unidad_medida' => $row['unidad_medida'],
-                    'detalle_costo_promedio' => $row['detalle_costo_promedio'],
-                    'detalle_utilidad' => $row['detalle_utilidad'],
-                    'detalle_importe' => $row['detalle_importe'],
-                    'bono' => $row['bono']
-                );
-                $this->db->insert('detalle_venta', $detalle_item);
-            }
-        }
 
         if ($detalle != false) {
 
@@ -503,7 +438,6 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
 
             $this->db->where('id_venta', $venta_id);
             $this->db->delete('detalle_venta');
-            $venta_backup_items = array();
 
             /***********COMIENZO A SUMAR EL INVENTARIO DE LA VENTA***************/
             foreach ($detalle as $row) {
@@ -682,13 +616,6 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
                 }
 
 
-
-                if ($venta_cabecera['venta_status'] == PEDIDO_GENERADO && $venta_cabecera['devolver'] != 1) {
-                    // $this->db->insert('detalle_venta_backup', $detalle_item);
-                    array_push($venta_backup_items, $detalle_item);
-                }
-
-
             }
 
         }
@@ -701,8 +628,6 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
 
 
             $this->db->where('id_venta', $venta_id);
-            $this->db->delete('detalle_venta_backup');
-            $this->db->insert_batch('detalle_venta_backup', $venta_backup_items);
         }
 
 
@@ -721,6 +646,108 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
         }
 
         $this->db->trans_off();
+    }
+
+    function set_numero_fiscal($venta_id)
+    {
+        $pedido = $this->db->get_where('venta', array('venta_id' => $venta_id))->row();
+        $pedido_detalles = $this->db->get_where('detalle_venta', array('id_venta' => $venta_id))->result();
+
+        $max_items = $pedido->tipo_doc_fiscal == 'FACTURA' ? valueOption('FACTURA_MAX', 1) : valueOption('BOLETA_MAX', 1);
+        $max_boleta_importe = $pedido->tipo_doc_fiscal == 'FACTURA' ? 0 : valueOption('MONTO_BOLETAS_VENTA', 0);
+
+        $count_importe = $max_boleta_importe;
+        $fiscal_id = $this->updateFiscal($pedido);
+        $count_items = 1;
+
+        foreach ($pedido_detalles as $detalle) {
+            $cantidad = 0;
+            $end_flag = true;
+
+            while ($end_flag) {
+
+                if ($count_items > $max_items) {
+                    $fiscal_id = $this->updateFiscal($pedido);
+                    $count_importe = $max_boleta_importe;
+                    $count_items = 1;
+                }
+
+
+                if ($max_boleta_importe == 0) {
+                    $cantidad = $detalle->cantidad;
+                    $end_flag = false;
+                } else {
+                    if ($count_importe >= ($detalle->cantidad * $detalle->precio)) {
+                        $cantidad = $detalle->cantidad;
+                        $count_importe = $count_importe - ($detalle->cantidad * $detalle->precio);
+                        $end_flag = false;
+                    } else {
+                        $cantidad_disponible = intval($count_importe / $detalle->precio) - 1;
+                        $detalle->cantidad -= $cantidad_disponible;
+                        $cantidad = $cantidad_disponible;
+                        $end_flag = true;
+                    }
+                }
+
+                $this->db->insert('documento_detalle', array(
+                    'documento_fiscal_id' => $fiscal_id,
+                    'id_venta' => $pedido->venta_id,
+                    'id_producto' => $detalle->id_producto,
+                    'precio' => $detalle->precio,
+                    'cantidad' => $cantidad,
+                    'id_unidad' => $detalle->unidad_medida,
+                    'detalle_importe' => $detalle->precio * $cantidad,
+                ));
+
+                if ($end_flag) {
+                    $fiscal_id = $this->updateFiscal($pedido);
+                    $count_importe = $max_boleta_importe;
+                    $count_items = 1;
+                }
+
+                $count_items++;
+
+            }
+
+        }
+    }
+
+    private function updateFiscal($pedido)
+    {
+        if ($pedido->tipo_doc_fiscal == 'FACTURA')
+            $this->db->where('config_key', 'FACTURA_NEXT');
+        else
+            $this->db->where('config_key', 'BOLETA_NEXT');
+
+        $numero = $this->db->get('configuraciones')->row();
+        $numero = $numero != NULL ? $numero->config_value : 1;
+
+        if ($pedido->tipo_doc_fiscal == 'FACTURA')
+            $this->db->where('config_key', 'FACTURA_SERIE');
+        else
+            $this->db->where('config_key', 'BOLETA_SERIE');
+
+        $serie = $this->db->get('configuraciones')->row();
+        $serie = $serie != NULL ? $serie->config_value : 1;
+
+        $this->db->insert('documento_fiscal', array(
+            'venta_id' => $pedido->venta_id,
+            'documento_tipo' => $pedido->tipo_doc_fiscal,
+            'documento_serie' => sumCod($serie, 4),
+            'documento_numero' => sumCod($numero, 5)
+        ));
+
+        $fiscal_id = $this->db->insert_id();
+
+        //Actualizo el siguiente correlativo
+        if ($pedido->tipo_doc_fiscal == 'FACTURA')
+            $this->db->where('config_key', 'FACTURA_NEXT');
+        else
+            $this->db->where('config_key', 'BOLETA_NEXT');
+
+        $this->db->update('configuraciones', array('config_value' => $numero + 1));
+
+        return $fiscal_id;
     }
 
 
@@ -908,61 +935,6 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
         return $query->row_array();
     }
 
-    function restaurar_venta($id, $campos)
-    {
-        if (isset($campos['estatus_actual']) and $campos['estatus_actual'] == PEDIDO_DEVUELTO and $campos['venta_status'] != PEDIDO_DEVUELTO) {
-
-            $sql_venta = $this->db->query("SELECT * FROM venta_backup where venta_id='$id' ");
-
-            $query_venta = $sql_venta->result_array();
-
-            foreach ($query_venta as $row) {
-
-                $venta_backup = array(
-                    'id_cliente' => $row['id_cliente'],
-                    'fecha' => $row['fecha'],
-                    'id_vendedor' => $row['id_vendedor'],
-                    'local_id' => $row['local_id'],
-                    'subtotal' => $row['subtotal'],
-                    'numero_documento' => $row['numero_documento'],
-                    'venta_status' => $campos['venta_status'],
-                    'condicion_pago' => $row['condicion_pago'],
-                    'total_impuesto' => $row['total_impuesto'],
-                    'total' => $row['total'],
-                    'pagado' => $row['pagado'],
-                    'venta_tipo' => $row['venta_tipo']
-
-                );
-                $this->db->where('venta_id', $id);
-                $this->db->update('venta', $venta_backup);
-            }
-
-
-            $this->db->where('id_venta', $id);
-            $this->db->delete('detalle_venta');
-
-            $sql_detalle = $this->db->query("SELECT * FROM detalle_venta_backup where id_venta='$id' ");
-
-            $query_detalle_venta_backup = $sql_detalle->result_array();
-
-            foreach ($query_detalle_venta_backup as $row) {
-
-                $detalle_item = array(
-                    'id_venta' => $id,
-                    'id_producto' => $row['id_producto'],
-                    'precio' => $row['precio'],
-                    'precio_sugerido' => $row['precio_sugerido'],
-                    'cantidad' => $row['cantidad'],
-                    'unidad_medida' => $row['unidad_medida'],
-                    'detalle_costo_promedio' => $row['detalle_costo_promedio'],
-                    'detalle_utilidad' => $row['detalle_utilidad'],
-                    'detalle_importe' => $row['detalle_importe'],
-                    'bono' => $row['bono']
-                );
-                $this->db->insert('detalle_venta', $detalle_item);
-            }
-        }
-    }
 
     function devolver_stock($id, $campos, $status = false)
     {
@@ -1049,7 +1021,6 @@ WHERE detalle_venta.id_venta='$id' group by detalle_venta.id_detalle");
             $this->update_inventario($inventario_nuevo, $where);
 
 
-            
         }
 
 
@@ -1650,42 +1621,6 @@ where v.venta_id=" . $id_venta . " group by tr.id_detalle order by 1 ";
         return $query->result_array();
     }
 
-    function obtener_venta_backup($id_venta)
-    {
-        $querystring = "select v.venta_id,v.total as montoTotal,v.subtotal  as subTotal,
- v.total_impuesto as impuesto, v.pagado,cli_dat.valor as clienteDireccion, pd.producto_nombre as nombre,pd.costo_unitario,pd.presentacion,tr.bono,
- pd.producto_cualidad, pd.producto_id as producto_id, pd.venta_sin_stock, tr.precio_sugerido, tr.cantidad as cantidad ,tr.precio as preciounitario, tr.id_detalle,
-tr.detalle_importe as importe, v.fecha as fechaemision, cre.dec_credito_montodeuda,
-p.nombre as vendedor,p.nUsuCodigo as id_vendedor,t.nombre_tipo_documento as descripcion, t.documento_Serie as serie, t.documento_Numero as numero, t.nombre_tipo_documento,df.documento_tipo,
-c.razon_social as cliente, c.id_cliente as cliente_id, cli_dat.valor as direccion_cliente,c.representante as representanteCliente,cli_dat2.valor as telefonoC1,
- c.identificacion as documento_cliente, cp.id_condiciones, cp.nombre_condiciones, v.venta_status,v.venta_tipo, u.id_unidad, u.nombre_unidad, u.abreviatura,
- i.porcentaje_impuesto, up.unidades, up.orden,
- (select config_value from configuraciones where config_key='" . EMPRESA_NOMBRE . "') as RazonSocialEmpresa,
- (select config_value from configuraciones where config_key='" . EMPRESA_DIRECCION . "') as DireccionEmpresa,
- (select config_value from configuraciones where config_key='" . EMPRESA_TELEFONO . "') as TelefonoEmpresa,
- (select abreviatura from unidades_has_producto join unidades on unidades.id_unidad=unidades_has_producto.id_unidad
- where id_producto=pd.producto_id order by orden desc limit 1) as unidad_minima
-from venta_backup as v
-inner join usuario p on p.nUsuCodigo = v.id_vendedor
-inner join documento_venta t on t.id_tipo_documento = v.numero_documento
-left join documento_fiscal df on df.venta_id = v.venta_id
-inner join detalle_venta_backup tr on tr.id_venta = v.venta_id
-inner join cliente c on c.id_cliente = v.id_cliente
-inner join producto pd on pd.producto_id = tr.id_producto
-inner join condiciones_pago cp on cp.id_condiciones = v.condicion_pago
-inner join unidades u on u.id_unidad = tr.unidad_medida
-inner join impuestos i on i.id_impuesto = pd.producto_impuesto
-inner join unidades_has_producto up on up.producto_id = pd.producto_id and up.id_unidad=tr.unidad_medida
-join (SELECT c.cliente_id, c.tipo, c.valor, c.principal, COUNT(*) FROM cliente_datos c WHERE c.tipo =1 GROUP BY c.cliente_id, c.tipo  ) cli_dat on cli_dat.cliente_id = c.id_cliente
-left join (SELECT c1.cliente_id, c1.tipo, c1.valor, c1.principal, COUNT(*) FROM cliente_datos c1 WHERE c1.tipo =2 GROUP BY c1.cliente_id, c1.tipo  ) cli_dat2 on cli_dat2.cliente_id = c.id_cliente
-left join credito cre on cre.id_venta=v.venta_id
-where v.venta_id=" . $id_venta . " group by tr.id_detalle order by 1 ";
-
-        $query = $this->db->query($querystring);
-        //   echo $this->db->last_Query();
-
-        return $query->result_array();
-    }
 
     function documentoVenta($id_venta = null)
     {
@@ -1762,7 +1697,7 @@ where v.venta_id=" . $id_venta . " group by tr.id_detalle order by 1 ";
 				v.venta_id,
 				" . $produCol . "
 				pd.producto_nombre as nombre,
-			dd.documento_fiscal_id as documento_id,
+			    df.documento_fiscal_id as documento_fiscal_id,
 				pd.producto_cualidad,
 
 				pd.producto_id as producto_id,
@@ -1787,13 +1722,14 @@ where v.venta_id=" . $id_venta . " group by tr.id_detalle order by 1 ";
 			from
 				venta as v
 				" . $produAdd . "
+				inner join documento_fiscal df on df.venta_id = v.venta_id
 				inner join producto pd on pd.producto_id = dd.id_producto
 				inner join detalle_venta dv on dv.id_producto = pd.producto_id
 				inner join unidades u on u.id_unidad = " . $unidadCol . "
 				inner join impuestos i on i.id_impuesto = pd.producto_impuesto
 				inner join unidades_has_producto up on up.producto_id = pd.producto_id and up.id_unidad = " . $unidadCol . "
 			where
-				v.venta_id = " . $id_venta . " and dd.documento_fiscal_id=" . $venta['documento_id'] . " group by documento_detalle_id  order by 1,productoDV desc ");
+				v.venta_id = " . $id_venta . " and dd.documento_fiscal_id=" . $venta['documento_id'] . " group by documento_detalle_id  order by 1, productoDV desc ");
 
             $productos = $productos->result_array();
 //echo $this->db->last_query();

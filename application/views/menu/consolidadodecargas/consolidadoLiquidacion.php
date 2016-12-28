@@ -74,7 +74,7 @@
 
                                         ?>
                                         <button type="button" id="liquidar"
-                                                onclick="liquidarPedido(<?php echo $consolidadoDetalles['pedido_id'] ?>, <?php echo $consolidadoDetalles['pagado'] ?>, <?php echo $consolidadoDetalles['total'] ?>,<?php echo $consolidadoDetalles['consolidado_id'] ?>,'ENTREGADO',<?= $consolidadoDetalles['montocobradoliquidacion'] ?>,<?= $consolidadoDetalles['totalbackup'] ?>);"
+                                                onclick="liquidarPedido(<?php echo $consolidadoDetalles['pedido_id'] ?>, <?php echo $consolidadoDetalles['pagado'] ?>, <?php echo $consolidadoDetalles['total'] ?>,<?php echo $consolidadoDetalles['consolidado_id'] ?>,'ENTREGADO',<?= $consolidadoDetalles['montocobradoliquidacion'] ?>,<?= $consolidadoDetalles['total'] ?>);"
                                                 class="btn btn-sm btn-default"><i class="fa fa-refresh"></i>
                                             Liquidar
                                         </button>

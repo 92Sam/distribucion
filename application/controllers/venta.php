@@ -142,19 +142,6 @@ class venta extends MY_Controller
         echo $this->load->view('menu/ventas/EditarPedidosVentas', $data, true);
     }
 
-    function venta_backup()
-    {
-        $idventa = $this->input->post('idventa');
-
-        $data = array();
-
-        if ($idventa !== FALSE) {
-            $data['venta'] = $this->venta_model->obtener_venta_backup($idventa);
-        }
-
-        echo json_encode($data);
-    }
-
     function registrar_venta()
     {
         $dataresult = array();
@@ -2369,7 +2356,7 @@ class venta extends MY_Controller
         $idventa = $this->input->post('idventa');
         $result['ventas'] = array();
         if ($idventa != FALSE) {
-            $result['notasdentrega'][]['ventas'] = $this->venta_model->obtener_venta_backup($idventa);
+            $result['notasdentrega'][]['ventas'] = $this->venta_model->obtener_venta($idventa);
             $where = array('consolidado_detalle.pedido_id' => $idventa);
             $result['detalleC'] = $this->consolidado_model->get_detalle_by($where);
             $result['id_venta'] = $idventa;
@@ -2382,7 +2369,7 @@ class venta extends MY_Controller
     {
 
         if ($tipo == 'VENTA') {
-            $result['notasdentrega'][]['ventas'] = $this->venta_model->obtener_venta_backup($id);
+            $result['notasdentrega'][]['ventas'] = $this->venta_model->obtener_venta($id);
             $where = array('consolidado_detalle.pedido_id' => $id);
             $result['detalleC'] = $this->consolidado_model->get_detalle_by($where);
         } else {
@@ -2395,7 +2382,7 @@ class venta extends MY_Controller
                 if ($id != FALSE) {
                     $result['retorno'] = 'consolidadodecargas';
                     $result['id_venta'] = $id_pedido;
-                    $result['notasdentrega'][]['ventas'] = $this->venta_model->obtener_venta_backup($id_pedido);
+                    $result['notasdentrega'][]['ventas'] = $this->venta_model->obtener_venta($id_pedido);
                 }
             }
         }

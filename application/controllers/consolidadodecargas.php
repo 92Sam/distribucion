@@ -347,7 +347,7 @@ class consolidadodecargas extends MY_Controller
             if ($id != FALSE) {
                 $result['retorno'] = 'consolidadodecargas';
                 $result['id_venta'] = $id_pedido;
-                $result['notasdentrega'][]['ventas'] = $this->venta_model->obtener_venta_backup($id_pedido);
+                $result['notasdentrega'][]['ventas'] = $this->venta_model->obtener_venta($id_pedido);
             }
         }
 
@@ -374,7 +374,6 @@ class consolidadodecargas extends MY_Controller
             $venta['venta_status'] = PEDIDO_RECHAZADO;
             $venta['nUsuCodigo'] = $this->session->userdata('nUsuCodigo');
 
-            $this->venta_model->restaurar_venta($id_pedido, $venta);
             $result = $this->venta_model->devolver_stock($id_pedido, $venta, $venta['venta_status']);
             $this->consolidado_model->updateDetalle(array('pedido_id' => $id_pedido, 'liquidacion_monto_cobrado' => 0.00));
         }
@@ -385,7 +384,6 @@ class consolidadodecargas extends MY_Controller
             $venta['importe'] = $venta['pagado'];
             $venta['devolver'] = 'false';
             $venta['diascondicionpagoinput'] = $venta['dias'];
-            $this->venta_model->restaurar_venta($id_pedido, $venta);
             $this->consolidado_model->updateDetalle(array('pedido_id' => $id_pedido, 'liquidacion_monto_cobrado' => $monto));
             $result = $this->venta_model->update_status($id_pedido, $venta['venta_status'], $this->session->userdata('nUsuCodigo'));
             $result = $this->venta_model->actualizarCredito(array('dec_credito_montodeuda' => $venta['total']), array('id_venta' => $id_pedido));
@@ -626,9 +624,16 @@ class consolidadodecargas extends MY_Controller
 
     function pdf($id)
     {
+        $consolidado = $this->db->get_where('consolidado_carga', array('consolidado_id' => $id))->row();
+        if ($consolidado->status == 'ABIERTO') {
+            $pedidos = $this->db->get_where('consolidado_detalle', array('consolidado_id' => $id))->result();
+            foreach ($pedidos as $pedido) {
+                $this->venta_model->set_numero_fiscal($pedido->pedido_id);
+            }
+        }
 
         $data['notasdeentrega'] = $this->consolidado_model->get_documentoVenta_by_id($id, false);
-        $data['detalleProducto'] = $this->consolidado_model->get_detalle_backup($id);
+        $data['detalleProducto'] = $this->consolidado_model->get_detalle($id);
         //   var_dump($data['notasdeentrega']);
         $where = array('consolidado_id' => $id);
         $data['consolidado'] = $this->consolidado_model->get_consolidado_by($where);
