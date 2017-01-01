@@ -67,21 +67,6 @@
                 </tr>
                 </thead>
                 <tbody>
-                <?php if ($pagos->liquidacion->monto > 0): ?>
-                    <tr>
-                        <td><?= date('d/m/Y', strtotime($pagos->liquidacion->fecha)) ?></td>
-                        <td><?= $pagos->liquidacion->pago_nombre ?></td>
-                        <td><?= $pagos->liquidacion->pago_id == 4 ? 'BANCO: ' . $pagos->liquidacion->banco_nombre : 'CAJA' ?></td>
-                        <td><?= $pagos->liquidacion->num_oper ?></td>
-                        <td><?= MONEDA . ' ' . number_format($pagos->liquidacion->monto, 2) ?></td>
-                        <td>
-                            <label style="margin-bottom: 0px;"
-                                   class="control-label badge b-default">
-                                <?= $pagos->liquidacion->estado ?>
-                            </label>
-                        </td>
-                    </tr>
-                <?php endif; ?>
                 <?php foreach ($pagos->detalles as $pago): ?>
                     <tr>
                         <td><?= date('d/m/Y', strtotime($pago->fecha)) ?></td>

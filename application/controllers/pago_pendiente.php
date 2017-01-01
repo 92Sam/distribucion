@@ -204,6 +204,9 @@ class pago_pendiente extends MY_Controller
             'responsable_id' => $this->session->userdata('nUsuCodigo')
         ));
 
+        $consolidado = $this->db->get_where('consolidado_detalle', array('pedido_id' => $pedido->credito_id))->row();
+        $this->consolidado_model->confirmar_consolidado($consolidado->consolidado_id);
+
         header('Content-Type: application/json');
         echo json_encode(array('success' => 1));
     }

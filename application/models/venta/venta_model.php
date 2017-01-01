@@ -883,18 +883,18 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
 
             $this->db->insert('detalle_venta', array(
                 'id_venta' => $venta_id,
-                'id_producto' => $historia->producto_id,
-                'precio' => $historia->precio_unitario,
+                'id_producto' => $detalle->producto_id,
+                'precio' => $detalle->precio_unitario,
                 'cantidad' => $detalle->stock,
-                'unidad_medida' => $historia->unidad_id,
-                'detalle_importe' => $historia->precio_unitario * $detalle->stock,
+                'unidad_medida' => $detalle->unidad_id,
+                'detalle_importe' => $detalle->precio_unitario * $detalle->stock,
                 'precio_sugerido' => 0,
-                'detalle_costo_promedio' => $historia->costo_unitario,
-                'detalle_utilidad' => ($historia->precio_unitario - $historia->costo_unitario) * $detalle->stock,
-                'bono' => $historia->bonificacion,
+                'detalle_costo_promedio' => $detalle->costo_unitario,
+                'detalle_utilidad' => ($detalle->precio_unitario - $detalle->costo_unitario) * $detalle->stock,
+                'bono' => $detalle->bonificacion,
             ));
 
-            $total_importe += $historia->precio_unitario * $detalle->stock;
+            $total_importe += $detalle->precio_unitario * $detalle->stock;
         }
 
         $total = $total_importe;

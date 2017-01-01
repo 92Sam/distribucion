@@ -248,6 +248,16 @@ class venta extends MY_Controller
 
                         $this->historial_pedido_model->editar_pedido(PROCESO_GENERAR, $resultado);
                     }
+                    if ($resultado != false) {
+                        
+                        $this->ventaEstatus($id, $this->input->post('venta_status', true));
+
+                        $dataresult['estatus_consolidado'] = $this->input->post('estatus_consolidado', true);;
+                        $dataresult['msj'] = "guardo";
+                        $dataresult['idventa'] = $resultado;
+                    } else {
+                        $dataresult['msj'] = "no guardo";
+                    }
                 } else {
                     $dataresult['msj'] = "no guardo";
                 }

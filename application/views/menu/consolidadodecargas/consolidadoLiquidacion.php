@@ -20,7 +20,9 @@
                             <th style="text-align: center">Cliente</th>
                             <th style="text-align: center">Importe Actual</th>
                             <th style="text-align: center">Estado</th>
-                            <th style="text-align: center">Acciones</th>
+                            <?php if ($status == 'IMPRESO'): ?>
+                                <th style="text-align: center">Acciones</th>
+                            <?php endif; ?>
                             <th style="text-align: center">Monto Cobrado</th>
 
                         </tr>
@@ -40,15 +42,17 @@
                                 </td>
                                 <td style="text-align: center"><?= $consolidadoDetalles['venta_status'] ?></td>
                                 <?php if ($consolidadoDetalles['venta_status'] == 'ENVIADO') $cerrar_consolidado_flag = false; ?>
-
-                                <td style="text-align: center">
-                                    <button type="button" id="liquidar_p"
-                                            data-pedido_id="<?= $consolidadoDetalles['venta_id']; ?>"
-                                            class="btn btn-sm btn-<?= $consolidadoDetalles['venta_status'] == 'ENVIADO' ? 'default' : 'warning'?> liquidar_pedido"><i
-                                            class="fa fa-refresh"></i>
-                                        <?= $consolidadoDetalles['venta_status'] == 'ENVIADO' ? 'Liquidar' : 'Cambiar'?>
-                                    </button>
-                                </td>
+                                <?php if ($status == 'IMPRESO'): ?>
+                                    <td style="text-align: center">
+                                        <button type="button" id="liquidar_p"
+                                                data-pedido_id="<?= $consolidadoDetalles['venta_id']; ?>"
+                                                class="btn btn-sm btn-<?= $consolidadoDetalles['venta_status'] == 'ENVIADO' ? 'default' : 'warning' ?> liquidar_pedido">
+                                            <i
+                                                class="fa fa-refresh"></i>
+                                            <?= $consolidadoDetalles['venta_status'] == 'ENVIADO' ? 'Liquidar' : 'Cambiar' ?>
+                                        </button>
+                                    </td>
+                                <?php endif; ?>
                                 <?php $total_liquidado += $consolidadoDetalles['montocobradoliquidacion']; ?>
                                 <td style="text-align: right;"><?= MONEDA . ' ' . number_format($consolidadoDetalles['montocobradoliquidacion'], 2) ?></td>
                             </tr>
@@ -78,18 +82,20 @@
                             <li class="glyphicon glyphicon-thumbs-down"></li>
                             Salir
                         </button>
-                        <div style="float:left; margin-right: 10px">
-                            <button type="button" class="btn btn-sm btn-info"
-                                    onclick="pedidoDevolucion(<?php echo $id_consolidado ?>);">
-                                <i class="fa fa-print"></i> Devoluciones
-                            </button>
-                        </div>
-                        <div style="float:left;">
-                            <button type="button" class="btn btn-sm btn-info"
-                                    onclick="pedidoPreCancelacion(<?php echo $id_consolidado ?>);">
-                                <i class="fa fa-print"></i> Pre-Cancelación
-                            </button>
-                        </div>
+                        <?php if ($status == 'CONFIRMADO'): ?>
+                            <div style="float:left; margin-right: 10px">
+                                <button type="button" class="btn btn-sm btn-info"
+                                        onclick="pedidoDevolucion(<?php echo $id_consolidado ?>);">
+                                    <i class="fa fa-print"></i> Devoluciones
+                                </button>
+                            </div>
+                            <div style="float:left;">
+                                <button type="button" class="btn btn-sm btn-info"
+                                        onclick="pedidoPreCancelacion(<?php echo $id_consolidado ?>);">
+                                    <i class="fa fa-print"></i> Pre-Cancelación
+                                </button>
+                            </div>
+                        <?php endif; ?>
 
                     </div>
                 </div>
@@ -173,7 +179,7 @@
 
                         if (data.pedido.venta_status != 'RECHAZADO')
                             $(".pago_block").show();
-                        else{
+                        else {
                             $("#total").val('0.00');
                             $(".pago_block").hide();
                         }

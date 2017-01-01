@@ -525,10 +525,6 @@ class venta_cobro_model extends CI_Model
                 $this->pagar_nota_pedido($venta->venta_id, $data);
             }
         }
-
-        if ($total_pagado > 0) {
-            //AQUI HAGO LA ACTUALIZACION DE QU ELE KEDO SALDO A FAVOR AL CLIENTE.
-        }
     }
 
 

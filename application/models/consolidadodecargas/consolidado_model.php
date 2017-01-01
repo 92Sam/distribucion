@@ -12,6 +12,23 @@ class consolidado_model extends CI_Model
         $this->load->model('venta/venta_cobro_model');
     }
 
+    function confirmar_consolidado($id)
+    {
+
+        $consolidado = $this->db->select('
+            ((select count(*) from consolidado_detalle where consolidado_detalle.consolidado_id = ' . $id . ') - count(*)) as terminado
+        ')
+            ->from('consolidado_detalle')
+            ->join('historial_pedido_proceso', 'historial_pedido_proceso.pedido_id = consolidado_detalle.pedido_id')
+            ->where('consolidado_detalle.consolidado_id', $id)
+            ->where('historial_pedido_proceso.proceso_id', PROCESO_LIQUIDAR)->get()->row();
+
+        if ($consolidado->terminado == 0) {
+            $this->db->where('consolidado_id', $id);
+            $this->db->update('consolidado_carga', array('status' => 'CONFIRMADO'));
+        }
+    }
+
     function editar_consolidado($consolidado_id, $data)
     {
         $consolidado = $this->db->get_where('consolidado_carga', array('consolidado_id' => $consolidado_id))->row();
