@@ -865,6 +865,50 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
         }
     }
 
+    public function reset_venta($venta_id)
+    {
+        $this->db->where('detalle_venta.id_venta', $venta_id);
+        $this->db->delete('detalle_venta');
+
+        $proceso = $this->db->get_where('historial_pedido_proceso', array(
+            'proceso_id' => PROCESO_IMPRIMIR,
+            'pedido_id' => $venta_id
+        ))->row();
+
+        $historia = $this->db->get_where('historial_pedido_detalle', array('historial_pedido_proceso_id' => $proceso->id))->result();
+
+        $cantidades = array();
+        $total_importe = 0;
+        foreach ($historia as $detalle) {
+
+            $this->db->insert('detalle_venta', array(
+                'id_venta' => $venta_id,
+                'id_producto' => $historia->producto_id,
+                'precio' => $historia->precio_unitario,
+                'cantidad' => $detalle->stock,
+                'unidad_medida' => $historia->unidad_id,
+                'detalle_importe' => $historia->precio_unitario * $detalle->stock,
+                'precio_sugerido' => 0,
+                'detalle_costo_promedio' => $historia->costo_unitario,
+                'detalle_utilidad' => ($historia->precio_unitario - $historia->costo_unitario) * $detalle->stock,
+                'bono' => $historia->bonificacion,
+            ));
+
+            $total_importe += $historia->precio_unitario * $detalle->stock;
+        }
+
+        $total = $total_importe;
+        $impuesto = number_format(($total * 18) / 100, 2);
+        $subtotal = $total - $impuesto;
+
+        $this->db->where('venta_id', $venta_id);
+        $this->db->update('venta', array(
+            'total' => $total,
+            'subtotal' => $subtotal,
+            'total_impuesto' => $impuesto,
+        ));
+    }
+
     function updateVentaTipo($venta_cabecera)
     {
 
