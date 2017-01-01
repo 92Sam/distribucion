@@ -620,17 +620,6 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
 
         }
 
-
-        /************************************/
-
-
-        if ($venta_cabecera['venta_status'] == PEDIDO_GENERADO && $venta_cabecera['devolver'] != 1) {
-
-
-            $this->db->where('id_venta', $venta_id);
-        }
-
-
         /**Credito o contado*/
         $this->updateVentaTipo($venta_cabecera);
 
@@ -750,6 +739,131 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
         return $fiscal_id;
     }
 
+    function get_venta_detalle($venta_id)
+    {
+        $venta = $this->db->select('
+            venta.venta_id as venta_id,
+            venta.numero_documento as documento_id
+        ')->from('venta')->where('venta_id', $venta_id)->get()->row();
+
+        $proceso = $this->db->get_where('historial_pedido_proceso', array(
+            'proceso_id' => PROCESO_IMPRIMIR,
+            'pedido_id' => $venta_id
+        ))->row();
+
+        $venta->detalles = $this->db->select('
+            historial_pedido_detalle.id as detalle_id,
+            historial_pedido_detalle.producto_id as producto_id,
+            producto.producto_nombre as producto_nombre,
+            historial_pedido_detalle.precio_unitario as precio,
+            historial_pedido_detalle.stock as cantidad,
+            historial_pedido_detalle.unidad_id as unidad_id,
+            historial_pedido_detalle.bonificacion as bono,
+            unidades.nombre_unidad as unidad_nombre,
+            unidades.abreviatura as unidad_abr,
+            (historial_pedido_detalle.precio_unitario * historial_pedido_detalle.stock) as importe
+            ')
+            ->from('historial_pedido_detalle')
+            ->join('historial_pedido_proceso', 'historial_pedido_proceso.id=historial_pedido_detalle.historial_pedido_proceso_id')
+            ->join('producto', 'producto.producto_id=historial_pedido_detalle.producto_id')
+            ->join('unidades', 'unidades.id_unidad=historial_pedido_detalle.unidad_id')
+            ->where('historial_pedido_detalle.historial_pedido_proceso_id', $proceso->id)
+            ->order_by('historial_pedido_detalle.bonificacion', 'ASC')
+            ->get()->result();
+
+        $venta->subtotal = 0;
+
+        foreach ($venta->detalles as $detalle) {
+
+            $venta->total += $detalle->cantidad * $detalle->precio;
+
+            $detalle->bonus_datos = null;
+
+            $where_not = array();
+
+            if ($detalle->bono == 1) {
+                $this->db->select('
+                    bonificaciones.cantidad_condicion,
+                    bonificaciones.bono_cantidad,
+                    bonificaciones.id_unidad as unidad_id,
+                    bonificaciones.cantidad_condicion,
+                    bonificaciones_has_producto.id_producto as producto_id,
+                    historial_pedido_detalle.id as detalle_id
+                ')
+                    ->from('venta')
+                    ->join('historial_pedido_proceso', 'historial_pedido_proceso.pedido_id = venta.venta_id')
+                    ->join('historial_pedido_detalle', 'historial_pedido_detalle.historial_pedido_proceso_id = historial_pedido_proceso.id')
+                    ->join('bonificaciones_has_producto', 'bonificaciones_has_producto.id_producto = historial_pedido_detalle.producto_id')
+                    ->join('bonificaciones', 'bonificaciones.id_bonificacion = bonificaciones_has_producto.id_bonificacion')
+                    ->join('cliente', 'cliente.id_cliente = venta.id_cliente')
+                    ->where('cliente.grupo_id = bonificaciones.id_grupos_cliente')
+                    ->where('historial_pedido_detalle.bonificacion = 0')
+                    ->where('historial_pedido_detalle.stock >= bonificaciones.cantidad_condicion')
+                    ->where('historial_pedido_proceso.proceso_id', PROCESO_IMPRIMIR)
+                    ->where('bonificaciones.bono_producto', $detalle->producto_id)
+                    ->where('bonificaciones.bono_unidad', $detalle->unidad_id)
+                    ->where('venta.venta_id', $venta_id);
+
+                if (count($where_not) > 0)
+                    $this->db->where_not_in('historial_pedido_detalle.id', $where_not);
+
+                $temp = $this->db->get()->result();
+
+                $counter = 0;
+                foreach ($temp as $bonus) {
+                    if ($counter++ == 0) {
+                        $detalle->bonus_dato = new stdClass();
+                        $detalle->bonus_dato = $bonus;
+                        $where_not[] = $bonus->detalle_id;
+                    } else
+                        break;
+
+                }
+            }
+        }
+
+        $venta->impuesto = number_format(($venta->total * 18) / 100, 2);
+        $venta->subtotal = $venta->total - $venta->impuesto;
+
+        return $venta;
+    }
+
+    public function devolver_venta($venta_id, $total_importe, $devoluciones)
+    {
+        $total = $total_importe;
+        $impuesto = number_format(($total * 18) / 100, 2);
+        $subtotal = $total - $impuesto;
+
+        $this->db->where('venta_id', $venta_id);
+        $this->db->update('venta', array(
+            'total' => $total,
+            'subtotal' => $subtotal,
+            'total_impuesto' => $impuesto,
+        ));
+
+        $this->db->where('detalle_venta.id_venta', $venta_id);
+        $this->db->delete('detalle_venta');
+
+        $cantidades = array();
+        foreach ($devoluciones as $detalle) {
+            if ($detalle->new_cantidad != 0) {
+                $historia = $this->db->get_where('historial_pedido_detalle', array('id' => $detalle->detalle_id))->row();
+
+                $this->db->insert('detalle_venta', array(
+                    'id_venta' => $venta_id,
+                    'id_producto' => $historia->producto_id,
+                    'precio' => $historia->precio_unitario,
+                    'cantidad' => $detalle->new_cantidad,
+                    'unidad_medida' => $historia->unidad_id,
+                    'detalle_importe' => $historia->precio_unitario * $detalle->new_cantidad,
+                    'precio_sugerido' => 0,
+                    'detalle_costo_promedio' => $historia->costo_unitario,
+                    'detalle_utilidad' => ($historia->precio_unitario - $historia->costo_unitario) * $detalle->new_cantidad,
+                    'bono' => $historia->bonificacion,
+                ));
+            }
+        }
+    }
 
     function updateVentaTipo($venta_cabecera)
     {
@@ -1748,17 +1862,17 @@ where v.venta_id=" . $id_venta . " group by tr.id_detalle order by 1 ";
         return $data;
     }
 
-    function update_status($id_venta, $estatus, $vendedor_id)
+    function update_status($id_venta, $estatus)
     {
         $this->db->trans_start();
-
+        $pedido = $this->db->get_where('venta', array('venta_id' => $id_venta))->row();
         $data = array('venta_status' => $estatus);
         //CAMBIO DE ESTATUS EN EL DE LA VENTA
         $this->db->where('venta_id', $id_venta);
         $this->db->update('venta', $data);
         //INSERCION PARA LLEVAR REGISTRO DE CAMBIO DE ESTATUS
 
-        $dataregistro = array('venta_id' => $id_venta, 'vendedor_id' => $vendedor_id,
+        $dataregistro = array('venta_id' => $id_venta, 'vendedor_id' => $pedido->id_vendedor,
             'estatus' => $estatus, 'fecha' => date('Y-m-d h:m:s'));
         $this->db->insert('venta_estatus', $dataregistro);
 

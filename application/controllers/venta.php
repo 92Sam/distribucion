@@ -72,15 +72,18 @@ class venta extends MY_Controller
 
     function pedidos()
     {
+        $user_grupo = $this->session->userdata('grupo');
         $idventa = $this->input->post('idventa');
         $vendedor = null;
         $data = array();
         $useradmin = $this->session->userdata('admin');
-        if ($useradmin == 1) {
+        if ($useradmin == 1 || $user_grupo != 2) {
+            $data["vendedores"] = $this->usuario_model->select_all_by_roll('Vendedor');
             $data["clientes"] = $this->cliente_model->get_all();
             $data['zonas'] = $this->venta_model->zonaVendedor(FALSE, date('N'));
         } else {
             $vendedor = $this->session->userdata('nUsuCodigo');
+            $data["vendedores"] = $this->usuario_model->select_all_by_roll('Vendedor', $vendedor);
             $data["clientes"] = $this->cliente_model->get_all($vendedor);
             $data['zonas'] = $this->venta_model->zonaVendedor($vendedor, date('N'));
         }
@@ -142,6 +145,23 @@ class venta extends MY_Controller
         echo $this->load->view('menu/ventas/EditarPedidosVentas', $data, true);
     }
 
+    function devolver_pedido()
+    {
+        $venta_id = $this->input->post('venta_id');
+        $data['venta'] = $this->venta_model->get_venta_detalle($venta_id);
+        $data['detalle'] = 'devolver';
+        $this->load->view('menu/ventas/devolverDetalles', $data);
+    }
+
+    function devolver_venta()
+    {
+        $venta_id = $this->input->post('venta_id');
+        $total_importe = $this->input->post('total_importe');
+        $devoluciones = json_decode($this->input->post('devoluciones'));
+        $this->venta_model->devolver_venta($venta_id, $total_importe, $devoluciones);
+    }
+    
+
     function registrar_venta()
     {
         $dataresult = array();
@@ -162,7 +182,7 @@ class venta extends MY_Controller
                     $venta = array(
                         'fecha' => date("Y-m-d H:i:s"),
                         'id_cliente' => $this->input->post('id_cliente', true),
-                        'id_vendedor' => $this->session->userdata('nUsuCodigo'),
+                        'id_vendedor' => $this->input->post('id_vendedor', true),
                         'venta_tipo' => $this->input->post('venta_tipo'),
 
                         'condicion_pago' => $this->input->post('condicion_pago', true),
@@ -201,9 +221,9 @@ class venta extends MY_Controller
                     }
 
                     //var_dump($detalle);
-                    
+
                     $id = $this->input->post('idventa');
-                        $montoboletas = $this->session->userdata('MONTO_BOLETAS_VENTA');
+                    $montoboletas = $this->session->userdata('MONTO_BOLETAS_VENTA');
                     if (empty($id)) {
                         $resultado = $this->venta_model->insertar_venta($venta, $detalle, $montoboletas);
                         $id = $resultado;
@@ -225,20 +245,8 @@ class venta extends MY_Controller
                         //quito retencion pq no edito aqui ese campo
                         unset($venta['retencion']);
                         $resultado = $this->venta_model->actualizar_venta($venta, $detalle, $montoboletas);
-                        
-                        $this->historial_pedido_model->editar_pedido(PROCESO_GENERAR, $resultado);
-                    }
-                    if ($resultado != false) {
-                        if ($this->input->post('devolver') == 'true') {
-                            $this->consolidado_model->updateDetalle(array('pedido_id' => $id, 'liquidacion_monto_cobrado' => $this->input->post('importe', true)));
-                        }
-                        $this->ventaEstatus($id, $this->input->post('venta_status', true));
 
-                        $dataresult['estatus_consolidado'] = $this->input->post('estatus_consolidado', true);;
-                        $dataresult['msj'] = "guardo";
-                        $dataresult['idventa'] = $resultado;
-                    } else {
-                        $dataresult['msj'] = "no guardo";
+                        $this->historial_pedido_model->editar_pedido(PROCESO_GENERAR, $resultado);
                     }
                 } else {
                     $dataresult['msj'] = "no guardo";

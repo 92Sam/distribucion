@@ -116,12 +116,8 @@ class consolidadodecargas extends MY_Controller
         $pedidos = $this->input->post('pedidos');
         $data['fecha'] = date('Y-m-d', strtotime($this->input->post('fecha_consolidado'))) . " " . date('H:i:s');
         $data['status'] = 'ABIERTO';
-        if ($this->input->post('id_consolidado') != "") {
-            $data['consolidado_id'] = $this->input->post('id_consolidado');
-            $guardar = $this->consolidado_model->updateConsolidado($data, $pedidos);
-        } else {
-            $guardar = $this->consolidado_model->set_consolidado($data, $pedidos);
-        }
+
+        $guardar = $this->consolidado_model->set_consolidado($data, $pedidos);
 
         if ($guardar != FALSE) {
 
@@ -188,12 +184,9 @@ class consolidadodecargas extends MY_Controller
         if ($id != FALSE) {
             $where = array('consolidado_id' => $id);
             $data['status'] = $status;
-            $data['consolidado'] =
-                $this->consolidado_model->get_details_by($where);
-
+            $data['consolidado'] = $this->consolidado_model->get_details_by($where);
         }
 
-        //var_dump($data['consolidado']);
         $data['id_consolidado'] = $id;
         $this->load->view('menu/consolidadodecargas/consolidadoLiquidacion', $data);
     }
@@ -244,6 +237,25 @@ class consolidadodecargas extends MY_Controller
 
         //var_dump($this->session->userdata);
         $this->load->view('menu/consolidadodecargas/cobroRealizado', $data);
+    }
+
+    function get_pedido($pedido_id)
+    {
+        $venta = $this->db->get_where('venta', array('venta_id' => $pedido_id))->row();
+
+        $temp = $this->db->select('SUM(historial_pedido_detalle.stock * historial_pedido_detalle.precio_unitario) as total')
+            ->from('historial_pedido_detalle')
+            ->join('historial_pedido_proceso', 'historial_pedido_proceso.id=historial_pedido_detalle.historial_pedido_proceso_id')
+            ->where('historial_pedido_proceso.proceso_id', PROCESO_IMPRIMIR)
+            ->where('historial_pedido_proceso.pedido_id', $pedido_id)
+            ->get()->row();
+
+        $venta->historico_total = $temp->total;
+        $venta->historico_impuesto = number_format(($venta->historico_total * 18) / 100, 2);
+        $venta->historico_subtotal = $venta->historico_total - $venta->historico_impuesto;
+
+        header('Content-Type: application/json');
+        echo json_encode(array('pedido' => $venta));
     }
 
     function buscarPorEstado()
@@ -360,43 +372,36 @@ class consolidadodecargas extends MY_Controller
     {
         $estatus = $this->input->post('estatus');
         $id_pedido = $this->input->post('id_pedido_liquidacion');
+        $pago = $this->input->post('pago_id');
+        $banco = $this->input->post('banco_id');
+        $num_oper = $this->input->post('num_oper');
+        $monto = $this->input->post('monto') != NULL ? $this->input->post('monto') : 0;
 
-
-        $monto = $this->input->post('monto');
-        $estatus_actual = $this->input->post('estatus_actual');
-        if (!empty($monto)) {
-            $monto = $this->input->post('monto');
-        }
         $venta = $this->venta_model->get_by('venta_id', $id_pedido);
-        $venta['estatus_actual'] = $estatus_actual;
 
-        if ($estatus == PEDIDO_RECHAZADO) {
-            $venta['venta_status'] = PEDIDO_RECHAZADO;
-            $venta['nUsuCodigo'] = $this->session->userdata('nUsuCodigo');
+        if ($estatus != PEDIDO_RECHAZADO) {
+            //$venta['nUsuCodigo'] = $this->session->userdata('nUsuCodigo');
+            //$result = $this->venta_model->devolver_stock($id_pedido, $venta, $venta['venta_status']);
 
-            $result = $this->venta_model->devolver_stock($id_pedido, $venta, $venta['venta_status']);
-            $this->consolidado_model->updateDetalle(array('pedido_id' => $id_pedido, 'liquidacion_monto_cobrado' => 0.00));
+            $this->venta_model->actualizarCredito(array('dec_credito_montodeuda' => $venta['total']), array('id_venta' => $id_pedido));
         }
-        if ($estatus == PEDIDO_ENTREGADO) {
 
-            $venta['venta_status'] = PEDIDO_ENTREGADO;
+        $this->consolidado_model->updateDetalle(array(
+            'pedido_id' => $id_pedido,
+            'liquidacion_monto_cobrado' => $monto,
+            'pago_id' => $pago,
+            'banco_id' => $banco,
+            'num_oper' => $num_oper
+        ));
 
-            $venta['importe'] = $venta['pagado'];
-            $venta['devolver'] = 'false';
-            $venta['diascondicionpagoinput'] = $venta['dias'];
-            $this->consolidado_model->updateDetalle(array('pedido_id' => $id_pedido, 'liquidacion_monto_cobrado' => $monto));
-            $result = $this->venta_model->update_status($id_pedido, $venta['venta_status'], $this->session->userdata('nUsuCodigo'));
-            $result = $this->venta_model->actualizarCredito(array('dec_credito_montodeuda' => $venta['total']), array('id_venta' => $id_pedido));
-
-        }
+        $result = $this->venta_model->update_status($id_pedido, $estatus);
 
         if ($result != FALSE) {
-
             $json['success'] = 'Solicitud Procesada con exito';
-
         } else {
             $json['error'] = 'Ha ocurrido un error al procesar la solicitud';
         }
+
         echo json_encode($json);
     }
 
@@ -411,10 +416,12 @@ class consolidadodecargas extends MY_Controller
 
         $c_detalles = $this->db->get_where('consolidado_detalle', array('consolidado_id' => $id))->result();
         foreach ($c_detalles as $detalle) {
-            $this->historial_pedido_model->insertar_pedido(PROCESO_LIQUIDAR, array(
-                'pedido_id' => $detalle->pedido_id,
-                'responsable_id' => $this->session->userdata('nUsuCodigo')
-            ));
+            if ($detalle->liquidacion_monto_cobrado == 0 || $detalle->liquidacion_monto_cobrado == null) {
+                $this->historial_pedido_model->insertar_pedido(PROCESO_LIQUIDAR, array(
+                    'pedido_id' => $detalle->pedido_id,
+                    'responsable_id' => $this->session->userdata('nUsuCodigo')
+                ));
+            }
         }
         if ($cerrar != FALSE) {
             $json['success'] = 'Solicitud Procesada con exito';

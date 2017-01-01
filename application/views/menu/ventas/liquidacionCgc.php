@@ -140,7 +140,6 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                         <h4 class="modal-title">Liquidar pedido</h4>
                     </div>
 
@@ -156,8 +155,10 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                                     <option value="ENTREGADO" selected> ENTREGADO</option>
                                     <option value="DEVUELTO PARCIALMENTE"> DEVUELTO PARCIALMENTE</option>
                                     <option value="RECHAZADO"> RECHAZADO</option>
-
                                 </select>
+                                <input type="hidden" id="estatus_value_entregado" value="">
+                                <input type="hidden" id="estatus_value_devuelto" value="">
+                                <input type="hidden" id="estatus_value_rechazado" value="0.00">
                             </div>
                         </div>
                         <div class="row devolver_block" style="display: none;">
@@ -186,15 +187,6 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                                     <div class="input-group">
                                         <div class="input-group-addon"><?= MONEDA ?></div>
                                         <input type="text" readonly value="0" name="total" id="total" required="true"
-                                               class="form-control">
-                                        <input type="hidden" readonly value="0" name="totalbackup" id="totalbackup"
-                                               required="true"
-                                               class="form-control">
-                                        <input type="hidden" readonly value="0" name="acuenta" id="acuenta"
-                                               required="true"
-                                               class="form-control">
-                                        <input type="hidden" readonly value="10" name="pendiente" id="pendiente"
-                                               required="true"
                                                class="form-control">
                                     </div>
                                 </div>
@@ -284,7 +276,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                                 <li class="glyphicon glyphicon-thumbs-up"></li>
                                 Confirmar
                             </button>
-                            <button type="button" class="btn btn-warning" data-dismiss="modal">
+                            <button type="button" id="liquidacion_cancelar" class="btn btn-warning" data-dismiss="modal">
                                 <li class="glyphicon glyphicon-thumbs-down"></li>
                                 Cancelar
                             </button>
@@ -298,23 +290,9 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
             </div>
         </form>
     </div>
-    <div class="modal fade" id="ventamodal" style="width: 85%; overflow: auto;
-  margin: auto;" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+    <div class="modal fade" id="ventamodal_devolver" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
          aria-hidden="true">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
-                    <li class="glyphicon glyphicon-thumbs-up"></li>
-                </button>
 
-                <h3>Devolver Pedido</h3>
-            </div>
-            <div class="modal-body" id="ventamodalbody">
-
-
-            </div>
-
-        </div>
 
     </div>
 
@@ -377,9 +355,13 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
 
             listadoajax();
 
+            $("#liquidacion_cancelar").on('click', function(){
+                $("#consolidadoLiquidacion").load('<?= $ruta ?>consolidadodecargas/verDetallesLiquidacion/' + $("#consolidado_id").val() + '/IMPRESO');
+                $("#cambiarEstatus").modal('hide');
+            });
 
             $("#editar_pedido").on('click', function () {
-                editar_pedido();
+                devolver();
             });
 
             $("#pago_id").on('click', function () {
@@ -458,26 +440,24 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
 
         });
 
-        function editar_pedido() {
+        function devolver() {
+
             $("#barloadermodal").modal({
                 show: true,
                 backdrop: 'static'
             });
 
-            var id = $("#pedido_numero").html().trim();
+            var venta_id = $("#pedido_numero").html().trim();
 
-            $("#ventamodalbody").html('');
             $.ajax({
-                url: '<?php echo base_url()?>venta/editar_pedido',
-                data: {'idventa': id, 'devolver': 1},
-                type: 'post',
+                url:  '<?php echo base_url()?>venta/devolver_pedido',
+                type: 'POST',
+                data: {'venta_id': venta_id},
+
                 success: function (data) {
-
                     $('#barloadermodal').modal('hide');
-                    $("#ventamodalbody").html(data);
-                    $("#ventamodal").modal('show');
-
-
+                    $("#ventamodal_devolver").html(data);
+                    $("#ventamodal_devolver").modal('show');
                 },
                 error: function (error) {
                     $('#barloadermodal').modal('hide');
@@ -517,63 +497,24 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
 
             if ($("#estatus").val() == 'RECHAZADO') {
                 $("#monto").val('0');
+                $("#total").val($("#estatus_value_rechazado").val());
             }
             if ($("#estatus").val() == 'ENTREGADO') {
                 $("#monto").val('0');
                 $(".pago_block").fadeIn(100);
+                $("#total").val($("#estatus_value_entregado").val());
             }
             if ($("#estatus").val() == 'DEVUELTO PARCIALMENTE') {
                 $("#monto").val('0');
                 $(".pago_block").fadeIn(100);
                 $(".devolver_block").fadeIn(100);
-                    editar_pedido();
+                $("#total").val($("#estatus_value_entregado").val());
+                devolver();
             }
         }
-        function liquidarPedido(id, acuenta, total, consolidado_id, estatus_pedido, cobrado, totalbackup) {
 
-            $("#consolidado_id").val(consolidado_id);
-            $("#id_pedido_liquidacion").val(id);
-            $("#pedido_numero").html(id);
-            $("#acuenta").val(acuenta);
-            $("#total").val(total);
-            $("#totalbackup").val(totalbackup);
-            $("#monto").val(cobrado);
-
-
-            $("#pendiente").val(parseFloat(total - acuenta).toFixed(2));
-            $("#cambiarEstatus").modal('show');
-
-            estatus_actual = estatus_pedido
-
-            ////guardo en la variable el estatus actual del pedido
-            $('#estatus > option[value="' + estatus_pedido + '"]').attr('selected', 'selected');
-            $("#estatus").val(estatus_pedido).trigger("chosen:updated");
-
-            $(".pago_block").hide();
-            $(".devolver_block").hide();
-
-            if ($("#estatus").val() == 'RECHAZADO') {
-                $("#monto").val('0');
-            }
-            if ($("#estatus").val() == 'ENTREGADO') {
-                $("#monto").val('0');
-                $(".pago_block").fadeIn(100);
-            }
-            if ($("#estatus").val() == 'DEVUELTO PARCIALMENTE') {
-                $("#monto").val('0');
-                $(".pago_block").fadeIn(100);
-                $(".devolver_block").fadeIn(100);
-            }
-
-        }
         function validar_estatus() {
-
-            if (estatus_actual == 'DEVUELTO PARCIALMENTE' && $('#estatus').val() != 'DEVUELTO PARCIALMENTE') {
-
-                $("#confirmacion").modal('show');
-            } else {
-                grupo.guardar()
-            }
+            $("#confirmacion").modal('show');
         }
 
         var grupo = {
@@ -586,86 +527,45 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
             guardar: function () {
 
                 var monto = parseFloat($("#monto").val());
-                var acuenta = parseFloat($("#acuenta").val());
                 var total = parseFloat($("#total").val());
 
-
-                estatus_select = $('#estatus').val();
-
-                if (estatus_actual == 'DEVUELTO PARCIALMENTE' && $('#estatus').val() != 'DEVUELTO PARCIALMENTE') {
-                    total = $("#totalbackup").val();
-                }
-
-
-                if (monto > (total - acuenta)) {
+                if (monto > total) {
                     var growlType = 'warning';
-
                     $.bootstrapGrowl('<h4>Debe ingresar un monto menor a al total de la deuda </h4>', {
                         type: growlType,
                         delay: 2500,
                         allow_dismiss: true
                     });
-
                     return false;
                 }
-                var pasar = true;
 
-                if (estatus_actual == 'RECHAZADO' || estatus_actual == 'ENTREGADO') {
-
-                    if (estatus_select == 'DEVUELTO PARCIALMENTE') {
-                        pasar = false;
-                    } else {
-                        pasar = true;
-                    }
-                }
-
-                if (estatus_actual == 'ENVIADO' && estatus_select != 'DEVUELTO PARCIALMENTE') {
-
-                    pasar = true;
-                }
-
-                if (estatus_actual == 'ENVIADO' && estatus_select == 'DEVUELTO PARCIALMENTE') {
-
-                    pasar = false;
-                }
-                if (estatus_actual == 'DEVUELTO PARCIALMENTE' && estatus_select != 'DEVUELTO PARCIALMENTE') {
-
-                    pasar = true;
-                }
-
-                if (estatus_actual == 'DEVUELTO PARCIALMENTE' && estatus_select == 'DEVUELTO PARCIALMENTE') {
-
-                    pasar = false;
-                }
-
-                if (pasar == false) {
-
-                    var id = $('#id_pedido_liquidacion').val();
-                    devolverpedido(id, $("#consolidado_id").val());
+                if (monto < 0) {
+                    var growlType = 'warning';
+                    $.bootstrapGrowl('<h4>El monto a liquidar no puede ser negativo</h4>', {
+                        type: growlType,
+                        delay: 2500,
+                        allow_dismiss: true
+                    });
                     return false;
                 }
-                else {
-                    //$("#consolidadoLiquidacion").modal('hide');
-                    $.ajax({
-                        url: '<?= base_url() ?>consolidadodecargas/liquidarPedido',
-                        type: 'POST',
-                        data: $("#formliquidacion").serialize() + '&estatus_actual=' + estatus_actual,
-                        dataType: 'json',
-                        success: function (data) {
-                            if (data.error == undefined) {
-                                estatus_actual = estatus_select
-                                $('#confirmacion').modal('hide');
-                                $('#barloadermodal').modal('hide');
-                                $('#cambiarEstatus').modal('hide');
-                                $("#consolidadoLiquidacion").load('<?= $ruta ?>consolidadodecargas/verDetallesLiquidacion/' + $('#consolidado_id').val() + '/' + estatus_consolidado);
 
-                            }
+
+                $.ajax({
+                    url: '<?= base_url() ?>consolidadodecargas/liquidarPedido',
+                    type: 'POST',
+                    data: $("#formliquidacion").serialize(),
+                    dataType: 'json',
+                    success: function (data) {
+                        if (data.error == undefined) {
+                            $('#confirmacion').modal('hide');
+                            $('#barloadermodal').modal('hide');
+                            $('#cambiarEstatus').modal('hide');
+                            $("#consolidadoLiquidacion").load('<?= $ruta ?>consolidadodecargas/verDetallesLiquidacion/' + $('#consolidado_id').val() + '/' + estatus_consolidado);
+
                         }
+                    }
 
-                    })
-
-                    //App.formSubmitAjax($("#formliquidacion").attr('action'), this.ajaxgrupo, 'cambiarEstatus', 'formliquidacion');
-                }
+                });
             },
             cerrarLiquidacion: function () {
                 App.formSubmitAjax($("#formcerrarliquidacion").attr('action'), this.ajaxgrupo, 'consolidadoLiquidacion', 'formcerrarliquidacion');

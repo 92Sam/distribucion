@@ -138,22 +138,6 @@ class venta_cobro_model extends CI_Model
 
         $cobranza = new stdClass();
 
-        $historial_pedido = $this->db->get_where('historial_pedido_proceso', array(
-            'pedido_id' => $pedido_id,
-            'proceso_id' => PROCESO_LIQUIDAR
-        ))->row();
-
-        $liquidacion = $this->db->select('liquidacion_monto_cobrado')->from('consolidado_detalle')
-            ->where('consolidado_detalle.pedido_id', $pedido_id)->get()->row();
-        $cobranza->liquidacion = new stdClass();
-        $cobranza->liquidacion->fecha = $historial_pedido->created_at;
-        $cobranza->liquidacion->monto = $liquidacion->liquidacion_monto_cobrado != null ? $liquidacion->liquidacion_monto_cobrado : 0;
-        $cobranza->liquidacion->pago_id = 0;
-        $cobranza->liquidacion->pago_nombre = 'Liquidado';
-        $cobranza->liquidacion->banco_nombre = '';
-        $cobranza->liquidacion->num_oper = '';
-        $cobranza->liquidacion->estado = 'CONFIRMADO';
-
         $this->db->select("
                 historial_pagos_clientes.credito_id as venta_id,
                 historial_pagos_clientes.historial_id as historial_id,
@@ -174,6 +158,8 @@ class venta_cobro_model extends CI_Model
             $this->db->where('historial_pagos_clientes.vendedor_id', NULL);
             $this->db->where('historial_pagos_clientes.historial_estatus', $estado);
         } elseif ($estado == 'CONFIRMADO')
+            $this->db->where('historial_pagos_clientes.historial_estatus', $estado);
+        elseif ($estado == 'CONSOLIDADO')
             $this->db->where('historial_pagos_clientes.historial_estatus', $estado);
 
         $cobranza->detalles = $this->db->get()->result();
@@ -205,6 +191,7 @@ class venta_cobro_model extends CI_Model
         $cobranzas = $this->db->get()->result();
         $result = new stdClass();
         $result->pendientes = array();
+        $result->consolidado = array();
         $result->espera = array();
 
         foreach ($cobranzas as $cobranza) {
@@ -228,6 +215,53 @@ class venta_cobro_model extends CI_Model
                     $result->espera[] = $temp;
             }
         }
+
+
+        $this->db->select("
+            venta.venta_id as venta_id,
+            documento_venta.nombre_tipo_documento as documento_nombre, 
+            documento_venta.documento_Serie as documento_serie, 
+            documento_venta.documento_Numero as documento_numero,
+            usuario.nombre as vendedor_nombre,
+            consolidado_detalle.consolidado_id as consolidado_id
+        ")
+            ->from('venta')
+            ->join('consolidado_detalle', 'consolidado_detalle.pedido_id = venta.venta_id')
+            ->join('consolidado_carga', 'consolidado_carga.consolidado_id = consolidado_detalle.consolidado_id')
+            ->join('usuario', 'usuario.nUsuCodigo = venta.id_vendedor')
+            ->join('historial_pedido_proceso', 'historial_pedido_proceso.pedido_id = venta.venta_id')
+            ->join('credito', 'credito.id_venta = venta.venta_id')
+            ->join('documento_venta', 'venta.numero_documento = documento_venta.id_tipo_documento')
+            ->join('historial_pagos_clientes', 'historial_pagos_clientes.credito_id = venta.venta_id')
+            ->where('historial_pedido_proceso.proceso_id', PROCESO_IMPRIMIR)
+            ->where('historial_pagos_clientes.historial_estatus', 'CONSOLIDADO')
+            ->where('consolidado_carga.status', 'CERRADO')
+            ->group_by('venta.venta_id');
+        if ($vendedor_id != FALSE)
+            $this->db->where('venta.id_vendedor', $vendedor_id);
+
+        $cobranzas = $this->db->get()->result();
+
+        foreach ($cobranzas as $cobranza) {
+            $cobranza->consolidado = $this->get_pagos($cobranza->venta_id, 'CONSOLIDADO');
+
+            foreach ($cobranza->consolidado->detalles as $pago) {
+                $temp = new stdClass();
+                $temp->id = $pago->historial_id;
+                $temp->documento = 'Venta: ' . $cobranza->documento_serie . ' - ' . $cobranza->documento_numero;
+                $temp->vendedor_nombre = $cobranza->vendedor_nombre;
+                $temp->consolidado = $cobranza->consolidado_id;
+                $temp->pago_nombre = $pago->pago_nombre;
+                $temp->pago_id = $pago->pago_id;
+                $temp->monto = $pago->monto;
+                $temp->banco_nombre = $pago->banco_nombre;
+                $temp->banco_id = $pago->banco_id;
+                $temp->num_oper = $pago->num_oper;
+
+                $result->consolidado[] = $temp;
+            }
+        }
+
 
         $this->db->select("
                 historial_pagos_clientes.credito_id as venta_id,
@@ -324,6 +358,10 @@ class venta_cobro_model extends CI_Model
             'historial_estatus' => 'PENDIENTE',
             'pago_data' => $data['num_oper']
         );
+
+        if (isset($data['historial_estatus']))
+            $historial_pago['historial_estatus'] = $data['historial_estatus'];
+
         if ($historial_pago['historial_tipopago'] == 4)
             $historial_pago['historial_banco_id'] = $data['banco_id'];
 
@@ -333,6 +371,7 @@ class venta_cobro_model extends CI_Model
         $this->db->where('id_venta', $venta_id);
         $this->db->update('credito', array('dec_credito_montodebito' => $historial_pago['monto_restante']));
 
+        return $result;
     }
 
     function pagar_by_vendedor($id, $data)
@@ -358,6 +397,7 @@ class venta_cobro_model extends CI_Model
             $this->db->update('historial_pagos_clientes', array('vendedor_id' => $result));
         }
     }
+
 
     function confirmar_pago($id, $cuenta_id)
     {
@@ -396,7 +436,7 @@ class venta_cobro_model extends CI_Model
 
             $this->cajas_model->update_saldo($cuenta->id, $pago->historial_monto);
 
-            if ($pago->historial_estatus == 'PENDIENTE') {
+            if ($pago->historial_estatus == 'PENDIENTE' || $pago->historial_estatus == 'CONSOLIDADO') {
                 $this->db->where('historial_id', $id);
                 $this->db->update('historial_pagos_clientes', array('historial_estatus' => 'CONFIRMADO'));
 

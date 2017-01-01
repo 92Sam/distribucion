@@ -9,6 +9,7 @@ class consolidado_model extends CI_Model
         $this->load->database();
 
         $this->load->model('historial/historial_pedido_model');
+        $this->load->model('venta/venta_cobro_model');
     }
 
     function editar_consolidado($consolidado_id, $data)
@@ -51,13 +52,11 @@ class consolidado_model extends CI_Model
             'proceso_id' => PROCESO_ASIGNAR
         ))->row();
 
-        if ($historial != NULL) {
-            $this->db->where('historial_pedido_proceso_id', $historial->id);
-            $this->db->delete('historial_pedido_detalle');
+        $this->db->where('historial_pedido_proceso_id', $historial->id);
+        $this->db->delete('historial_pedido_detalle');
 
-            $this->db->where('id', $historial->id);
-            $this->db->delete('historial_pedido_proceso');
-        }
+        $this->db->where('id', $historial->id);
+        $this->db->delete('historial_pedido_proceso');
 
         $this->db->where('consolidado_id', $consolidado_id);
         $this->db->where('pedido_id', $pedido_id);
@@ -237,8 +236,22 @@ class consolidado_model extends CI_Model
         $this->db->join('banco', 'banco.banco_id=consolidado_detalle.confirmacion_banco_id', 'left');
 
         $this->db->where($where);
-        $query = $this->db->get();
-        return $query->result_array();
+        $query = $this->db->get()->result_array();
+
+        for ($i = 0; $i < count($query); $i++) {
+            $temp = $this->db->select('SUM(historial_pedido_detalle.stock * historial_pedido_detalle.precio_unitario) as total')
+                ->from('historial_pedido_detalle')
+                ->join('historial_pedido_proceso', 'historial_pedido_proceso.id=historial_pedido_detalle.historial_pedido_proceso_id')
+                ->where('historial_pedido_proceso.proceso_id', PROCESO_IMPRIMIR)
+                ->where('historial_pedido_proceso.pedido_id', $query[$i]['venta_id'])
+                ->get()->row();
+
+            $query[$i]['historico_total'] = $temp->total;
+            $query[$i]['historico_impuesto'] = number_format(($query[$i]['historico_total'] * 18) / 100, 2);
+            $query[$i]['historico_subtotal'] = $query[$i]['historico_total'] - $query[$i]['historico_impuesto'];
+        }
+
+        return $query;
 
     }
 
@@ -279,7 +292,6 @@ class consolidado_model extends CI_Model
     }
 
 
-
     function get_cantiad_vieja_by_product($product, $consolidado_id)
     {
 
@@ -315,7 +327,6 @@ class consolidado_model extends CI_Model
         return $query->result_array();
 
     }
-
 
 
     function get($id)
@@ -425,12 +436,40 @@ class consolidado_model extends CI_Model
 
     function updateDetalle($data)
     {
+        $add = array(
+            'pedido_id' => $data['pedido_id'],
+            'liquidacion_monto_cobrado' => $data['liquidacion_monto_cobrado']
+        );
+
         $this->db->trans_start();
         $this->db->trans_begin();
 
         $this->db->where(array('pedido_id' => $data['pedido_id']));
-        $this->db->update('consolidado_detalle', $data);
+        $this->db->update('consolidado_detalle', $add);
 
+        $pagos_id = $this->db->get_where('historial_pagos_clientes', array('credito_id' => $data['pedido_id']))->result();
+        foreach ($pagos_id as $pago) {
+            $this->db->where('historial_id', $pago->vendedor_id);
+            $this->db->where('credito_id', NULL);
+            $this->db->delete('historial_pagos_clientes');
+        }
+
+        $this->db->where('credito_id', $data['pedido_id']);
+        $this->db->delete('historial_pagos_clientes');
+
+        $this->db->where('id_venta', $data['pedido_id']);
+        $this->db->update('credito', array('dec_credito_montodebito' => 0));
+
+        if ($data['liquidacion_monto_cobrado'] > 0) {
+
+            $historial_id = $this->venta_cobro_model->pagar_nota_pedido($data['pedido_id'], array(
+                'importe' => $data['liquidacion_monto_cobrado'],
+                'pago_id' => $data['pago_id'],
+                'num_oper' => $data['num_oper'],
+                'banco_id' => $data['banco_id'],
+                'historial_estatus' => 'CONSOLIDADO'
+            ));
+        }
 
         $this->db->trans_complete();
         if ($this->db->trans_status() === FALSE) {

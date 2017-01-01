@@ -95,14 +95,16 @@ class usuario_model extends CI_Model
             return false;
         }
     }
-    function get_by_form($campo, $valor){
+
+    function get_by_form($campo, $valor)
+    {
         {
             $this->db->select('*');
             $this->db->from('usuario');
             $this->db->join('usuario_has_zona', 'usuario_has_zona.id_usuario=usuario.nUsuCodigo');
-           if($valor != 0){
-               $this->db->where($campo, $valor);
-           }
+            if ($valor != 0) {
+                $this->db->where($campo, $valor);
+            }
             $this->db->where('deleted', 0);
             $this->db->group_by('id_usuario');
             $query = $this->db->get();
@@ -110,6 +112,7 @@ class usuario_model extends CI_Model
         }
 
     }
+
     function buscar_id($id)
     {
         $this->db->select('*');
@@ -126,21 +129,24 @@ class usuario_model extends CI_Model
         $this->db->select('usuario.*,grupos_usuarios.* , local.local_nombre');
         $this->db->from('usuario');
         $this->db->join('grupos_usuarios', 'grupos_usuarios.id_grupos_usuarios=usuario.grupo');
-        $this->db->join('local', 'local.int_local_id=usuario.id_local','left');
+        $this->db->join('local', 'local.int_local_id=usuario.id_local', 'left');
         $this->db->where('usuario.deleted', 0);
         $query = $this->db->get();
         return $query->result();
     }
 
 
-    public function select_all_by_roll($rol)
+    public function select_all_by_roll($rol, $id = false)
     {
         $this->db->select('usuario.*,grupos_usuarios.* , local.local_nombre');
         $this->db->from('usuario');
         $this->db->join('grupos_usuarios', 'grupos_usuarios.id_grupos_usuarios=usuario.grupo');
-        $this->db->join('local', 'local.int_local_id=usuario.id_local','left');
+        $this->db->join('local', 'local.int_local_id=usuario.id_local', 'left');
         $this->db->where('usuario.deleted', 0);
         $this->db->where('nombre_grupos_usuarios', $rol);
+        if ($id != false)
+            $this->db->where('usuario.nUsuCodigo', $id);
+        
         $query = $this->db->get();
 
         return $query->result();
@@ -176,11 +182,11 @@ class usuario_model extends CI_Model
         $this->db->select('*');
         $this->db->from('usuario');
         $this->db->join('grupos_usuarios', 'grupos_usuarios.id_grupos_usuarios=usuario.grupo');
-       // $this->db->join('usuario_has_zona', 'usuario_has_zona.id_usuario=usuario.nUsuCodigo','left');
+        // $this->db->join('usuario_has_zona', 'usuario_has_zona.id_usuario=usuario.nUsuCodigo','left');
         $this->db->where('activo', 1);
         $this->db->where('nombre_grupos_usuarios', 'Chofer');
         $this->db->where('deleted', 0);
-       // $this->db->group_by('id_usuario');
+        // $this->db->group_by('id_usuario');
         $query = $this->db->get();
         return $query->result_array();
     }

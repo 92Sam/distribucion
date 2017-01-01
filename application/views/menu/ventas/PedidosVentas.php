@@ -105,6 +105,20 @@
                 </ul>
             </div>
         </div>
+        <div class="row" style="display: <?= count($vendedores) == 1 ? 'none' : 'display' ?>;">
+            <div class="col-md-2"></div>
+            <div class="col-md-2 text-right">
+                <label for="zona" class="control-label panel-admin-text">Vendedor</label>
+            </div>
+            <div class="col-md-4">
+                <select name="id_vendedor" id="id_vendedor" class='form-control' required="true">
+                    <?php foreach ($vendedores as $vendedor): ?>
+                        <option value="<?= $vendedor->nUsuCodigo ?>"><?= $vendedor->nombre ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <br><br>
+        </div>
         <div class="row setup-content" id="step-1">
             <div class="col-md-12">
                 <div class="row">
@@ -1213,7 +1227,7 @@
             var useradmin = '<?=  $this->session->userdata("admin"); ?>';
 
             if (useradmin == 0) {
-                data.vendedor = '<?php echo $this->session->userdata("nUsuCodigo"); ?>';
+                data.vendedor = $("#id_vendedor").val();
             }
 
             // console.log(data);
