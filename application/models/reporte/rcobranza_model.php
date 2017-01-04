@@ -100,28 +100,7 @@ class rcobranza_model extends CI_Model
             $cobranza->pagado_pendientes = isset($pagado_pendientes->monto) ? $pagado_pendientes->monto : 0;
             $cobranza->actual = $cobranza->actual - $cobranza->pagado_pendientes;
             $cobranza->saldo = $cobranza->saldo + $cobranza->pagado_pendientes;
-
-            $generado = $this->db->select('pagado')->from('venta')
-                ->where('venta.venta_id', $cobranza->venta_id)->get()->row();
-
-            $historial_pedido = $this->db->get_where('historial_pedido_proceso', array(
-                'pedido_id' => $cobranza->venta_id,
-                'proceso_id' => PROCESO_GENERAR
-            ))->row();
-
-            $cobranza->generado = new stdClass();
-            $cobranza->generado->fecha = isset($historial_pedido->created_at) ? $historial_pedido->created_at : $cobranza->fecha_venta;
-            $cobranza->generado->monto = $generado->pagado != null ? $generado->pagado : 0;
-            $cobranza->generado->tipo_pago_nombre = 'Generaci&oacute;n del pedido';
-
-
-            $liquidacion = $this->db->select('liquidacion_monto_cobrado')->from('consolidado_detalle')
-                ->where('consolidado_detalle.pedido_id', $cobranza->venta_id)->get()->row();
-            $cobranza->liquidacion = new stdClass();
-            $cobranza->liquidacion->fecha = $cobranza->fecha_venta;
-            $cobranza->liquidacion->monto = $liquidacion->liquidacion_monto_cobrado != null ? $liquidacion->liquidacion_monto_cobrado : 0;
-            $cobranza->liquidacion->tipo_pago_nombre = 'Liquidacion del pedido';
-
+            
             $cobranza->detalles = $this->db->select("
                 historial_pagos_clientes.historial_fecha as fecha,
                 historial_pagos_clientes.historial_monto as monto,

@@ -40,7 +40,7 @@
                             <td style="text-align: center"><?php echo number_format($detalle['bulto'], 0);
                                 $total_bultos += $detalle['bulto']; ?>
                             </td>
-                            <td style="text-align: center"><?php echo $detalle['representante']; ?></td>
+                            <td style="text-align: center"><?php echo $detalle['razon_social']; ?></td>
 
                             <td style="text-align: right;"><?php echo MONEDA . ' ' . number_format($detalle['total'], 2);
                                 $total_importe += $detalle['total']; ?>

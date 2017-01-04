@@ -72,15 +72,18 @@ class venta extends MY_Controller
 
     function pedidos()
     {
+        $user_grupo = $this->session->userdata('grupo');
         $idventa = $this->input->post('idventa');
         $vendedor = null;
         $data = array();
         $useradmin = $this->session->userdata('admin');
-        if ($useradmin == 1) {
+        if ($useradmin == 1 || $user_grupo != 2) {
+            $data["vendedores"] = $this->usuario_model->select_all_by_roll('Vendedor');
             $data["clientes"] = $this->cliente_model->get_all();
             $data['zonas'] = $this->venta_model->zonaVendedor(FALSE, date('N'));
         } else {
             $vendedor = $this->session->userdata('nUsuCodigo');
+            $data["vendedores"] = $this->usuario_model->select_all_by_roll('Vendedor', $vendedor);
             $data["clientes"] = $this->cliente_model->get_all($vendedor);
             $data['zonas'] = $this->venta_model->zonaVendedor($vendedor, date('N'));
         }
@@ -142,18 +145,22 @@ class venta extends MY_Controller
         echo $this->load->view('menu/ventas/EditarPedidosVentas', $data, true);
     }
 
-    function venta_backup()
+    function devolver_pedido()
     {
-        $idventa = $this->input->post('idventa');
-
-        $data = array();
-
-        if ($idventa !== FALSE) {
-            $data['venta'] = $this->venta_model->obtener_venta_backup($idventa);
-        }
-
-        echo json_encode($data);
+        $venta_id = $this->input->post('venta_id');
+        $data['venta'] = $this->venta_model->get_venta_detalle($venta_id);
+        $data['detalle'] = 'devolver';
+        $this->load->view('menu/ventas/devolverDetalles', $data);
     }
+
+    function devolver_venta()
+    {
+        $venta_id = $this->input->post('venta_id');
+        $total_importe = $this->input->post('total_importe');
+        $devoluciones = json_decode($this->input->post('devoluciones'));
+        $this->venta_model->devolver_venta($venta_id, $total_importe, $devoluciones);
+    }
+    
 
     function registrar_venta()
     {
@@ -175,7 +182,7 @@ class venta extends MY_Controller
                     $venta = array(
                         'fecha' => date("Y-m-d H:i:s"),
                         'id_cliente' => $this->input->post('id_cliente', true),
-                        'id_vendedor' => $this->session->userdata('nUsuCodigo'),
+                        'id_vendedor' => $this->input->post('id_vendedor', true),
                         'venta_tipo' => $this->input->post('venta_tipo'),
 
                         'condicion_pago' => $this->input->post('condicion_pago', true),
@@ -197,7 +204,6 @@ class venta extends MY_Controller
                     if (empty($lista_bonos)) $lista_bonos = null;
                     $bonos = json_decode($lista_bonos);
                     $detalle = json_decode($this->input->post('lst_producto', true));
-                    //var_dump($bonos);
                     if ($bonos) {
                         foreach ($bonos as $item) {
                             $bono = Array();
@@ -213,6 +219,8 @@ class venta extends MY_Controller
                             array_push($detalle, $object);
                         }
                     }
+
+                    //var_dump($detalle);
 
                     $id = $this->input->post('idventa');
                     $montoboletas = $this->session->userdata('MONTO_BOLETAS_VENTA');
@@ -232,12 +240,16 @@ class venta extends MY_Controller
 
                         $venta['venta_id'] = $id;
                         $venta['devolver'] = $this->input->post('devolver');
+                        //$venta['estatus_actual'] = PEDIDO_DEVUELTO;
+
+                        //quito retencion pq no edito aqui ese campo
+                        unset($venta['retencion']);
                         $resultado = $this->venta_model->actualizar_venta($venta, $detalle, $montoboletas);
+
+                        $this->historial_pedido_model->editar_pedido(PROCESO_GENERAR, $resultado);
                     }
                     if ($resultado != false) {
-                        if ($this->input->post('devolver') == 'true') {
-                            $this->consolidado_model->updateDetalle(array('pedido_id' => $id, 'liquidacion_monto_cobrado' => $this->input->post('importe', true)));
-                        }
+                        
                         $this->ventaEstatus($id, $this->input->post('venta_status', true));
 
                         $dataresult['estatus_consolidado'] = $this->input->post('estatus_consolidado', true);;
@@ -2362,7 +2374,7 @@ class venta extends MY_Controller
         $idventa = $this->input->post('idventa');
         $result['ventas'] = array();
         if ($idventa != FALSE) {
-            $result['notasdentrega'][]['ventas'] = $this->venta_model->obtener_venta_backup($idventa);
+            $result['notasdentrega'][]['ventas'] = $this->venta_model->obtener_venta($idventa);
             $where = array('consolidado_detalle.pedido_id' => $idventa);
             $result['detalleC'] = $this->consolidado_model->get_detalle_by($where);
             $result['id_venta'] = $idventa;
@@ -2375,7 +2387,7 @@ class venta extends MY_Controller
     {
 
         if ($tipo == 'VENTA') {
-            $result['notasdentrega'][]['ventas'] = $this->venta_model->obtener_venta_backup($id);
+            $result['notasdentrega'][]['ventas'] = $this->venta_model->obtener_venta($id);
             $where = array('consolidado_detalle.pedido_id' => $id);
             $result['detalleC'] = $this->consolidado_model->get_detalle_by($where);
         } else {
@@ -2388,7 +2400,7 @@ class venta extends MY_Controller
                 if ($id != FALSE) {
                     $result['retorno'] = 'consolidadodecargas';
                     $result['id_venta'] = $id_pedido;
-                    $result['notasdentrega'][]['ventas'] = $this->venta_model->obtener_venta_backup($id_pedido);
+                    $result['notasdentrega'][]['ventas'] = $this->venta_model->obtener_venta($id_pedido);
                 }
             }
         }

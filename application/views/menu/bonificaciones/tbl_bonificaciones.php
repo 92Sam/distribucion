@@ -1,7 +1,6 @@
-
 <?php $ruta = base_url(); ?>
 
-<table class="table table-striped table-bordered table-condensed" id="tblbonificaciones">
+<table class="table table-striped table-bordered table-condensed dataTable" id="tblbonificaciones">
     <thead>
     <tr>
         <th>ID</th>
@@ -52,8 +51,8 @@
                 <td>
                     <?php
 
-                    foreach($bonificaciones['bonificaciones_has_producto'] as $produc){
-                        echo sumCod($produc['id_producto']). " ".$produc['producto_nombre'];?>
+                    foreach ($bonificaciones['bonificaciones_has_producto'] as $produc) {
+                        echo sumCod($produc['id_producto']) . " " . $produc['producto_nombre']; ?>
                         <br>
                         <?php
                     }
@@ -95,3 +94,9 @@
     } ?>
     </tbody>
 </table>
+
+<script>
+    $(function () {
+        TablesDatatablesBonos.init();
+    });
+</script>

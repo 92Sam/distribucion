@@ -12,12 +12,12 @@ class venta_model extends CI_Model
         $this->db->trans_start(true);
         $this->db->trans_begin();
 
-        $query_ins = $this->db->query("select (case when (`documento_venta`.`documento_Numero` = '9999999999') then
+        $query_ins = $this->db->query("select (case when (`documento_venta`.`documento_Numero` = '99999') then
 		   convert( right(concat('0000',(ifnull(`documento_venta`.`documento_Serie`,0) + 1)), 4) using latin1)
 		   when (ifnull(`documento_venta`.`documento_Serie`,0) = 0) then convert( right(concat('0000', 1), 4) using latin1)
 		   else `documento_venta`.`documento_Serie` end) AS `SERIE`,
-		  (case when (`documento_venta`.`documento_Numero` = '9999999999') then right(concat((`documento_venta`.`documento_Numero` + 2)),10)
-				else right(concat('0000000000',(`documento_venta`.`documento_Numero` + 1)),10) end) AS `NUMERO`, `documento_venta`.`nombre_tipo_documento` AS `Documento`
+		  (case when (`documento_venta`.`documento_Numero` = '99999') then right(concat((`documento_venta`.`documento_Numero` + 2)),5)
+				else right(concat('00000',(`documento_venta`.`documento_Numero` + 1)),5) end) AS `NUMERO`, `documento_venta`.`nombre_tipo_documento` AS `Documento`
 		   from `documento_venta` where `documento_venta`.`nombre_tipo_documento` = '" . NOTA_ENTREGA . "' order by `documento_venta`.`documento_Serie`, `documento_venta`.`documento_Numero` desc limit 0,1");
         $rs_ins = $query_ins->row_array();
 
@@ -28,7 +28,7 @@ class venta_model extends CI_Model
         }
 
         if (empty($rs_ins['NUMERO'])) {
-            $numero = '0000000001';
+            $numero = sumCod(1, 5);
         } else {
             $numero = $rs_ins['NUMERO'];
         }
@@ -80,16 +80,8 @@ class venta_model extends CI_Model
 
         ///// backup de venta
         $venta['venta_id'] = $venta_id;
-        $this->db->insert('venta_backup', $venta);
 
 
-        // Documento Fiscal
-        if ($venta_cabecera['tipo_documento'] == 'FACTURA' || $venta_cabecera['tipo_documento'] == 'BOLETA DE VENTA') {
-            $this->setDocumentoDetalle($venta_id, $venta_cabecera, $detalle, $montoboletas);
-        }
-
-        $kardex = array();
-        // Detalle de la Venta
         foreach ($detalle as $row) {
             $cantidad_venta = floatval($row->cantidad);
             $unidad_medida_venta = $row->unidad_medida;
@@ -230,8 +222,6 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
 
             $this->db->insert('detalle_venta', $detalle_item);
 
-            /***********************esto s para la tabla detalle_venta_backup******************************/
-            $this->db->insert('detalle_venta_backup', $detalle_item);
             /************************************/
 
             if (count($inventario_existente) > 0) {
@@ -250,41 +240,7 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
                 $this->db->insert('inventario', $inventario_nuevo);
             }
 
-
-            /*******Preparo la data para insertar en el kardex********/
-            $documento_fiscal = $this->db->get_where('documento_fiscal', array('venta_id' => $venta_id));
-            $documento_fiscal = $documento_fiscal->row_array();
-
-            $item_kardex = array(
-                'dkardexFecha' => date('Y-m-d H:i:s:u'),
-                'ckardexReferencia' => ($venta_cabecera['condicion_pago'] > 1) ? VENTA_CREDITO : VENTA_CONTADO,
-                'cKardexProducto' => $row->id_producto,
-                'nKardexCantidad' => $row->cantidad,
-                'nKardexPrecioUnitario' => $row->precio,
-                'nKardexPrecioTotal' => $row->detalle_importe,
-                'cKardexUsuario' => $venta_cabecera['id_vendedor'],
-                'cKardexOperacion' => VENTA,
-                'cKardexUnidadMedida' => $unidad_minima['id_unidad'],
-                'cKardexAlmacen' => $venta_cabecera['local_id'],
-                'cKardexTipo' => SALIDA,
-                'cKardexIdOperacion' => $venta_id,
-                'cKardexTipoDocumento' => NOTA_ENTREGA,
-                'cKardexNumeroDocumento' => $numero,
-                'cKardexNumeroSerie' => $serie,
-                'cKardexEstado' => PEDIDO_GENERADO,
-                'stockUManterior' => $total_unidades_minimas_viejas,
-                'stockUMactual' => $suma_cantidades,
-                'cKardexTipoDocumentoFiscal' => $venta_cabecera['tipo_documento'],
-                'cKardexNumeroDocumentoFiscal' => $documento_fiscal['documento_numero'],
-                'cKardexNumeroSerieFiscal' => $documento_fiscal['documento_serie'],
-                'cKardexCliente' => $venta_cabecera['id_cliente'],
-                'cKardexProveedor' => null,
-            );
-
-            array_push($kardex, $item_kardex);
-
         }
-        $this->db->insert_batch('kardex', $kardex);
 
         // Venta a Credito
         if ($venta_cabecera['diascondicionpagoinput'] > 0 or ($venta_cabecera['diascondicionpagoinput'] == 0 && $venta_cabecera['importe'] < $venta_cabecera['total'])) {
@@ -324,1103 +280,6 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
         $this->db->trans_off();
     }
 
-    function setDocumento($venta_id, $documento_tipo = null)
-    {
-        $this->db->trans_start();
-
-        $query = "select (
-			case when (`documento_fiscal`.`documento_numero` = '9999999999') then
-					convert( right(concat('0000',(ifnull(`documento_fiscal`.`documento_serie`,0) + 1)), 4) using latin1)
-				when (ifnull(`documento_fiscal`.`documento_serie`,0) = 0) then 
-					convert( right(concat('0000', 1), 4) using latin1)
-				else `documento_fiscal`.`documento_serie` 
-			end) AS `SERIE`,
-			(
-				case when (`documento_fiscal`.`documento_numero` = '9999999999') then 
-					right(concat((`documento_fiscal`.`documento_numero` + 2)),10)
-				else 
-					right(concat('0000000000',(`documento_fiscal`.`documento_numero` + 1)),10) 
-			end) AS `NUMERO`, `documento_fiscal`.`documento_tipo` AS `DOCUMENTO`
-			   from `documento_fiscal` where `documento_fiscal`.`documento_tipo` = '" . $documento_tipo . "' order by `documento_fiscal`.`documento_serie`, `documento_fiscal`.`documento_numero` desc limit 0,1";
-
-        $numFiscal = $this->db->query($query);
-
-        $numData = $numFiscal->row_array();
-
-        if (empty($numData['SERIE'])) {
-            $serie = '0001';
-        } else {
-            $serie = $numData['SERIE'];
-        }
-
-        if (empty($numData['NUMERO'])) {
-            $numero = '0000000001';
-        } else {
-            $numero = $numData['NUMERO'];
-        }
-
-        $newFiscal = array(
-            'venta_id' => $venta_id,
-            'documento_tipo' => $documento_tipo,
-            'documento_serie' => $serie,
-            'documento_numero' => $numero
-        );
-
-        $this->db->insert('documento_fiscal', $newFiscal);
-        $id = $this->db->insert_id();
-
-        $this->db->trans_complete();
-
-        if ($this->db->trans_status() === FALSE) {
-            return FALSE;
-        } else {
-            return $id;
-        }
-    }
-
-    function setDocumentoDetalle($venta_id, $venta_cabecera, $detalle, $montoboletas, $devoler = false)
-    {
-
-        // Monto Limite
-        $MONTO_BOLETAS_VENTA = $montoboletas;
-
-
-        $montototalenlaboleta = 0;
-        $arregloitems = array();
-        $arreglobonos = array();
-        $j = 0;;
-        $documento_fiscal_id = null;
-
-        if ($venta_cabecera['tipo_documento'] == FACTURA) { // SI ES UNA FACTURA GENERO EL DOCUMENTO DE FORMA NORMAL
-            $documento_fiscal_id = $this->setDocumento($venta_id, $venta_cabecera['tipo_documento']);
-
-
-            $kardex = array();
-            $i = 0;
-            foreach ($detalle as $data) {
-                $importe = $data->detalle_importe;
-                $id_producto = $data->id_producto;
-                $precio = $data->precio;
-                $id_unidad = $data->unidad_medida;
-                $cantidad = $data->cantidad;
-
-                if ($documento_fiscal_id == null) {
-                    $documento_fiscal_id = $this->setDocumento($venta_id, $venta_cabecera['tipo_documento']);
-                }
-                $newDetalle = array(
-                    'documento_fiscal_id' => $documento_fiscal_id,
-                    'id_venta' => $venta_id,
-                    'id_producto' => $id_producto,
-                    'precio' => $precio,
-                    'cantidad' => $cantidad,
-                    'id_unidad' => $id_unidad,
-                    'detalle_importe' => $importe
-                );
-                $this->db->insert('documento_detalle', $newDetalle);
-
-
-                $query = $this->db->query('SELECT id_inventario, cantidad, fraccion
-				FROM inventario where id_producto=' . $id_producto . ' and id_local=' . $venta_cabecera['local_id']);
-                $inventario_existente = $query->row_array();
-                $cantidad_vieja = 0;
-                $fraccion_vieja = 0;
-
-                if (isset($inventario_existente['cantidad'])) {
-                    $cantidad_vieja = $inventario_existente['cantidad'];
-                }
-                if (isset($inventario_existente['fraccion'])) {
-                    $fraccion_vieja = $inventario_existente['fraccion'];
-                }
-                $unidad_medida_venta = $data->unidad_medida;
-                $cantidad_venta = $data->cantidad;
-
-                // CALCULOS DE UNDIAD DE MEDIDA
-                $query = $this->db->query("SELECT * FROM unidades_has_producto WHERE producto_id='$id_producto' order by orden asc");
-
-                $unidades_producto = $query->result_array();
-
-
-                $unidad_maxima = $unidades_producto[0];
-                $unidad_minima = $unidades_producto[count($unidades_producto) - 1];
-                $unidad_form = 0;
-                foreach ($unidades_producto as $up) {
-                    if ($up['id_unidad'] == $unidad_medida_venta) {
-                        $unidad_form = $up;
-                    }
-                }
-
-                $total_unidades_minimas = $unidad_form['unidades'] * $cantidad_venta;
-                $total_unidades_minimas_viejas = ($unidad_maxima['unidades'] * $cantidad_vieja) + $fraccion_vieja;
-
-                $suma_cantidades = $total_unidades_minimas_viejas - $total_unidades_minimas;
-
-                /*******Preparo la data para insertar en el kardex********/
-                $documento_fiscal = $this->db->get_where('documento_fiscal', array('documento_fiscal_id' => $documento_fiscal_id));
-                $documento_fiscal = $documento_fiscal->row_array();
-
-                if ($devoler == true) {
-
-
-                    $sql_detalle_bk = $this->db->query("SELECT * FROM detalle_venta_backup
-            WHERE detalle_venta_backup.id_producto='$id_producto' and detalle_venta_backup.id_venta=" . $venta_id);
-
-                    $query_detalle_venta_bk = $sql_detalle_bk->row_array();
-                    $sql_detalle = $this->db->query("SELECT * FROM detalle_venta
-            JOIN producto ON producto.producto_id=detalle_venta.id_producto
-            LEFT JOIN unidades_has_producto ON unidades_has_producto.producto_id=producto.producto_id AND unidades_has_producto.orden=1
-            LEFT JOIN unidades ON unidades.id_unidad=unidades_has_producto.id_unidad
-            JOIN venta ON venta.`venta_id`=detalle_venta.`id_venta`
-             LEFT JOIN documento_venta ON documento_venta.id_tipo_documento=venta.numero_documento
-            LEFT JOIN documento_fiscal ON documento_fiscal.venta_id=venta.venta_id
-            WHERE detalle_venta.id_venta='$venta_id' group by detalle_venta.id_detalle");
-
-                    $query_detalle_venta = $sql_detalle->result_array();
-
-
-                    $local = $query_detalle_venta[$i]['local_id'];
-                    $unidad_maxima = $query_detalle_venta[$i]['unidades'];
-                    $unidad_minima = $query_detalle_venta[sizeof($query_detalle_venta) - 1];
-
-                    $producto_id = $query_detalle_venta[$i]['producto_id'];
-                    $unidad = $query_detalle_venta[$i]['unidad_medida'];
-                    $cantidad_compra = $query_detalle_venta[$i]['cantidad'];
-
-                    $sql_inventario = $this->db->query("SELECT id_inventario, cantidad, fraccion
-            FROM inventario where id_producto='$producto_id' and id_local='$local'");
-                    $inventario_existente = $sql_inventario->row_array();
-                    if (count($inventario_existente) > 0) {
-                        $id_inventario = $inventario_existente['id_inventario'];
-                        $cantidad_vieja = $inventario_existente['cantidad'];
-                        $fraccion_vieja = $inventario_existente['fraccion'];
-                    } else {
-                        $cantidad_vieja = 0;
-                        $fraccion_vieja = 0;
-                    }
-
-
-                    $query = $this->db->query("SELECT * FROM unidades_has_producto WHERE producto_id='$producto_id' ORDER BY orden");
-
-                    $unidades_producto = $query->result_array();
-
-                    foreach ($unidades_producto as $row) {
-                        if ($row['id_unidad'] == $unidad) {
-                            $unidad_form = $row;
-                        }
-                    }
-
-                    if ($cantidad_vieja >= 1) {
-                        $unidades_minimas_inventario = ($cantidad_vieja * $query_detalle_venta[$i]['unidades']) + $fraccion_vieja;
-                    } else {
-                        $unidades_minimas_inventario = $fraccion_vieja;
-                    }
-
-                    $unidades_minimas_detalle = $unidad_form['unidades'] * $cantidad_compra;
-
-                    $suma = $unidades_minimas_inventario + $unidades_minimas_detalle;
-
-                    $cont = 0;
-                    while ($suma >= $unidad_maxima) {
-                        $cont++;
-                        $suma = $suma - $unidad_maxima;
-                    }
-
-                    if ($cont < 1) {
-                        $cantidad_nueva = 0;
-                        $fraccion_nueva = $suma;
-                    } else {
-                        $cantidad_nueva = $cont;
-                        $fraccion_nueva = $suma;
-                    }
-
-                    $inventario_nuevo = array(
-                        'cantidad' => $cantidad_nueva,
-                        'fraccion' => $fraccion_nueva
-                    );
-
-                    $estadonuevo = 'ENTRADA POR ';
-                    if ($venta_cabecera['devolver'] == 'true') {
-                        $estadonuevo .= ($query_detalle_venta[0]['venta_tipo'] == VENTA_ENTREGA) ? PEDIDO_DEVUOLUCION : VENTA_DEVOLUCION;
-                    } else {
-                        $estadonuevo .= ($query_detalle_venta[0]['venta_tipo'] == VENTA_ENTREGA) ? PEDIDO_EDICION : VENTA_EDICION;
-                    }
-
-
-                    if (isset($query_detalle_venta_bk['cantidad'])) {
-                        if ($query_detalle_venta_bk['cantidad'] - $data->cantidad > 0) {
-                            $item_kardex = array(
-                                'dkardexFecha' => date('Y-m-d H:i:s:u'),
-                                'ckardexReferencia' => $estadonuevo,
-                                'cKardexProducto' => $data->id_producto,
-                                'nKardexCantidad' => $query_detalle_venta_bk['cantidad'] - $data->cantidad,
-                                'nKardexPrecioUnitario' => $data->precio,
-                                'nKardexPrecioTotal' => $data->precio * ($query_detalle_venta_bk['cantidad'] - $data->cantidad),
-                                'cKardexUsuario' => $venta_cabecera['id_vendedor'],
-                                'cKardexOperacion' => VENTA,
-                                'cKardexUnidadMedida' => $unidad_minima['id_unidad'],
-                                'cKardexAlmacen' => $venta_cabecera['local_id'],
-                                'cKardexTipo' => ENTRADA,
-                                'cKardexIdOperacion' => $venta_id,
-                                'cKardexEstado' => $query_detalle_venta[0]['venta_status'],
-                                'stockUManterior' => $unidades_minimas_inventario,
-                                'stockUMactual' => $suma,
-                                'cKardexTipoDocumentoFiscal' => $documento_fiscal['documento_tipo'],
-                                'cKardexNumeroDocumentoFiscal' => $documento_fiscal['documento_numero'],
-                                'cKardexNumeroSerieFiscal' => $documento_fiscal['documento_serie'],
-                                'cKardexCliente' => $query_detalle_venta[0]['id_cliente'],
-                                'cKardexProveedor' => null,
-                            );
-
-                            array_push($kardex, $item_kardex);
-                        } else {
-
-                            $estadonuevo = 'SALIDA POR ';
-                            if ($venta_cabecera['devolver'] == 'true') {
-                                $estadonuevo .= ($query_detalle_venta[0]['venta_tipo'] == VENTA_ENTREGA) ? PEDIDO_DEVUOLUCION : VENTA_DEVOLUCION;
-                            } else {
-                                $estadonuevo .= ($query_detalle_venta[0]['venta_tipo'] == VENTA_ENTREGA) ? PEDIDO_EDICION : VENTA_EDICION;
-                            }
-
-                            $item_kardex = array(
-                                'dkardexFecha' => date('Y-m-d H:i:s:u'),
-                                'ckardexReferencia' => $estadonuevo,
-                                'cKardexProducto' => $data->id_producto,
-                                'nKardexCantidad' => $data->cantidad - $query_detalle_venta_bk['cantidad'],
-                                'nKardexPrecioUnitario' => $data->precio,
-                                'nKardexPrecioTotal' => $data->precio * ($data->cantidad - $query_detalle_venta_bk['cantidad']),
-                                'cKardexUsuario' => $venta_cabecera['id_vendedor'],
-                                'cKardexOperacion' => VENTA,
-                                'cKardexUnidadMedida' => $unidad_minima['id_unidad'],
-                                'cKardexAlmacen' => $venta_cabecera['local_id'],
-                                'cKardexTipo' => SALIDA,
-                                'cKardexIdOperacion' => $venta_id,
-
-                                'cKardexEstado' => $query_detalle_venta[0]['venta_status'],
-                                'stockUManterior' => $unidades_minimas_inventario,
-                                'stockUMactual' => $suma,
-                                'cKardexTipoDocumentoFiscal' => $documento_fiscal['documento_tipo'],
-                                'cKardexNumeroDocumentoFiscal' => $documento_fiscal['documento_numero'],
-                                'cKardexNumeroSerieFiscal' => $documento_fiscal['documento_serie'],
-                                'cKardexCliente' => $query_detalle_venta[0]['id_cliente'],
-                                'cKardexProveedor' => null,
-                            );
-
-                            array_push($kardex, $item_kardex);
-                        }
-                    } else {
-                        $item_kardex = array(
-                            'dkardexFecha' => date('Y-m-d H:i:s:u'),
-                            'ckardexReferencia' => $estadonuevo,
-                            'cKardexProducto' => $data->id_producto,
-                            'nKardexCantidad' => $data->cantidad,
-                            'nKardexPrecioUnitario' => $data->precio,
-                            'nKardexPrecioTotal' => $data->detalle_importe,
-                            'cKardexUsuario' => $venta_cabecera['id_vendedor'],
-                            'cKardexOperacion' => VENTA,
-                            'cKardexUnidadMedida' => $unidad_minima['id_unidad'],
-                            'cKardexAlmacen' => $venta_cabecera['local_id'],
-                            'cKardexTipo' => SALIDA,
-                            'cKardexIdOperacion' => $venta_id,
-                            'cKardexTipoDocumentoFiscal' => $documento_fiscal['documento_tipo'],
-                            'cKardexNumeroDocumentoFiscal' => $documento_fiscal['documento_numero'],
-                            'cKardexNumeroSerieFiscal' => $documento_fiscal['documento_serie'],
-                            'cKardexEstado' => $query_detalle_venta[0]['venta_status'],
-                            'stockUManterior' => $total_unidades_minimas_viejas,
-                            'stockUMactual' => $suma_cantidades,
-                            'cKardexCliente' => $venta_cabecera['id_cliente'],
-                            'cKardexProveedor' => null,
-                        );
-
-                        array_push($kardex, $item_kardex);
-                    }
-
-                } else {
-                    $item_kardex = array(
-                        'dkardexFecha' => date('Y-m-d H:i:s:u'),
-                        'ckardexReferencia' => ($venta_cabecera['condicion_pago'] > 1) ? VENTA_CREDITO : VENTA_CONTADO,
-                        'cKardexProducto' => $data->id_producto,
-                        'nKardexCantidad' => $data->cantidad,
-                        'nKardexPrecioUnitario' => $data->precio,
-                        'nKardexPrecioTotal' => $data->detalle_importe,
-                        'cKardexUsuario' => $venta_cabecera['id_vendedor'],
-                        'cKardexOperacion' => VENTA,
-                        'cKardexUnidadMedida' => $unidad_minima['id_unidad'],
-                        'cKardexAlmacen' => $venta_cabecera['local_id'],
-                        'cKardexTipo' => SALIDA,
-                        'cKardexIdOperacion' => $venta_id,
-                        'cKardexTipoDocumentoFiscal' => $documento_fiscal['documento_tipo'],
-                        'cKardexNumeroDocumentoFiscal' => $documento_fiscal['documento_numero'],
-                        'cKardexNumeroSerieFiscal' => $documento_fiscal['documento_serie'],
-                        'cKardexEstado' => PEDIDO_GENERADO,
-                        'stockUManterior' => $total_unidades_minimas_viejas,
-                        'stockUMactual' => $suma_cantidades,
-                        'cKardexCliente' => $venta_cabecera['id_cliente'],
-                        'cKardexProveedor' => null,
-                    );
-
-                    array_push($kardex, $item_kardex);
-
-                }
-
-                $i++;
-            }
-
-            $this->db->insert_batch('kardex_fiscal', $kardex);
-        } else { // SI ES UNA BOLETA ENTRO EN ESTE PROCESO ENGORROSO
-            // var_dump($detalle);
-
-            //RECORRO TODOS LOS ITEMS PARA SEPARAR LOS PRODUCTOS NORMALES DE LOS BONOS, Y LOS SEPARO EN ARREGLOS APARTE
-
-            foreach ($detalle as $data) {
-                if (isset($data->bono) && $data->bono == 1) {
-                    $arreglobonos[] = $data;
-
-                } else {
-                    $arregloitems[] = $data;
-                }
-            }
-
-            $doc = 0;
-            $cantidadenboleta = 0;
-            $producto_anterior = null;
-            $bonoanterior = null;
-            $romper = false;
-
-            $arregloboletas = array();
-            $sumamontototalenlaboleta = 0;
-//RECORRO EL AREGLO DE PRODUCTOS NORMALES PARA SEPARARLOS EN BOLETAS
-            $itemsboletas = array(); // CREO UN ARAY DE ITEMS QUE TENDRA LA BOLETA
-            foreach ($arregloitems as $data) {
-
-
-                $id_producto = $data->id_producto;
-
-
-                $precio = $data->precio;
-                $id_unidad = $data->unidad_medida;
-                $cantidad = $data->cantidad;
-
-
-                // ESTE OBJETO DETALLE SE USA PARA ASIGNARLO A LA BOLETA
-                $newDetalle = array(
-                    'id_venta' => $venta_id,
-                    'id_producto' => $id_producto,
-                    'precio' => $precio,
-                    'cantidad' => $cantidadenboleta,
-                    'id_unidad' => $id_unidad,
-                    'detalle_importe' => $montototalenlaboleta
-                );
-
-
-                /* if ($producto_anterior != $id_producto) {
-                     $producto_anterior = $data->id_producto;
-                 }*/
-
-                // RECORRO UNITARIAMENTE CADA CANTIDAD DEL ITEM ACTUAL
-
-                for ($i = 1; $i <= $cantidad; $i++) {
-
-                    $montototalenlaboleta += $precio;
-                    $cantidadenboleta++;
-
-                    if (($montototalenlaboleta + $precio + $sumamontototalenlaboleta) >= $MONTO_BOLETAS_VENTA) {
-                        //
-
-                        if (($romper == true && $doc > 0) || ($montototalenlaboleta >= $MONTO_BOLETAS_VENTA) ||
-                            ($montototalenlaboleta + $sumamontototalenlaboleta) >= $MONTO_BOLETAS_VENTA
-                        ) {
-                            $doc++;
-                        }
-
-                        if ($doc == 0 and count($arregloboletas) > 0 and $romper != false) {
-                            $doc++;
-                        }
-
-                        if ($montototalenlaboleta >= $MONTO_BOLETAS_VENTA) {
-
-
-                            $newDetalle['cantidad'] = $cantidadenboleta;
-                            $newDetalle['detalle_importe'] = $precio * $cantidadenboleta;
-                            $newDetalle['precio'] = $precio;
-                            $newDetalle['documento_fiscal_id'] = $doc;
-                            $itemsboletas = $newDetalle;
-
-                            // var_dump($doc);
-                            $arregloboletas[$doc][] = $itemsboletas;
-                            $montototalenlaboleta = 0;
-                            $cantidadenboleta = 0;
-                            $romper = true;
-
-                        } else {
-
-                            if (($montototalenlaboleta + $sumamontototalenlaboleta) >= $MONTO_BOLETAS_VENTA) {
-
-                                $newDetalle['cantidad'] = $cantidadenboleta;
-                                $newDetalle['detalle_importe'] = $precio * $cantidadenboleta;
-                                $newDetalle['precio'] = $precio;
-                                $newDetalle['documento_fiscal_id'] = $doc;
-                                $itemsboletas = $newDetalle;
-
-
-                                $arregloboletas[$doc][] = $itemsboletas;
-                                $romper = false;
-
-                                $sumamontototalenlaboleta = $montototalenlaboleta;
-                                $cantidadenboleta = 0;
-                                $montototalenlaboleta = 0;
-
-                            } else {
-
-                                if ($cantidad == $i) {
-
-
-                                    $newDetalle['cantidad'] = $cantidadenboleta;
-                                    $newDetalle['detalle_importe'] = $precio * $cantidadenboleta;
-                                    $newDetalle['precio'] = $precio;
-                                    $newDetalle['documento_fiscal_id'] = $doc;
-                                    $itemsboletas = $newDetalle;
-
-
-                                    $arregloboletas[$doc][] = $itemsboletas;
-
-                                    $cantidadenboleta = 0;
-                                    $romper = false;
-                                } else {
-                                    $newDetalle['cantidad'] = $cantidadenboleta;
-                                    $newDetalle['detalle_importe'] = $precio * $cantidadenboleta;
-                                    $newDetalle['precio'] = $precio;
-                                    $newDetalle['documento_fiscal_id'] = $doc;
-                                    $itemsboletas = $newDetalle;
-                                    $sumamontototalenlaboleta = 0;
-
-                                    $arregloboletas[$doc][] = $itemsboletas;
-                                    $montototalenlaboleta = 0;
-                                    $cantidadenboleta = 0;
-                                    $romper = true;
-                                }
-                            }
-
-                        }
-
-                        $itemsboletas = array();
-
-                    } else {
-
-                        if ($cantidad == $i) {
-                            $itemsboletas = array();
-                            if ($romper == true) {
-                                $romper = false;
-                                $doc++;
-
-                            }
-
-                            $newDetalle['cantidad'] = $cantidadenboleta;
-                            $newDetalle['detalle_importe'] = $cantidadenboleta * $precio;
-                            $newDetalle['precio'] = $precio;
-                            $newDetalle['documento_fiscal_id'] = $doc;
-
-
-                            $itemsboletas = $newDetalle;
-
-
-                            $arregloboletas[$doc][] = $itemsboletas;
-
-                            $sumamontototalenlaboleta += $montototalenlaboleta;
-                            $montototalenlaboleta = 0;
-                            $cantidadenboleta = 0;
-
-                            $itemsboletas = array();
-                        }
-
-
-                    }
-
-                }
-
-
-                $j++;
-            }
-
-
-            $i = 0; // aqui quiero agregar lso bonos a cada boleta
-
-            foreach ($arreglobonos as $bono) {
-
-                if ($i >= sizeof($arregloboletas)) {
-                    $i = 0;
-                }
-                // var_dump($bono);
-                $newDetalle = array(
-                    'id_venta' => $venta_id,
-                    'id_producto' => $bono->id_producto,
-                    'precio' => $bono->precio,
-                    'cantidad' => $bono->cantidad,
-                    'id_unidad' => $bono->unidad_medida,
-                    'detalle_importe' => $bono->detalle_importe,
-                    'documento_fiscal_id' => $doc
-                );
-                $arregloboletas[$i][] = $newDetalle;
-                $i++;
-
-            }
-
-//var_dump($arregloboletas);
-            $kardex = array();
-// aqui entonces ya con mi arreglo boleta lo recorro para insertar en la  bd
-            foreach ($arregloboletas as $data) {
-
-                $documento_fiscal_id = $this->setDocumento($venta_id, $venta_cabecera['tipo_documento']);
-
-                $arreglo_documento_detalle = array(
-                    'documento_fiscal_id' => $documento_fiscal_id,
-                    'id_venta' => $venta_id,
-                    'id_producto' => $data[0]['id_producto'],
-                    'precio' => $data[0]['precio'],
-                    'cantidad' => $data[0]['cantidad'],
-                    'id_unidad' => $data[0]['id_unidad'],
-                    'detalle_importe' => $data[0]['detalle_importe'],
-                );
-                $this->db->insert('documento_detalle', $arreglo_documento_detalle);
-
-
-                $query = $this->db->query('SELECT id_inventario, cantidad, fraccion
-				FROM inventario where id_producto=' . $id_producto . ' and id_local=' . $venta_cabecera['local_id']);
-                $inventario_existente = $query->row_array();
-                $cantidad_vieja = 0;
-                $fraccion_vieja = 0;
-
-                if (isset($inventario_existente['cantidad'])) {
-                    $cantidad_vieja = $inventario_existente['cantidad'];
-                }
-                if (isset($inventario_existente['fraccion'])) {
-                    $fraccion_vieja = $inventario_existente['fraccion'];
-                }
-                $unidad_medida_venta = $data[0]['id_unidad'];
-                $cantidad_venta = $data[0]['cantidad'];
-
-                // CALCULOS DE UNDIAD DE MEDIDA
-                $query = $this->db->query("SELECT * FROM unidades_has_producto WHERE producto_id='$id_producto' order by orden asc");
-
-                $unidades_producto = $query->result_array();
-
-
-                $unidad_maxima = $unidades_producto[0];
-                $unidad_minima = $unidades_producto[count($unidades_producto) - 1];
-                $unidad_form = 0;
-                foreach ($unidades_producto as $up) {
-                    if ($up['id_unidad'] == $unidad_medida_venta) {
-                        $unidad_form = $up;
-                    }
-                }
-
-                $total_unidades_minimas = $unidad_form['unidades'] * $cantidad_venta;
-                $total_unidades_minimas_viejas = ($unidad_maxima['unidades'] * $cantidad_vieja) + $fraccion_vieja;
-
-                $suma_cantidades = $total_unidades_minimas_viejas - $total_unidades_minimas;
-
-                /*******Preparo la data para insertar en el kardex********/
-                $documento_fiscal = $this->db->get_where('documento_fiscal', array('documento_fiscal_id' => $documento_fiscal_id));
-                $documento_fiscal = $documento_fiscal->row_array();
-                if ($devoler == true) {
-
-
-                    $sql_detalle_bk = $this->db->query("SELECT * FROM detalle_venta_backup
-            WHERE detalle_venta_backup.id_producto='$id_producto' and detalle_venta_backup.id_venta=" . $venta_id);
-
-                    $query_detalle_venta_bk = $sql_detalle_bk->row_array();
-                    $sql_detalle = $this->db->query("SELECT * FROM detalle_venta
-            JOIN producto ON producto.producto_id=detalle_venta.id_producto
-            LEFT JOIN unidades_has_producto ON unidades_has_producto.producto_id=producto.producto_id AND unidades_has_producto.orden=1
-            LEFT JOIN unidades ON unidades.id_unidad=unidades_has_producto.id_unidad
-            JOIN venta ON venta.`venta_id`=detalle_venta.`id_venta`
-             LEFT JOIN documento_venta ON documento_venta.id_tipo_documento=venta.numero_documento
-            LEFT JOIN documento_fiscal ON documento_fiscal.venta_id=venta.venta_id
-            WHERE detalle_venta.id_venta='$venta_id' group by detalle_venta.id_detalle");
-
-                    $query_detalle_venta = $sql_detalle->result_array();
-
-
-                    $local = $query_detalle_venta[$i]['local_id'];
-                    $unidad_maxima = $query_detalle_venta[$i]['unidades'];
-                    $unidad_minima = $query_detalle_venta[sizeof($query_detalle_venta) - 1];
-
-                    $producto_id = $query_detalle_venta[$i]['producto_id'];
-                    $unidad = $query_detalle_venta[$i]['unidad_medida'];
-                    $cantidad_compra = $query_detalle_venta[$i]['cantidad'];
-
-                    $sql_inventario = $this->db->query("SELECT id_inventario, cantidad, fraccion
-            FROM inventario where id_producto='$producto_id' and id_local='$local'");
-                    $inventario_existente = $sql_inventario->row_array();
-                    if (count($inventario_existente) > 0) {
-                        $id_inventario = $inventario_existente['id_inventario'];
-                        $cantidad_vieja = $inventario_existente['cantidad'];
-                        $fraccion_vieja = $inventario_existente['fraccion'];
-                    } else {
-                        $cantidad_vieja = 0;
-                        $fraccion_vieja = 0;
-                    }
-
-
-                    $query = $this->db->query("SELECT * FROM unidades_has_producto WHERE producto_id='$producto_id' ORDER BY orden");
-
-                    $unidades_producto = $query->result_array();
-
-                    foreach ($unidades_producto as $row) {
-                        if ($row['id_unidad'] == $unidad) {
-                            $unidad_form = $row;
-                        }
-                    }
-
-                    if ($cantidad_vieja >= 1) {
-                        $unidades_minimas_inventario = ($cantidad_vieja * $query_detalle_venta[$i]['unidades']) + $fraccion_vieja;
-                    } else {
-                        $unidades_minimas_inventario = $fraccion_vieja;
-                    }
-
-                    $unidades_minimas_detalle = $unidad_form['unidades'] * $cantidad_compra;
-
-                    $suma = $unidades_minimas_inventario + $unidades_minimas_detalle;
-
-                    $cont = 0;
-                    while ($suma >= $unidad_maxima) {
-                        $cont++;
-                        $suma = $suma - $unidad_maxima;
-                    }
-
-                    if ($cont < 1) {
-                        $cantidad_nueva = 0;
-                        $fraccion_nueva = $suma;
-                    } else {
-                        $cantidad_nueva = $cont;
-                        $fraccion_nueva = $suma;
-                    }
-
-                    $inventario_nuevo = array(
-                        'cantidad' => $cantidad_nueva,
-                        'fraccion' => $fraccion_nueva
-                    );
-
-                    $estadonuevo = 'ENTRADA POR ';
-                    if ($venta_cabecera['devolver'] == 'true') {
-                        $estadonuevo .= ($query_detalle_venta[0]['venta_tipo'] == VENTA_ENTREGA) ? PEDIDO_DEVUOLUCION : VENTA_DEVOLUCION;
-                    } else {
-                        $estadonuevo .= ($query_detalle_venta[0]['venta_tipo'] == VENTA_ENTREGA) ? PEDIDO_EDICION : VENTA_EDICION;
-                    }
-                    //var_dump($query_detalle_venta_bk);
-                    // echo $query_detalle_venta_bk['cantidad'];
-                    //   echo $query_detalle_venta_bk['cantidad'];
-
-
-                    if (isset($query_detalle_venta_bk['cantidad'])) {
-                        if ($query_detalle_venta_bk['cantidad'] - $data[0]['cantidad'] > 0) {
-                            $item_kardex = array(
-                                'dkardexFecha' => date('Y-m-d H:i:s:u'),
-                                'ckardexReferencia' => $estadonuevo,
-                                'cKardexProducto' => $data[0]['id_producto'],
-                                'nKardexCantidad' => $query_detalle_venta_bk['cantidad'] - $data[0]['cantidad'],
-                                'nKardexPrecioUnitario' => $data[0]['precio'],
-                                'nKardexPrecioTotal' => $data[0]['precio'] * ($query_detalle_venta_bk['cantidad'] - $data[0]['cantidad']),
-                                'cKardexUsuario' => $venta_cabecera['id_vendedor'],
-                                'cKardexOperacion' => VENTA,
-                                'cKardexUnidadMedida' => $unidad_minima['id_unidad'],
-                                'cKardexAlmacen' => $venta_cabecera['local_id'],
-                                'cKardexTipo' => ENTRADA,
-                                'cKardexIdOperacion' => $venta_id,
-
-                                'cKardexEstado' => $query_detalle_venta[0]['venta_status'],
-                                'stockUManterior' => $unidades_minimas_inventario,
-                                'stockUMactual' => $suma,
-                                'cKardexTipoDocumentoFiscal' => $documento_fiscal['documento_tipo'],
-                                'cKardexNumeroDocumentoFiscal' => $documento_fiscal['documento_numero'],
-                                'cKardexNumeroSerieFiscal' => $documento_fiscal['documento_serie'],
-                                'cKardexCliente' => $query_detalle_venta[0]['id_cliente'],
-                                'cKardexProveedor' => null,
-                            );
-
-                            array_push($kardex, $item_kardex);
-                        } else {
-
-                            $estadonuevo = 'SALIDA POR ';
-                            if ($venta_cabecera['devolver'] == 'true') {
-                                $estadonuevo .= ($query_detalle_venta[0]['venta_tipo'] == VENTA_ENTREGA) ? PEDIDO_DEVUOLUCION : VENTA_DEVOLUCION;
-                            } else {
-                                $estadonuevo .= ($query_detalle_venta[0]['venta_tipo'] == VENTA_ENTREGA) ? PEDIDO_EDICION : VENTA_EDICION;
-                            }
-
-                            $item_kardex = array(
-                                'dkardexFecha' => date('Y-m-d H:i:s:u'),
-                                'ckardexReferencia' => $estadonuevo,
-                                'cKardexProducto' => $data[0]['id_producto'],
-                                'nKardexCantidad' => $data[0]['cantidad'] - $query_detalle_venta_bk['cantidad'],
-                                'nKardexPrecioUnitario' => $data[0]['precio'],
-                                'nKardexPrecioTotal' => $data[0]['precio'] * ($data[0]['cantidad'] - $query_detalle_venta_bk['cantidad']),
-                                'cKardexUsuario' => $venta_cabecera['id_vendedor'],
-                                'cKardexOperacion' => VENTA,
-                                'cKardexUnidadMedida' => $unidad_minima['id_unidad'],
-                                'cKardexAlmacen' => $venta_cabecera['local_id'],
-                                'cKardexTipo' => SALIDA,
-                                'cKardexIdOperacion' => $venta_id,
-
-                                'cKardexEstado' => $query_detalle_venta[0]['venta_status'],
-                                'stockUManterior' => $unidades_minimas_inventario,
-                                'stockUMactual' => $suma,
-                                'cKardexTipoDocumentoFiscal' => $documento_fiscal['documento_tipo'],
-                                'cKardexNumeroDocumentoFiscal' => $documento_fiscal['documento_numero'],
-                                'cKardexNumeroSerieFiscal' => $documento_fiscal['documento_serie'],
-                                'cKardexCliente' => $query_detalle_venta[0]['id_cliente'],
-                                'cKardexProveedor' => null,
-                            );
-
-                            array_push($kardex, $item_kardex);
-                        }
-                    } else {
-
-                        $item_kardex = array(
-                            'dkardexFecha' => date('Y-m-d H:i:s:u'),
-                            'ckardexReferencia' => $estadonuevo,
-                            'cKardexProducto' => $data[0]['id_producto'],
-                            'nKardexCantidad' => $data[0]['cantidad'],
-                            'nKardexPrecioUnitario' => $data[0]['precio'],
-                            'nKardexPrecioTotal' => $data[0]['detalle_importe'],
-                            'cKardexUsuario' => $venta_cabecera['id_vendedor'],
-                            'cKardexOperacion' => VENTA,
-                            'cKardexUnidadMedida' => $unidad_minima['id_unidad'],
-                            'cKardexAlmacen' => $venta_cabecera['local_id'],
-                            'cKardexTipo' => SALIDA,
-                            'cKardexIdOperacion' => $venta_id,
-                            'cKardexTipoDocumentoFiscal' => $documento_fiscal['documento_tipo'],
-                            'cKardexNumeroDocumentoFiscal' => $documento_fiscal['documento_numero'],
-                            'cKardexNumeroSerieFiscal' => $documento_fiscal['documento_serie'],
-                            'cKardexEstado' => $query_detalle_venta[0]['venta_status'],
-                            'stockUManterior' => $total_unidades_minimas_viejas,
-                            'stockUMactual' => $suma_cantidades,
-                            'cKardexCliente' => $venta_cabecera['id_cliente'],
-                            'cKardexProveedor' => null,
-                        );
-
-                        array_push($kardex, $item_kardex);
-                    }
-
-                } else {
-
-                    $item_kardex = array(
-                        'dkardexFecha' => date('Y-m-d H:i:s:u'),
-                        'ckardexReferencia' => ($venta_cabecera['condicion_pago'] > 1) ? VENTA_CREDITO : VENTA_CONTADO,
-                        'cKardexProducto' => $data[0]['id_producto'],
-                        'nKardexCantidad' => $data[0]['cantidad'],
-                        'nKardexPrecioUnitario' => $data[0]['precio'],
-                        'nKardexPrecioTotal' => $data[0]['detalle_importe'],
-                        'cKardexUsuario' => $venta_cabecera['id_vendedor'],
-                        'cKardexOperacion' => VENTA,
-                        'cKardexUnidadMedida' => $unidad_minima['id_unidad'],
-                        'cKardexAlmacen' => $venta_cabecera['local_id'],
-                        'cKardexTipo' => SALIDA,
-                        'cKardexIdOperacion' => $venta_id,
-                        'cKardexTipoDocumentoFiscal' => $documento_fiscal['documento_tipo'],
-                        'cKardexNumeroDocumentoFiscal' => $documento_fiscal['documento_numero'],
-                        'cKardexNumeroSerieFiscal' => $documento_fiscal['documento_serie'],
-                        'cKardexEstado' => PEDIDO_GENERADO,
-                        'stockUManterior' => $total_unidades_minimas_viejas,
-                        'stockUMactual' => $suma_cantidades,
-                        'cKardexCliente' => $venta_cabecera['id_cliente'],
-                        'cKardexProveedor' => null,
-                    );
-
-                    array_push($kardex, $item_kardex);
-                }
-
-                if (count($data) > 1) {
-
-                    for ($j = 1; $j < count($data); $j++) {
-
-                        // if (is_array($data[$j])) {
-
-                        $arreglo_documento_detalle = array(
-                            'documento_fiscal_id' => $documento_fiscal_id,
-                            'id_venta' => $venta_id,
-                            'id_producto' => $data[$j]['id_producto'],
-                            'precio' => $data[$j]['precio'],
-                            'cantidad' => $data[$j]['cantidad'],
-                            'id_unidad' => $data[$j]['id_unidad'],
-                            'detalle_importe' => $data[$j]['detalle_importe'],
-                        );
-                        /* } else {
-                              $arreglo_documento_detalle = array(
-                                  'documento_fiscal_id' => $documento_fiscal_id,
-                                  'id_venta' => $venta_id,
-                                  'id_producto' => $data[$j]->id_producto,
-                                  'precio' => 0,
-                                  'cantidad' => $data[$j]->cantidad,
-                                  'id_unidad' => $data[$j]->unidad_medida,
-                                  'detalle_importe' => 0
-                              );
-
-                          }*/
-
-                        $this->db->insert('documento_detalle', $arreglo_documento_detalle);
-
-
-                        $query = $this->db->query('SELECT id_inventario, cantidad, fraccion
-				FROM inventario where id_producto=' . $id_producto . ' and id_local=' . $venta_cabecera['local_id']);
-                        $inventario_existente = $query->row_array();
-                        $cantidad_vieja = 0;
-                        $fraccion_vieja = 0;
-
-                        if (isset($inventario_existente['cantidad'])) {
-                            $cantidad_vieja = $inventario_existente['cantidad'];
-                        }
-                        if (isset($inventario_existente['fraccion'])) {
-                            $fraccion_vieja = $inventario_existente['fraccion'];
-                        }
-                        $unidad_medida_venta = $data[$j]['id_unidad'];
-                        $cantidad_venta = $data[$j]['cantidad'];
-
-                        // CALCULOS DE UNDIAD DE MEDIDA
-                        $query = $this->db->query("SELECT * FROM unidades_has_producto WHERE producto_id='$id_producto' order by orden asc");
-
-                        $unidades_producto = $query->result_array();
-
-
-                        $unidad_maxima = $unidades_producto[0];
-                        $unidad_minima = $unidades_producto[count($unidades_producto) - 1];
-                        $unidad_form = 0;
-                        foreach ($unidades_producto as $up) {
-                            if ($up['id_unidad'] == $unidad_medida_venta) {
-                                $unidad_form = $up;
-                            }
-                        }
-
-                        $total_unidades_minimas = $unidad_form['unidades'] * $cantidad_venta;
-                        $total_unidades_minimas_viejas = ($unidad_maxima['unidades'] * $cantidad_vieja) + $fraccion_vieja;
-
-                        $suma_cantidades = $total_unidades_minimas_viejas - $total_unidades_minimas;
-
-                        /*******Preparo la data para insertar en el kardex********/
-                        $documento_fiscal = $this->db->get_where('documento_fiscal', array('documento_fiscal_id' => $documento_fiscal_id));
-                        $documento_fiscal = $documento_fiscal->row_array();
-                        if ($devoler == true) {
-
-
-                            $sql_detalle_bk = $this->db->query("SELECT * FROM detalle_venta_backup
-            WHERE detalle_venta_backup.id_producto='$id_producto' and detalle_venta_backup.id_venta=" . $venta_id);
-
-                            $query_detalle_venta_bk = $sql_detalle_bk->row_array();
-                            $sql_detalle = $this->db->query("SELECT * FROM detalle_venta
-            JOIN producto ON producto.producto_id=detalle_venta.id_producto
-            LEFT JOIN unidades_has_producto ON unidades_has_producto.producto_id=producto.producto_id AND unidades_has_producto.orden=1
-            LEFT JOIN unidades ON unidades.id_unidad=unidades_has_producto.id_unidad
-            JOIN venta ON venta.`venta_id`=detalle_venta.`id_venta`
-             LEFT JOIN documento_venta ON documento_venta.id_tipo_documento=venta.numero_documento
-            LEFT JOIN documento_fiscal ON documento_fiscal.venta_id=venta.venta_id
-            WHERE detalle_venta.id_venta='$venta_id' group by detalle_venta.id_detalle");
-
-                            $query_detalle_venta = $sql_detalle->result_array();
-
-
-                            $local = $query_detalle_venta[$i]['local_id'];
-                            $unidad_maxima = $query_detalle_venta[$i]['unidades'];
-                            $unidad_minima = $query_detalle_venta[sizeof($query_detalle_venta) - 1];
-
-                            $producto_id = $query_detalle_venta[$i]['producto_id'];
-                            $unidad = $query_detalle_venta[$i]['unidad_medida'];
-                            $cantidad_compra = $query_detalle_venta[$i]['cantidad'];
-
-                            $sql_inventario = $this->db->query("SELECT id_inventario, cantidad, fraccion
-            FROM inventario where id_producto='$producto_id' and id_local='$local'");
-                            $inventario_existente = $sql_inventario->row_array();
-                            if (count($inventario_existente) > 0) {
-                                $id_inventario = $inventario_existente['id_inventario'];
-                                $cantidad_vieja = $inventario_existente['cantidad'];
-                                $fraccion_vieja = $inventario_existente['fraccion'];
-                            } else {
-                                $cantidad_vieja = 0;
-                                $fraccion_vieja = 0;
-                            }
-
-
-                            $query = $this->db->query("SELECT * FROM unidades_has_producto WHERE producto_id='$producto_id' ORDER BY orden");
-
-                            $unidades_producto = $query->result_array();
-
-                            foreach ($unidades_producto as $row) {
-                                if ($row['id_unidad'] == $unidad) {
-                                    $unidad_form = $row;
-                                }
-                            }
-
-                            if ($cantidad_vieja >= 1) {
-                                $unidades_minimas_inventario = ($cantidad_vieja * $query_detalle_venta[$i]['unidades']) + $fraccion_vieja;
-                            } else {
-                                $unidades_minimas_inventario = $fraccion_vieja;
-                            }
-
-                            $unidades_minimas_detalle = $unidad_form['unidades'] * $cantidad_compra;
-
-                            $suma = $unidades_minimas_inventario + $unidades_minimas_detalle;
-
-                            $cont = 0;
-                            while ($suma >= $unidad_maxima) {
-                                $cont++;
-                                $suma = $suma - $unidad_maxima;
-                            }
-
-                            if ($cont < 1) {
-                                $cantidad_nueva = 0;
-                                $fraccion_nueva = $suma;
-                            } else {
-                                $cantidad_nueva = $cont;
-                                $fraccion_nueva = $suma;
-                            }
-
-                            $inventario_nuevo = array(
-                                'cantidad' => $cantidad_nueva,
-                                'fraccion' => $fraccion_nueva
-                            );
-
-                            $estadonuevo = 'ENTRADA POR ';
-                            if ($venta_cabecera['devolver'] == 'true') {
-                                $estadonuevo .= ($query_detalle_venta[0]['venta_tipo'] == VENTA_ENTREGA) ? PEDIDO_DEVUOLUCION : VENTA_DEVOLUCION;
-                            } else {
-                                $estadonuevo .= ($query_detalle_venta[0]['venta_tipo'] == VENTA_ENTREGA) ? PEDIDO_EDICION : VENTA_EDICION;
-                            }
-                            //var_dump($query_detalle_venta_bk);
-                            // echo $query_detalle_venta_bk['cantidad'];
-                            // echo $row->cantidad;
-
-                            //  echo $query_detalle_venta_bk['cantidad'] - $row->cantidad;
-                            // echo $query_detalle_venta_bk['cantidad'];
-                            if (isset($query_detalle_venta_bk['cantidad'])) {
-                                if ($query_detalle_venta_bk['cantidad'] - $data[$j]['cantidad'] > 0) {
-                                    $item_kardex = array(
-                                        'dkardexFecha' => date('Y-m-d H:i:s:u'),
-                                        'ckardexReferencia' => $estadonuevo,
-                                        'cKardexProducto' => $data[$j]['id_producto'],
-                                        'nKardexCantidad' => $query_detalle_venta_bk['cantidad'] - $data[$j]['cantidad'],
-                                        'nKardexPrecioUnitario' => $data[$j]['precio'],
-                                        'nKardexPrecioTotal' => $data[$j]['precio'] * ($query_detalle_venta_bk['cantidad'] - $data[$j]['cantidad']),
-                                        'cKardexUsuario' => $venta_cabecera['id_vendedor'],
-                                        'cKardexOperacion' => VENTA,
-                                        'cKardexUnidadMedida' => $unidad_minima['id_unidad'],
-                                        'cKardexAlmacen' => $venta_cabecera['local_id'],
-                                        'cKardexTipo' => ENTRADA,
-                                        'cKardexIdOperacion' => $venta_id,
-
-                                        'cKardexEstado' => $query_detalle_venta[0]['venta_status'],
-                                        'stockUManterior' => $unidades_minimas_inventario,
-                                        'stockUMactual' => $suma,
-                                        'cKardexTipoDocumentoFiscal' => $documento_fiscal['documento_tipo'],
-                                        'cKardexNumeroDocumentoFiscal' => $documento_fiscal['documento_numero'],
-                                        'cKardexNumeroSerieFiscal' => $documento_fiscal['documento_serie'],
-                                        'cKardexCliente' => $query_detalle_venta[0]['id_cliente'],
-                                        'cKardexProveedor' => null,
-                                    );
-
-                                    array_push($kardex, $item_kardex);
-                                } else {
-
-                                    $estadonuevo = 'SALIDA POR ';
-                                    if ($venta_cabecera['devolver'] == 'true') {
-                                        $estadonuevo .= ($query_detalle_venta[0]['venta_tipo'] == VENTA_ENTREGA) ? PEDIDO_DEVUOLUCION : VENTA_DEVOLUCION;
-                                    } else {
-                                        $estadonuevo .= ($query_detalle_venta[0]['venta_tipo'] == VENTA_ENTREGA) ? PEDIDO_EDICION : VENTA_EDICION;
-                                    }
-
-                                    $item_kardex = array(
-                                        'dkardexFecha' => date('Y-m-d H:i:s:u'),
-                                        'ckardexReferencia' => $estadonuevo,
-                                        'cKardexProducto' => $data[$j]['id_producto'],
-                                        'nKardexCantidad' => $data[$j]['cantidad'] - $query_detalle_venta_bk['cantidad'],
-                                        'nKardexPrecioUnitario' => $data[$j]['precio'],
-                                        'nKardexPrecioTotal' => $data[$j]['precio'] * ($data[$j]['cantidad'] - $query_detalle_venta_bk['cantidad']),
-                                        'cKardexUsuario' => $venta_cabecera['id_vendedor'],
-                                        'cKardexOperacion' => VENTA,
-                                        'cKardexUnidadMedida' => $unidad_minima['id_unidad'],
-                                        'cKardexAlmacen' => $venta_cabecera['local_id'],
-                                        'cKardexTipo' => SALIDA,
-                                        'cKardexIdOperacion' => $venta_id,
-
-                                        'cKardexEstado' => $query_detalle_venta[0]['venta_status'],
-                                        'stockUManterior' => $unidades_minimas_inventario,
-                                        'stockUMactual' => $suma,
-
-                                        'cKardexTipoDocumentoFiscal' => $documento_fiscal['documento_tipo'],
-                                        'cKardexNumeroDocumentoFiscal' => $documento_fiscal['documento_numero'],
-                                        'cKardexNumeroSerieFiscal' => $documento_fiscal['documento_serie'],
-                                        'cKardexCliente' => $query_detalle_venta[0]['id_cliente'],
-                                        'cKardexProveedor' => null,
-                                    );
-
-                                    array_push($kardex, $item_kardex);
-                                }
-                            } else {
-
-                                $item_kardex = array(
-                                    'dkardexFecha' => date('Y-m-d H:i:s:u'),
-                                    'ckardexReferencia' => $estadonuevo,
-                                    'cKardexProducto' => $data[$j]['id_producto'],
-                                    'nKardexCantidad' => $data[$j]['cantidad'],
-                                    'nKardexPrecioUnitario' => $data[$j]['precio'],
-                                    'nKardexPrecioTotal' => $data[$j]['detalle_importe'],
-                                    'cKardexUsuario' => $venta_cabecera['id_vendedor'],
-                                    'cKardexOperacion' => VENTA,
-                                    'cKardexUnidadMedida' => $unidad_minima['id_unidad'],
-                                    'cKardexAlmacen' => $venta_cabecera['local_id'],
-                                    'cKardexTipo' => SALIDA,
-                                    'cKardexIdOperacion' => $venta_id,
-                                    'cKardexTipoDocumentoFiscal' => $documento_fiscal['documento_tipo'],
-                                    'cKardexNumeroDocumentoFiscal' => $documento_fiscal['documento_numero'],
-                                    'cKardexNumeroSerieFiscal' => $documento_fiscal['documento_serie'],
-                                    'cKardexEstado' => $query_detalle_venta[0]['venta_status'],
-                                    'stockUManterior' => $total_unidades_minimas_viejas,
-                                    'stockUMactual' => $suma_cantidades,
-                                    'cKardexCliente' => $venta_cabecera['id_cliente'],
-                                    'cKardexProveedor' => null,
-                                );
-
-                                // var_dump($item_kardex);
-                                array_push($kardex, $item_kardex);
-                            }
-
-                        } else {
-
-                            $item_kardex = array(
-                                'dkardexFecha' => date('Y-m-d H:i:s:u'),
-                                'ckardexReferencia' => ($venta_cabecera['condicion_pago'] > 1) ? VENTA_CREDITO : VENTA_CONTADO,
-                                'cKardexProducto' => $data[$j]['id_producto'],
-                                'nKardexCantidad' => $data[$j]['cantidad'],
-                                'nKardexPrecioUnitario' => $data[$j]['precio'],
-                                'nKardexPrecioTotal' => $data[$j]['detalle_importe'],
-                                'cKardexUsuario' => $venta_cabecera['id_vendedor'],
-                                'cKardexOperacion' => VENTA,
-                                'cKardexUnidadMedida' => $unidad_minima['id_unidad'],
-                                'cKardexAlmacen' => $venta_cabecera['local_id'],
-                                'cKardexTipo' => SALIDA,
-                                'cKardexIdOperacion' => $venta_id,
-                                'cKardexTipoDocumentoFiscal' => $documento_fiscal['documento_tipo'],
-                                'cKardexNumeroDocumentoFiscal' => $documento_fiscal['documento_numero'],
-                                'cKardexNumeroSerieFiscal' => $documento_fiscal['documento_serie'],
-                                'cKardexEstado' => PEDIDO_GENERADO,
-                                'stockUManterior' => $total_unidades_minimas_viejas,
-                                'stockUMactual' => $suma_cantidades,
-                                'cKardexCliente' => $venta_cabecera['id_cliente'],
-                                'cKardexProveedor' => null,
-                            );
-
-                            array_push($kardex, $item_kardex);
-                        }
-
-                    }
-                }
-            }
-
-            //   var_dump($kardex);
-            if (sizeof($kardex) > 0) {
-                $this->db->insert_batch('kardex_fiscal', $kardex);
-            }
-
-
-        }
-    }
-
     function record_sort($records, $field, $reverse = false)
     {
         $hash = array();
@@ -1458,12 +317,13 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
             'local_id' => $venta_cabecera['local_id'],
             'subtotal' => $venta_cabecera['subtotal'],
             'total_impuesto' => $venta_cabecera['total_impuesto'],
-            'total' => $venta_cabecera['total'],
-            //  'pagado' => $venta_cabecera['importe'],
-
+            'total' => $venta_cabecera['total']
         );
 
-        if ($venta_cabecera['devolver'] != 'true') {
+        if (isset($venta_cabecera['retencion']))
+            $venta['retencion'] = $venta_cabecera['retencion'];
+
+        if ($venta_cabecera['devolver'] != 1) {
 
             if ($venta_cabecera['venta_tipo'] == 'ENTREGA') {
                 //actualizo el detalle del consolidado monto cobrdo en liqudiacion
@@ -1490,92 +350,9 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
 
         $this->db->where('venta_id', $venta_cabecera['venta_id']);
         $this->db->update('venta', $venta);
-        if ($venta_cabecera['venta_status'] == PEDIDO_GENERADO && $venta_cabecera['devolver'] != 'true') {
-            $this->db->where('venta_id', $venta_cabecera['venta_id']);
-            $this->db->update('venta_backup', $venta);
-        }
 
-
-        $sql_venta = $this->db->query("SELECT * FROM venta_backup where venta_id='$venta_id' ");
-
-        $query_venta = $sql_venta->result_array();
-
-
-        ///// se actualiza el backup de la tabla venta
-        if (isset($venta_cabecera['estatus_actual']) and
-            $venta_cabecera['estatus_actual'] == PEDIDO_DEVUELTO and $venta_cabecera['venta_status'] != PEDIDO_DEVUELTO
-        ) {
-
-
-            foreach ($query_venta as $row) {
-
-                $venta_backup = array(
-                    'id_cliente' => $row['id_cliente'],
-                    'fecha' => $row['fecha'],
-                    // 'id_vendedor' => $row['id_vendedor'],
-                    'local_id' => $row['local_id'],
-                    'subtotal' => $row['subtotal'],
-                    'numero_documento' => $row['numero_documento'],
-                    'venta_status' => $venta_cabecera['venta_status'],
-                    'condicion_pago' => $row['condicion_pago'],
-                    'total_impuesto' => $row['total_impuesto'],
-                    'total' => $row['total'],
-                    'pagado' => $row['pagado'],
-                    'venta_tipo' => $row['venta_tipo']
-
-                );
-                $this->db->where('venta_id', $venta_id);
-                $this->db->update('venta', $venta_backup);
-            }
-
-
-            $this->db->where('id_venta', $venta_id);
-            $this->db->delete('detalle_venta');
-
-
-            $sql_detalle = $this->db->query("SELECT * FROM detalle_venta_backup where id_venta='$venta_id' ");
-
-            $query_detalle_venta_backup = $sql_detalle->result_array();
-
-            foreach ($query_detalle_venta_backup as $row) {
-
-                $detalle_item = array(
-                    'id_venta' => $venta_id,
-                    'id_producto' => $row['id_producto'],
-                    'precio' => $row['precio'],
-                    'precio_sugerido' => $row['precio_sugerido'],
-                    'cantidad' => $row['cantidad'],
-                    'unidad_medida' => $row['unidad_medida'],
-                    'detalle_costo_promedio' => $row['detalle_costo_promedio'],
-                    'detalle_utilidad' => $row['detalle_utilidad'],
-                    'detalle_importe' => $row['detalle_importe'],
-                    'bono' => $row['bono']
-                );
-                $this->db->insert('detalle_venta', $detalle_item);
-            }
-        }
 
         if ($detalle != false) {
-
-
-            // Documento Fiscal
-            //  if ($venta_cabecera['tipo_documento'] == 'FACTURA' || $venta_cabecera['tipo_documento'] == 'BOLETA DE VENTA') {
-
-
-            // BORO DCUEMNTO DETALL
-            $this->db->where('id_venta', $venta_id);
-            $this->db->delete('documento_detalle');
-            //BORRO DOCUMENTO FISCAL
-            $this->db->where('venta_id', $venta_id);
-            $this->db->delete('documento_fiscal');
-            //BORORO KARDEX
-            $this->db->where('cKardexIdOperacion', $venta_id);
-            $this->db->where('cKardexOperacion', VENTA);
-            //   $this->db->delete('kardex_fiscal');
-
-            $venta_cabecera['tipo_documento'] = $query_venta[0]['tipo_doc_fiscal'];
-            $this->setDocumentoDetalle($venta_id, $venta_cabecera, $detalle, $montoboletas, true);
-            //}
 
             /**********QUITO DEL INVETARIO TODOS LOS ITEMS DE LA VENTA***********/
 
@@ -1656,55 +433,12 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
 
                 $where = array('id_inventario' => $id_inventario);
                 $this->update_inventario($inventario_nuevo, $where);
-
-
-                //  if ($venta_cabecera['devolver']=='true') {
-                /*******Preparo la data para insertar en el kardex********/
-
-
-                $estadonuevo = 'SALIDA POR ';
-                if ($venta_cabecera['devolver'] == 'true') {
-                    $estadonuevo .= ($query_detalle_venta[$i]['venta_tipo'] == VENTA_ENTREGA) ? PEDIDO_DEVUOLUCION : VENTA_DEVOLUCION;
-                } else {
-                    $estadonuevo .= ($query_detalle_venta[$i]['venta_tipo'] == VENTA_ENTREGA) ? PEDIDO_EDICION : VENTA_EDICION;
-                }
-
-
-                /*  $item_kardex = array(
-                      'dkardexFecha' => date('Y-m-d H:i:s:u'),
-                      'ckardexReferencia' => $estadonuevo,
-                      'cKardexProducto' => $query_detalle_venta[$i]['producto_id'],
-                      'nKardexCantidad' => $query_detalle_venta[$i]['cantidad'],
-                      'nKardexPrecioUnitario' => $query_detalle_venta[$i]['precio'],
-                      'nKardexPrecioTotal' => $query_detalle_venta[$i]['detalle_importe'],
-                      'cKardexUsuario' => $query_detalle_venta[0]['id_vendedor'],
-                      'cKardexOperacion' => VENTA,
-                      'cKardexUnidadMedida' => $unidad_minima['id_unidad'],
-                      'cKardexAlmacen' => $query_detalle_venta[$i]['local_id'],
-                      'cKardexTipo' => ENTRADA,
-                      'cKardexIdOperacion' => $query_detalle_venta[$i]['id_venta'],
-                      'cKardexTipoDocumento' => NOTA_ENTREGA,
-                      'cKardexNumeroDocumento' => $query_detalle_venta[$i]['documento_Numero'],
-                      'cKardexNumeroSerie' => $query_detalle_venta[$i]['documento_Serie'],
-                      'cKardexEstado' => $query_detalle_venta[$i]['venta_status'],
-                      'stockUManterior' => $unidades_minimas_inventario,
-                      'stockUMactual' => $suma,
-                      'cKardexTipoDocumentoFiscal' => $query_detalle_venta[$i]['documento_tipo'],
-                      'cKardexNumeroDocumentoFiscal' => $query_detalle_venta[$i]['documento_numero'],
-                      'cKardexNumeroSerieFiscal' => $query_detalle_venta[$i]['documento_serie'],
-                      'cKardexCliente' => $query_detalle_venta[$i]['id_cliente'],
-                      'cKardexProveedor' => null,
-                  );
-    */
-
-                //$this->db->insert('kardex', $item_kardex);
-                // }
             }
 
 
             $this->db->where('id_venta', $venta_id);
             $this->db->delete('detalle_venta');
-            $venta_backup_items = array();
+
             /***********COMIENZO A SUMAR EL INVENTARIO DE LA VENTA***************/
             foreach ($detalle as $row) {
                 $cantidad_venta = $row->cantidad;
@@ -1882,168 +616,9 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
                 }
 
 
-                // if ($venta_cabecera['devolver']=='true') {
-                /*******Preparo la data para insertar en el kardex********/
-
-
-                $estadonuevo = 'ENTRADA POR ';
-                if ($venta_cabecera['devolver'] == 'true') {
-                    $estadonuevo .= ($query_detalle_venta[0]['venta_tipo'] == VENTA_ENTREGA) ? PEDIDO_DEVUOLUCION : VENTA_DEVOLUCION;
-                } else {
-                    $estadonuevo .= ($query_detalle_venta[0]['venta_tipo'] == VENTA_ENTREGA) ? PEDIDO_EDICION : VENTA_EDICION;
-                }
-
-
-                $sql_detalle_bk = $this->db->query("SELECT * FROM detalle_venta_backup
-            WHERE detalle_venta_backup.id_producto='$id_producto' and detalle_venta_backup.id_venta=" . $venta_id);
-
-                $query_detalle_venta_bk = $sql_detalle_bk->row_array();
-
-                //var_dump($query_detalle_venta_bk);
-                // echo $query_detalle_venta_bk['cantidad'];
-                // echo $row->cantidad;
-
-                // echo $query_detalle_venta_bk['cantidad'] - $row->cantidad;
-                // echo $query_detalle_venta_bk['cantidad']." -- ";
-                if (isset($query_detalle_venta_bk['cantidad'])) {
-                    if ($query_detalle_venta_bk['cantidad'] - $row->cantidad > 0) {
-                        $item_kardex = array(
-                            'dkardexFecha' => date('Y-m-d H:i:s:u'),
-                            'ckardexReferencia' => $estadonuevo,
-                            'cKardexProducto' => $row->id_producto,
-                            'nKardexCantidad' => $query_detalle_venta_bk['cantidad'] - $row->cantidad,
-                            'nKardexPrecioUnitario' => $row->precio,
-                            'nKardexPrecioTotal' => $row->precio * ($query_detalle_venta_bk['cantidad'] - $row->cantidad),
-                            'cKardexUsuario' => $venta_cabecera['id_vendedor'],
-                            'cKardexOperacion' => VENTA,
-                            'cKardexUnidadMedida' => $unidad_minima['id_unidad'],
-                            'cKardexAlmacen' => $venta_cabecera['local_id'],
-                            'cKardexTipo' => ENTRADA,
-                            'cKardexIdOperacion' => $venta_id,
-                            'cKardexTipoDocumento' => NOTA_ENTREGA,
-                            'cKardexNumeroDocumento' => $query_detalle_venta[0]['documento_Numero'],
-                            'cKardexNumeroSerie' => $query_detalle_venta[0]['documento_Serie'],
-                            'cKardexEstado' => $query_detalle_venta[0]['venta_status'],
-                            'stockUManterior' => $unidades_minimas_inventario,
-                            'stockUMactual' => $suma,
-                            'cKardexTipoDocumentoFiscal' => $query_detalle_venta[0]['documento_tipo'],
-                            'cKardexNumeroDocumentoFiscal' => $query_detalle_venta[0]['documento_numero'],
-                            'cKardexNumeroSerieFiscal' => $query_detalle_venta[0]['documento_serie'],
-                            'cKardexCliente' => $query_detalle_venta[0]['id_cliente'],
-                            'cKardexProveedor' => null,
-                        );
-
-                        $this->db->insert('kardex', $item_kardex);
-                    } else {
-
-                        $estadonuevo = 'SALIDA POR ';
-                        if ($venta_cabecera['devolver'] == 'true') {
-                            $estadonuevo .= ($query_detalle_venta[0]['venta_tipo'] == VENTA_ENTREGA) ? PEDIDO_DEVUOLUCION : VENTA_DEVOLUCION;
-                        } else {
-                            $estadonuevo .= ($query_detalle_venta[0]['venta_tipo'] == VENTA_ENTREGA) ? PEDIDO_EDICION : VENTA_EDICION;
-                        }
-
-                        $item_kardex = array(
-                            'dkardexFecha' => date('Y-m-d H:i:s:u'),
-                            'ckardexReferencia' => $estadonuevo,
-                            'cKardexProducto' => $row->id_producto,
-                            'nKardexCantidad' => $row->cantidad - $query_detalle_venta_bk['cantidad'],
-                            'nKardexPrecioUnitario' => $row->precio,
-                            'nKardexPrecioTotal' => $row->precio * ($row->cantidad - $query_detalle_venta_bk['cantidad']),
-                            'cKardexUsuario' => $venta_cabecera['id_vendedor'],
-                            'cKardexOperacion' => VENTA,
-                            'cKardexUnidadMedida' => $unidad_minima['id_unidad'],
-                            'cKardexAlmacen' => $venta_cabecera['local_id'],
-                            'cKardexTipo' => SALIDA,
-                            'cKardexIdOperacion' => $venta_id,
-                            'cKardexTipoDocumento' => NOTA_ENTREGA,
-                            'cKardexNumeroDocumento' => $query_detalle_venta[0]['documento_Numero'],
-                            'cKardexNumeroSerie' => $query_detalle_venta[0]['documento_Serie'],
-                            'cKardexEstado' => $query_detalle_venta[0]['venta_status'],
-                            'stockUManterior' => $unidades_minimas_inventario,
-                            'stockUMactual' => $suma,
-                            'cKardexTipoDocumentoFiscal' => $query_detalle_venta[0]['documento_tipo'],
-                            'cKardexNumeroDocumentoFiscal' => $query_detalle_venta[0]['documento_numero'],
-                            'cKardexNumeroSerieFiscal' => $query_detalle_venta[0]['documento_serie'],
-                            'cKardexCliente' => $query_detalle_venta[0]['id_cliente'],
-                            'cKardexProveedor' => null,
-                        );
-
-                        $this->db->insert('kardex', $item_kardex);
-                    }
-                } else {
-
-                    // CALCULOS DE UNDIAD DE MEDIDA
-                    $query = $this->db->query("SELECT * FROM unidades_has_producto WHERE producto_id='$id_producto' order by orden asc");
-
-                    $unidades_producto = $query->result_array();
-
-
-                    $unidad_maxima = $unidades_producto[0];
-                    $unidad_minima = $unidades_producto[count($unidades_producto) - 1];
-                    $unidad_form = 0;
-                    foreach ($unidades_producto as $up) {
-                        if ($up['id_unidad'] == $unidad_medida_venta) {
-                            $unidad_form = $up;
-                        }
-                    }
-
-                    $total_unidades_minimas = $unidad_form['unidades'] * $cantidad_venta;
-                    $total_unidades_minimas_viejas = ($unidad_maxima['unidades'] * $cantidad_vieja) + $fraccion_vieja;
-
-                    $suma_cantidades = $total_unidades_minimas_viejas - $total_unidades_minimas;
-
-                    $item_kardex = array(
-                        'dkardexFecha' => date('Y-m-d H:i:s:u'),
-                        'ckardexReferencia' => $estadonuevo,
-                        'cKardexProducto' => $row->id_producto,
-                        'nKardexCantidad' => $row->cantidad,
-                        'nKardexPrecioUnitario' => $row->precio,
-                        'nKardexPrecioTotal' => $row->precio * ($row->cantidad),
-                        'cKardexUsuario' => $venta_cabecera['id_vendedor'],
-                        'cKardexOperacion' => VENTA,
-                        'cKardexUnidadMedida' => $unidad_minima['id_unidad'],
-                        'cKardexAlmacen' => $venta_cabecera['local_id'],
-                        'cKardexTipo' => SALIDA,
-                        'cKardexIdOperacion' => $venta_id,
-                        'cKardexTipoDocumento' => NOTA_ENTREGA,
-                        'cKardexNumeroDocumento' => $query_detalle_venta[0]['documento_Numero'],
-                        'cKardexNumeroSerie' => $query_detalle_venta[0]['documento_Serie'],
-                        'cKardexEstado' => $query_detalle_venta[0]['venta_status'],
-                        'stockUManterior' => $unidades_minimas_inventario,
-                        'stockUMactual' => $suma_cantidades,
-                        'cKardexTipoDocumentoFiscal' => $query_detalle_venta[0]['documento_tipo'],
-                        'cKardexNumeroDocumentoFiscal' => $query_detalle_venta[0]['documento_numero'],
-                        'cKardexNumeroSerieFiscal' => $query_detalle_venta[0]['documento_serie'],
-                        'cKardexCliente' => $query_detalle_venta[0]['id_cliente'],
-                        'cKardexProveedor' => null,
-                    );
-                    $this->db->insert('kardex', $item_kardex);
-                }
-
-
-                if ($venta_cabecera['venta_status'] == PEDIDO_GENERADO && $venta_cabecera['devolver'] != 'true') {
-                    // $this->db->insert('detalle_venta_backup', $detalle_item);
-                    array_push($venta_backup_items, $detalle_item);
-                }
-
-
             }
 
         }
-
-
-        /************************************/
-
-
-        if ($venta_cabecera['venta_status'] == PEDIDO_GENERADO && $venta_cabecera['devolver'] != 'true') {
-
-
-            $this->db->where('id_venta', $venta_id);
-            $this->db->delete('detalle_venta_backup');
-            $this->db->insert_batch('detalle_venta_backup', $venta_backup_items);
-        }
-
 
         /**Credito o contado*/
         $this->updateVentaTipo($venta_cabecera);
@@ -2062,6 +637,277 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
         $this->db->trans_off();
     }
 
+    function set_numero_fiscal($venta_id)
+    {
+        $pedido = $this->db->get_where('venta', array('venta_id' => $venta_id))->row();
+        $pedido_detalles = $this->db->get_where('detalle_venta', array('id_venta' => $venta_id))->result();
+
+        $max_items = $pedido->tipo_doc_fiscal == 'FACTURA' ? valueOption('FACTURA_MAX', 1) : valueOption('BOLETA_MAX', 1);
+        $max_boleta_importe = $pedido->tipo_doc_fiscal == 'FACTURA' ? 0 : valueOption('MONTO_BOLETAS_VENTA', 0);
+
+        $count_importe = $max_boleta_importe;
+        $fiscal_id = $this->updateFiscal($pedido);
+        $count_items = 1;
+
+        foreach ($pedido_detalles as $detalle) {
+            $cantidad = 0;
+            $end_flag = true;
+
+            while ($end_flag) {
+
+                if ($count_items > $max_items) {
+                    $fiscal_id = $this->updateFiscal($pedido);
+                    $count_importe = $max_boleta_importe;
+                    $count_items = 1;
+                }
+
+
+                if ($max_boleta_importe == 0) {
+                    $cantidad = $detalle->cantidad;
+                    $end_flag = false;
+                } else {
+                    if ($count_importe >= ($detalle->cantidad * $detalle->precio)) {
+                        $cantidad = $detalle->cantidad;
+                        $count_importe = $count_importe - ($detalle->cantidad * $detalle->precio);
+                        $end_flag = false;
+                    } else {
+                        $cantidad_disponible = intval($count_importe / $detalle->precio) - 1;
+                        $detalle->cantidad -= $cantidad_disponible;
+                        $cantidad = $cantidad_disponible;
+                        $end_flag = true;
+                    }
+                }
+
+                $this->db->insert('documento_detalle', array(
+                    'documento_fiscal_id' => $fiscal_id,
+                    'id_venta' => $pedido->venta_id,
+                    'id_producto' => $detalle->id_producto,
+                    'precio' => $detalle->precio,
+                    'cantidad' => $cantidad,
+                    'id_unidad' => $detalle->unidad_medida,
+                    'detalle_importe' => $detalle->precio * $cantidad,
+                ));
+
+                if ($end_flag) {
+                    $fiscal_id = $this->updateFiscal($pedido);
+                    $count_importe = $max_boleta_importe;
+                    $count_items = 1;
+                }
+
+                $count_items++;
+
+            }
+
+        }
+    }
+
+    private function updateFiscal($pedido)
+    {
+        if ($pedido->tipo_doc_fiscal == 'FACTURA')
+            $this->db->where('config_key', 'FACTURA_NEXT');
+        else
+            $this->db->where('config_key', 'BOLETA_NEXT');
+
+        $numero = $this->db->get('configuraciones')->row();
+        $numero = $numero != NULL ? $numero->config_value : 1;
+
+        if ($pedido->tipo_doc_fiscal == 'FACTURA')
+            $this->db->where('config_key', 'FACTURA_SERIE');
+        else
+            $this->db->where('config_key', 'BOLETA_SERIE');
+
+        $serie = $this->db->get('configuraciones')->row();
+        $serie = $serie != NULL ? $serie->config_value : 1;
+
+        $this->db->insert('documento_fiscal', array(
+            'venta_id' => $pedido->venta_id,
+            'documento_tipo' => $pedido->tipo_doc_fiscal,
+            'documento_serie' => sumCod($serie, 4),
+            'documento_numero' => sumCod($numero, 5)
+        ));
+
+        $fiscal_id = $this->db->insert_id();
+
+        //Actualizo el siguiente correlativo
+        if ($pedido->tipo_doc_fiscal == 'FACTURA')
+            $this->db->where('config_key', 'FACTURA_NEXT');
+        else
+            $this->db->where('config_key', 'BOLETA_NEXT');
+
+        $this->db->update('configuraciones', array('config_value' => $numero + 1));
+
+        return $fiscal_id;
+    }
+
+    function get_venta_detalle($venta_id)
+    {
+        $venta = $this->db->select('
+            venta.venta_id as venta_id,
+            venta.numero_documento as documento_id
+        ')->from('venta')->where('venta_id', $venta_id)->get()->row();
+
+        $proceso = $this->db->get_where('historial_pedido_proceso', array(
+            'proceso_id' => PROCESO_IMPRIMIR,
+            'pedido_id' => $venta_id
+        ))->row();
+
+        $venta->detalles = $this->db->select('
+            historial_pedido_detalle.id as detalle_id,
+            historial_pedido_detalle.producto_id as producto_id,
+            producto.producto_nombre as producto_nombre,
+            historial_pedido_detalle.precio_unitario as precio,
+            historial_pedido_detalle.stock as cantidad,
+            historial_pedido_detalle.unidad_id as unidad_id,
+            historial_pedido_detalle.bonificacion as bono,
+            unidades.nombre_unidad as unidad_nombre,
+            unidades.abreviatura as unidad_abr,
+            (historial_pedido_detalle.precio_unitario * historial_pedido_detalle.stock) as importe
+            ')
+            ->from('historial_pedido_detalle')
+            ->join('historial_pedido_proceso', 'historial_pedido_proceso.id=historial_pedido_detalle.historial_pedido_proceso_id')
+            ->join('producto', 'producto.producto_id=historial_pedido_detalle.producto_id')
+            ->join('unidades', 'unidades.id_unidad=historial_pedido_detalle.unidad_id')
+            ->where('historial_pedido_detalle.historial_pedido_proceso_id', $proceso->id)
+            ->order_by('historial_pedido_detalle.bonificacion', 'ASC')
+            ->get()->result();
+
+        $venta->subtotal = 0;
+
+        foreach ($venta->detalles as $detalle) {
+
+            $venta->total += $detalle->cantidad * $detalle->precio;
+
+            $detalle->bonus_datos = null;
+
+            $where_not = array();
+
+            if ($detalle->bono == 1) {
+                $this->db->select('
+                    bonificaciones.cantidad_condicion,
+                    bonificaciones.bono_cantidad,
+                    bonificaciones.id_unidad as unidad_id,
+                    bonificaciones.cantidad_condicion,
+                    bonificaciones_has_producto.id_producto as producto_id,
+                    historial_pedido_detalle.id as detalle_id
+                ')
+                    ->from('venta')
+                    ->join('historial_pedido_proceso', 'historial_pedido_proceso.pedido_id = venta.venta_id')
+                    ->join('historial_pedido_detalle', 'historial_pedido_detalle.historial_pedido_proceso_id = historial_pedido_proceso.id')
+                    ->join('bonificaciones_has_producto', 'bonificaciones_has_producto.id_producto = historial_pedido_detalle.producto_id')
+                    ->join('bonificaciones', 'bonificaciones.id_bonificacion = bonificaciones_has_producto.id_bonificacion')
+                    ->join('cliente', 'cliente.id_cliente = venta.id_cliente')
+                    ->where('cliente.grupo_id = bonificaciones.id_grupos_cliente')
+                    ->where('historial_pedido_detalle.bonificacion = 0')
+                    ->where('historial_pedido_detalle.stock >= bonificaciones.cantidad_condicion')
+                    ->where('historial_pedido_proceso.proceso_id', PROCESO_IMPRIMIR)
+                    ->where('bonificaciones.bono_producto', $detalle->producto_id)
+                    ->where('bonificaciones.bono_unidad', $detalle->unidad_id)
+                    ->where('venta.venta_id', $venta_id);
+
+                if (count($where_not) > 0)
+                    $this->db->where_not_in('historial_pedido_detalle.id', $where_not);
+
+                $temp = $this->db->get()->result();
+
+                $counter = 0;
+                foreach ($temp as $bonus) {
+                    if ($counter++ == 0) {
+                        $detalle->bonus_dato = new stdClass();
+                        $detalle->bonus_dato = $bonus;
+                        $where_not[] = $bonus->detalle_id;
+                    } else
+                        break;
+
+                }
+            }
+        }
+
+        $venta->impuesto = number_format(($venta->total * 18) / 100, 2);
+        $venta->subtotal = $venta->total - $venta->impuesto;
+
+        return $venta;
+    }
+
+    public function devolver_venta($venta_id, $total_importe, $devoluciones)
+    {
+        $total = $total_importe;
+        $impuesto = number_format(($total * 18) / 100, 2);
+        $subtotal = $total - $impuesto;
+
+        $this->db->where('venta_id', $venta_id);
+        $this->db->update('venta', array(
+            'total' => $total,
+            'subtotal' => $subtotal,
+            'total_impuesto' => $impuesto,
+        ));
+
+        $this->db->where('detalle_venta.id_venta', $venta_id);
+        $this->db->delete('detalle_venta');
+
+        $cantidades = array();
+        foreach ($devoluciones as $detalle) {
+            if ($detalle->new_cantidad != 0) {
+                $historia = $this->db->get_where('historial_pedido_detalle', array('id' => $detalle->detalle_id))->row();
+
+                $this->db->insert('detalle_venta', array(
+                    'id_venta' => $venta_id,
+                    'id_producto' => $historia->producto_id,
+                    'precio' => $historia->precio_unitario,
+                    'cantidad' => $detalle->new_cantidad,
+                    'unidad_medida' => $historia->unidad_id,
+                    'detalle_importe' => $historia->precio_unitario * $detalle->new_cantidad,
+                    'precio_sugerido' => 0,
+                    'detalle_costo_promedio' => $historia->costo_unitario,
+                    'detalle_utilidad' => ($historia->precio_unitario - $historia->costo_unitario) * $detalle->new_cantidad,
+                    'bono' => $historia->bonificacion,
+                ));
+            }
+        }
+    }
+
+    public function reset_venta($venta_id)
+    {
+        $this->db->where('detalle_venta.id_venta', $venta_id);
+        $this->db->delete('detalle_venta');
+
+        $proceso = $this->db->get_where('historial_pedido_proceso', array(
+            'proceso_id' => PROCESO_IMPRIMIR,
+            'pedido_id' => $venta_id
+        ))->row();
+
+        $historia = $this->db->get_where('historial_pedido_detalle', array('historial_pedido_proceso_id' => $proceso->id))->result();
+
+        $cantidades = array();
+        $total_importe = 0;
+        foreach ($historia as $detalle) {
+
+            $this->db->insert('detalle_venta', array(
+                'id_venta' => $venta_id,
+                'id_producto' => $detalle->producto_id,
+                'precio' => $detalle->precio_unitario,
+                'cantidad' => $detalle->stock,
+                'unidad_medida' => $detalle->unidad_id,
+                'detalle_importe' => $detalle->precio_unitario * $detalle->stock,
+                'precio_sugerido' => 0,
+                'detalle_costo_promedio' => $detalle->costo_unitario,
+                'detalle_utilidad' => ($detalle->precio_unitario - $detalle->costo_unitario) * $detalle->stock,
+                'bono' => $detalle->bonificacion,
+            ));
+
+            $total_importe += $detalle->precio_unitario * $detalle->stock;
+        }
+
+        $total = $total_importe;
+        $impuesto = number_format(($total * 18) / 100, 2);
+        $subtotal = $total - $impuesto;
+
+        $this->db->where('venta_id', $venta_id);
+        $this->db->update('venta', array(
+            'total' => $total,
+            'subtotal' => $subtotal,
+            'total_impuesto' => $impuesto,
+        ));
+    }
 
     function updateVentaTipo($venta_cabecera)
     {
@@ -2247,61 +1093,6 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
         return $query->row_array();
     }
 
-    function restaurar_venta($id, $campos)
-    {
-        if (isset($campos['estatus_actual']) and $campos['estatus_actual'] == PEDIDO_DEVUELTO and $campos['venta_status'] != PEDIDO_DEVUELTO) {
-
-            $sql_venta = $this->db->query("SELECT * FROM venta_backup where venta_id='$id' ");
-
-            $query_venta = $sql_venta->result_array();
-
-            foreach ($query_venta as $row) {
-
-                $venta_backup = array(
-                    'id_cliente' => $row['id_cliente'],
-                    'fecha' => $row['fecha'],
-                    'id_vendedor' => $row['id_vendedor'],
-                    'local_id' => $row['local_id'],
-                    'subtotal' => $row['subtotal'],
-                    'numero_documento' => $row['numero_documento'],
-                    'venta_status' => $campos['venta_status'],
-                    'condicion_pago' => $row['condicion_pago'],
-                    'total_impuesto' => $row['total_impuesto'],
-                    'total' => $row['total'],
-                    'pagado' => $row['pagado'],
-                    'venta_tipo' => $row['venta_tipo']
-
-                );
-                $this->db->where('venta_id', $id);
-                $this->db->update('venta', $venta_backup);
-            }
-
-
-            $this->db->where('id_venta', $id);
-            $this->db->delete('detalle_venta');
-
-            $sql_detalle = $this->db->query("SELECT * FROM detalle_venta_backup where id_venta='$id' ");
-
-            $query_detalle_venta_backup = $sql_detalle->result_array();
-
-            foreach ($query_detalle_venta_backup as $row) {
-
-                $detalle_item = array(
-                    'id_venta' => $id,
-                    'id_producto' => $row['id_producto'],
-                    'precio' => $row['precio'],
-                    'precio_sugerido' => $row['precio_sugerido'],
-                    'cantidad' => $row['cantidad'],
-                    'unidad_medida' => $row['unidad_medida'],
-                    'detalle_costo_promedio' => $row['detalle_costo_promedio'],
-                    'detalle_utilidad' => $row['detalle_utilidad'],
-                    'detalle_importe' => $row['detalle_importe'],
-                    'bono' => $row['bono']
-                );
-                $this->db->insert('detalle_venta', $detalle_item);
-            }
-        }
-    }
 
     function devolver_stock($id, $campos, $status = false)
     {
@@ -2321,7 +1112,6 @@ WHERE detalle_venta.id_venta='$id' group by detalle_venta.id_detalle");
 
         $query_detalle_venta = $sql_detalle_venta->result_array();
 
-        $kardex = array();
         /*************COMIENZO A DEVOLVER EL STOCK**********/
         for ($i = 0; $i < count($query_detalle_venta); $i++) {
             $local = $query_detalle_venta[$i]['local_id'];
@@ -2389,41 +1179,6 @@ WHERE detalle_venta.id_venta='$id' group by detalle_venta.id_detalle");
             $this->update_inventario($inventario_nuevo, $where);
 
 
-            /*******Preparo la data para insertar en el kardex********/
-            $documento_fiscal = $this->db->get_where('documento_fiscal', array('venta_id' => $query_detalle_venta[$i]['id_venta']));
-            $documento_fiscal = $documento_fiscal->row_array();
-
-            $item_kardex = array(
-                'dkardexFecha' => date('Y-m-d H:i:s:u'),
-                'ckardexReferencia' => ($status == PEDIDO_ANULADO) ? 'VENTA ANULADA' : 'VENTA RECHAZADA',
-                'cKardexProducto' => $query_detalle_venta[$i]['producto_id'],
-                'nKardexCantidad' => $query_detalle_venta[$i]['cantidad'],
-                'nKardexPrecioUnitario' => $query_detalle_venta[$i]['precio'],
-                'nKardexPrecioTotal' => $query_detalle_venta[$i]['detalle_importe'],
-                'cKardexUsuario' => $query_detalle_venta[$i]['id_vendedor'],
-                'cKardexOperacion' => VENTA,
-                'cKardexUnidadMedida' => $unidad_minima['id_unidad'],
-                'cKardexAlmacen' => $query_detalle_venta[$i]['local_id'],
-                'cKardexTipo' => ENTRADA,
-                'cKardexIdOperacion' => $query_detalle_venta[$i]['id_venta'],
-                'cKardexTipoDocumento' => NOTA_ENTREGA,
-                'cKardexNumeroDocumento' => $query_detalle_venta[$i]['documento_Numero'],
-                'cKardexNumeroSerie' => $query_detalle_venta[$i]['documento_Serie'],
-                'cKardexEstado' => $status,
-                'stockUManterior' => $unidades_minimas_inventario,
-                'stockUMactual' => $suma,
-                'cKardexTipoDocumentoFiscal' => isset($documento_fiscal['documento_tipo']) ? $documento_fiscal['documento_tipo'] : null,
-                'cKardexNumeroDocumentoFiscal' => isset($documento_fiscal['documento_numero']) ? $documento_fiscal['documento_numero'] : null,
-                'cKardexNumeroSerieFiscal' => isset($documento_fiscal['documento_serie']) ? $documento_fiscal['documento_serie'] : null,
-                'cKardexCliente' => $query_detalle_venta[0]['id_cliente'],
-                'cKardexProveedor' => null,
-            );
-
-            array_push($kardex, $item_kardex);
-        }
-
-        if (count($query_detalle_venta) > 0) {
-            $this->db->insert_batch('kardex', $kardex);
         }
 
 
@@ -2850,7 +1605,8 @@ LEFT JOIN ingreso ON ingreso.id_ingreso = detalleingreso.id_ingreso WHERE id_pro
          on detalle_venta.id_producto=unidades_has_producto.producto_id where detalle_venta.id_venta=venta.venta_id
          and detalle_venta.unidad_medida=unidades_has_producto.id_unidad) as total_metos_cubicos,  (select count(id_detalle)
          from detalle_venta where id_venta=venta.venta_id and precio_sugerido>0) as preciosugerido,
-            (select count(id_producto) from detalle_venta where id_venta = venta.venta_id ) as cantidad_productos');
+            (select count(id_producto) from detalle_venta where id_venta = venta.venta_id ) as cantidad_productos,
+            grupos_cliente.*');
 
         $this->db->from('venta');
         $this->db->join('cliente', 'cliente.id_cliente=venta.id_cliente');
@@ -2859,6 +1615,7 @@ LEFT JOIN ingreso ON ingreso.id_ingreso = detalleingreso.id_ingreso WHERE id_pro
         $this->db->join('condiciones_pago', 'condiciones_pago.id_condiciones=venta.condicion_pago');
         $this->db->join('documento_venta', 'documento_venta.id_tipo_documento=venta.numero_documento');
         $this->db->join('usuario', 'usuario.nUsuCodigo=venta.id_vendedor');
+        $this->db->join('grupos_cliente', 'grupos_cliente.id_grupos_cliente = cliente.grupo_id');
         $this->db->order_by('venta.venta_id', 'desc');
         if ($completado != FALSE) {
             $this->db->where('venta_status !=', PEDIDO_GENERADO);
@@ -2992,7 +1749,7 @@ LEFT JOIN ingreso ON ingreso.id_ingreso = detalleingreso.id_ingreso WHERE id_pro
  pd.producto_cualidad, pd.producto_id as producto_id, pd.venta_sin_stock, tr.precio_sugerido, tr.cantidad as cantidad ,tr.precio as preciounitario, tr.id_detalle,
 tr.detalle_importe as importe, v.fecha as fechaemision, cre.dec_credito_montodeuda,
 p.nombre as vendedor,p.nUsuCodigo as id_vendedor,t.nombre_tipo_documento as descripcion, t.documento_Serie as serie, t.documento_Numero as numero, t.nombre_tipo_documento,df.documento_tipo,
-c.razon_social as cliente, c.id_cliente as cliente_id, cli_dat.valor as direccion_cliente,c.representante as representanteCliente,cli_dat2.valor as telefonoC1,
+c.razon_social as cliente, c.id_cliente as cliente_id, cli_dat.valor as direccion_cliente,c.representante as representante,cli_dat2.valor as telefonoC1,
  c.identificacion as documento_cliente, cp.id_condiciones, cp.nombre_condiciones, v.venta_status,v.venta_tipo, u.id_unidad, u.nombre_unidad, u.abreviatura,
  i.porcentaje_impuesto, up.unidades, up.orden,
  (select config_value from configuraciones where config_key='" . EMPRESA_NOMBRE . "') as RazonSocialEmpresa,
@@ -3022,42 +1779,6 @@ where v.venta_id=" . $id_venta . " group by tr.id_detalle order by 1 ";
         return $query->result_array();
     }
 
-    function obtener_venta_backup($id_venta)
-    {
-        $querystring = "select v.venta_id,v.total as montoTotal,v.subtotal  as subTotal,
- v.total_impuesto as impuesto, v.pagado,cli_dat.valor as clienteDireccion, pd.producto_nombre as nombre,pd.costo_unitario,pd.presentacion,tr.bono,
- pd.producto_cualidad, pd.producto_id as producto_id, pd.venta_sin_stock, tr.precio_sugerido, tr.cantidad as cantidad ,tr.precio as preciounitario, tr.id_detalle,
-tr.detalle_importe as importe, v.fecha as fechaemision, cre.dec_credito_montodeuda,
-p.nombre as vendedor,p.nUsuCodigo as id_vendedor,t.nombre_tipo_documento as descripcion, t.documento_Serie as serie, t.documento_Numero as numero, t.nombre_tipo_documento,df.documento_tipo,
-c.razon_social as cliente, c.id_cliente as cliente_id, cli_dat.valor as direccion_cliente,c.representante as representanteCliente,cli_dat2.valor as telefonoC1,
- c.identificacion as documento_cliente, cp.id_condiciones, cp.nombre_condiciones, v.venta_status,v.venta_tipo, u.id_unidad, u.nombre_unidad, u.abreviatura,
- i.porcentaje_impuesto, up.unidades, up.orden,
- (select config_value from configuraciones where config_key='" . EMPRESA_NOMBRE . "') as RazonSocialEmpresa,
- (select config_value from configuraciones where config_key='" . EMPRESA_DIRECCION . "') as DireccionEmpresa,
- (select config_value from configuraciones where config_key='" . EMPRESA_TELEFONO . "') as TelefonoEmpresa,
- (select abreviatura from unidades_has_producto join unidades on unidades.id_unidad=unidades_has_producto.id_unidad
- where id_producto=pd.producto_id order by orden desc limit 1) as unidad_minima
-from venta_backup as v
-inner join usuario p on p.nUsuCodigo = v.id_vendedor
-inner join documento_venta t on t.id_tipo_documento = v.numero_documento
-left join documento_fiscal df on df.venta_id = v.venta_id
-inner join detalle_venta_backup tr on tr.id_venta = v.venta_id
-inner join cliente c on c.id_cliente = v.id_cliente
-inner join producto pd on pd.producto_id = tr.id_producto
-inner join condiciones_pago cp on cp.id_condiciones = v.condicion_pago
-inner join unidades u on u.id_unidad = tr.unidad_medida
-inner join impuestos i on i.id_impuesto = pd.producto_impuesto
-inner join unidades_has_producto up on up.producto_id = pd.producto_id and up.id_unidad=tr.unidad_medida
-join (SELECT c.cliente_id, c.tipo, c.valor, c.principal, COUNT(*) FROM cliente_datos c WHERE c.tipo =1 GROUP BY c.cliente_id, c.tipo  ) cli_dat on cli_dat.cliente_id = c.id_cliente
-left join (SELECT c1.cliente_id, c1.tipo, c1.valor, c1.principal, COUNT(*) FROM cliente_datos c1 WHERE c1.tipo =2 GROUP BY c1.cliente_id, c1.tipo  ) cli_dat2 on cli_dat2.cliente_id = c.id_cliente
-left join credito cre on cre.id_venta=v.venta_id
-where v.venta_id=" . $id_venta . " group by tr.id_detalle order by 1 ";
-
-        $query = $this->db->query($querystring);
-        //   echo $this->db->last_Query();
-
-        return $query->result_array();
-    }
 
     function documentoVenta($id_venta = null)
     {
@@ -3134,7 +1855,7 @@ where v.venta_id=" . $id_venta . " group by tr.id_detalle order by 1 ";
 				v.venta_id,
 				" . $produCol . "
 				pd.producto_nombre as nombre,
-			dd.documento_fiscal_id as documento_id,
+			    df.documento_fiscal_id as documento_fiscal_id,
 				pd.producto_cualidad,
 
 				pd.producto_id as producto_id,
@@ -3159,13 +1880,14 @@ where v.venta_id=" . $id_venta . " group by tr.id_detalle order by 1 ";
 			from
 				venta as v
 				" . $produAdd . "
+				inner join documento_fiscal df on df.venta_id = v.venta_id
 				inner join producto pd on pd.producto_id = dd.id_producto
 				inner join detalle_venta dv on dv.id_producto = pd.producto_id
 				inner join unidades u on u.id_unidad = " . $unidadCol . "
 				inner join impuestos i on i.id_impuesto = pd.producto_impuesto
 				inner join unidades_has_producto up on up.producto_id = pd.producto_id and up.id_unidad = " . $unidadCol . "
 			where
-				v.venta_id = " . $id_venta . " and dd.documento_fiscal_id=" . $venta['documento_id'] . " group by documento_detalle_id  order by 1,productoDV desc ");
+				v.venta_id = " . $id_venta . " and dd.documento_fiscal_id=" . $venta['documento_id'] . " group by documento_detalle_id  order by 1, productoDV desc ");
 
             $productos = $productos->result_array();
 //echo $this->db->last_query();
@@ -3184,17 +1906,17 @@ where v.venta_id=" . $id_venta . " group by tr.id_detalle order by 1 ";
         return $data;
     }
 
-    function update_status($id_venta, $estatus, $vendedor_id)
+    function update_status($id_venta, $estatus)
     {
         $this->db->trans_start();
-
+        $pedido = $this->db->get_where('venta', array('venta_id' => $id_venta))->row();
         $data = array('venta_status' => $estatus);
         //CAMBIO DE ESTATUS EN EL DE LA VENTA
         $this->db->where('venta_id', $id_venta);
         $this->db->update('venta', $data);
         //INSERCION PARA LLEVAR REGISTRO DE CAMBIO DE ESTATUS
 
-        $dataregistro = array('venta_id' => $id_venta, 'vendedor_id' => $vendedor_id,
+        $dataregistro = array('venta_id' => $id_venta, 'vendedor_id' => $pedido->id_vendedor,
             'estatus' => $estatus, 'fecha' => date('Y-m-d h:m:s'));
         $this->db->insert('venta_estatus', $dataregistro);
 
@@ -3429,8 +2151,27 @@ where v.venta_id=" . $id_venta . " group by tr.id_detalle order by 1 ";
         $this->db->from('cliente c');
         $this->db->where('c.id_cliente', $cliente_id);
 
-        $query = $this->db->get();
-        return $query->result_array();
+        $query = $this->db->get()->row_array();
+
+        $temp = $this->db->get_where('cliente_datos', array(
+            'cliente_id' => $cliente_id,
+            'tipo' => CGERENTE_DNI
+        ))->row();
+        $query['gerente_dni'] = $temp != NULL ? $temp->valor : '';
+
+        $temp = $this->db->get_where('cliente_datos', array(
+            'cliente_id' => $cliente_id,
+            'tipo' => CCONTACTO_DNI
+        ))->row();
+        $query['contacto_dni'] = $temp != NULL ? $temp->valor : '';
+
+        $temp = $this->db->get_where('cliente_datos', array(
+            'cliente_id' => $cliente_id,
+            'tipo' => CCONTACTO_NOMBRE
+        ))->row();
+        $query['contacto_nombre'] = $temp != NULL ? $temp->valor : '';
+
+        return $query;
     }
 
     function getDeudaCliente($cliente_id)

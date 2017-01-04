@@ -42,28 +42,6 @@
             <td><?= $cobranza->atraso ?></td>
         </tr>
 
-        <?php if ($cobranza->generado->monto != 0): ?>
-            <tr class="tabla_detalles">
-                <td colspan="3"><?= $cobranza->generado->tipo_pago_nombre ?></td>
-                <td><?= date('d/m/Y', strtotime($cobranza->generado->fecha)) ?></td>
-                <td></td>
-                <td><?= MONEDA . ' ' . number_format($cobranza->generado->monto, 2) ?></td>
-                <?php $actual_desglose += $cobranza->generado->monto; ?>
-                <td><?= MONEDA . ' ' . number_format($cobranza->total_deuda - $actual_desglose, 2) ?></td>
-            </tr>
-        <?php endif; ?>
-
-        <?php if ($cobranza->liquidacion->monto != 0): ?>
-            <tr class="tabla_detalles">
-                <td colspan="3"><?= $cobranza->liquidacion->tipo_pago_nombre ?></td>
-                <td><?= date('d/m/Y', strtotime($cobranza->liquidacion->fecha)) ?></td>
-                <td></td>
-                <td><?= MONEDA . ' ' . number_format($cobranza->liquidacion->monto, 2) ?></td>
-                <?php $actual_desglose += $cobranza->liquidacion->monto; ?>
-                <td><?= MONEDA . ' ' . number_format($cobranza->total_deuda - $actual_desglose, 2) ?></td>
-            </tr>
-        <?php endif; ?>
-
         <? foreach ($cobranza->detalles as $detalle): ?>
             <tr class="tabla_detalles">
                 <td colspan="3"><?= $detalle->tipo_pago_nombre ?></td>

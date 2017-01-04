@@ -18,11 +18,6 @@ class historial_pedido_model extends CI_Model
         ));
         $this->db->update('historial_pedido_proceso', array('actual' => 0));
 
-        $pedido_proceso = $this->db->get_where('historial_pedido_proceso', array(
-            'proceso_id' => $proceso,
-            'pedido_id' => $campos['pedido_id']
-        ))->row();
-
         $array['proceso_id'] = $proceso;
         $array['pedido_id'] = $campos['pedido_id'];
         $array['responsable_id'] = $campos['responsable_id'];
@@ -30,17 +25,8 @@ class historial_pedido_model extends CI_Model
         $array['actual'] = 1;
         $array['fecha_plan'] = isset($campos['fecha_plan']) ? $campos['fecha_plan'] : $array['created_at'];
 
-        if ($pedido_proceso == null) {
-            $this->db->insert('historial_pedido_proceso', $array);
-            $pedido_proceso_id = $this->db->insert_id();
-        }
-        else{
-            $this->db->where(array(
-                'id' => $pedido_proceso->id
-            ));
-            $this->db->update('historial_pedido_proceso', $array);
-            $pedido_proceso_id = $pedido_proceso->id;
-        }
+        $this->db->insert('historial_pedido_proceso', $array);
+        $pedido_proceso_id = $this->db->insert_id();
 
         $detalles = $this->db->get_where('detalle_venta', array('id_venta' => $campos['pedido_id']))->result();
         foreach ($detalles as $detalle) {
@@ -63,7 +49,7 @@ class historial_pedido_model extends CI_Model
             'pedido_id' => $pedido_id
         ))->row();
 
-        if($pedido_proceso == NULL) return FALSE;
+        if ($pedido_proceso == NULL) return FALSE;
 
         $this->db->where('historial_pedido_proceso_id', $pedido_proceso->id);
         $this->db->delete('historial_pedido_detalle');

@@ -1,5 +1,13 @@
 <?php
 
+function valueOption($config_value, $default = '0')
+{
+    $CI =& get_instance();
+    if ($CI->session->userdata($config_value) == NULL) {
+        return $default;
+    }
+    return $CI->session->userdata($config_value);
+}
 
 function getCajaBanco($banco_id)
 {

@@ -357,8 +357,6 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable">', "</
 <!--<script src="<?php echo $ruta; ?>recursos/js/jquery-ui.js"></script> -->
 
 
-<script>$(function() {
-        TablesDatatablesBonos.init();
-    });</script>
+
 
 

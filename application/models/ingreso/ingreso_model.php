@@ -43,7 +43,6 @@ class ingreso_model extends CI_Model
         $insert_id = $this->db->insert_id();
 
         $data = array();
-        $kardex = array();
 
         $local_id = $this->session->userdata('id_local');
 
@@ -210,35 +209,7 @@ class ingreso_model extends CI_Model
                 }
 
 
-                /*******Preparo la data para insertar en el kardex********/
 
-                $item_kardex = array(
-                    'dkardexFecha' => date('Y-m-d H:i:s'),
-                    'ckardexReferencia' => $cab_pie['tipo_ingreso'],
-                    'cKardexProducto' => $row->Codigo,
-                    'nKardexCantidad' => $row->Cantidad,
-                    'nKardexPrecioUnitario' => ($row->PrecUnt === 'null') ? 0 : $row->PrecUnt,
-                    'nKardexPrecioTotal' => (!isset($row->Importe)) ? 0 : $row->Importe,
-                    'cKardexUsuario' => $this->session->userdata('nUsuCodigo'),
-                    'cKardexOperacion' => INGRESO,
-                    'cKardexUnidadMedida' => $unidad_minima['id_unidad'],
-                    'cKardexAlmacen' => $cab_pie['local'],
-                    'cKardexTipo' => ENTRADA,
-                    'cKardexIdOperacion' => $insert_id,
-                    'cKardexTipoDocumento' => $cab_pie['cboTipDoc'],
-                    'cKardexNumeroDocumento' => $cab_pie['doc_numero'],
-                    'cKardexNumeroSerie' => $cab_pie['doc_serie'],
-                    'cKardexEstado' => $cab_pie['status'],
-                    'stockUManterior' => $total_unidades_minimas,
-                    'stockUMactual' => $suma_cantidades,
-                    'cKardexTipoDocumentoFiscal' => null,
-                    'cKardexNumeroDocumentoFiscal' => null,
-                    'cKardexNumeroSerieFiscal' => null,
-                    'cKardexCliente' => null,
-                    'cKardexProveedor' => $cab_pie['cboProveedor'],
-                );
-
-                array_push($kardex, $item_kardex);
 
             }
         }
@@ -246,7 +217,6 @@ class ingreso_model extends CI_Model
 
         $this->db->insert_batch('detalleingreso', $data);
 
-        $this->db->insert_batch('kardex', $kardex);
 
         $this->db->trans_complete();
         if ($this->db->trans_status() === FALSE) {
@@ -412,9 +382,6 @@ WHERE detalleingreso.id_ingreso='$compra_id'");
         /***********TERMINO DE DEVOLVER EL INVENTARIO********/
 
 
-        //query para eliminar lso registros del kardex
-        $this->db->delete('kardex',array('cKardexIdOperacion'=>$id_ingreso));
-        $kardex = array();
 
         if ($detalle != null) {
 
@@ -579,35 +546,7 @@ WHERE detalleingreso.id_ingreso='$compra_id'");
 
 
 
-                /*******Preparo la data para insertar en el kardex********/
 
-                $item_kardex = array(
-                    'dkardexFecha' => date('Y-m-d H:i:s'),
-                    'ckardexReferencia' => $cab_pie['tipo_ingreso'],
-                    'cKardexProducto' => $row->Codigo,
-                    'nKardexCantidad' => $row->Cantidad,
-                    'nKardexPrecioUnitario' => ($row->PrecUnt === 'null') ? 0 : $row->PrecUnt,
-                    'nKardexPrecioTotal' => (!isset($row->Importe)) ? 0 : $row->Importe,
-                    'cKardexUsuario' => $this->session->userdata('nUsuCodigo'),
-                    'cKardexOperacion' => INGRESO,
-                    'cKardexUnidadMedida' => $unidad_minima['id_unidad'],
-                    'cKardexAlmacen' => $cab_pie['local'],
-                    'cKardexTipo' => ENTRADA,
-                    'cKardexIdOperacion' => $id_ingreso,
-                    'cKardexTipoDocumento' => $cab_pie['cboTipDoc'],
-                    'cKardexNumeroDocumento' => $cab_pie['doc_numero'],
-                    'cKardexNumeroSerie' => $cab_pie['doc_serie'],
-                    'cKardexEstado' => $cab_pie['status'],
-                    'stockUManterior' => $total_unidades_minimas,
-                    'stockUMactual' => $suma_cantidades,
-                    'cKardexTipoDocumentoFiscal' => null,
-                    'cKardexNumeroDocumentoFiscal' => null,
-                    'cKardexNumeroSerieFiscal' => null,
-                    'cKardexCliente' => null,
-                    'cKardexProveedor' => $cab_pie['cboProveedor'],
-                );
-
-                array_push($kardex, $item_kardex);
 
 
             }
@@ -618,7 +557,6 @@ WHERE detalleingreso.id_ingreso='$compra_id'");
         $this->db->delete('detalleingreso', array('id_ingreso' => $compra_id));
         $this->db->insert_batch('detalleingreso', $data);
 
-        $this->db->insert_batch('kardex', $kardex);
 
         $this->db->trans_complete();
         if ($this->db->trans_status() === FALSE) {
@@ -813,7 +751,6 @@ JOIN ingreso ON ingreso.`id_ingreso`=detalleingreso.`id_ingreso`
 WHERE detalleingreso.id_ingreso='$id'");
 
         $query_detalle_ingreso = $sql_detalle_ingreso->result_array();
-        $kardex = array();
 
         for ($i = 0; $i < count($query_detalle_ingreso); $i++) {
 
@@ -885,39 +822,8 @@ WHERE detalleingreso.id_ingreso='$id'");
             $this->update_inventario($inventario_nuevo, $where);
 
 
-            /*******Preparo la data para insertar en el kardex********/
-
-            $item_kardex = array(
-                'dkardexFecha' => date('Y-m-d H:i:s'),
-                'ckardexReferencia' => INGRESO_DEVOLUCION,
-                'cKardexProducto' => $query_detalle_ingreso[$i]['id_producto'],
-                'nKardexCantidad' => $query_detalle_ingreso[$i]['cantidad'],
-                'nKardexPrecioUnitario' => $query_detalle_ingreso[$i]['precio'],
-                'nKardexPrecioTotal' => $query_detalle_ingreso[$i]['total_detalle'],
-                'cKardexUsuario' => $this->session->userdata('nUsuCodigo'),
-                'cKardexOperacion' => INGRESO,
-                'cKardexUnidadMedida' => $unidad_minima['id_unidad'],
-                'cKardexAlmacen' => $query_detalle_ingreso[0]['local_id'],
-                'cKardexTipo' => SALIDA,
-                'cKardexIdOperacion' => $query_detalle_ingreso[0]['id_ingreso'],
-                'cKardexTipoDocumento' => $query_detalle_ingreso[0]['tipo_documento'],
-                'cKardexNumeroDocumento' => $query_detalle_ingreso[0]['documento_numero'],
-                'cKardexNumeroSerie' => $query_detalle_ingreso[0]['documento_serie'],
-                'cKardexEstado' => INGRESO_DEVUELTO,
-                'stockUManterior' => $unidades_minimas_inventario,
-                'stockUMactual' => $resta,
-
-                'cKardexTipoDocumentoFiscal' => null,
-                'cKardexNumeroDocumentoFiscal' => null,
-                'cKardexNumeroSerieFiscal' => null,
-                'cKardexCliente' => null,
-                'cKardexProveedor' => $query_detalle_ingreso[0]['int_Proveedor_id'],
-            );
-
-            array_push($kardex, $item_kardex);
         }
 
-        $this->db->insert_batch('kardex', $kardex);
         $this->db->trans_complete();
 
         if ($this->db->trans_status() === FALSE) {
@@ -960,7 +866,6 @@ JOIN ingreso ON ingreso.`id_ingreso`=detalleingreso.`id_ingreso`
 WHERE detalleingreso.id_ingreso='$id'");
 
         $query_detalle_ingreso = $sql_detalle_ingreso->result_array();
-        $kardex = array();
 
         $devolver = true;
         for ($i = 0; $i < count($query_detalle_ingreso); $i++) {

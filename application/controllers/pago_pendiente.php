@@ -192,12 +192,31 @@ class pago_pendiente extends MY_Controller
         echo json_encode(array('success' => 1));
     }
 
+    function confirmar_consolidado_pago($id)
+    {
+        $cuenta_id = $this->input->post('cuenta_id');
+        $this->venta_cobro_model->confirmar_pago($id, $cuenta_id);
+
+        $pedido = $this->db->get_where('historial_pagos_clientes', array('historial_id' => $id))->row();
+
+        $this->historial_pedido_model->insertar_pedido(PROCESO_LIQUIDAR, array(
+            'pedido_id' => $pedido->credito_id,
+            'responsable_id' => $this->session->userdata('nUsuCodigo')
+        ));
+
+        $consolidado = $this->db->get_where('consolidado_detalle', array('pedido_id' => $pedido->credito_id))->row();
+        $this->consolidado_model->confirmar_consolidado($consolidado->consolidado_id);
+
+        header('Content-Type: application/json');
+        echo json_encode(array('success' => 1));
+    }
+
     function confirmar_liquidar_pago_seleccion()
     {
         $historial_id = json_decode($this->input->post('historial_id'));
-        foreach ($historial_id as $hid){
+        foreach ($historial_id as $hid) {
 
-        $this->venta_cobro_model->confirmar_pago($hid->id, $hid->cuenta_id);
+            $this->venta_cobro_model->confirmar_pago($hid->id, $hid->cuenta_id);
         }
 
         header('Content-Type: application/json');
