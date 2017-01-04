@@ -29,8 +29,9 @@
             </div>
             <div class="col-md-2">
                 <select id="estado" name="estado" class="form-control">
-                    <option value="1">Confirmar</option>
-                    <option value="2">Liquidar</option>
+                    <option value="1">Confirmar Pagos</option>
+                    <option value="3">Confirmar Consolidados</option>
+                    <option value="2">Liquidar Vendedor</option>
                 </select>
             </div>
 

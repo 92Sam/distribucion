@@ -9,6 +9,24 @@ class consolidado_model extends CI_Model
         $this->load->database();
 
         $this->load->model('historial/historial_pedido_model');
+        $this->load->model('venta/venta_cobro_model');
+    }
+
+    function confirmar_consolidado($id)
+    {
+
+        $consolidado = $this->db->select('
+            ((select count(*) from consolidado_detalle where consolidado_detalle.consolidado_id = ' . $id . ') - count(*)) as terminado
+        ')
+            ->from('consolidado_detalle')
+            ->join('historial_pedido_proceso', 'historial_pedido_proceso.pedido_id = consolidado_detalle.pedido_id')
+            ->where('consolidado_detalle.consolidado_id', $id)
+            ->where('historial_pedido_proceso.proceso_id', PROCESO_LIQUIDAR)->get()->row();
+
+        if ($consolidado->terminado == 0) {
+            $this->db->where('consolidado_id', $id);
+            $this->db->update('consolidado_carga', array('status' => 'CONFIRMADO'));
+        }
     }
 
     function editar_consolidado($consolidado_id, $data)
@@ -51,13 +69,11 @@ class consolidado_model extends CI_Model
             'proceso_id' => PROCESO_ASIGNAR
         ))->row();
 
-        if ($historial != NULL) {
-            $this->db->where('historial_pedido_proceso_id', $historial->id);
-            $this->db->delete('historial_pedido_detalle');
+        $this->db->where('historial_pedido_proceso_id', $historial->id);
+        $this->db->delete('historial_pedido_detalle');
 
-            $this->db->where('id', $historial->id);
-            $this->db->delete('historial_pedido_proceso');
-        }
+        $this->db->where('id', $historial->id);
+        $this->db->delete('historial_pedido_proceso');
 
         $this->db->where('consolidado_id', $consolidado_id);
         $this->db->where('pedido_id', $pedido_id);
@@ -228,18 +244,31 @@ class consolidado_model extends CI_Model
         $this->db->select('venta.*,consolidado_detalle.pedido_id,consolidado_detalle.detalle_id, consolidado_detalle.consolidado_id,
          consolidado_detalle.confirmacion_caja_id, consolidado_detalle.confirmacion_banco_id, consolidado_detalle.liquidacion_monto_cobrado,
          consolidado_detalle.confirmacion_monto_cobrado_bancos,consolidado_detalle.confirmacion_monto_cobrado_caja, cliente.*,documento_venta.*,banco.*,
-         liquidacion_monto_cobrado as montocobradoliquidacion,venta_backup.total as totalbackup
+         liquidacion_monto_cobrado as montocobradoliquidacion
         ,(select SUM(cantidad) from detalle_venta where id_venta = venta.venta_id ) as bulto');
         $this->db->from('consolidado_detalle');
         $this->db->join('venta', 'venta.venta_id=consolidado_detalle.pedido_id', 'left');
-        $this->db->join('venta_backup', 'venta_backup.venta_id=venta.venta_id', 'left');
         $this->db->join('cliente', 'venta.id_cliente=cliente.id_cliente', 'left');
         $this->db->join('documento_venta', 'documento_venta.id_tipo_documento=venta.numero_documento', 'left');
         $this->db->join('banco', 'banco.banco_id=consolidado_detalle.confirmacion_banco_id', 'left');
 
         $this->db->where($where);
-        $query = $this->db->get();
-        return $query->result_array();
+        $query = $this->db->get()->result_array();
+
+        for ($i = 0; $i < count($query); $i++) {
+            $temp = $this->db->select('SUM(historial_pedido_detalle.stock * historial_pedido_detalle.precio_unitario) as total')
+                ->from('historial_pedido_detalle')
+                ->join('historial_pedido_proceso', 'historial_pedido_proceso.id=historial_pedido_detalle.historial_pedido_proceso_id')
+                ->where('historial_pedido_proceso.proceso_id', PROCESO_IMPRIMIR)
+                ->where('historial_pedido_proceso.pedido_id', $query[$i]['venta_id'])
+                ->get()->row();
+
+            $query[$i]['historico_total'] = $temp->total;
+            $query[$i]['historico_impuesto'] = number_format(($query[$i]['historico_total'] * 18) / 100, 2);
+            $query[$i]['historico_subtotal'] = $query[$i]['historico_total'] - $query[$i]['historico_impuesto'];
+        }
+
+        return $query;
 
     }
 
@@ -255,17 +284,6 @@ class consolidado_model extends CI_Model
         return $query->result_array();
     }
 
-    function get_detalle_bk_by($where)
-    {
-        $this->db->select('distinct(documento_fiscal.venta_id), consolidado_detalle.*, carga.*, venta.*, documento_fiscal.documento_tipo');
-        $this->db->from('consolidado_detalle');
-        $this->db->join('consolidado_carga carga', 'carga.consolidado_id=consolidado_detalle.consolidado_id', 'left');
-        $this->db->join('venta_backup as venta', 'venta.venta_id=consolidado_detalle.pedido_id', 'left');
-        $this->db->join('documento_fiscal', 'documento_fiscal.venta_id=venta.venta_id', 'left');
-        $this->db->where($where);
-        $query = $this->db->get();
-        return $query->result_array();
-    }
 
     function get_detalle($campo)
     {
@@ -291,29 +309,6 @@ class consolidado_model extends CI_Model
     }
 
 
-    function get_detalle_backup($campo)
-    {
-        $query = $this->db->query("SELECT *,zonas.*, usuarioCarga.nombre as userCarga, SUM(detalle_venta.cantidad) as cantidadTotal, chofer.nombre as chofernombre
-      FROM `consolidado_detalle`
-      LEFT JOIN venta_backup as venta ON venta.venta_id = consolidado_detalle.pedido_id
-      LEFT JOIN consolidado_carga ON consolidado_carga.consolidado_id = consolidado_detalle.consolidado_id
-      LEFT JOIN detalle_venta_backup as detalle_venta ON detalle_venta.id_venta = venta.venta_id
-      LEFT JOIN producto ON producto.producto_id=detalle_venta.id_producto
-      LEFT JOIN unidades ON unidades.id_unidad=detalle_venta.unidad_medida
-      LEFT JOIN grupos ON grupos.id_grupo=producto.produto_grupo
-      LEFT JOIN unidades_has_producto ON unidades_has_producto.producto_id=producto.producto_id
-      LEFT JOIN  camiones ON camiones.camiones_id=consolidado_carga.camion
- LEFT JOIN usuario as chofer ON chofer.nUsuCodigo=camiones.id_trabajadores
-     LEFT JOIN usuario as usuarioCarga ON usuarioCarga.nUsuCodigo=consolidado_carga.generado_por
-     JOIN cliente ON cliente.id_cliente = venta.id_cliente
-      JOIN zonas ON cliente.id_zona = zonas.zona_id
-     LEFT JOIN local ON local.int_local_id=usuarioCarga.id_local
-      WHERE consolidado_detalle.consolidado_id = " . $campo . " GROUP BY detalle_venta.id_producto  order BY nombre_grupo ");
-
-        //echo $this->db->last_query();
-        return $query->result_array();
-    }
-
     function get_cantiad_vieja_by_product($product, $consolidado_id)
     {
 
@@ -324,36 +319,6 @@ class consolidado_model extends CI_Model
         return $query->row_array();
     }
 
-    function get_detalle_devueltos($campo, $in = false)
-    {
-        $q = "SELECT venta.*,consolidado_carga.*,detalle_venta_backup.*, zonas.*,
-      producto.*,unidades.*,grupos.* ,unidades_has_producto.*,camiones.*,usuarioCarga.*, local.*, chofer.nombre as chofernombre,
-      usuarioCarga.nombre as userCarga, SUM(detalle_venta_backup.cantidad) as cantidadTotal
-      FROM `consolidado_detalle`
-      LEFT JOIN venta ON venta.venta_id = consolidado_detalle.pedido_id
-      LEFT JOIN consolidado_carga ON consolidado_carga.consolidado_id = consolidado_detalle.consolidado_id
-      LEFT JOIN detalle_venta_backup ON detalle_venta_backup.id_venta = venta.venta_id
-
-      LEFT JOIN producto ON producto.producto_id=detalle_venta_backup.id_producto
-      LEFT JOIN unidades ON unidades.id_unidad=detalle_venta_backup.unidad_medida
-      LEFT JOIN grupos ON grupos.id_grupo=producto.produto_grupo
-      LEFT JOIN unidades_has_producto ON unidades_has_producto.producto_id=producto.producto_id
-      LEFT JOIN  camiones ON camiones.camiones_id=consolidado_carga.camion
-     LEFT JOIN usuario as usuarioCarga ON usuarioCarga.nUsuCodigo=consolidado_carga.generado_por
-     LEFT JOIN usuario as chofer ON chofer.nUsuCodigo=camiones.id_trabajadores
-     LEFT JOIN local ON local.int_local_id=usuarioCarga.id_local
-      JOIN cliente ON cliente.id_cliente = venta.id_cliente
-      JOIN zonas ON cliente.id_zona = zonas.zona_id
-      WHERE consolidado_detalle.consolidado_id = " . $campo;
-        if ($in != false) {
-            $q = $q . " and venta_status IN " . $in;
-        }
-        $q = $q . " GROUP BY detalle_venta_backup.id_producto order BY nombre_grupo  ";
-        $query = $this->db->query($q);
-
-        //echo $this->db->last_query();
-        return $query->result_array();
-    }
 
     function get_documentoVenta_by_id($id, $in = false)
     {
@@ -365,31 +330,6 @@ class consolidado_model extends CI_Model
       JOIN consolidado_detalle ON consolidado_detalle.pedido_id = venta.venta_id
       LEFT JOIN credito ON credito.id_venta = venta.venta_id
       JOIN documento_venta ON documento_venta.id_tipo_documento = venta.venta_id
-
-
-      WHERE consolidado_detalle.consolidado_id = " . $id;
-
-        if ($in != false) {
-            $q = $q . " and venta_status IN " . $in;
-        }
-
-        $query = $this->db->query($q);
-
-
-        return $query->result_array();
-
-    }
-
-    function get_documentoVentaBackup_by_id($id, $in = false)
-    {
-        $q = "SELECT distinct(venta_backup.venta_id),  consolidado_detalle.liquidacion_monto_cobrado, documento_venta.*, venta_backup.venta_status, venta_backup.total, credito.var_credito_estado,  (select SUM(total) FROM consolidado_carga
-      LEFT JOIN consolidado_detalle ON consolidado_detalle.consolidado_id = consolidado_carga.consolidado_id
-      LEFT JOIN venta_backup ON venta_backup.venta_id = consolidado_detalle.pedido_id
-      WHERE consolidado_carga.consolidado_id = " . $id . ") as totalImporte
-      FROM `venta_backup`
-      JOIN consolidado_detalle ON consolidado_detalle.pedido_id = venta_backup.venta_id
-      LEFT JOIN credito ON credito.id_venta = venta_backup.venta_id
-      JOIN documento_venta ON documento_venta.id_tipo_documento = venta_backup.venta_id
 
 
       WHERE consolidado_detalle.consolidado_id = " . $id;
@@ -513,12 +453,40 @@ class consolidado_model extends CI_Model
 
     function updateDetalle($data)
     {
+        $add = array(
+            'pedido_id' => $data['pedido_id'],
+            'liquidacion_monto_cobrado' => $data['liquidacion_monto_cobrado']
+        );
+
         $this->db->trans_start();
         $this->db->trans_begin();
 
         $this->db->where(array('pedido_id' => $data['pedido_id']));
-        $this->db->update('consolidado_detalle', $data);
+        $this->db->update('consolidado_detalle', $add);
 
+        $pagos_id = $this->db->get_where('historial_pagos_clientes', array('credito_id' => $data['pedido_id']))->result();
+        foreach ($pagos_id as $pago) {
+            $this->db->where('historial_id', $pago->vendedor_id);
+            $this->db->where('credito_id', NULL);
+            $this->db->delete('historial_pagos_clientes');
+        }
+
+        $this->db->where('credito_id', $data['pedido_id']);
+        $this->db->delete('historial_pagos_clientes');
+
+        $this->db->where('id_venta', $data['pedido_id']);
+        $this->db->update('credito', array('dec_credito_montodebito' => 0));
+
+        if ($data['liquidacion_monto_cobrado'] > 0) {
+
+            $historial_id = $this->venta_cobro_model->pagar_nota_pedido($data['pedido_id'], array(
+                'importe' => $data['liquidacion_monto_cobrado'],
+                'pago_id' => $data['pago_id'],
+                'num_oper' => $data['num_oper'],
+                'banco_id' => $data['banco_id'],
+                'historial_estatus' => 'CONSOLIDADO'
+            ));
+        }
 
         $this->db->trans_complete();
         if ($this->db->trans_status() === FALSE) {

@@ -77,31 +77,6 @@ $total_saldo = 0; ?>
                 <td><?= $cobranza->credito > 0 ? 'Pendiente' : 'Cancelado' ?></td>
             </tr>
 
-            <?php if ($cobranza->generado->monto != 0): ?>
-                <tr>
-                    <td><?= date('d/m/Y', strtotime($cobranza->generado->fecha)) ?></td>
-                    <td></td>
-                    <td><?= $cobranza->generado->tipo_pago_nombre ?></td>
-                    <td></td>
-                    <td><?= MONEDA . ' ' . number_format($cobranza->generado->monto, 2) ?></td>
-                    <?php $actual_desglose -= $cobranza->generado->monto; ?>
-                    <td><?= MONEDA . ' ' . number_format($actual_desglose, 2) ?></td>
-                    <td></td>
-                </tr>
-            <?php endif; ?>
-            <?php if ($cobranza->liquidacion->monto != 0): ?>
-                <tr>
-                    <td><?= date('d/m/Y', strtotime($cobranza->liquidacion->fecha)) ?></td>
-                    <td></td>
-                    <td><?= $cobranza->liquidacion->tipo_pago_nombre ?></td>
-                    <td></td>
-                    <td><?= MONEDA . ' ' . number_format($cobranza->liquidacion->monto, 2) ?></td>
-                    <?php $actual_desglose -= $cobranza->liquidacion->monto; ?>
-                    <td><?= MONEDA . ' ' . number_format($actual_desglose, 2) ?></td>
-                    <td></td>
-                </tr>
-            <?php endif; ?>
-
             <? foreach ($cobranza->detalles as $detalle): ?>
                 <tr>
                     <td><?= date('d/m/Y', strtotime($detalle->fecha)) ?></td>

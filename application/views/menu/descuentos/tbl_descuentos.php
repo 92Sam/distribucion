@@ -1,5 +1,4 @@
-
-<table class="table table-striped table-bordered table-condensed" id="tbldescuentos">
+<table class="table table-striped table-bordered table-condensed dataTable" id="tbldescuentos">
     <thead>
     <tr>
         <th>ID</th>
@@ -46,3 +45,10 @@
 
     </tbody>
 </table>
+
+<script>
+    $(function () {
+        TablesDatatables.init();
+
+    });
+</script>

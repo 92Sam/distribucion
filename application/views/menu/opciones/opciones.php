@@ -29,15 +29,13 @@
     </div>
 
 
-
     <?= form_open_multipart(base_url() . 'opciones/save', array('id' => 'formguardar')) ?>
-
 
 
     <input type="hidden" name="id" id="id"
            class='form-control' autofocus="autofocus" maxlength="15"
            value="<?php if (isset($producto['producto_id'])) echo $producto['producto_id'] ?>"
-        >
+    >
 
     <div id="mensaje"></div>
 
@@ -60,7 +58,7 @@
 
 
             <div class="form-group">
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <label for="linea" class="control-label">Pais:</label>
                 </div>
                 <div class="col-md-8">
@@ -72,7 +70,7 @@
             </div>
 
             <div class="form-group">
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <label for="linea" class="control-label">Idioma:</label>
                 </div>
                 <div class="col-md-8">
@@ -85,7 +83,7 @@
 
 
             <div class="form-group">
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <label class="control-label">Nombre de la empresa:</label>
                 </div>
 
@@ -99,7 +97,7 @@
 
 
             <div class="form-group">
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <label class="control-label">Direcci&oacute;n:</label>
                 </div>
                 <div class="col-md-8">
@@ -111,7 +109,7 @@
             </div>
 
             <div class="form-group">
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <label class="control-label">Tel&eacute;fono:</label>
                 </div>
                 <div class="col-md-8">
@@ -123,7 +121,7 @@
             </div>
 
             <div class="form-group">
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <label class="control-label">Moneda:</label>
                 </div>
                 <div class="col-md-8">
@@ -137,9 +135,103 @@
         </div>
 
         <div class="tab-pane" role="tabpanel" id="precios" role="tabpanel">
+
             <div class="form-group">
-                <div class="col-md-3">
-                    <label class="control-label">Monto de boleta:</label>
+                <div class="col-md-4">
+                    <label class="control-label">Maximo de Items Por Pedidos:</label>
+                </div>
+                <div class="col-md-8">
+                    <input type="number" size="10" name="REFRESCAR_PEDIDOS" id="REFRESCAR_PEDIDOS"
+                           class="form-control"
+                           value="<?php echo $this->session->userdata('REFRESCAR_PEDIDOS'); ?>">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-md-4">
+                    <label class="control-label">Vender productos sin Stock:</label>
+                </div>
+                <div class="col-md-8">
+                    <select name="VENTA_SIN_STOCK" id="VENTA_SIN_STOCK" class="form-control">
+                        <option value="1" <?= valueOption('VENTA_SIN_STOCK', 0) == 1 ? 'selected' : '' ?>>SI</option>
+                        <option value="0" <?= valueOption('VENTA_SIN_STOCK', 0) == 0 ? 'selected' : '' ?>>NO</option>
+                    </select>
+                </div>
+            </div>
+
+            <br>
+            <h4>FACTURA CONFIGURACION</h4>
+            <div class="form-group">
+                <div class="col-md-4">
+                    <label class="control-label">Factura Serie:</label>
+                </div>
+                <div class="col-md-8">
+                    <input type="number" size="10" name="FACTURA_SERIE" id="FACTURA_SERIE"
+                           class="form-control"
+                           value="<?= valueOption('FACTURA_SERIE', 1) ?>">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-md-4">
+                    <label class="control-label">Factura Correlativo:</label>
+                </div>
+                <div class="col-md-8">
+                    <input type="number" size="10" name="FACTURA_NEXT" id="FACTURA_NEXT"
+                           class="form-control"
+                           value="<?= valueOption('FACTURA_NEXT') ?>">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-md-4">
+                    <label class="control-label">Maximo de Items Por Factura:</label>
+                </div>
+                <div class="col-md-8">
+                    <input type="number" size="10" name="FACTURA_MAX" id="FACTURA_MAX"
+                           class="form-control"
+                           value="<?= valueOption('FACTURA_MAX', 15) ?>">
+                </div>
+            </div>
+
+            <br>
+            <h4>BOLETA CONFIGURACION</h4>
+            <div class="form-group">
+                <div class="col-md-4">
+                    <label class="control-label">Boleta Serie:</label>
+                </div>
+                <div class="col-md-8">
+                    <input type="number" size="10" name="BOLETA_SERIE" id="BOLETA_SERIE"
+                           class="form-control"
+                           value="<?= valueOption('BOLETA_SERIE', 1) ?>">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-md-4">
+                    <label class="control-label">Boleta Correlativo:</label>
+                </div>
+                <div class="col-md-8">
+                    <input type="number" size="10" name="BOLETA_NEXT" id="BOLETA_NEXT"
+                           class="form-control"
+                           value="<?= valueOption('BOLETA_NEXT') ?>">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-md-4">
+                    <label class="control-label">Maximo de Items Por Boleta:</label>
+                </div>
+                <div class="col-md-8">
+                    <input type="number" size="10" name="BOLETA_MAX" id="BOLETA_MAX"
+                           class="form-control"
+                           value="<?= valueOption('BOLETA_MAX', 10) ?>">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-md-4">
+                    <label class="control-label">Monto Maximo Por Boleta:</label>
                 </div>
                 <div class="col-md-8">
                     <input type="number" size="10" name="MONTO_BOLETAS_VENTA" id="MONTO_BOLETAS_VENTA"
@@ -147,36 +239,16 @@
                            value="<?php echo $this->session->userdata('MONTO_BOLETAS_VENTA'); ?>">
                 </div>
             </div>
-            <div class="form-group">
-                <div class="col-md-3" >
-                    <label class="control-label">Pedidos:</label>
-                </div>
-                <div class="col-md-8" >
-                    <input type="number" size="10" name="REFRESCAR_PEDIDOS" id="REFRESCAR_PEDIDOS"
-                           class="form-control"
-                           value="<?php echo $this->session->userdata('REFRESCAR_PEDIDOS'); ?>">
-                </div>
-            </div>
-            <div class="form-group">
-                <div class="col-md-3" >
-                    <label class="control-label">Vender productos sin Stock:</label>
-                </div>
-                <div class="col-md-8">
-                    <input type="checkbox" name="VENTA_SIN_STOCK" id="VENTA_SIN_STOCK"
-                           value="1" <?php echo ($this->session->userdata('VENTA_SIN_STOCK') == TRUE) ? 'checked="checked"' : NULL; ?>>
-                </div>
-            </div>
 
 
         </div>
-
 
 
     </div>
 
 
     <div class="form-group">
-        <button type="button" id="" class="btn btn-primary" onclick="grupo.guardar()" >Confirmar</button>
+        <button type="button" id="" class="btn btn-primary" onclick="grupo.guardar()">Confirmar</button>
 
     </div>
 
@@ -186,13 +258,13 @@
 </div>
 <script>
     var grupo = {
-        ajaxgrupo : function(){
-            return  $.ajax({
-                url:'<?= base_url()?>opciones'
+        ajaxgrupo: function () {
+            return $.ajax({
+                url: '<?= base_url()?>opciones'
 
             })
         },
-        guardar : function () {
+        guardar: function () {
 
             App.formSubmitAjax($("#formguardar").attr('action'), this.ajaxgrupo, null, 'formguardar');
         }

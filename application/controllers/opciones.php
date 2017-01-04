@@ -91,6 +91,36 @@ class opciones extends MY_Controller
             'config_value' => $this->input->post('REFRESCAR_PEDIDOS')
         );
 
+        $configuraciones[] = array(
+            'config_key' => "FACTURA_NEXT",
+            'config_value' => $this->input->post('FACTURA_NEXT')
+        );
+
+        $configuraciones[] = array(
+            'config_key' => "FACTURA_SERIE",
+            'config_value' => $this->input->post('FACTURA_SERIE')
+        );
+
+        $configuraciones[] = array(
+            'config_key' => "FACTURA_MAX",
+            'config_value' => $this->input->post('FACTURA_MAX')
+        );
+
+        $configuraciones[] = array(
+            'config_key' => "BOLETA_NEXT",
+            'config_value' => $this->input->post('BOLETA_NEXT')
+        );
+
+        $configuraciones[] = array(
+            'config_key' => "BOLETA_SERIE",
+            'config_value' => $this->input->post('BOLETA_SERIE')
+        );
+
+        $configuraciones[] = array(
+            'config_key' => "BOLETA_MAX",
+            'config_value' => $this->input->post('BOLETA_MAX')
+        );
+
 
 
         $password = $this->input->post('DATABASE_PASWORD');

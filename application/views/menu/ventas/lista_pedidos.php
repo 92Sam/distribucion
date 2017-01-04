@@ -117,7 +117,7 @@
                     <td style="white-space: nowrap;"><?= "NE - " . $venta->documento_Numero ?></td>
                     <td>
                         <label class="<?= isset($venta->deudor) ? 'label label-danger' : '' ?>">
-                            <?= $venta->representante ?>
+                            <?= $venta->razon_social ?>
                         </label>
                     </td>
                     <td><?= $venta->nombre ?></td>
