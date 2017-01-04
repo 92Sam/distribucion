@@ -420,24 +420,24 @@ class consolidadodecargas extends MY_Controller
 
             if ($pedido->venta_status != PEDIDO_DEVUELTO) {
                 $this->venta_model->reset_venta($detalle->pedido_id);
-            }
-            else{
+            } else {
                 //RETORNO EL STOCK SI ES UN PEDIDO DEVUELTO
             }
 
             if ($pedido->venta_status == PEDIDO_RECHAZADO) {
                 //RETORNO TODO EL STOCK
             }
-            
+
             if ($detalle->liquidacion_monto_cobrado == 0 || $detalle->liquidacion_monto_cobrado == null) {
                 $this->historial_pedido_model->insertar_pedido(PROCESO_LIQUIDAR, array(
                     'pedido_id' => $detalle->pedido_id,
                     'responsable_id' => $this->session->userdata('nUsuCodigo')
                 ));
             }
-
-
         }
+
+        $this->consolidado_model->confirmar_consolidado($id);
+        
         if ($cerrar != FALSE) {
             $json['success'] = 'Solicitud Procesada con exito';
         } else {

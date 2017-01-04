@@ -1049,7 +1049,3 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable">', "</
 <!-- /.modal-dialog -->
 
 
-<script>$(function () {
-        TablesDatatables.init();
-
-    });</script>

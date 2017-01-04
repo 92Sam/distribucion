@@ -29,6 +29,7 @@
                         </thead>
                         <tbody>
                         <?php $cerrar_consolidado_flag = true; ?>
+                        <?php $devolucion_flag = false; ?>
                         <?php $total_liquidado = 0; ?>
                         <?php foreach ($consolidado as $consolidadoDetalles): ?>
                             <tr>
@@ -41,6 +42,7 @@
                                     <?= $consolidadoDetalles['venta_status'] == 'RECHAZADO' ? MONEDA . ' ' . number_format(0, 2) : '' ?>
                                 </td>
                                 <td style="text-align: center"><?= $consolidadoDetalles['venta_status'] ?></td>
+                                <?php if ($consolidadoDetalles['venta_status'] == 'DEVUELTO PARCIALMENTE') $devolucion_flag = true; ?>
                                 <?php if ($consolidadoDetalles['venta_status'] == 'ENVIADO') $cerrar_consolidado_flag = false; ?>
                                 <?php if ($status == 'IMPRESO'): ?>
                                     <td style="text-align: center">
@@ -82,19 +84,23 @@
                             <li class="glyphicon glyphicon-thumbs-down"></li>
                             Salir
                         </button>
-                        <?php if ($status == 'CONFIRMADO'): ?>
-                            <div style="float:left; margin-right: 10px">
-                                <button type="button" class="btn btn-sm btn-info"
-                                        onclick="pedidoDevolucion(<?php echo $id_consolidado ?>);">
-                                    <i class="fa fa-print"></i> Devoluciones
-                                </button>
-                            </div>
-                            <div style="float:left;">
-                                <button type="button" class="btn btn-sm btn-info"
-                                        onclick="pedidoPreCancelacion(<?php echo $id_consolidado ?>);">
-                                    <i class="fa fa-print"></i> Pre-Cancelación
-                                </button>
-                            </div>
+                        <?php if ($status == 'CONFIRMADO' || $status == 'CERRADO'): ?>
+                            <?php if ($devolucion_flag): ?>
+                                <div style="float:left; margin-right: 10px">
+                                    <button type="button" class="btn btn-sm btn-info"
+                                            onclick="pedidoDevolucion(<?php echo $id_consolidado ?>);">
+                                        <i class="fa fa-print"></i> Devoluciones
+                                    </button>
+                                </div>
+                            <?php endif; ?>
+                            <?php if ($total_liquidado > 0): ?>
+                                <div style="float:left;">
+                                    <button type="button" class="btn btn-sm btn-info"
+                                            onclick="pedidoPreCancelacion(<?php echo $id_consolidado ?>);">
+                                        <i class="fa fa-print"></i> Pre-Cancelación
+                                    </button>
+                                </div>
+                            <?php endif; ?>
                         <?php endif; ?>
 
                     </div>

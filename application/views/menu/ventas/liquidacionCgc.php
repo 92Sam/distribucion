@@ -127,7 +127,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
     </script>
 
 
-    <div class="modal fade" id="consolidadoLiquidacion" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+    <div class="modal fade" id="consolidadoLiquidacion" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" data-keyboard="false"
          aria-hidden="true">
 
     </div>
@@ -421,11 +421,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
             })
 
             $('#estado').change(function () {
-                var table = $('#example').DataTable();
-
-                table
-                    .clear()
-                    .draw();
+                $(".table-responsive").html('');
             })
 
             $('#cobrar_todo').prop('checked', false)

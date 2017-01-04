@@ -12,12 +12,12 @@ class venta_model extends CI_Model
         $this->db->trans_start(true);
         $this->db->trans_begin();
 
-        $query_ins = $this->db->query("select (case when (`documento_venta`.`documento_Numero` = '9999999999') then
+        $query_ins = $this->db->query("select (case when (`documento_venta`.`documento_Numero` = '99999') then
 		   convert( right(concat('0000',(ifnull(`documento_venta`.`documento_Serie`,0) + 1)), 4) using latin1)
 		   when (ifnull(`documento_venta`.`documento_Serie`,0) = 0) then convert( right(concat('0000', 1), 4) using latin1)
 		   else `documento_venta`.`documento_Serie` end) AS `SERIE`,
-		  (case when (`documento_venta`.`documento_Numero` = '9999999999') then right(concat((`documento_venta`.`documento_Numero` + 2)),10)
-				else right(concat('0000000000',(`documento_venta`.`documento_Numero` + 1)),10) end) AS `NUMERO`, `documento_venta`.`nombre_tipo_documento` AS `Documento`
+		  (case when (`documento_venta`.`documento_Numero` = '99999') then right(concat((`documento_venta`.`documento_Numero` + 2)),5)
+				else right(concat('00000',(`documento_venta`.`documento_Numero` + 1)),5) end) AS `NUMERO`, `documento_venta`.`nombre_tipo_documento` AS `Documento`
 		   from `documento_venta` where `documento_venta`.`nombre_tipo_documento` = '" . NOTA_ENTREGA . "' order by `documento_venta`.`documento_Serie`, `documento_venta`.`documento_Numero` desc limit 0,1");
         $rs_ins = $query_ins->row_array();
 
@@ -28,7 +28,7 @@ class venta_model extends CI_Model
         }
 
         if (empty($rs_ins['NUMERO'])) {
-            $numero = '0000000001';
+            $numero = sumCod(1, 5);
         } else {
             $numero = $rs_ins['NUMERO'];
         }
