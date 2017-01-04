@@ -15,6 +15,7 @@ class historial_pagos extends REST_Controller
         $this->load->model('metodosdepago/metodos_pago_model');
         $this->load->model('venta/venta_model');
         $this->load->model('usuario/usuario_model');
+        $this->load->model('venta/venta_cobro_model');
         $this->load->library('form_validation');
 
         $this->load->model('api/api_model', 'api');
@@ -146,6 +147,76 @@ class historial_pagos extends REST_Controller
         $vendedor = $get['vendedor'];
         $result = $this->historial->actualizar_historial_editado($historial, $venta_id, $montonuevo);
 
+
+        if ($result === false) {
+            $this->response(array('status' => 'failed'));
+        } else {
+            $this->response(array('status' => 'success'));
+        }
+    }
+
+    public function pagar_cliente_get() {
+
+        $get = $this->get(null, true);
+
+        $id_cliente = $get['cliente'];
+
+        $data = array(
+            'pago_id' => $get['pago_id'],
+            'banco_id' => $get['banco_id'],
+            'num_oper' => $get['num_oper'],
+            'importe' => $get['importe'],
+            'vendedor' => $get['vendedor']
+        );
+
+        $result = null;
+
+        if ($id_cliente) {
+            $result = $this->venta_cobro_model->pagar_cliente($id_cliente, $data);
+        }
+
+        if ($result === false) {
+            $this->response(array('status' => 'failed'));
+        } else {
+            $this->response(array('status' => 'success'));
+        }
+    }
+
+    public function pagar_documento_get() {
+
+        $get = $this->get(null, true);
+
+        $id_documento = $get['documento'];
+
+        $data = array(
+            'pago_id' => $get['pago_id'],
+            'banco_id' => $get['banco_id'],
+            'num_oper' => $get['num_oper'],
+            'importe' => $get['importe'],
+            'vendedor' => $get['vendedor']
+        );
+
+        $result = null;
+
+        if ($id_documento) {
+            $result = $this->venta_cobro_model->pagar_nota_pedido($id_documento, $data);
+        }
+
+        if ($result === false) {
+            $this->response(array('status' => 'failed'));
+        } else {
+            $this->response(array('status' => 'success'));
+        }
+
+    }
+
+    public function delete_liquidacion_get() {
+
+        $get = $this->get(null, true);
+
+        $id_historial = $get['id'];
+
+        $result = $this->venta_cobro_model->eliminar_pago($id_historial);
 
         if ($result === false) {
             $this->response(array('status' => 'failed'));

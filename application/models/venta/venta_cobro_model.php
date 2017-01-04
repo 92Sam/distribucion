@@ -177,6 +177,7 @@ class venta_cobro_model extends CI_Model
             $this->db->where('historial_pagos_clientes.historial_estatus', $estado);
 
         $cobranza->detalles = $this->db->get()->result();
+        //var_dump($cobranza);
 
         return $cobranza;
     }
@@ -320,10 +321,11 @@ class venta_cobro_model extends CI_Model
             'historial_monto' => $data['importe'],
             'historial_tipopago' => $data['pago_id'],
             'monto_restante' => $credito->dec_credito_montodebito + $data['importe'],
-            'historial_usuario' => $this->session->userdata('nUsuCodigo'),
+            'historial_usuario' => isset($data['vendedor']) ? $data['vendedor'] : $this->session->userdata('nUsuCodigo'),
             'historial_estatus' => 'PENDIENTE',
             'pago_data' => $data['num_oper']
         );
+
         if ($historial_pago['historial_tipopago'] == 4)
             $historial_pago['historial_banco_id'] = $data['banco_id'];
 
@@ -342,7 +344,7 @@ class venta_cobro_model extends CI_Model
             'historial_monto' => $data['importe'],
             'historial_tipopago' => $data['pago_id'],
             'monto_restante' => 0,
-            'historial_usuario' => $this->session->userdata('nUsuCodigo'),
+            'historial_usuario' => isset($data['vendedor']) ? $data['vendedor'] : $this->session->userdata('nUsuCodigo'),
             'historial_estatus' => 'ESPERA',
             'pago_data' => $data['num_oper'],
             'vendedor_id' => $id

@@ -29,6 +29,8 @@ class pedidos extends REST_Controller
         $this->load->model('unidades/unidades_model');
         $this->load->model('precio/precios_model');
         $this->load->model('inventario/inventario_model');
+        $this->load->model('venta/venta_cobro_model');
+
         $this->very_auth();
     }
 
@@ -452,6 +454,58 @@ class pedidos extends REST_Controller
 
     }
 
+    function ventas_pagos_get(){
+
+        $get = $this->get(null, true);
+        $id_vendedor = $get['vendedor'];
+
+        $data['clientes'] = $this->venta_cobro_model->get_pagos_pendientes(array(
+            'fecha_ini' => date('Y-m-01'),
+            'fecha_fin' => date('Y-m-d'),
+            'fecha_flag' => 0,
+            'vendedor_id' => $id_vendedor
+        ));
+
+        if ($data) {
+            $this->response($data, 200);
+        } else {
+            $this->response(array(), 200);
+        }
+    }
+
+    function ventas_historial_get(){
+
+        $get = $this->get(null, true);
+        $id_pedido = $get['pedido'];
+        $data = null;
+
+        if ($id_pedido) {
+            $data['pagos_historial'] = $this->venta_cobro_model->get_pagos($id_pedido);
+        }
+
+        if ($data) {
+            $this->response($data, 200);
+        } else {
+            $this->response(array(), 200);
+        }
+    }
+
+    function ventas_liquidar_get() {
+
+        $get = $this->get(null, true);
+        $id_vendedor = $get['vendedor'];
+        $data = null;
+
+        if ($id_vendedor) {
+            $data['pagos_liquidar'] = $this->venta_cobro_model->get_pagos_by_vendedor($id_vendedor);
+        }
+
+        if ($data) {
+            $this->response($data, 200);
+        } else {
+            $this->response(array(), 200);
+        }
+    }
 
     public function estatus_get()
     {
