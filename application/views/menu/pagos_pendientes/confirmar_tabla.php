@@ -117,6 +117,20 @@
 
 <div id="pen_consolidado" style="display: none;">
     <h4>
+        Selecciona el Consolidado:
+        <select id="consolidado_id">
+            <option value="">Todos</option>
+            <?php foreach ($consolidados as $consolidado): ?>
+                <option
+                    value="<?= $consolidado->consolidado_id ?>"><?= sumCod($consolidado->consolidado_id, 5) ?></option>
+            <?php endforeach; ?>
+        </select>
+        <div class="btn-group" id="consolidado_block" style="display: none;">
+            <button id="confirmar_consolidado_select" class="btn btn-sm btn-primary tip"
+                    title="Confirmar Liquidacion">
+                <i class="fa fa-check"></i> Confirmar Consolidado
+            </button>
+        </div>
                         <span style="float: right;">
                             <?= MONEDA . ' ' . number_format($total_consolidado, 2) ?>
                         </span>
@@ -124,7 +138,6 @@
     <table class="table table-bordered">
         <thead>
         <tr>
-            <th><input type="checkbox" id="select_all_c"></th>
             <th>Descripci&oacute;n</th>
             <th>Consolidado</th>
             <th>Vendedor</th>
@@ -138,9 +151,11 @@
         </thead>
         <tbody>
         <?php foreach ($pagos->consolidado as $pago): ?>
-            <tr>
-                <td><input type="checkbox" class="select_all_c" value="<?= $pago->id ?>"></td>
-                <td><?= $pago->documento ?></td>
+            <tr class="all_consolidado consolidado_<?= $pago->consolidado ?>">
+                <td>
+                    <input type="hidden" class="con_pagos_<?= $pago->consolidado ?>" value="<?= $pago->id ?>">
+                    <?= $pago->documento ?>
+                </td>
                 <td><?= sumCod($pago->consolidado, 5) ?></td>
                 <td><?= $pago->vendedor_nombre ?></td>
                 <td><?= $pago->pago_nombre ?></td>
@@ -190,6 +205,19 @@
 
         show_pendiente();
 
+        $("#consolidado_id").on('change', function () {
+            if ($(this).val() != '') {
+                $("#consolidado_block").show();
+                $(".all_consolidado").hide();
+                $(".consolidado_" + $(this).val()).show();
+            }
+            else {
+                $("#consolidado_block").hide();
+                $(".all_consolidado").show();
+            }
+
+        });
+
         $(".confirmar_liquidacion").on('click', function () {
             var id = $(this).attr('data-historial_id');
             var tipo = $(this).attr('data-tipo');
@@ -234,8 +262,8 @@
 
         $("#confirmar_liquidacion_select").on('click', function () {
 
-            data = {
-                historial_id: prepare_historial_id(1)
+            var data = {
+                historial_id: prepare_historial_id()
             };
 
             var len = 0;
@@ -277,6 +305,39 @@
             });
         });
 
+        $("#confirmar_consolidado_select").on('click', function () {
+
+            var data = {
+                historial_id: prepare_consolidados_id()
+            };
+
+            $(this).attr('disabled', 'disabled');
+            $.ajax({
+                url: '<?php echo base_url('pago_pendiente/confirmar_consolidado_seleccion')?>',
+                data: data,
+                headers: {
+                    Accept: 'application/json'
+                },
+                type: 'post',
+                success: function (data) {
+                    if (data.error == '1') {
+                        show_msg('warning', '<h4>Error. </h4><p>Ha ocurrido un error interno.</p>');
+                    }
+                    else {
+                        show_msg('success', '<h4>Operaci&oacute;n exitosa. </h4><p>Confirmaci&oacute;n ejecutada correctamente.</p>');
+                        $("#vendedor_id").trigger('change');
+                    }
+
+                },
+                error: function (data) {
+                    show_msg('danger', '<h4>Error. </h4><p>Error inesperado.</p>');
+                },
+                complete: function (data) {
+                    $(this).removeAttr('disabled');
+                }
+            });
+        });
+
         $("#estado").on('change', function () {
             show_pendiente();
         });
@@ -286,14 +347,6 @@
                 $('.select_all').prop('checked', true);
             else
                 $('.select_all').prop('checked', false);
-
-        });
-
-        $("#select_all_c").on('change', function () {
-            if ($(this).prop('checked'))
-                $('.select_all_c').prop('checked', true);
-            else
-                $('.select_all_c').prop('checked', false);
 
         });
     });
@@ -314,11 +367,9 @@
         }
     }
 
-    function prepare_historial_id(tipo) {
+    function prepare_historial_id() {
         var historial_id = [];
         var selector = '.select_all';
-        if (tipo == 2)
-            selector = '.select_all_c';
 
         $(selector).each(function () {
             if ($(this).prop('checked')) {
@@ -330,6 +381,23 @@
                     'cuenta_id': cuenta_id,
                 });
             }
+        });
+        return JSON.stringify(historial_id);
+    }
+
+
+    function prepare_consolidados_id() {
+        var historial_id = [];
+        var selector = '.con_pagos_' + $("#consolidado_id").val();
+
+        $(selector).each(function () {
+            var cuenta_id = 0;
+            if ($("#cuenta_id_" + $(this).val()).val() != undefined)
+                cuenta_id = $("#cuenta_id_" + $(this).val()).val();
+            historial_id.push({
+                'id': $(this).val(),
+                'cuenta_id': cuenta_id,
+            });
         });
         return JSON.stringify(historial_id);
     }

@@ -737,18 +737,35 @@
     <script type="text/javascript">
 
         var clientes = [];
+        var zonas = [];
+        var vendedores = [];
         var grupo_id = "";
         var grupo_name = "";
 
         <?php foreach ($clientes as $clie): ?>
-
         clientes.push({
             'id_cliente': '<?=$clie['id_cliente']?>',
             'grupo_id': '<?=$clie['grupo_id']?>',
             'grupo_name': '<?=$clie['nombre_grupos_cliente']?>',
+            'vendedor_id': '<?=$clie['vendedor_a']?>',
+            'zona_id': '<?=$clie['id_zona']?>',
         });
-
         <?php endforeach; ?>
+
+        <?php foreach ($zonas as $zona): ?>
+        zonas.push({
+            'zona_id': '<?=$zona['zona_id'] ?>',
+            'zona_nombre': '<?=$zona['zona_nombre']?>',
+        });
+        <?php endforeach; ?>
+
+        <?php foreach ($vendedores as $vendedor): ?>
+        vendedores.push({
+            'vendedor_id': '<?=$vendedor->nUsuCodigo ?>',
+            'vendedor_nombre': '<?=$vendedor->nombre?>',
+        });
+        <?php endforeach; ?>
+
 
         function get_gruclie() {
 
@@ -939,7 +956,7 @@
                 url: '<?=base_url()?>venta/zonaVendedor',
                 type: "post",
                 dataType: "json",
-                data: {'vendedor_id': $('#vendedor').val(), 'dia': n},
+                data: {'vendedor_id': $('#id_vendedor').val(), 'dia': n},
                 success: function (data) {
                     if (data != '') {
                         $('#zona').html('<option value="">Seleccione</option>')
@@ -956,7 +973,7 @@
                         $("#zona").trigger('chosen:updated');
 
                     } else {
-                        resetCampos('zona');
+                        obtenerClientes();
                     }
                     // zonaclientes()
 
@@ -1057,6 +1074,17 @@
             }
         }
 
+        $("#id_vendedor").on('change', function () {
+
+            if ($("#tbodyproductos tr").size() > 0) {
+                show_msg('warning', '<h4>Error.</h4> <p>Ya tienes productos agregados a determinado cliente.</p>');
+                $('#zona').val(zid).trigger("chosen:updated");
+                return false;
+            }
+
+            zonaVendedor();
+        });
+
         // Evento de Zonas
         $('#zona').change(function () {
             var zid = $("#current_zona_id").val();
@@ -1085,7 +1113,7 @@
 // Metodo Ajax
             if (zona_id != '') {
                 $.ajax({
-                    url: '<?=base_url()?>venta/clientesIdZona',
+                    url: '<?=base_url()?>venta/clientesIdZona' + '/' + $("#id_vendedor").val(),
                     type: "post",
                     dataType: "json",
                     data: {'zona_id': zona_id},
@@ -1102,14 +1130,14 @@
                     }
                 });
             } else {
-                resetCampos('id_cliente');
+                obtenerClientes();
             }
         }
 
         function obtenerClientes() {
 // Metodo Ajax
             $.ajax({
-                url: '<?=base_url()?>venta/listaClientes',
+                url: '<?=base_url()?>venta/listaClientes' + '/' + $("#id_vendedor").val(),
                 type: "post",
                 dataType: "json",
                 success: function (data) {
@@ -1119,8 +1147,11 @@
                         for (i = 0; i < data.length; i++) {
                             $('#id_cliente').append('<option value=' + data[i].id_cliente + '>' + data[i].razon_social + '</option>')
                         }
-                        $("#id_cliente").trigger('chosen:updated');
                     }
+                    else {
+                        $('#id_cliente').html('<option value="">Seleccione</option>');
+                    }
+                    $("#id_cliente").trigger('chosen:updated');
                 }
             });
         }
@@ -1175,8 +1206,8 @@
                 if ($('#todasZonas').is(':checked')) {
                     obtenerClientes();
                 } else {
-                    $('#id_cliente option').remove();
-                    $("#id_cliente").trigger('chosen:updated');
+                    $("#zona").val('');
+                    $("#zona").change().trigger('chosen:updated');
                 }
                 zonaVendedor();
             });
@@ -1223,12 +1254,8 @@
             }
 
             var data = {};
-            data.vendedor = null;
+            data.vendedor = $("#id_vendedor").val();
             var useradmin = '<?=  $this->session->userdata("admin"); ?>';
-
-            if (useradmin == 0) {
-                data.vendedor = $("#id_vendedor").val();
-            }
 
             // console.log(data);
             // Clientes

@@ -2220,11 +2220,12 @@ where v.venta_id=" . $id_venta . " group by tr.id_detalle order by 1 ";
         return array('deuda' => $cliente->subtotal_venta - $cliente->subtotal_pago);
     }
 
-    function dataClienteIdZona($id_zona)
+    function dataClienteIdZona($id_zona, $vendedor)
     {
         $this->db->select('*');
         $this->db->from('cliente c');
         $this->db->where('c.id_zona', $id_zona);
+        $this->db->where('c.vendedor_a', $vendedor);
         $this->db->order_by('c.representante', 'asc');
 
         $query = $this->db->get();

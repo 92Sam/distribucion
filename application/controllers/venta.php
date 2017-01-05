@@ -79,7 +79,7 @@ class venta extends MY_Controller
         $useradmin = $this->session->userdata('admin');
         if ($useradmin == 1 || $user_grupo != 2) {
             $data["vendedores"] = $this->usuario_model->select_all_by_roll('Vendedor');
-            $data["clientes"] = $this->cliente_model->get_all();
+            $data["clientes"] = $this->cliente_model->get_all($data["vendedores"][0]->nUsuCodigo);
             $data['zonas'] = $this->venta_model->zonaVendedor(FALSE, date('N'));
         } else {
             $vendedor = $this->session->userdata('nUsuCodigo');
@@ -4307,7 +4307,6 @@ class venta extends MY_Controller
 
     function zonaVendedor()
     {
-        $useradmin = $this->session->userdata('admin');
         if ($this->input->post('dia') != '') {
             $dia = $this->input->post('dia');
         } else {
@@ -4315,10 +4314,6 @@ class venta extends MY_Controller
         }
         $vendedor = $this->input->post('vendedor_id');
 
-        $useradmin = $this->db->get_where('usuario', array('nUsuCodigo' => $vendedor))->row();
-
-        if ($useradmin->admin == 1)
-            $vendedor = FALSE;
         $zona_vendedor = $this->venta_model->zonaVendedor($vendedor, $dia);
         die(json_encode($zona_vendedor));
     }
@@ -4341,15 +4336,15 @@ class venta extends MY_Controller
         die(json_encode($this->venta_model->getDeudaCliente($this->input->post('cliente_id'))));
     }
 
-    function clientesIdZona()
+    function clientesIdZona($vendedor)
     {
-        $cliente_direccion = $this->venta_model->dataClienteIdZona($this->input->post('zona_id'));
+        $cliente_direccion = $this->venta_model->dataClienteIdZona($this->input->post('zona_id'), $vendedor);
         die(json_encode($cliente_direccion));
     }
 
-    function listaClientes()
+    function listaClientes($vendedor)
     {
-        die(json_encode($this->cliente_model->get_all()));
+        die(json_encode($this->cliente_model->get_all($vendedor)));
     }
 
     function get_precio_escalas()
