@@ -225,17 +225,11 @@ class historial_pagos extends REST_Controller
             'historial_id' => json_decode($lista)
         );
 
-        $hist = json_decode($lista);
-
-        foreach ($hist as $l) {
-            echo $l->id;
-        }
-
         $result = null;
 
-        /*if ($id_vendedor) {
+        if ($id_vendedor) {
             $result = $this->venta_cobro_model->pagar_by_vendedor($id_vendedor, $data);
-        }*/
+        }
 
         if ($result === false) {
             $this->response(array('status' => 'failed'));
