@@ -3,7 +3,7 @@
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
             <h4 class="modal-title"><?= isset($header_text) ? $header_text : '' ?></h4>
-        </div> 
+        </div>
         <div class="modal-body">
             <input type="hidden" name="cuenta_id" id="cuenta_id" required="true"
                    value="<?= isset($cuenta->id) ? $cuenta->id : '' ?>">
@@ -18,7 +18,7 @@
                         </div>
                         <div class="col-md-8">
                             <input type="text" id="descripcion" name="descripcion"
-                                   class="form-control"
+                                   class="form-control" <?= isset($cuenta->retencion) && $cuenta->retencion == 1 ? 'readonly' : '' ?>
                                    value="<?= isset($cuenta->descripcion) ? $cuenta->descripcion : '' ?>">
                         </div>
                     </div>
@@ -52,16 +52,21 @@
                             <label>Cuenta Principal</label>
                         </div>
                         <div class="col-md-8">
-                            <select name="principal" id="principal" class="form-control">
-                                <option
-                                    value="0" <?= isset($cuenta->principal) && $cuenta->principal == 0 ? 'selected' : '' ?>>
-                                    NO
-                                </option>
-                                <option
-                                    value="1" <?= isset($cuenta->principal) && $cuenta->principal == 1 ? 'selected' : '' ?>>
-                                    SI
-                                </option>
-                            </select>
+                            <?php if (!isset($cuenta->retencion) || $cuenta->retencion != 1): ?>
+                                <select name="principal" id="principal" class="form-control">
+                                    <option
+                                        value="0" <?= isset($cuenta->principal) && $cuenta->principal == 0 ? 'selected' : '' ?>>
+                                        NO
+                                    </option>
+                                    <option
+                                        value="1" <?= isset($cuenta->principal) && $cuenta->principal == 1 ? 'selected' : '' ?>>
+                                        SI
+                                    </option>
+                                </select>
+                            <?php else: ?>
+                                <input type="text" class="form-control" readonly
+                                       value="<?= isset($cuenta->principal) && $cuenta->principal == 0 ? 'NO' : 'SI' ?>">
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>
@@ -72,16 +77,23 @@
                             <label>Estado de la Cuenta</label>
                         </div>
                         <div class="col-md-8">
-                            <select name="estado" id="estado" class="form-control">
-                                <option
-                                    value="1" <?= isset($cuenta->estado) && $cuenta->estado == 1 ? 'selected' : '' ?>>
-                                    ACTIVA
-                                </option>
-                                <option
-                                    value="0" <?= isset($cuenta->estado) && $cuenta->estado == 0 ? 'selected' : '' ?>>
-                                    INACTIVA
-                                </option>
-                            </select>
+                            <?php if (!isset($cuenta->retencion) || $cuenta->retencion != 1): ?>
+                                <select name="estado" id="estado" class="form-control">
+                                    <option
+                                        value="1" <?= isset($cuenta->estado) && $cuenta->estado == 1 ? 'selected' : '' ?>>
+                                        ACTIVA
+                                    </option>
+                                    <option
+                                        value="0" <?= isset($cuenta->estado) && $cuenta->estado == 0 ? 'selected' : '' ?>>
+                                        INACTIVA
+                                    </option>
+                                </select>
+                            <?php else: ?>
+                                <input type="hidden" name="estado" id="estado"
+                                       value="<?= isset($cuenta->estado) ? $cuenta->estado : '1' ?>">
+                                <input type="text" class="form-control" readonly
+                                       value="<?= isset($cuenta->estado) && $cuenta->estado == 0 ? 'NO' : 'SI' ?>">
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>
