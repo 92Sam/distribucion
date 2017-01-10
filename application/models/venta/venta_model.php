@@ -1774,7 +1774,7 @@ left join credito cre on cre.id_venta=v.venta_id
 where v.venta_id=" . $id_venta . " group by tr.id_detalle order by 1 ";
 
         $query = $this->db->query($querystring);
-        //   echo $this->db->last_Query();
+        //echo $this->db->last_Query();
 
         return $query->result_array();
     }

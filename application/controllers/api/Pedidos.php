@@ -507,6 +507,43 @@ class pedidos extends REST_Controller
         }
     }
 
+    function liquidar_cgc_get() {
+
+        $get = $this->get(null, true);
+
+        $estatus = $get['estatus'];
+        $id_pedido = $get['id_pedido_liquidacion'];
+        $pago = $get['pago_id'];
+        $banco = $get['banco_id'];
+        $num_oper = $get['num_oper'];
+        $vendedor = $get['vendedor'];
+        $monto = $get['monto'] != NULL ? $get['monto'] : 0;
+
+        $venta = $this->ventas->get_by('venta_id', $id_pedido);
+
+        if ($estatus != PEDIDO_RECHAZADO) {
+
+            $this->ventas->actualizarCredito(array('dec_credito_montodeuda' => $venta['total']), array('id_venta' => $id_pedido));
+        }
+
+        $this->consolidado_model->updateDetalle(array(
+            'pedido_id' => $id_pedido,
+            'liquidacion_monto_cobrado' => $monto,
+            'pago_id' => $pago,
+            'banco_id' => $banco,
+            'num_oper' => $num_oper,
+            'vendedor' => $vendedor
+        ));
+
+        $result = $this->ventas->update_status($id_pedido, $estatus);
+
+        if ($result === false) {
+            $this->response(array('status' => 'failed'));
+        } else {
+            $this->response(array('status' => 'success'));
+        }
+    }
+
     public function estatus_get()
     {
         $post = $this->input->get(null, true);
