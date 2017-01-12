@@ -49,6 +49,35 @@ class unidades_model extends CI_Model
         return $unidad->um_number * $cantidad;
     }
 
+    public function get_cantidad_fraccion($producto_id, $cantidad_minima)
+    {
+        $orden_max = $this->db->select_max('orden', 'orden')
+            ->where('producto_id', $producto_id)->get('unidades_has_producto')->row();
+
+        $minima_unidad = $this->db->select('id_unidad as um_id,unidades as um_number')
+            ->where('producto_id', $producto_id)
+            ->where('orden', $orden_max->orden)
+            ->get('unidades_has_producto')->row();
+
+        $maxima_unidad = $this->db->select('orden, id_unidad as um_id, unidades as um_number')
+            ->where('producto_id', $producto_id)
+            ->where('orden', 1)
+            ->get('unidades_has_producto')->row();
+
+        $result = array();
+        if ($minima_unidad->um_id == $maxima_unidad->um_id) {
+            $result['cantidad'] = $cantidad_minima;
+            $result['fraccion'] = 0;
+
+            return $result;
+        }
+
+        $result['cantidad'] = intval($cantidad_minima / $maxima_unidad->um_number);
+        $result['fraccion'] = $cantidad_minima % $maxima_unidad->um_number;
+        
+        return $result;
+    }
+
     function get_um_min_by_producto($producto_id)
     {
         $orden_max = $this->db->select_max('orden', 'orden')

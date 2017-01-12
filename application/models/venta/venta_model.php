@@ -6,6 +6,7 @@ class venta_model extends CI_Model
     {
         parent::__construct();
         $this->load->model('kardex/kardex_model');
+        $this->load->model('unidades/unidades_model');
     }
 
     function insertar_venta($venta_cabecera, $detalle, $montoboletas)
@@ -886,6 +887,29 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
         $this->db->where('detalle_venta.id_venta', $venta_id);
         $this->db->delete('detalle_venta');
 
+        $proceso = $this->db->get_where('historial_pedido_proceso', array(
+            'proceso_id'=>PROCESO_DEVOLVER,
+            'pedido_id'=>$venta_id,
+        ))->row();
+
+        $this->db->where('historial_pedido_proceso_id', $proceso->id);
+        $this->db->delete('historial_pedido_detalle');
+
+        $this->db->where('proceso_id', PROCESO_DEVOLVER);
+        $this->db->where('pedido_id', $venta_id);
+        $this->db->delete('historial_pedido_proceso');
+
+        $this->db->insert('historial_pedido_proceso', array(
+            'proceso_id'=>PROCESO_DEVOLVER,
+            'pedido_id'=>$venta_id,
+            'responsable_id'=>$this->session->userdata('nUsuCodigo'),
+            'fecha_plan'=>date('Y-m-d H:i:s'),
+            'created_at'=>date('Y-m-d H:i:s'),
+            'actual'=>0
+        ));
+
+        $historial_id = $this->db->insert_id();
+
         $cantidades = array();
         foreach ($devoluciones as $detalle) {
             if ($detalle->new_cantidad != 0) {
@@ -902,6 +926,17 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
                     'detalle_costo_promedio' => $historia->costo_unitario,
                     'detalle_utilidad' => ($historia->precio_unitario - $historia->costo_unitario) * $detalle->new_cantidad,
                     'bono' => $historia->bonificacion,
+                ));
+            }
+            if($detalle->devolver != 0){
+                $this->db->insert('historial_pedido_detalle', array(
+                    'historial_pedido_proceso_id'=>$historial_id,
+                    'producto_id'=>$historia->producto_id,
+                    'unidad_id'=>$historia->unidad_id,
+                    'stock'=>$detalle->devolver,
+                    'costo_unitario'=>0,
+                    'precio_unitario'=>0,
+                    'bonificacion'=>$historia->bonificacion
                 ));
             }
         }
@@ -1133,6 +1168,91 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
         $this->db->where($where);
         $query = $this->db->get('credito');
         return $query->row_array();
+    }
+
+    function devolver_parcial_stock($venta_id){
+        $this->db->trans_start(true);
+        $this->db->trans_begin();
+
+        $venta = $this->db->get_where('venta', array('venta_id'=>$venta_id))->row();
+
+        $detalle_historial = $this->db->select('historial_pedido_detalle.*')
+            ->from('historial_pedido_detalle')
+            ->join('historial_pedido_proceso', 'historial_pedido_proceso.id = historial_pedido_detalle.historial_pedido_proceso_id')
+            ->where('historial_pedido_proceso.pedido_id', $venta_id)
+            ->where('historial_pedido_proceso.proceso_id', PROCESO_DEVOLVER)
+            ->get()->result();
+
+        foreach ($detalle_historial as $historial) {
+            $detalle_fiscal = $this->db->get_where('documento_detalle', array(
+                'id_venta'=>$venta_id,
+                'id_producto'=>$historial->producto_id,
+                'id_unidad'=>$historial->unidad_id
+            ))->result();
+
+            $referencia = array();
+            foreach ($detalle_fiscal as $detalle) {
+                $referencia[] = $detalle->documento_fiscal_id;
+            }
+
+            $nota_correlativo = $this->db->select_max('numero')
+                ->from('kardex')
+                ->where('IO', 2)
+                ->where('tipo_doc', 7)->get()->row();
+
+            $nota_correlativo = $nota_correlativo->numero != null ? ($nota_correlativo->numero + 1) : 1;
+            $this->kardex_model->insert_kardex(array(
+                'local_id'=>$venta->local_id,
+                'producto_id'=>$historial->producto_id,
+                'unidad_id'=>$historial->unidad_id,
+                'serie'=>'0001',
+                'numero'=>sumCod($nota_correlativo, 5),
+                'tipo_doc'=>7,
+                'tipo_operacion'=>5,
+                'cantidad'=>($historial->stock * -1),
+                'IO'=>2,
+                'ref_id'=>$venta_id,
+                'referencia'=>implode("|", $referencia)
+            ));
+
+            $stock_actual = $this->db->get_where('inventario', array(
+                'id_producto'=>$historial->producto_id,
+                'id_local'=>$venta->local_id
+            ))->row();
+
+            if($stock_actual == NULL){
+                $this->db->insert('inventario', array(
+                    'id_producto'=>$historial->producto_id,
+                    'id_local'=>$venta->local_id,
+                    'cantidad'=>0,
+                    'fraccion'=>0,
+                ));
+            }
+
+            $stock_actual_min = $stock_actual != NULL ? $this->unidades_model->convert_minimo_um(
+                $historial->producto_id, $stock_actual->cantidad, $stock_actual->fraccion) : 0;
+
+            $stock_devolver_min = $this->unidades_model->convert_minimo_by_um($historial->producto_id, $historial->unidad_id, $historial->stock);
+
+            $new_stock = $this->unidades_model->get_cantidad_fraccion($historial->producto_id, $stock_actual_min + $stock_devolver_min);
+
+            $this->db->where('id_producto', $historial->producto_id);
+            $this->db->where('id_local', $venta->local_id);
+            $this->db->update('inventario', array(
+                'cantidad'=>$new_stock['cantidad'],
+                'fraccion'=>$new_stock['fraccion'],
+            ));
+        }
+
+
+        $this->db->trans_complete();
+        if ($this->db->trans_status() === FALSE) {
+            return false;
+        } else {
+            return true;
+        }
+
+        $this->db->trans_off();
     }
 
     function devolver_all_stock($id)
