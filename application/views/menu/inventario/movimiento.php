@@ -91,14 +91,14 @@
 
 
     function KARDEXINTERNO(id) {
-
+        $("#ver").html('');
         var local=$("#locales").val();
         $("#ver").load('<?= $ruta ?>inventario/kardex/' + id + '/' + local);
         $('#ver').modal('show');
     }
 
     function KARDEXEXTERNO(ELID) {
-
+        $("#ver").html('');
         var documento_fiscal = true;
         var local=$("#locales").val();
         $("#ver").load('<?= $ruta ?>inventario/kardex/' + ELID + '/' + local + '/' + documento_fiscal);
@@ -122,4 +122,3 @@
         getproductosbylocal();
 
     });</script>
-

@@ -58,4 +58,15 @@ class kardex_model extends CI_Model
         return $this->db->insert_id();
     }
 
+
+    function get_kardex($producto_id, $local_id = false){
+        $where['producto_id'] = $producto_id;
+        if($local_id != false)
+            $where['local_id'] = $local_id;
+
+        $kardex = $this->db->get_where('kardex', $where)->result();
+
+        return $kardex;
+    }
+
 }
