@@ -61,29 +61,48 @@ class bonificaciones extends MY_Controller
         }
     }
 
-    function lst_bonificaciones() {
+    function lst_bonificaciones()
+        {
 
-        if ($this->input->is_ajax_request()) {
+            if ($this->input->is_ajax_request()) {
 
-            $id = $this->input->post('grupos');
+                $id = $this->input->post('grupos');
 
-            $data['bonificacioness'] = array();
-            $data['id_grupoclie'] = $id;
+                $data['bonificacioness'] = array();
 
-            $bonificaciones = $this->bonificaciones_model->get_by_groupclie($id);
+                $data['id_grupoclie'] = $id;
 
-            foreach ($bonificaciones as $b) {
+                if ($id!=0)
+                {
+                    $bonificaciones = $this->bonificaciones_model->get_by_groupclie($id);
 
-                $b['bonificaciones_has_producto'] = $this->bonificaciones_model->bonificaciones_has_producto('id_bonificacion', $b['id_bonificacion']);
+                    foreach ($bonificaciones as $b)
+                        {
+                            $b['bonificaciones_has_producto'] = $this->bonificaciones_model->bonificaciones_has_producto('id_bonificacion', $b['id_bonificacion']);
 
-                $data['bonificacioness'][]=$b;
+                            $data['bonificacioness'][]=$b;
+                        }
+
+                        $this->load->view('menu/bonificaciones/tbl_bonificaciones', $data);
+                }
+                else{
+
+                    $bonificaciones = $this->bonificaciones_model->get_all();
+
+                    foreach ($bonificaciones as $b)
+                        {
+                            $b['bonificaciones_has_producto'] = $this->bonificaciones_model->bonificaciones_has_producto('id_bonificacion', $b['id_bonificacion']);
+
+                            $data['bonificacioness'][]=$b;
+                        }
+
+                        $this->load->view('menu/bonificaciones/tbl_bonificaciones', $data);
+                }
             }
 
-            $this->load->view('menu/bonificaciones/tbl_bonificaciones', $data);
-
-        } else {
-            redirect(base_url() . 'bonificaciones/', 'refresh');
-        }
+            else {
+                redirect(base_url() . 'bonificaciones/', 'refresh');
+                }
     }
 
 
@@ -479,7 +498,7 @@ class bonificaciones extends MY_Controller
         $this->phpexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(0, 1,'Bonificaciones');
         $this->phpexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow(1, 1, 'Fecha '.date('d-m-Y h:m:s'));
 
-                // Columnas de A a Z 26 elementos Maximo    
+                // Columnas de A a Z 26 elementos Maximo
         $columnas = range("A","Z");
 
         // Configuraci´on de Elementos Titulo
@@ -513,8 +532,8 @@ class bonificaciones extends MY_Controller
         $columna[] = "Cantidad condicion";
         $columna[] = "Bono producto";
         $columna[] = "Bono cantidad";
-        
-        
+
+
         for ($i = 0; $i < count($columna); $i++) {
 
             $this->phpexcel->setActiveSheetIndex(0)

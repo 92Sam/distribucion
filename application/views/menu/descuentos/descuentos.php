@@ -50,9 +50,8 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable">', "</
                 </div>
             </form>
         </div>
-    </div>
-</div>
 
+<br><br>
 <div class="block">
     <!-- Progress Bars Wizard Title -->
     <div class="row" id="loading" style="display: none;">

@@ -38,8 +38,10 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable">', "</
                 <div class="col-md-3">
 
                     <select name="grupos" id="grupos" class='cho form-control filter-input'>
+                        <option value="0">TODOS</option>
                         <?php if (count($grupos) > 0): ?>
                             <?php foreach ($grupos as $grupo): ?>
+
                                 <option
                                     value="<?php echo $grupo['id_grupos_cliente']; ?>"
                                     id="<?php echo $grupo['nombre_grupos_cliente']; ?>">
@@ -51,8 +53,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable">', "</
             </form>
             <!-- <button id="btnBuscar" class="btn btn-default" >Buscar</button>  -->
         </div>
-    </div>
-</div>
+<br><br>
 
 <div class="block">
     <!-- Progress Bars Wizard Title -->
@@ -335,15 +336,17 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable">', "</
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title">Eliminar Bonificación</h4>
+                    <h3 class="modal-title">Eliminar Bonificación</h3>
                 </div>
                 <div class="modal-body">
-                    <p>Est&aacute; seguro que desea eliminar la Bonificación seleccionada?</p>
+                    <h4>Est&aacute; seguro que desea eliminar la bonificación seleccionada?</h4>
                     <input type="hidden" name="id" id="id_borrar">
                 </div>
                 <div class="modal-footer">
-                    <button type="button" id="confirmar" class="btn btn-primary" onclick="eliminar()">Confirmar</button>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                    <button type="button" id="confirmar" class="btn btn-primary" onclick="eliminar()">
+                    <li class="glyphicon glyphicon-thumbs-up"></li> Confirmar</button>
+                    <button type="button" class="btn btn-warning" data-dismiss="modal">Cancelar
+                    <li class="glyphicon glyphicon-thumbs-down"></li></button>
 
                 </div>
             </div>
