@@ -31,7 +31,9 @@ class producto_model extends CI_Model
     {
         $costo = $this->db->select('(sum(total_detalle) / sum(cantidad)) as costo_promedio')
             ->from('detalleingreso')
+            ->join('ingreso', 'ingreso.id_ingreso = detalleingreso.id_ingreso')
             ->where('id_producto', $id)
+            ->where('ingreso_status', 'COMPLETADO')
             ->get()->row();
 
         return $costo->costo_promedio != NULL ? $costo->costo_promedio : 0;
@@ -399,7 +401,7 @@ class producto_model extends CI_Model
 
         $this->db->where($this->status, '1');
 
-       
+
         if ($producto != false) {
             $this->db->where('producto.producto_id', $producto);
         }
