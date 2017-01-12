@@ -7,7 +7,7 @@ class ingreso_model extends CI_Model
     function __construct()
     {
         parent::__construct();
-
+        $this->load->model('kardex/kardex_model');
     }
 
     function insertar_compra($cab_pie, $detalle)
@@ -61,6 +61,27 @@ class ingreso_model extends CI_Model
                     'unidad_medida' => $row->unidad,
                     'total_detalle' => (!isset($row->Importe) || $cab_pie['status'] == INGRESO_PENDIENTE) ? 0 : $row->Importe
                 );
+
+                $tipo_doc = 0;
+                if($compra['tipo_documento'] == 'FACTURA')
+                    $tipo_doc = 1;
+                elseif($compra['tipo_documento'] == 'BOLETA DE VENTA')
+                    $tipo_doc = 3;
+
+                $this->kardex_model->insert_kardex(array(
+                    'local_id'=>$compra['local_id'],
+                    'producto_id'=>$row->Codigo,
+                    'unidad_id'=>$row->unidad,
+                    'serie'=>$compra['documento_serie'],
+                    'numero'=>$compra['documento_numero'],
+                    'tipo_doc'=>$tipo_doc,
+                    'tipo_operacion'=>$compra['tipo_ingreso'] == 'COMPRA' ? 2 : 9,
+                    'cantidad'=>$row->Cantidad,
+                    'costo_unitario'=>$row->PrecUnt,
+                    'IO'=>1,
+                    'ref_id'=>$insert_id,
+                    'total'=>$list_p['total_detalle'],
+                ));
 
 
                 $query = $this->db->query('SELECT id_inventario, cantidad, fraccion
@@ -754,6 +775,21 @@ WHERE detalleingreso.id_ingreso='$id'");
 
         for ($i = 0; $i < count($query_detalle_ingreso); $i++) {
 
+            $this->kardex_model->insert_kardex(array(
+                'local_id'=>$query_detalle_ingreso[$i]['local_id'],
+                'producto_id'=>$query_detalle_ingreso[$i]['producto_id'],
+                'unidad_id'=>$query_detalle_ingreso[$i]['unidad_medida'],
+                'serie'=>$query_detalle_ingreso[$i]['documento_serie'],
+                'numero'=>$query_detalle_ingreso[$i]['documento_numero'],
+                'tipo_doc'=>7,
+                'tipo_operacion'=>6,
+                'cantidad'=>($query_detalle_ingreso[$i]['cantidad'] * -1),
+                'costo_unitario'=>$query_detalle_ingreso[$i]['precio'],
+                'IO'=>1,
+                'ref_id'=>$id,
+                'referencia'=>$id,
+                'total'=>($query_detalle_ingreso[$i]['total_detalle'] * -1),
+            ));
 
             $local = $query_detalle_ingreso[$i]['local_id'];
             $unidad_maxima = $query_detalle_ingreso[$i]['unidades'];

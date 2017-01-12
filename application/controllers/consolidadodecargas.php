@@ -380,9 +380,6 @@ class consolidadodecargas extends MY_Controller
         $venta = $this->venta_model->get_by('venta_id', $id_pedido);
 
         if ($estatus != PEDIDO_RECHAZADO) {
-            //$venta['nUsuCodigo'] = $this->session->userdata('nUsuCodigo');
-            //$result = $this->venta_model->devolver_stock($id_pedido, $venta, $venta['venta_status']);
-
             $this->venta_model->actualizarCredito(array('dec_credito_montodeuda' => $venta['total']), array('id_venta' => $id_pedido));
         }
 
@@ -426,6 +423,7 @@ class consolidadodecargas extends MY_Controller
 
             if ($pedido->venta_status == PEDIDO_RECHAZADO) {
                 //RETORNO TODO EL STOCK
+                $this->venta_model->devolver_all_stock($detalle->pedido_id);
             }
 
             if ($detalle->liquidacion_monto_cobrado == 0 || $detalle->liquidacion_monto_cobrado == null) {
@@ -437,7 +435,7 @@ class consolidadodecargas extends MY_Controller
         }
 
         $this->consolidado_model->confirmar_consolidado($id);
-        
+
         if ($cerrar != FALSE) {
             $json['success'] = 'Solicitud Procesada con exito';
         } else {
@@ -1508,4 +1506,3 @@ class consolidadodecargas extends MY_Controller
 
 
 }
-
