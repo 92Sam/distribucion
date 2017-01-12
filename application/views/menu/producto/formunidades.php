@@ -19,11 +19,9 @@
 
             <ul class="nav nav-tabs" role="tablist">
 
-
                 <li role="presentation">
                     <a href="#precios" data-toggle="tab"> Unidades y Precios</a>
                 </li>
-
 
                 <li role="presentation">
                     <a href="#promocion" data-toggle="tab">Bonificaciones</a>
@@ -50,9 +48,6 @@
                             <th>UM</th>
                             <th>Cantidad</th>
                             <th>Metros Cubicos</th>
-
-
-
                             <?php foreach ($precios as $precio):
                                 if ($precio['mostrar_precio']):?>
                                     <th><?= $precio['nombre_precio'] ?></th>
@@ -156,7 +151,7 @@
 
 
                 <div class="tab-pane table-responsive" role="tabpanel" id="promocion" role="tabpanel">
-                      
+
                                         <br>
 
                     <?php foreach($grupos_clie as $grup) {
@@ -285,7 +280,7 @@
                             </div>
                         <?php }; ?>
                     <?php } ?>
-                
+
 
                 </div>
 

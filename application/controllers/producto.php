@@ -597,8 +597,8 @@ $join = array('lineas', 'marcas', 'familia', 'grupos', 'proveedor', 'impuestos',
             $subfamilia = $this->input->post('producto_subfamilia');
             $subgrupo = $this->input->post('producto_subgrupo');
             $proveedor = $this->input->post('producto_proveedor');
-            $impuesto = $this->input->post('producto_impuesto');
-            $cualidad = $this->input->post('producto_cualidad');
+            $impuesto = 2;//$this->input->post('producto_impuesto'); Coloco manualmente el IGV;
+            $cualidad = "MEDIBLE"; // $this->input->post('producto_cualidad');  Coloco manualmente la cualidad medible;
             $producto_activo = $this->input->post('producto_activo');
             $desccripcion = $this->input->post('producto_descripcion');
             $nota = $this->input->post('producto_nota');
@@ -1408,7 +1408,7 @@ $join = array('lineas', 'marcas', 'familia', 'grupos', 'proveedor', 'impuestos',
             ->setKeywords("Stock")
             ->setCategory("Stock");
 
-        // Columnas de A a Z 26 elementos Maximo    
+        // Columnas de A a Z 26 elementos Maximo
         $columnas = range("A", "Z");
 
         // Configuraci´on de Elementos Titulo
