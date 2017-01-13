@@ -349,7 +349,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                         <div class="span12">
                             <div class="box">
                                 <div class="box-head">
-                                    <h3>Detalle Productos</h3>
+                                    <h3>Detalle Productos =)</h3>
                                 </div>
                                 <div class="box-content box-nomargin">
                                     <?php if (isset($ingreso->id_ingreso)): ?>

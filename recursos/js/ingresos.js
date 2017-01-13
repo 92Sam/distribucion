@@ -322,6 +322,7 @@ function addToArray(precio_unitario, producto_id, nombre, cantidad, Importe, uni
     producto.Codigo = producto_id;
     producto.Productor = encodeURIComponent(nombre);
     producto.Cantidad = cantidad;
+    producto.ValorUnitario = precio_unitario;
     producto.PrecUnt = precio_unitario;
     producto.Importe = Importe;
     producto.unidad = unidad;
@@ -338,12 +339,17 @@ function addToArray(precio_unitario, producto_id, nombre, cantidad, Importe, uni
 
 function listarProductos() {
 
-    var precio_unitario = (parseFloat($("#precio").val()) / parseFloat($("#cantp").val())).toFixed(2);
+    //var precio_unitario = (parseFloat($("#precio").val()) / parseFloat($("#cantp").val())).toFixed(2);
+    var precio_unitario = ((parseFloat($("#precio").val()).toFixed(2) / parseFloat($("#cantp").val())) * 1.18 ).toFixed(2);
+    var valor_unitario = (parseFloat($("#precio").val()).toFixed(2) / parseFloat($("#cantp").val())) ;
+
     var producto = {};
     producto.Codigo = $("#cboProducto").val();
     producto.Productor = encodeURIComponent($("#cboProducto option:selected").text());
     producto.Cantidad = $("#cantp").val();
-    producto.PrecUnt = precio_unitario;
+    producto.PrecUnt = precio_unitario; // Se multiplica por el 18% IGV
+    producto.ValorUnitario = valor_unitario.toFixed(2);
+    producto.ValorUnitarioSinRedondeo =valor_unitario;
     producto.Importe = $("#precio").val();
     producto.unidad = $("#unidades").val();
     producto.unidad_nombre = $('#unidades option:selected').html();
@@ -441,7 +447,7 @@ function llenar_tabla() {
     var tablahtml = '<table class="table table-striped dataTable table-condensed table-bordered dataTable-noheader table-has-pover dataTable-nosort" data-nosort="0">' +
         '<thead><tr><th>Codigo</th><th>Producto</th><th>Unidad</th><th>Cantidad</th>';
     if (costos === 'true') {
-        tablahtml += '<th>Precio Unit.</th><th>Importe</th>';
+        tablahtml += '<th>Valor Unit.</th><th>Precio Unit.</th><th>Importe</th>';
     }
     tablahtml += '<th>Acción</th></tr>' +
         '</thead><tbody id="tbodyproductos"></tbody></table>';
@@ -469,11 +475,12 @@ function llenar_tabla() {
         }
 
         if (costos === 'true' && $("#editar_ingreso").val() == '0') {
+            tbodyhtml += '<td style="text-align: center;">' + value["ValorUnitario"] + '</td>';
             tbodyhtml += '<td style="text-align: center;">' + value["PrecUnt"] + '</td>';
             tbodyhtml += '<td style="text-align: center;">' + value["Importe"] + '</td>';
         }
         if ($("#editar_ingreso").val() == '1') {
-            tbodyhtml += '<td id="precio_unitario_' + value["count"] + '" style="text-align: center;">' + value["PrecUnt"] + '</td>';
+            tbodyhtml += '<td id="precio_unitario_' + value["count"] + '" style="text-align: center;">' + value["ValorUnitario"] + '</td>';
 
             tbodyhtml += '<td style="text-align: center; width: 150px;">';
             tbodyhtml += '<input type="number" value="' + value["Importe"] + '" ';
@@ -490,7 +497,7 @@ function llenar_tabla() {
             '<i class="fa fa-trash-o"></i></a>' +
             '</div>';
         if ($("#editar_ingreso").val() != '1') {
-            tbodyhtml += '<div class="btn-group"><a class="btn btn-default btn-default btn-default" data-toggle="tooltip" title="Editar" data-original-title="Eliminar" onclick="editCantidad(' + value["count"] + ', ' + value["Cantidad"] + ',' + value["unidad"] + ',' + value['producto_id'] + ' ,' + (value["PrecUnt"] != '' ? value["PrecUnt"] : 0.00) + ');">' +
+            tbodyhtml += '<div class="btn-group"><a class="btn btn-default btn-default btn-default" data-toggle="tooltip" title="Editar" data-original-title="Eliminar" onclick="editCantidad(' + value["count"] + ', ' + value["Cantidad"] + ',' + value["unidad"] + ',' + value['producto_id'] + ' ,' + (value["ValorUnitarioSinRedondeo"] != '' ? value["ValorUnitarioSinRedondeo"] : 0.00) + ');">' +
                 '<i class="fa fa-edit"></i></a>' +
                 '</div></td></tr>';
         }
@@ -509,7 +516,7 @@ function llenar_tabla() {
             var index = $(this).attr('data-index');
             var max_index = lst_producto.length - 1;
             var cantidad = isNaN(parseFloat($("#cantidad_" + index).val())) ? 0 : parseFloat($("#cantidad_" + index).val());
-            var importe = isNaN(parseFloat($("#importe_" + index).val())) ? 0 : parseFloat($("#importe_" + index).val());
+            var importe = isNaN(parseFloat($("#importe_" + index).val())).toFixed(2) ? 0 : parseFloat($("#importe_" + index).val()).toFixed(2);
             var montos = 0;
 
             var precio_unitario = parseFloat(0).toFixed(2);
@@ -522,8 +529,9 @@ function llenar_tabla() {
                 if (lst_producto[i].count == index) {
                     lst_producto[i].Cantidad = cantidad;
                     lst_producto[i].Importe = importe;
+                    lst_producto[i].ValorUnitario = precio_unitario;
                     lst_producto[i].PrecUnt = precio_unitario;
-                }
+                    }
 
                 montos = montos + parseFloat(lst_producto[i].Importe);
             }
@@ -562,7 +570,7 @@ function llenar_tabla() {
 
 }
 
-function editCantidad(count, cantidad, unidad_id, id_producto, precio_unitario) {
+function editCantidad(count, cantidad, unidad_id, id_producto, valor_unitario) {
     console.log(lst_producto);
     $.ajax({
         url: ruta + 'ingresos/get_unidades_has_producto',
@@ -612,7 +620,8 @@ function editCantidad(count, cantidad, unidad_id, id_producto, precio_unitario) 
 
     if (costos === 'true') {
 
-        $("#totaledit").val(precio_unitario * cantidad);
+        $("#totaledit").val((valor_unitario * cantidad).toFixed(2));
+
     }
 
     $("#guardarcantidad").attr('onclick', 'saveCantidadEdit(' + count + ')');
@@ -632,7 +641,8 @@ function saveCantidadEdit(count) {
         var newpreciouitario = 0;
     }
     else {
-        var newpreciouitario = (newtotal / newcantidad).toFixed(3);
+        var newpreciouitario = ((newtotal / newcantidad) * 1.18).toFixed(2); //se aplica la multplicacion del IGV
+        var newValorUnitario = (newtotal / newcantidad).toFixed(2);
     }
     $("#modificarcantidad").modal('hide');
     $("#subTotal").val(0.00);
@@ -649,6 +659,7 @@ function saveCantidadEdit(count) {
         producto.Codigo = value.Codigo;
         producto.Productor = value.Productor;
         producto.Cantidad = value.Cantidad;
+        producto.ValorUnitario = value.ValorUnitario;
         producto.PrecUnt = value.PrecUnt;
         producto.Importe = value.Importe;
         producto.unidad = value.unidad;
@@ -657,6 +668,7 @@ function saveCantidadEdit(count) {
         producto.producto_id = value.producto_id;
         if (value["count"] == count) {
             producto.Cantidad = newcantidad;
+            producto.ValorUnitario = newValorUnitario;
             producto.PrecUnt = newpreciouitario;
             producto.Importe = newtotal;
             producto.unidad = newunidad;
@@ -712,7 +724,7 @@ function del_listaProducto(count) {
             tbodyhtml += '<td class="actions">' +
                 '<div class="btn-group"><a class="btn btn-default btn-default btn-default" data-toggle="tooltip" title="Eliminar" data-original-title="Eliminar" onclick="del_listaProducto(' + value["count"] + ');">' +
                 '<i class="fa fa-trash-o"></i></a>' +
-                '<a class="btn btn-default btn-default btn-default" data-toggle="tooltip" title="Editar" data-original-title="Eliminar" onclick="editCantidad(' + value["count"] + ', ' + value["Cantidad"] + ',' + value["unidad"] + ',' + value['producto_id'] + ' ,' + (value["PrecUnt"] != '' ? value["PrecUnt"] : 0.00) + ');">' +
+                '<a class="btn btn-default btn-default btn-default" data-toggle="tooltip" title="Editar" data-original-title="Eliminar" onclick="editCantidad(' + value["count"] + ', ' + value["Cantidad"] + ',' + value["unidad"] + ',' + value['producto_id'] + ' ,' + (value["valor_unitario"] != '' ? value["valor_unitario"] : 0.00) + ');">' +
                 '<i class="fa fa-edit"></i></a>' +
 
                 '</div></td></tr>'
