@@ -1,11 +1,24 @@
 <?php $ruta = base_url(); ?>
+<style>
+    #tablaresult th {
+        font-size: 11px !important;
+        padding: 6px 2px;
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    #tablaresult td {
+        font-size: 10px !important;
+    }
+</style>
+
 
 <div class="table-responsive">
-    <table class="table table-striped table-bordered" id="tblbonificaciones">
+    <table class="table table-striped table-bordered" id="tablaresult">
         <thead>
-        <tr align="center">
+        <tr">
             <th>ID</th>
-            <th>Grupo Cliente</th>
+            <th>Grupo de Bonificación</th>
             <th>Vencimiento</th>
             <th>Estado</th>
             <th>Productos</th>
@@ -57,11 +70,15 @@
                         <a class="btn btn-default" data-toggle="tooltip" title="Editar"
                            data-original-title="fa fa-comment-o"
                            href="#"
-                           onclick="editar('<?php echo $bonificaciones["id_bonificacion"] ?>','<?php echo isset($bonificaciones['producto_id']) ? $bonificaciones['producto_id'] : "false" ?>','<?php echo $bonificaciones['bono_producto'] ?>', '<?php echo $id_grupoclie ?>')">
+                           onclick="editar(
+                                '<?= $bonificaciones["id_bonificacion"] ?>',
+                                '<?= isset($bonificaciones['producto_id']) ? $bonificaciones['producto_id'] : "false" ?>',
+                                '<?= $bonificaciones['bono_producto'] ?>',
+                                '<?= $id_grupoclie ?>')">
                             <i class="fa fa-edit"></i>
                         </a>
 
-                        <?php echo '<a class="btn btn-danger" data-toggle="tooltip"
+                        <?='<a class="btn btn-danger" data-toggle="tooltip"
                                      title="Eliminar" data-original-title="fa fa-comment-o"
                                      onclick="borrar(' . $bonificaciones['id_bonificacion'] . ');">'; ?>
                         <i class="fa fa-trash-o"></i>
@@ -74,6 +91,7 @@
         </tbody>
     </table>
 </div>
+
 
 <script>
     $(function () {

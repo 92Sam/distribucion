@@ -32,10 +32,10 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable">', "</
             </div>
 
             <form id="frmGrupos">
-                <div class="col-md-1">
-                    <label class="control-label panel-admin-text">Grupos:</label>
+                <div class="col-md-2">
+                    <label class="control-label panel-admin-text">Grupos de Bonificación:</label>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
 
                     <select name="grupos" id="grupos" class='cho form-control filter-input'>
                         <option value="0">TODOS</option>
@@ -80,7 +80,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable">', "</
 </div>
 
 
-<!-- Modales for Messages -->
+
 <div class="modal hide" id="mOK">
     <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" onclick="javascript:window.location.reload();">
@@ -96,7 +96,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable">', "</
     </div>
 </div>
 
-</div>
+
 
 
 
@@ -156,8 +156,14 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable">', "</
 
     function editar(id, p1, p2, grup) {
 
-        $("#agregar").load('<?= $ruta ?>bonificaciones/form/' + id + '/' + p1 + '/' + p2 + '/' + grup);
-        $('#agregar').modal({show: true, keyboard: false, backdrop: 'static'});
+        var grupoBono = $("#grupos option:selected").val();
+        if (grupoBono != 0) {
+            $("#agregar").load('<?= $ruta ?>bonificaciones/form/' + id + '/' + p1 + '/' + p2 + '/' + grup);
+            $('#agregar').modal({show: true, keyboard: false, backdrop: 'static'});
+        } else {
+            grupo.error("Debe seleccionar un grupo para editar");
+        }
+
     }
 
     function verproductos(id) {
@@ -167,15 +173,17 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable">', "</
     }
 
     function agregar() {
+
         var id = false;
         var p1 = false;
         var p2 = false;
         var grup = $("#grupos option:selected").val();
-        if(grup != null && grup != ''){
+        if(grup != '' && grup != 0 ){
             $("#agregar").load('<?= $ruta ?>bonificaciones/form/' + id + '/' + p1 + '/' + p2 + '/' + grup);
             $('#agregar').modal({show: true, keyboard: false, backdrop: 'static'});
         }else{
-            grupo.error("Debe seleccionar un grupo");
+            grupo.error("Debe seleccionar el grupo al que desea agregar una bonificación");
+
         }
     }
 
@@ -315,6 +323,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable">', "</
     function eliminar() {
 
         App.formSubmitAjax($("#formeliminar").attr('action'), grupo.ajaxgrupo, 'borrar', 'formeliminar');
+
     }
 
 </script>

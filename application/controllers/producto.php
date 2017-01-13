@@ -1412,14 +1412,14 @@ $join = array('lineas', 'marcas', 'familia', 'grupos', 'proveedor', 'impuestos',
         $columnas = range("A", "Z");
 
         // Configuraci´on de Elementos Titulo
-        for ($i = 'A'; $i <= 'M'; $i++) {
+        for ($i = 'A'; $i <= 'J'; $i++) {
             if ($i == 'A' || $i == 'C' || $i == 'E') {
                 $this->phpexcel->getActiveSheet()->getStyle($i)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
             }
             $this->phpexcel->getActiveSheet()->getColumnDimension($i)->setAutoSize('true');
         }
 
-        $this->phpexcel->getActiveSheet()->getStyle('A2:M2')->applyFromArray($estiloTituloReporte);
+        $this->phpexcel->getActiveSheet()->getStyle('A2:J2')->applyFromArray($estiloTituloReporte);
         // Configuraci´on de Elementos
 
         // Llenado de Titulo
@@ -1429,10 +1429,9 @@ $join = array('lineas', 'marcas', 'familia', 'grupos', 'proveedor', 'impuestos',
 
         $data['columnas_new'][] = array('nombre_columna' => 'nombre_unidad', 'nombre_mostrar' => 'UM', 'mostrar' => 1);
         $data['columnas_new'][] = array('nombre_columna' => 'cantidad', 'nombre_mostrar' => 'Cantidad', 'mostrar' => 1);
-        $data['columnas_new'][] = array('nombre_columna' => 'fraccion', 'nombre_mostrar' => 'Fraccion', 'mostrar' => 1);
-        $data['columnas_new'][] = array('nombre_columna' => 'activo', 'nombre_mostrar' => 'Fraccion', 'mostrar' => 1);
 
-        $columShow = array('producto_id', 'producto_nombre', 'producto_marca', 'produto_grupo', 'producto_subgrupo', 'producto_familia', 'producto_subfamilia', 'producto_linea', 'presentacion', 'nombre_unidad', 'cantidad', 'fraccion', 'producto_activo');
+
+        $columShow = array('producto_id', 'producto_nombre', 'producto_marca', 'produto_grupo', 'producto_subgrupo', 'producto_familia', 'producto_subfamilia', 'producto_linea', 'presentacion', 'nombre_unidad', 'cantidad');
         $columnasNomalizadas = array();
 
         foreach ($data['columnas_new'] as $col) {

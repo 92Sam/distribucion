@@ -16,46 +16,18 @@
         </span>
     </div>
 </div>
-<!--
-<div class="row">
-    <div class="col-xs-12">
-        <div class="alert alert-danger alert-dismissable" id="error"
-             style="display:<?php //echo isset($error) ? 'block' : 'none' ?>">
-            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">X</button>
-            <h4><i class="icon fa fa-check"></i> Error</h4>
-            <span id="errorspan"><?php //echo isset($error) ? $error : '' ?></div>
-    </div>
-</div>-->
 
 <div class="block">
 
     <div class="row">
-       <!-- <div class="col-md-1">
-            <a class="btn btn-primary" onclick="agregar();">
-                <i class="fa fa-plus "> Nuevo</i>
-            </a>
-        </div>
-        <div class="col-md-1">
-            <a class="btn btn-default" onclick="duplicar();">
-                <i class="fa fa-angle-double-up "> Duplicar</i>
-            </a>
-        </div>-->
+
 
         <div class="col-md-1">
             <a class="btn btn-info" onclick="unidadesycostos();">
                 <i class="fa fa-list-ol"> UM y Precios</i>
             </a>
         </div>
-        <!--<div class="col-md-1">
-            <a class="btn btn-default" onclick="confirmar();">
-                <i class="fa fa-remove"> Eliminar</i>
-            </a>
-        </div>
-        <div class="col-md-1 justifyright">
-            <a class="btn btn-default" onclick="columnas();">
-                <i class="fa fa-columns "> Columnas</i>
-            </a>
-        </div>-->
+
     </div>
     <br>
 
@@ -77,12 +49,11 @@
                             echo " <th>" .$col->nombre_mostrar. "</th>";
                         }
                     }
-                ?>  
-                <?php endforeach; ?>    
+                ?>
+                <?php endforeach; ?>
                 <th>UM</th>
                 <th>Cantidad</th>
-                <th>Fracci&oacute;n</th>
-                <th>Activo</th>
+
 
             </tr>
             </thead>

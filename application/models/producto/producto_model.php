@@ -382,7 +382,7 @@ class producto_model extends CI_Model
     function get_all_by_local($local, $activo = false, $producto = false)
     {
         $this->db->distinct();
-        $this->db->select($this->tabla . '.*, unidades_has_producto.id_unidad, unidades.nombre_unidad, inventario.id_inventario, inventario.id_local, inventario.cantidad, inventario.fraccion ,lineas.nombre_linea,
+        $this->db->select($this->tabla . '.*, unidades_has_producto.id_unidad, unidades.nombre_unidad, inventario.id_inventario, inventario.id_local, inventario.cantidad, lineas.nombre_linea,
 		 marcas.nombre_marca, familia.nombre_familia, grupos.nombre_grupo, proveedor.proveedor_nombre, impuestos.nombre_impuesto, impuestos.porcentaje_impuesto,
          subfamilia.nombre_subfamilia,subgrupo.nombre_subgrupo');
         $this->db->from($this->tabla);
@@ -392,7 +392,7 @@ class producto_model extends CI_Model
         $this->db->join('grupos', 'grupos.id_grupo=producto.' . $this->grupo, 'left');
         $this->db->join('proveedor', 'proveedor.id_proveedor=producto.' . $this->proveedor, 'left');
         $this->db->join('impuestos', 'impuestos.id_impuesto=producto.' . $this->impuesto, 'left');
-        $this->db->join('(SELECT DISTINCT inventario.id_producto, inventario.id_inventario, inventario.cantidad, inventario.fraccion, inventario.id_local FROM inventario WHERE inventario.id_local=' . $local . '  ORDER by id_inventario DESC ) as inventario', 'inventario.id_producto=producto.' . $this->id, 'left');
+        $this->db->join('(SELECT DISTINCT inventario.id_producto, inventario.id_inventario, inventario.cantidad,  inventario.id_local FROM inventario WHERE inventario.id_local=' . $local . '  ORDER by id_inventario DESC ) as inventario', 'inventario.id_producto=producto.' . $this->id, 'left');
         $this->db->join('unidades_has_producto', 'unidades_has_producto.producto_id=producto.' . $this->id . ' and unidades_has_producto.orden=1', 'left');
         $this->db->join('unidades', 'unidades.id_unidad=unidades_has_producto.id_unidad', 'left');
         $this->db->join('subgrupo', 'subgrupo.id_subgrupo = producto.producto_subgrupo', 'left');

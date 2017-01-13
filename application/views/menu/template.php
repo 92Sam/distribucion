@@ -1215,12 +1215,6 @@ $primary_nav = array(
                                     <a class="menulink" href="<?= $ruta ?>producto/stock">Stock Producto(F2)</a>
                                 </li>
                             <?php } ?>
-                            <?php if ($this->usuarios_grupos_model->user_has_perm($this->session->userdata('nUsuCodigo'), 'generarventa')) { ?>
-
-                                <li>
-                                    <a class="menulink" href="<?= $ruta ?>venta">Realizar Venta(F3)</a>
-                                </li>
-                            <?php } ?>
                             <?php if ($this->usuarios_grupos_model->user_has_perm($this->session->userdata('nUsuCodigo'), 'pagospendiente')) { ?>
                                 <li>
                                 <a class="menulink" href="<?= $ruta ?>pago_pendiente/pagos">Pagos Pendientes</a>
@@ -1596,60 +1590,6 @@ $primary_nav = array(
                 e.stopPropagation();
                 // $(this).next().focus();  //Use whatever selector necessary to focus the 'next' input
                 return false;
-            }
-
-
-            if (e.keyCode == 114) {
-
-                if ($(".modal").is(":visible")) {
-                    return false;
-                }
-                e.preventDefault();
-
-
-                $('#barloadermodal').modal('show');
-
-                $.ajax({
-                    url: '<?=$ruta?>venta',
-                    success: function (data) {
-
-                        if (data.error == undefined) {
-
-                            $('#page-content').html(data);
-
-
-                        } else {
-
-                            var growlType = 'warning';
-
-                            $.bootstrapGrowl('<h4>' + data.error + '</h4>', {
-                                type: growlType,
-                                delay: 2500,
-                                allow_dismiss: true
-                            });
-
-                            $(this).prop('disabled', true);
-
-                        }
-
-
-                        $('#barloadermodal').modal('hide');
-
-                    },
-                    error: function (response) {
-                        $('#barloadermodal').modal('hide');
-                        var growlType = 'warning';
-
-                        $.bootstrapGrowl('<h4>Ha ocurrido un error al realizar la operacion</h4>', {
-                            type: growlType,
-                            delay: 2500,
-                            allow_dismiss: true
-                        });
-
-                        $(this).prop('disabled', true);
-
-                    }
-                })
             }
 
 
