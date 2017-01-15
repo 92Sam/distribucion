@@ -75,7 +75,7 @@
                         </div>
                         <div class="col-md-8">
                             <input type="text" name="saldo" id="saldo" required="true"
-                                   class="form-control" 
+                                   class="form-control"
                                    value="<?php if (isset($banco['banco_saldo'])) echo $banco['banco_saldo']; ?>">
                         </div>
 
@@ -92,10 +92,10 @@
                                    class="form-control"
                                    value="<?php if (isset($banco['banco_cuenta_contable'])) echo $banco['banco_cuenta_contable']; ?>">
                         </div>
-                        
+
 
                     </div>
-                </div>   
+                </div>
 
                 <div class="row">
                     <div class="form-group">
@@ -108,7 +108,7 @@
                                    value="<?php if (isset($banco['banco_titular'])) echo $banco['banco_titular']; ?>">
                         </div>
                     </div>
-                </div>   
+                </div>
 
             </div>
 
@@ -140,7 +140,7 @@
         'descripcion': '<?=$caja_cuenta->descripcion?>'
     });
     <?php endforeach; ?>
-    
+
     if($("#nombre").val() != '' ){
         $("#saldo").prop("readonly",true);
     }

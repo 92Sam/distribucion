@@ -171,9 +171,8 @@ class unidades_model extends CI_Model
     function consultarUnidad($id)
     {
         $this->db->count_all('unidades_has_producto');
-        $this->db->from('unidades_has_producto');
         $this->db->where('id_unidad', $id);
-        $query = $this->db->get();
+        $query = $this->db->get('unidades_has_producto');
         if ($query->num_rows() > 0)
                 return true;//si tiene asociaciones
         else

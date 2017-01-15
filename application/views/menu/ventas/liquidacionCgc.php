@@ -345,6 +345,19 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
 
 
     <script>
+
+        function mensajeAlerta(mensaje) {
+            var growlType = 'warning';
+            $("#vendedor").focus()
+            $.bootstrapGrowl('<h4>' + mensaje + '</h4>', {
+                type: growlType,
+                delay: 2500,
+                allow_dismiss: true
+            });
+
+            return false
+        }
+
         var estatus_actual = 'ENTREGADO';
         var estatus_select = 'ENTREGADO';
         var estatus_consolidado;
@@ -378,8 +391,10 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                 }
                 else if ($(this).val() != '4') {
 
-                    if ($(this).val() == '5')
+                    if ($(this).val() == '5'){
+                        $("#banco_block").show();
                         $("#num_oper_label").html('N&uacute;mero de Cheque');
+                    }
                     if ($(this).val() == '6')
                         $("#num_oper_label").html('N&uacute;mero de Nota de Cr&eacute;dito');
                     else
@@ -509,9 +524,25 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
             }
         }
 
+
         function validar_estatus() {
-            $("#confirmacion").modal('show');
+            var numeroOperacion = $("#num_oper").val();
+            var mediodePago = $('#pago_id option:selected').text();
+
+            if ($("#pago_id").val() != 0) {
+                if (mediodePago != 'EFECTIVO' ) {
+                   if (numeroOperacion != '' && $("#banco_id").val() != '')
+                        validarNumeroOperacion(numeroOperacion);
+                   else
+                       mensajeAlerta('Debe seleccionar un banco y numero de operación');
+                }
+                else
+                    $("#confirmacion").modal('show');
+            }
+            else
+                mensajeAlerta('Debe de seleccionar un medio de pago');
         }
+
 
         var grupo = {
             ajaxgrupo: function () {
@@ -586,6 +617,35 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                 }
             })
         }
+
+        //Validamos que el numero de operacion no se repita
+        function validarNumeroOperacion(num_operacion){
+            var operacion = num_operacion;
+            $.ajax({
+                url: '<?= base_url()?>banco/validaNumeroOperacion/' + operacion,
+                data: {'operacion': operacion},
+                type: 'POST',
+
+                success: function(data){
+                    alert(data.error); // undefined
+                    alert(data.success); // undefined
+                    alert(data.length); // me sale un valor que es variable
+                    alert(data); //{"sucess":"El numero de operacion no existe"};
+
+                    if (data[0] == 1) {
+                        $("#confirmacion").modal('show');
+                    }
+                    else
+                        mensajeAlerta('El numero de operacion ya se encuentra registrado');
+                },
+                error:function(){
+                    mensajeAlerta('Ha ocurrido un error vuelva a intentar');
+                }
+            })
+
+        }
+
+
         function devolverpedido(id, coso_id) {
 
 

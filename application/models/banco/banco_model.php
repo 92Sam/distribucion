@@ -54,4 +54,12 @@ class banco_model extends CI_Model
         else
             return TRUE;
     }
+    function buscarNumeroOperacion($num_Operacion)
+    {
+        $this->db->where('pago_data', $num_Operacion);
+        $resultado=$this->db->get('historial_pagos_clientes');
+        return $resultado->num_rows() ;
+        //Aqui existe el numero de operacion = 1; true
+        //No existe el numero de operacion = 0; false
+    }
 }
