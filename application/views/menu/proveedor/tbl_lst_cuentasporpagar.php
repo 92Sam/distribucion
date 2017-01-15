@@ -1,19 +1,31 @@
 <?php $ruta = base_url(); ?>
+<style>
+    #tablaresult th {
+        font-size: 11px !important;
+        padding: 6px 2px;
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    #tablaresult td {
+        font-size: 10px !important;
+    }
+</style>
+
 <!--<script src="<?php echo $ruta; ?>recursos/js/custom.js"></script>-->
-<table class='table table-striped dataTable table-bordered  table-condensed' id="lstPagP" name="lstPagP">
+<table class='table table-striped dataTable table-bordered' id="tablaresult" name="tablaresult">
     <thead>
     <tr>
-        <th title="Tipo Doc">Ingreso ID</th>
-        <th title="Tipo Doc">Tipo de Doc.</th>
-        <th title="Documento"> Documento</th>
+        <th>ID</th>
+        <th>Tipo</th>
+        <th>Documento</th>
         <th>Proveedor</th>
-        <th title="Fecha Registro">Fecha Reg.</th>
-
-        <th title="Total">Monto Ingreso <?php echo MONEDA ?></th>
-        <th title="Total">Monto abonado <?php echo MONEDA ?></th>
-        <th title="Total">Monto Deudor <?php echo MONEDA ?></th>
-        <th>D&iacute;as de atraso</th>
-        <th title="Estatus">Estatus</th>
+        <th>Fecha Compra</th>
+        <th>Monto Venta <?= MONEDA ?></th>
+        <th>Monto Pagado <?= MONEDA ?></th>
+        <th>Saldo Deuda<?= MONEDA ?></th>
+        <th>Días de atraso</th>
+        <th>Estado</th>
         <th>Accion</th>
 
     </tr>
@@ -30,7 +42,7 @@
 
 
 </div>
-<!--- ----------------- -->
+
 
 <!-- Pagar Visualizar -->
 <div class="modal fade" id="pagar_venta" tabindex="-1" role="dialog"

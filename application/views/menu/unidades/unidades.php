@@ -36,8 +36,7 @@
     <br>
 
 
-    <?php
-    echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "</div>");
+    <?= validation_errors('<div class="alert alert-danger alert-dismissable"">', "</div>");
     ?>
     <div class="table-responsive">
         <table class="table table-striped dataTable table-bordered" id="example">
@@ -53,35 +52,32 @@
             </tr>
             </thead>
             <tbody>
-            <?php if (count($unidades) > 0) {
-
-                foreach ($unidades as $unidad) {
-                    ?>
+            <?php if (count($unidades) > 0) :?>
+                <?php foreach ($unidades as $unidad):?>
                     <tr>
-
                         <td class="center"><?= $unidad['id_unidad'] ?></td>
                         <td><?= $unidad['nombre_unidad'] ?></td>
                         <td><?= $unidad['abreviatura'] ?></td>
 
                         <td class="center">
                             <div class="btn-group">
-                                <?php
-
-                                echo '<a class="btn btn-default btn-default btn-default" data-toggle="tooltip"
+                                <?= '<a class="btn btn-default" data-toggle="tooltip"
                                             title="Editar" data-original-title="Editar"
-                                            href="#" onclick="editargrupo(' . $unidad['id_unidad'] . ');">'; ?>
+                                            href="#"
+                                            onclick="editargrupo(' . $unidad['id_unidad'] . ');">'; ?>
                                 <i class="fa fa-edit"></i>
                                 </a>
-                                <?php echo '<a class="btn btn-default btn-default btn-default" data-toggle="tooltip"
-                                     title="Eliminar" data-original-title="Eliminar" onclick="borrargrupo(' . $unidad['id_unidad'] . ',\'' . $unidad['nombre_unidad'] . '\');">'; ?>
+                                <?= '<a class="btn btn-danger" data-toggle="tooltip"
+                                     title="Eliminar" data-original-title="Eliminar"
+                                     onclick="borrargrupo(' . $unidad['id_unidad'] . ',\'' . $unidad['nombre_unidad'] . '\');">'; ?>
                                 <i class="fa fa-trash-o"></i>
                                 </a>
 
                             </div>
                         </td>
                     </tr>
-                <?php }
-            } ?>
+                <?php endforeach;?>
+            <?php endif;?>
 
             </tbody>
         </table>
@@ -168,8 +164,10 @@
                     <input type="hidden" name="nombre" id="nom_borrar">
                 </div>
                 <div class="modal-footer">
-                    <button type="button" id="confirmar" class="btn btn-primary" onclick="eliminar()">Confirmar</button>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                    <button type="button" id="confirmar" class="btn btn-primary" onclick="eliminar()">
+                    <li class="glyphicon glyphicon-thumbs-up"></li>Confirmar</button>
+                    <button type="button" class="btn btn-warning" data-dismiss="modal">Cancelar
+                    <li class="glyphicon glyphicon-thumbs-down"></li></button>
 
                 </div>
             </div>

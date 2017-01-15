@@ -816,6 +816,8 @@
         $("#unidadescontainer input[type='number']").each(function () {
             var txt = $(this).val();
 
+
+
             //console.log(txt);
             if (txt == '') {
                 vacios = true;
@@ -830,6 +832,8 @@
             }
 
         });
+
+
 
         if (vacios) {
             var growlType = 'warning';
@@ -860,17 +864,28 @@
 
 
         var repetidas = false;
+        var sinUnidadMedida = false;
 
         var seen = {};
         $("#unidadescontainer select[id^='medida']").each(function () {
             var txt = $(this).val();
+
             //console.log(txt);
+
             if (seen[txt]) {
                 repetidas = true;
+            }
+            else if(txt == null)
+            {
+                sinUnidadMedida = true;
             }
             else {
                 seen[txt] = true;
             }
+
+
+
+
         });
 
         if (repetidas) {
@@ -878,6 +893,21 @@
             var growlType = 'warning';
 
             $.bootstrapGrowl('<h4>Las unidades de medida no deben repetirse!</h4>', {
+                type: growlType,
+                delay: 2500,
+                allow_dismiss: true
+            });
+
+            $(this).prop('disabled', true);
+
+            return false;
+
+        }
+        if (sinUnidadMedida) {
+
+            var growlType = 'warning';
+
+            $.bootstrapGrowl('<h4>Debe de crear una unidad de medida antes de crear un producto (Configuraciones => Unidades de Medida)!</h4>', {
                 type: growlType,
                 delay: 2500,
                 allow_dismiss: true

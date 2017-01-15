@@ -13,7 +13,7 @@
                     <div class="row">
                         <div class="form-group">
                             <div class="col-md-2">
-                                <label class="control-label">Usuario:</label>
+                                <label class="control-label">Usuario</label>
                             </div>
                             <div class="col-md-4">
                                 <div class="controls">
@@ -68,10 +68,9 @@
                             </div>
                             <div class="col-md-4">
 
-                                <input type="number"
+                                <input type="text"
                                        name="identificacion"
                                        id="identificacion"
-                                       maxlength="20"
                                        class="form-control"
                                        required
                                        value="<?php if (isset($usuario->identificacion)) echo $usuario->identificacion ?>">
@@ -107,10 +106,10 @@
 
                             <div class="col-md-4">
                                 <select name="id_local" id="id_local" class='form-control'>
-                                    <option value="">Seleccione</option>
+                                    <option  value="">Seleccione</option>
                                     <?php if (count($locales) > 0): ?>
                                         <?php foreach ($locales as $local): ?>
-                                            <option
+                                            <option selected
                                                 value="<?php echo $local['int_local_id']; ?>"  <?php if (isset($usuario->id_local) and $usuario->id_local == $local['int_local_id']) echo 'selected' ?>><?php echo $local['local_nombre']; ?></option>
                                         <?php endforeach; ?>
                                     <?php endif; ?>
@@ -150,7 +149,7 @@
                     <div class="row">
                         <div class="form-group">
                             <div class="col-md-2">
-                                <label for="cboPersonal" class="control-label">Fecha de Nacimiento</label>
+                                <label for="cboPersonal" class="control-label">Fecha Nacimiento</label>
 
                             </div>
 
@@ -158,6 +157,7 @@
                                 <input type="text"
                                        name="fnac"
                                        id="fnac"
+                                       readonly
                                        class="input-small input-datepicker form-control fecha"
                                        value="<?php if (isset($usuario->fnac)) echo $usuario->fnac ?>">
 
@@ -171,6 +171,7 @@
                                 <input type="text"
                                        name="fent"
                                        id="fent"
+                                       readonly
                                        class="input-small input-datepicker form-control fecha"
                                        value="<?php if (isset($usuario->fent)) echo $usuario->fent ?>">
 
@@ -313,13 +314,22 @@
                         </div>
                     </div>
 
+                    <div class="modal-footer">
+                        <div class="form-actions">
+                            <button type="button" id="" class="btn btn-primary" onclick="usuario.guardar()"><li class="glyphicon glyphicon-thumbs-up"></li> Guardar</button>
+                            <button type="button" class='btn btn-warning' data-dismiss="modal" >
+                            Cancelar <li class="glyphicon glyphicon-thumbs-down"></li>
+                            </button>
+                        </div>
+                    </div>
+
                     <div class="row">
 
                         <div class="col-md-12">
-                            <input type="text" class="form-control" id="location"/>
                             <label for="" class="control-label">Dirección de domicilio</label>
 
-
+                            <input type="text" class="form-control" id="location"/>
+                            <br>
                             <div id="us2" style="width: 100%; height: 400px;"></div>
                             Lat.: <input type="text" id="latitud" name="latitud" required readonly
                                          value="<?php if (isset($usuario->latitud)) echo $usuario->latitud; else echo "0"; ?>"/>
@@ -336,12 +346,7 @@
                 </div>
 
             </div>
-            <div class="modal-footer">
-                <div class="form-actions">
-                    <button type="button" id="" class="btn btn-primary" onclick="usuario.guardar()">Confirmar</button>
-                    <input type="button" class='btn btn-default' data-dismiss="modal" value="Cancelar">
-                </div>
-            </div>
+
         </div>
 
     </div>
@@ -359,6 +364,7 @@
 
     $(document).ready(function () {
 
+        $("#identificacion").mask('99999999');
         loadCalendar();
 
         $("#zonas").on('change', function () {

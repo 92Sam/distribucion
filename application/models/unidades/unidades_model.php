@@ -9,8 +9,6 @@ class unidades_model extends CI_Model
     {
         parent::__construct();
         $this->load->database();
-
-
     }
 
     //$cantidad es la cantidad normal y su fraccion
@@ -74,7 +72,7 @@ class unidades_model extends CI_Model
 
         $result['cantidad'] = intval($cantidad_minima / $maxima_unidad->um_number);
         $result['fraccion'] = $cantidad_minima % $maxima_unidad->um_number;
-        
+
         return $result;
     }
 
@@ -168,6 +166,21 @@ class unidades_model extends CI_Model
         $query = $this->db->get();
         return $query->result_array();
     }
+
+    /*Consultamos si la unidad de medida que se quiere eliminar esta asignado a algun producto*/
+    function consultarUnidad($id)
+    {
+        $this->db->count_all('unidades_has_producto');
+        $this->db->from('unidades_has_producto');
+        $this->db->where('id_unidad', $id);
+        $query = $this->db->get();
+        if ($query->num_rows() > 0)
+                return true;//si tiene asociaciones
+        else
+                return false; //No tiene
+    }
+
+
 
 
 }

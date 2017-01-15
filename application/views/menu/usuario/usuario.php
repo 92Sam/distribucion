@@ -2,7 +2,7 @@
 
 <ul class="breadcrumb breadcrumb-top">
     <li>Usuarios</li>
-    <li><a href="">Ver Usuarios</a></li>
+    <li><a href="">Ver Trabajadores</a></li>
 </ul>
 <div class="row">
     <div class="col-xs-12">
@@ -26,11 +26,6 @@
 </div>-->
 
 <div class="block">
-
-
-    <div class="block-title tabs">
-        <h3>Lista Usuario</h3>
-    </div>
 
     <div class="row">
         <div class="col-md-1">

@@ -814,7 +814,7 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
             ->order_by('historial_pedido_detalle.bonificacion', 'ASC')
             ->get()->result();
 
-        $venta->subtotal = 0;
+        $venta->total = 0;
 
         foreach ($venta->detalles as $detalle) {
 

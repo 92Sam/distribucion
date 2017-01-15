@@ -1,64 +1,55 @@
 <?php $ruta = base_url(); ?>
 
-<div class="row-fluid">
-    <div class="span12">
-        <div class="block">
-            <form id="frmBuscar">
-                <div class="block-title">
-                    <h3>CUENTAS POR PAGAR</h3>
-                </div>
+<ul class="breadcrumb breadcrumb-top">
+    <li>Proveedor</li>
+    <li><a href="">Cuentas por Pagar</a></li>
+</ul>
+
+<div class="block">
+    <form id="frmBuscar">
+
+        <div class="row">
+            <div class="col-md-2">
+                <label class="control-label panel-admin-text">Rango de Fecha</label>
+            </div>
+            <div class="col-md-2">
+
+                <input type="text" name="fecIni" id="fecIni" readonly  class='form-control input-datepicker'>
+            </div>
+            <div class="col-md-2">
+                <input type="text" name="fecFin" id="fecFin" readonly  class='form-control input-datepicker'>
+            </div>
+            <div class="col-md-2">
+
+                <select name="proveedor" id="proveedor" class='cho form-control'>
+                    <option value="-1">Seleccionar</option>
+                    <?php if (count($lstproveedor) > 0): ?>
+                        <?php foreach ($lstproveedor as $cl): ?>
+                            <option
+                                value="<?php echo $cl['id_proveedor']; ?>"><?php echo $cl['proveedor_nombre']; ?></option>
+                        <?php endforeach; ?>
+                    <?php else : ?>
+                    <?php endif; ?>
+                </select>
+            </div>
+            <button id="btnBuscar" class="btn btn-default">Buscar</button>
+        </div>
+    </form>
+
+    <br>
 
 
-                <div class="row">
-                    <div class="col-md-1">
-                        <label>Desde</label>
-                    </div>
-                    <div class="col-md-2">
+    <div class="block-section">
+        <div id="lstTabla" class="table-responsive">
 
-                        <input type="text" name="fecIni" id="fecIni"  value="<?php echo date('d-m-Y')?>" class='form-control input-datepicker'>
-                    </div>
-                    <div class="col-md-1">
-                        <label>Hasta</label>
-                    </div>
-                    <div class="col-md-2">
-                        <input type="text" name="fecFin" id="fecFin"  value="<?php echo date('d-m-Y')?>" class='form-control input-datepicker'>
-                    </div>
-                    <div class="col-md-2">
-
-                        <select name="proveedor" id="proveedor" class='cho form-control'>
-                            <option value="-1">Seleccionar</option>
-                            <?php if (count($lstproveedor) > 0): ?>
-                                <?php foreach ($lstproveedor as $cl): ?>
-                                    <option
-                                        value="<?php echo $cl['id_proveedor']; ?>"><?php echo $cl['proveedor_nombre']; ?></option>
-                                <?php endforeach; ?>
-                            <?php else : ?>
-                            <?php endif; ?>
-                        </select>
-                    </div>
-                    <button id="btnBuscar" class="btn btn-default">Buscar</button>
-                </div>
-            </form>
         </div>
     </div>
 
-
-    <div class="block">
-        <div class="block-section">
-            <div id="lstTabla" class="table-responsive">
-
-            </div>
-
-
-            <a class='tip btn btn-default'
+    <a class='tip btn btn-default'
                title="Exportar a Excel" id="excel"><i class="fa fa-file-excel-o"></i></a>
 
-            <a class='btn btn-default tip btn-default'
+    <a class='btn btn-danger'
                title="Exportar a PDF" id="pdf"><i class="fa fa-file-pdf-o"></i> </a>
-
-
-        </div>
-    </div>
 </div>
 
 

@@ -1,5 +1,18 @@
 <?php $ruta = base_url(); ?>
 
+<style>
+    #tablaresult th {
+        font-size: 11px !important;
+        padding: 6px 2px;
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    #tablaresult td {
+        font-size: 10px !important;
+    }
+</style>
+
 <ul class="breadcrumb breadcrumb-top">
     <li>Proveedor</li>
     <li><a href="">Agregar y editar Proveedor</a></li>
@@ -21,72 +34,66 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
 <div class="block">
     <!-- Progress Bars Wizard Title -->
 
-
     <a class="btn btn-primary" onclick="agregar();">
-        <i class="fa fa-plus "> Nueva</i>
+        <i class="fa fa-plus "> Nuevo</i>
     </a>
-    <br>
+
+    <br><br>
 
     <div class="table-responsive">
-        <table class="table table-striped dataTable table-bordered" id="example">
-            <thead>
+        <table class="table table-striped table-bordered " id="tablaresult">
             <tr>
-
-                <th>ID</th>
-                <th>Nombre</th>
-                <th>Tel&eacute;fono 1</th>
-                <th>Tel&eacute;fono 2</th>
-                <th>N&uacute;mero Fax</th>
-                <th>Direcci&oacute;n 1</th>
-                <th>Direcci&oacute;n 2</th>
-                <th>Email</th>
-                <th>P&aacute;gina Web</th>
-                <th>Observaci&oacute;n</th>
-
-                <th class="desktop">Acciones</th>
-
+                 <thead>
+                    <th>Codigo</th>
+                    <th>RUC</th>
+                    <th>Razón Social</th>
+                    <th>Dirección</th>
+                    <th>Telefono</th>
+                    <th>Correo</th>
+                    <th>Persona de Contacto</th>
+                    <th>Telefono Contacto</th>
+                    <th>P&aacute;gina Web</th>
+                    <th>Observaci&oacute;n</th>
+                    <th>Acciones</th>
+                </thead>
             </tr>
-            </thead>
-            <tbody>
-            <?php if (count($proveedores) > 0) {
 
-                foreach ($proveedores as $proveedor) {
-                    ?>
-                    <tr>
+            <?php if (count($proveedores) > 0):?>
 
-                        <td class="center"><?= $proveedor['id_proveedor'] ?></td>
-                        <td><?= $proveedor['proveedor_nombre'] ?></td>
-                        <td><?= $proveedor['proveedor_telefono1'] ?></td>
-                        <td><?= $proveedor['proveedor_telefono2'] ?></td>
-                        <td><?= $proveedor['proveedor_nrofax'] ?></td>
-                        <td><?= $proveedor['proveedor_direccion1'] ?></td>
-                        <td><?= $proveedor['proveedor_direccion2'] ?></td>
-                        <td><?= $proveedor['proveedor_email'] ?></td>
-                        <td><?= $proveedor['proveedor_paginaweb'] ?></td>
-                        <td><?= $proveedor['proveedor_observacion'] ?></td>
+                <?php foreach ($proveedores as $proveedor) :?>
 
-                        <td class="center">
-                            <div class="btn-group">
-                                <?php
+                <tr>
+                    <td class="center"><?= $proveedor['id_proveedor'] ?></td>
+                    <td><?= $proveedor['proveedor_ruc'] ?></td>
+                    <td><?= $proveedor['proveedor_nombre'] ?></td>
+                    <td><?= $proveedor['proveedor_direccion1'] ?></td>
+                    <td><?= $proveedor['proveedor_telefono1'] ?></td>
+                    <td><?= $proveedor['proveedor_email'] ?></td>
+                    <td><?= $proveedor['proveedor_contacto'] ?></td>
+                    <td><?= $proveedor['proveedor_telefono2'] ?></td>
+                    <td><?= $proveedor['proveedor_paginaweb'] ?></td>
+                    <td><?= $proveedor['proveedor_observacion'] ?></td>
 
-                                echo '<a class="btn btn-default" data-toggle="tooltip"
-                                            title="Editar" data-original-title="fa fa-comment-o"
-                                            href="#" onclick="editar(' . $proveedor['id_proveedor'] . ');">'; ?>
-                                <i class="fa fa-edit"></i>
-                                </a>
-                                <?php echo '<a class="btn btn-default" data-toggle="tooltip"
-                                     title="Eliminar" data-original-title="fa fa-comment-o"
-                                     onclick="borrar(' . $proveedor['id_proveedor'] . ',\'' . $proveedor['proveedor_nombre'] . '\');">'; ?>
-                                <i class="fa fa-trash-o"></i>
-                                </a>
-
-                            </div>
-                        </td>
+                    <td class="center">
+                        <div class="btn-group">
+                            <?='<a class="btn btn-default" data-toggle="tooltip"
+                                        title="Editar" data-original-title="fa fa-comment-o"
+                                        href="#" onclick=
+                                        "editar(' . $proveedor['id_proveedor'] . ');">'; ?>
+                            <i class="glyphicon glyphicon-edit"></i>
+                            </a>
+                            <?= '<a class="btn btn-danger" data-toggle="tooltip"
+                                 title="Eliminar" data-original-title="fa fa-comment-o"
+                                 onclick="borrar(' . $proveedor['id_proveedor'] . ',\'' . $proveedor['proveedor_nombre'] . '\');">'; ?>
+                            <i class="glyphicon glyphicon-trash"></i>
+                            </a>
+                        </div>
+                    </td>
                     </tr>
-                <?php }
-            } ?>
-
-            </tbody>
+                <?php endforeach;?>
+            <?php else:?>
+                <h3>No hay información que mostrar</h3>
+            <?php endif;?>
         </table>
     </div>
 </div>
@@ -198,5 +205,5 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
 </div>
 <!-- /.modal-dialog -->
 </div>
-<script src="<?php echo $ruta?>recursos/js/pages/tablesDatatables.js"></script>
+<script src="<?= $ruta?>recursos/js/pages/tablesDatatables.js"></script>
 <script>$(function(){ TablesDatatables.init(); });</script>

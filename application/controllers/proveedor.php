@@ -12,12 +12,7 @@ class proveedor extends MY_Controller
         $this->load->model('proveedor/proveedor_model');
     }
 
-    /* function very_sesion()
-   {
-       if (!$this->session->userdata('nUsuCodigo')) {
-           redirect(base_url() . 'inicio');
-       }
-   }*/
+
 
     /** carga cuando listas los proveedores*/
     function index()
@@ -57,15 +52,15 @@ class proveedor extends MY_Controller
         $id = $this->input->post('id');
 
         $proveedor = array(
+            'proveedor_ruc' => $this->input->post('proveedor_ruc'),
             'proveedor_nombre' => $this->input->post('proveedor_nombre'),
             'proveedor_direccion1' => $this->input->post('proveedor_direccion1'),
-            'proveedor_nrofax' => $this->input->post('proveedor_nrofax'),
-            'proveedor_paginaweb' => $this->input->post('proveedor_paginaweb'),
-            'proveedor_email' => $this->input->post('proveedor_email'),
             'proveedor_telefono1' => $this->input->post('proveedor_telefono1'),
+            'proveedor_email' => $this->input->post('proveedor_email'),
+            'proveedor_contacto' => $this->input->post('proveedor_contacto'),
             'proveedor_telefono2' => $this->input->post('proveedor_telefono2'),
-            'proveedor_observacion' => $this->input->post('proveedor_observacion'),
-            'proveedor_direccion2' => $this->input->post('proveedor_direccion2'),
+            'proveedor_paginaweb' => $this->input->post('proveedor_paginaweb'),
+            'proveedor_observacion' => $this->input->post('proveedor_observacion')
         );
 
         if (empty($id)) {
@@ -101,7 +96,6 @@ class proveedor extends MY_Controller
             'id_proveedor' => $id,
             'proveedor_nombre' => $nombre . time(),
             'proveedor_status' => 0
-
         );
 
         $data['resultado'] = $this->proveedor_model->update($proveedor);
@@ -121,8 +115,6 @@ class proveedor extends MY_Controller
 
     public function cuentas_por_pagar()
     {
-
-
         $data = "";
         $data["lstproveedor"] = $this->proveedor_model->get_all();
         $dataCuerpo['cuerpo'] = $this->load->view('menu/proveedor/cuentasporpagar', $data, true);

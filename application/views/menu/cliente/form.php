@@ -277,7 +277,8 @@
                                     <label class="control-label panel-admin-text">DNI</label>
                                 </div>
                                 <div class="col-md-3" id="dni_ruc_cont">
-                                    <input type="text" name="representante_dni" id="representante_dni" required="true"
+                                    <input type="text" name="representante_dni" id="representante_dni"
+                                            required="true"
                                            class="form-control"
                                     value="<?php if (isset($cdatos['representante_dni'])) echo $cdatos['representante_dni']; ?>">
 
@@ -674,6 +675,7 @@
     $(document).ready(function () {
 
         $('#representante_dni').mask('99999999');
+        $('#gerente_dni').mask('99999999');
 
         $("select").chosen({'width': '100%'});
 
@@ -751,8 +753,6 @@
                 $('#valor').attr('type', 'text');
             }
         })
-
-
     });
 
 
