@@ -30,13 +30,13 @@ class gastos_model extends CI_Model
 
         $this->db->trans_start();
         $this->db->insert('gastos', $gastos);
-
+        $id = $this->db->insert_id();
         $this->db->trans_complete();
 
         if ($this->db->trans_status() === FALSE)
             return FALSE;
         else
-            return TRUE;
+            return $id;
     }
 
     function update($gastos)

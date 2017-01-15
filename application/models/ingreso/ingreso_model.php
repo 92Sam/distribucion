@@ -8,6 +8,7 @@ class ingreso_model extends CI_Model
     {
         parent::__construct();
         $this->load->model('kardex/kardex_model');
+        $this->load->model('cajas/cajas_model');
     }
 
     function insertar_compra($cab_pie, $detalle)
@@ -41,6 +42,15 @@ class ingreso_model extends CI_Model
 
         $this->db->insert('ingreso', $compra);
         $insert_id = $this->db->insert_id();
+
+        if($status == 'COMPLETADO' && $compra['total_ingreso'] > 0 && $compra['pago'] == 'CONTADO'){
+            $this->cajas_model->save_pendiente(array(
+                'monto'=>$compra['total_ingreso'],
+                'tipo'=>'INGRESO',
+                'IO'=>2,
+                'ref_id'=>$insert_id
+            ));
+        }
 
         $data = array();
 
@@ -271,6 +281,15 @@ class ingreso_model extends CI_Model
         $id_ingreso = $cab_pie['id_ingreso'];
 
         $this->db->update('ingreso', $compra, array('id_ingreso' => $id_ingreso));
+
+        if($compra['total_ingreso'] > 0 && $compra['pago'] == 'CONTADO'){
+
+            $this->cajas_model->update_pendiente(array(
+                'monto'=>$compra['total_ingreso'],
+                'tipo'=>'INGRESO',
+                'ref_id'=>$id_ingreso
+            ));
+        }
 
         $data = array();
 
@@ -870,6 +889,11 @@ WHERE detalleingreso.id_ingreso='$id'");
             $this->db->where($condicion);
             $campos = array('ingreso_status' => INGRESO_DEVUELTO);
             $this->db->update('ingreso', $campos);
+
+            $this->cajas_model->delete_pendiente(array(
+                'tipo'=>'INGRESO',
+                'ref_id'=>$id
+            ));
 
             return true;
         }

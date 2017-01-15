@@ -133,4 +133,92 @@ class cajas extends MY_Controller
         $this->load->view('menu/cajas/form_detalle', $data);
     }
 
+    function caja_pendiente_form($id)
+    {
+        $data['cuenta'] = $this->cajas_model->get_cuenta($id);
+
+        $data['saldos_pendientes'] = $this->db->get_where('caja_pendiente', array(
+            'estado'=>0,
+            'caja_desglose_id'=>$id
+        ))->result();
+
+        $this->load->view('menu/cajas/form_pendiente', $data);
+    }
+
+    function confirmar_saldo($id)
+    {
+        header('Content-Type: application/json');
+
+        $caja_pendiente = $this->db->get_where('caja_pendiente', array('id'=>$id))->row();
+
+        $caja_desglose = $this->db->get_where('caja_desglose', array('id'=>$caja_pendiente->caja_desglose_id))->row();
+
+        $traspaso_flag = false;
+        if($caja_pendiente->tipo == 'TRASPASO'){
+            $caja_desglose_d = $this->db->get_where('caja_desglose', array('id'=>$caja_pendiente->ref_id))->row();
+            if($caja_pendiente->monto > $caja_desglose_d->saldo)
+                $traspaso_flag = true;
+        }
+
+        if(($caja_pendiente->IO == 2 && $caja_pendiente->monto > $caja_desglose->saldo) || $traspaso_flag == true){
+            echo json_encode(array('error' => 1));
+        }
+        else{
+            $data_mov = array(
+                'caja_desglose_id' => $caja_desglose->id,
+                'usuario_id' => $this->session->userdata('nUsuCodigo'),
+                'fecha_mov' => date('Y-m-d H:i:s'),
+                'operacion' => $caja_pendiente->tipo,
+                'medio_pago' => 'INTERNO',
+                'saldo' => $caja_pendiente->monto,
+                'saldo_old' => $caja_desglose->saldo,
+                'ref_id' => $caja_pendiente->id
+            );
+
+            $new_saldo = 0;
+            if($caja_pendiente->IO == 2){
+                $data_mov['movimiento'] = 'EGRESO';
+                $new_saldo = $caja_desglose->saldo - $caja_pendiente->monto;
+            }
+            else{
+                $data_mov['movimiento'] = 'INGRESO';
+                $new_saldo = $caja_desglose->saldo + $caja_pendiente->monto;
+            }
+
+            $this->cajas_mov_model->save_mov($data_mov);
+
+            $this->db->where('id', $caja_desglose->id);
+            $this->db->update('caja_desglose', array('saldo'=>$new_saldo));
+
+            if($caja_pendiente->tipo == 'TRASPASO'){
+
+                $caja_desglose_d = $this->db->get_where('caja_desglose', array('id'=>$caja_pendiente->ref_id))->row();
+
+                $this->cajas_mov_model->save_mov(array(
+                    'caja_desglose_id' => $caja_desglose_d->id,
+                    'usuario_id' => $this->session->userdata('nUsuCodigo'),
+                    'fecha_mov' => date('Y-m-d H:i:s'),
+                    'operacion' => $caja_pendiente->tipo,
+                    'medio_pago' => 'INTERNO',
+                    'saldo' => $caja_pendiente->monto,
+                    'saldo_old' => $caja_desglose_d->saldo,
+                    'ref_id' => $caja_desglose->id,
+                    'movimiento'=>'EGRESO'
+                ));
+                
+                $this->db->where('id', $caja_desglose_d->id);
+                $this->db->update('caja_desglose', array('saldo'=>$caja_desglose_d->saldo - $caja_pendiente->monto));
+            }
+
+            $this->db->where('id', $caja_pendiente->id);
+            $this->db->update('caja_pendiente', array('estado'=>1));
+
+            echo json_encode(array('success' => 1));
+        }
+
+
+
+
+    }
+
 }

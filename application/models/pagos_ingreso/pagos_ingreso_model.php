@@ -41,6 +41,7 @@ class pagos_ingreso_model extends CI_Model
 
         $this->db->trans_begin();
 
+        $this->load->model('cajas/cajas_model');
 
         foreach ($listadetalle as $row) {
 
@@ -53,6 +54,13 @@ class pagos_ingreso_model extends CI_Model
 
             $this->db->insert('pagos_ingreso', $list_cp);
             $id = $this->db->insert_id();
+
+            $this->cajas_model->save_pendiente(array(
+                'monto'=>$row->cantidad_ingresada,
+                'tipo'=>'PAGOS',
+                'IO'=>2,
+                'ref_id'=>$id
+            ));
 
         }
 

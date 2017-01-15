@@ -79,6 +79,14 @@
                                        data-id="<?= $desglose->id ?>">
                                         <i class="fa fa-search"></i>
                                     </a>
+
+                                    <?php if(count($desglose->pendientes) > 0):?>
+                                    <a class="btn_pendiente_caja_cuenta btn btn-danger"
+                                       data-caja_id="<?= $caja->id ?>"
+                                       data-id="<?= $desglose->id ?>">
+                                        <i class="fa fa-check"></i> <?=count($desglose->pendientes)?>
+                                    </a>
+                                <?php endif;?>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -94,6 +102,11 @@
 
 
 <div class="modal fade" id="dialog_form" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+
+</div>
+
+<div class="modal fade" id="dialog_form_pendiente" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
      aria-hidden="true">
 
 </div>
@@ -172,8 +185,27 @@
             });
         });
 
+        $(".btn_pendiente_caja_cuenta").on('click', function () {
+            $.ajax({
+                url: '<?php echo base_url('cajas/caja_pendiente_form')?>' + '/' + $(this).attr('data-id'),
+                type: 'post',
+                success: function (data) {
+                    $("#dialog_form_pendiente").html(data);
+                    $("#dialog_form_pendiente").modal('show');
+                }
+            });
+        });
+
+        $('#dialog_form_pendiente').on('hidden.bs.modal', function (e) {
+            $.ajax({
+                url: '<?php echo base_url('cajas')?>',
+                success: function (data) {
+                    $('#page-content').html(data);
+                    $(".modal-backdrop").remove();
+                }
+            });
+        });
+
     });
 
 </script>
-
-

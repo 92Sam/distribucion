@@ -11,6 +11,7 @@ class gastos extends MY_Controller
         $this->load->model('gastos/gastos_model');
         $this->load->model('tiposdegasto/tipos_gasto_model');
         $this->load->model('local/local_model');
+        $this->load->model('cajas/cajas_model');
     }
 
     /* function very_sesion()
@@ -69,13 +70,27 @@ class gastos extends MY_Controller
 
         if (empty($id)) {
             $resultado = $this->gastos_model->insertar($gastos);
+
+            $this->cajas_model->save_pendiente(array(
+                'monto'=>$gastos['total'],
+                'tipo'=>'GASTOS',
+                'IO'=>2,
+                'ref_id'=>$resultado
+            ));
+
         }
         else{
             $gastos['id_gastos'] = $id;
             $resultado = $this->gastos_model->update($gastos);
+
+            $this->cajas_model->update_pendiente(array(
+                'monto'=>$gastos['total'],
+                'tipo'=>'GASTOS',
+                'ref_id'=>$id
+            ));
         }
 
-        if ($resultado == TRUE) {
+        if ($resultado != FALSE) {
             $json['success']='Solicitud Procesada con exito';
         } else {
             $json['error']= 'Ha ocurrido un error al procesar la solicitud';
@@ -92,8 +107,12 @@ class gastos extends MY_Controller
         $gastos = array(
             'id_gastos' => $id,
             'status_gastos' => 0
-
         );
+
+        $this->cajas_model->delete_pendiente(array(
+            'tipo'=>'GASTOS',
+            'ref_id'=>$id
+        ));
 
         $data['resultado'] = $this->gastos_model->update($gastos);
 
