@@ -346,18 +346,6 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
 
     <script>
 
-        function mensajeAlerta(mensaje) {
-            var growlType = 'warning';
-            $("#vendedor").focus()
-            $.bootstrapGrowl('<h4>' + mensaje + '</h4>', {
-                type: growlType,
-                delay: 2500,
-                allow_dismiss: true
-            });
-
-            return false
-        }
-
         var estatus_actual = 'ENTREGADO';
         var estatus_select = 'ENTREGADO';
         var estatus_consolidado;
@@ -408,12 +396,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                     $('#limpiar_f').prop('checked', false)
 
                     if ($('#fecha_ini').val() == '' || $('#fecha_fin').val() == '') {
-
-                        $.bootstrapGrowl('<h4>Debe completar ambos campos del rango de fechas</h4>', {
-                            type: 'warning',
-                            delay: 2500,
-                            allow_dismiss: true
-                        });
+                        show_msg('warning','Debe completar ambos campos del rango de fechas');
                         return false
                     }
                 }
@@ -494,11 +477,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                 },
                 error: function () {
                     $(".table-responsive").html('');
-                    $.bootstrapGrowl('<h4>Ha ocurrido un error en la opci&oacute;n</h4>', {
-                        type: 'warning',
-                        delay: 2500,
-                        allow_dismiss: true
-                    });
+                    show_msg('warning','Ha ocurrido un error en la opci&oacute;n');
                 }
             })
         }
@@ -534,13 +513,13 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                    if (numeroOperacion != '' && $("#banco_id").val() != '')
                         validarNumeroOperacion(numeroOperacion);
                    else
-                       mensajeAlerta('Debe seleccionar un banco y numero de operación');
+                       show_msg('warning','Debe seleccionar un banco y numero de operación');
                 }
                 else
                     $("#confirmacion").modal('show');
             }
             else
-                mensajeAlerta('Debe de seleccionar un medio de pago');
+                show_msg('warning','Debe de seleccionar un medio de pago');
         }
 
 
@@ -557,22 +536,12 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                 var total = parseFloat($("#total").val());
 
                 if (monto > total) {
-                    var growlType = 'warning';
-                    $.bootstrapGrowl('<h4>Debe ingresar un monto menor a al total de la deuda </h4>', {
-                        type: growlType,
-                        delay: 2500,
-                        allow_dismiss: true
-                    });
+                    show_msg('warning','Debe ingresar un monto menor a al total de la deuda');
                     return false;
                 }
 
                 if (monto < 0) {
-                    var growlType = 'warning';
-                    $.bootstrapGrowl('<h4>El monto a liquidar no puede ser negativo</h4>', {
-                        type: growlType,
-                        delay: 2500,
-                        allow_dismiss: true
-                    });
+                    show_msg('warning','El monto a liquidar no puede ser negativo');
                     return false;
                 }
 
@@ -623,23 +592,20 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
             var operacion = num_operacion;
             $.ajax({
                 url: '<?= base_url()?>banco/validaNumeroOperacion/' + operacion,
+                headers:{
+                    Accept:'aplication/json'},
                 data: {'operacion': operacion},
                 type: 'POST',
 
                 success: function(data){
-                    alert(data.error); // undefined
-                    alert(data.success); // undefined
-                    alert(data.length); // me sale un valor que es variable
-                    alert(data); //{"sucess":"El numero de operacion no existe"};
-
-                    if (data[0] == 1) {
+                    if (data.success == 1) {
                         $("#confirmacion").modal('show');
                     }
                     else
-                        mensajeAlerta('El numero de operacion ya se encuentra registrado');
+                        show_msg('warning','El numero de operacion ya se encuentra registrado');
                 },
                 error:function(){
-                    mensajeAlerta('Ha ocurrido un error vuelva a intentar');
+                    show_msg('warning','Ha ocurrido un error vuelva a intentar');
                 }
             })
 
@@ -677,13 +643,9 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                 }, error: function (error) {
 
                     $('#barloadermodal').modal('hide');
-                    var growlType = 'danger';
 
-                    $.bootstrapGrowl('<h4>Ha ocurrido un error </h4> <p></p>', {
-                        type: growlType,
-                        delay: 2500,
-                        allow_dismiss: true
-                    });
+                    show_msg('warning','Ha ocurrido un error');
+
                     $('#pago_modal').modal('hide');
                     return false;
                 }

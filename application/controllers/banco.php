@@ -109,17 +109,14 @@ class banco extends MY_Controller
 
     function validaNumeroOperacion($num_operacion)
     {
+        header('Content-Type:application/json');
         $resultado = $this->banco_model->buscarNumeroOperacion($num_operacion);
 
-        if ($resultado > 0) {
-             $json['error'] = 'El numero de operacion ya existe';
-        }
-        else{
-            $json['success'] = 'El numero de operacion NO existe';
-        }
-
-        echo json_encode($json);
+        if ($resultado > 0)
+            echo json_encode(array('error' => 1));
+             //$json['error'] = 'El numero de operacion ya existe';
+        else
+            echo json_encode(array('success' => 1));
+            //$json['success'] = 'El numero de operacion NO existe';
     }
-
-
 }
