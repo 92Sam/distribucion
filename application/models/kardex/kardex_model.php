@@ -59,14 +59,111 @@ class kardex_model extends CI_Model
     }
 
 
-    function get_kardex($producto_id, $local_id = false){
+    function get_kardex($producto_id, $local_id, $mes, $year){
+
+        $kardex_inicial = $this->db->select('costo_unitario_final, cantidad_final, total_final, unidad_id')
+            ->from('kardex')
+            ->where('fecha <', $year . '-' . sumCod($mes, 2) . '-01')
+            ->order_by('id', 'DESC')
+            ->get()->row();
+
+
         $where['producto_id'] = $producto_id;
         if($local_id != false)
             $where['local_id'] = $local_id;
 
+        if($mes != false && $year != false){
+            $where['fecha >='] = $year . '-' . sumCod($mes, 2) . '-01';
+            $where['fecha <='] = $year . '-' . sumCod($mes, 2) . '-' . last_day($year, sumCod($mes, 2));
+        }
+
         $kardex = $this->db->get_where('kardex', $where)->result();
 
-        return $kardex;
+        return array('fiscal'=>$kardex, 'inicial'=>$kardex_inicial);
+    }
+
+    function get_kardex_interno($producto_id, $local_id, $mes, $year){
+
+        $kardex_inicial = $this->db->select('costo_unitario_final, cantidad_final, total_final, unidad_id')
+            ->from('kardex')
+            ->where('fecha <', $year . '-' . sumCod($mes, 2) . '-01')
+            ->order_by('id', 'DESC')
+            ->get()->row();
+
+        $this->db->select(
+            'local_id , fecha,
+            producto_id,
+            serie,
+            numero,
+            unidad_id,
+            tipo_doc,
+            tipo_operacion,
+            IO,
+            SUM(cantidad) as cantidad,
+            costo_unitario,
+            SUM(total) as total,
+            ref_id,
+            ref_val'
+            )
+            ->from('kardex')
+            ->group_by('ref_id, tipo_doc, tipo_operacion')
+            ->order_by('id');
+
+        $this->db->where('producto_id', $producto_id);
+        if($local_id != false)
+            $this->db->where('local_id', $local_id);
+
+        if($mes != false && $year != false){
+            $this->db->where('fecha >=' ,$year . '-' . sumCod($mes, 2) . '-01');
+            $this->db->where('fecha <=', $year . '-' . sumCod($mes, 2) . '-' . last_day($year, sumCod($mes, 2)));
+        }
+
+        $kardex = $this->db->get()->result();
+
+        $cantidad_inicial = 0;
+        $total_inicial = 0;
+        if($kardex_inicial != NULL){
+            $cantidad_inicial = $kardex_inicial->cantidad_final;
+            $total_inicial = $kardex_inicial->total_final;
+        }
+
+        foreach($kardex as $k){
+            $k->referencia = '';
+            if($k->IO == 2){
+                $venta = $this->db->select('documento_Serie as doc_serie, documento_Numero as doc_numero')
+                    ->from('venta')
+                    ->join('documento_venta', 'venta.numero_documento = documento_venta.id_tipo_documento')
+                    ->where('venta.venta_id', $k->ref_id)->get()->row();
+
+                $k->serie = $venta->doc_serie;
+                $k->numero = $venta->doc_numero;
+            }
+
+            if($k->IO == 2){
+                $k->cantidad_final = $cantidad_inicial - $k->cantidad;
+                $cantidad_inicial = $k->cantidad_final;
+
+                $k->total_final = $total_inicial - $k->total;
+                $total_inicial = $k->total_final;
+                if($k->cantidad_final != 0)
+                    $k->costo_unitario_final = $k->total_final / $k->cantidad_final;
+                else
+                    $k->costo_unitario_final = 0;
+            }
+            else if($k->IO == 1){
+                $k->cantidad_final = $cantidad_inicial + $k->cantidad;
+                $cantidad_inicial = $k->cantidad_final;
+
+                $k->total_final = $total_inicial + $k->total;
+                $total_inicial = $k->total_final;
+                if($k->cantidad_final != 0)
+                    $k->costo_unitario_final = $k->total_final / $k->cantidad_final;
+                else
+                    $k->costo_unitario_final = 0;
+            }
+        }
+
+        return array('fiscal'=>$kardex, 'inicial'=>$kardex_inicial);
     }
 
 }

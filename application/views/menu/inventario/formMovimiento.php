@@ -1,13 +1,13 @@
 <?php $ruta = base_url(); ?>
 <style>
-    #tablaresult th {
+    #tblresult th {
         font-size: 11px !important;
         padding: 2px 2px;
         text-align: center;
         vertical-align: middle;
     }
 
-    #tablaresult td {
+    #tblresult td {
         font-size: 10px !important;
     }
 </style>
@@ -22,7 +22,7 @@
             </div>
             <div class="modal-body">
                 <div class="table-responsive">
-                    <table class="table table-striped dataTable table-bordered table-condensed" id="tablaresult">
+                    <table class="table table-striped table-bordered table-condensed" id="tblresult">
                         <thead>
                         <tr>
                             <th rowspan="2">Fecha</th>
@@ -49,8 +49,28 @@
                         </tr>
                         </thead>
                         <tbody id="columnas">
-                        <?php if (count($kardex) > 0):?>
-                            <?php foreach ($kardex as $detalle): ?>
+                        <?php if (count($kardex['fiscal']) > 0):?>
+                            <tr>
+                                <td></td>
+                                <td>OTROS</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td><?=$kardex['inicial'] != NULL ? $kardex['inicial']->unidad_id : $kardex['fiscal'][0]->unidad_id?></td>
+                                <td>SALDO INICIAL</td>
+
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+
+                                <td><?=$kardex['inicial'] != NULL ? $kardex['inicial']->cantidad_final : 0?></td>
+                                <td style="white-space: nowrap;"><?=$kardex['inicial'] != NULL ? MONEDA.' '. number_format($kardex['inicial']->costo_unitario_final, 2) : MONEDA.' 0.00'?></td>
+                                <td style="white-space: nowrap;"><?=$kardex['inicial'] != NULL ? MONEDA.' '. number_format($kardex['inicial']->total_final, 2) : MONEDA.' 0.00'?></td>
+                            </tr>
+                            <?php foreach ($kardex['fiscal'] as $detalle): ?>
                                 <tr>
                                     <td><?=date('d/m/Y', strtotime($detalle->fecha))?></td>
                                     <?php $tipo_doc = get_tipo_doc($detalle->tipo_doc)?>
