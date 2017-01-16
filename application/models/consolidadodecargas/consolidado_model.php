@@ -484,6 +484,7 @@ class consolidado_model extends CI_Model
                 'pago_id' => $data['pago_id'],
                 'num_oper' => $data['num_oper'],
                 'banco_id' => $data['banco_id'],
+                'vendedor' => isset($data['vendedor']) ? $data['vendedor'] : $this->session->userdata('nUsuCodigo'),
                 'historial_estatus' => 'CONSOLIDADO'
             ));
         }
