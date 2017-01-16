@@ -36,12 +36,15 @@ class kardex_model extends CI_Model
         }
 
         //Calculo los saldos
-        $data['costo_unitario_final'] = $this->producto_model->get_costo_promedio($data['producto_id']);
+        $data['costo_unitario_final'] = $this->producto_model->get_costo_promedio($data['producto_id']) * 1.18;
         if($data['IO'] == 2)
             $data['costo_unitario'] = $data['costo_unitario_final'];
 
         if(!isset($data['total']))
             $data['total'] = $data['cantidad'] * $data['costo_unitario'];
+
+        if($data['tipo_operacion'] == 2 && $data['IO'] == 1)
+            $data['total'] = $data['total'] * 1.18;
 
         //Calculo los saldos finales
         if($last_record != NULL){

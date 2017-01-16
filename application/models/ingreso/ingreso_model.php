@@ -72,26 +72,28 @@ class ingreso_model extends CI_Model
                     'total_detalle' => (!isset($row->Importe) || $cab_pie['status'] == INGRESO_PENDIENTE) ? 0 : $row->Importe
                 );
 
-                $tipo_doc = 0;
-                if($compra['tipo_documento'] == 'FACTURA')
-                    $tipo_doc = 1;
-                elseif($compra['tipo_documento'] == 'BOLETA DE VENTA')
-                    $tipo_doc = 3;
+                if($status == 'COMPLETADO'){
+                    $tipo_doc = 0;
+                    if($compra['tipo_documento'] == 'FACTURA')
+                        $tipo_doc = 1;
+                    elseif($compra['tipo_documento'] == 'BOLETA DE VENTA')
+                        $tipo_doc = 3;
 
-                $this->kardex_model->insert_kardex(array(
-                    'local_id'=>$compra['local_id'],
-                    'producto_id'=>$row->Codigo,
-                    'unidad_id'=>$row->unidad,
-                    'serie'=>$compra['documento_serie'],
-                    'numero'=>$compra['documento_numero'],
-                    'tipo_doc'=>$tipo_doc,
-                    'tipo_operacion'=>$compra['tipo_ingreso'] == 'COMPRA' ? 2 : 9,
-                    'cantidad'=>$row->Cantidad,
-                    'costo_unitario'=>$row->PrecUnt,
-                    'IO'=>1,
-                    'ref_id'=>$insert_id,
-                    'total'=>$list_p['total_detalle'],
-                ));
+                    $this->kardex_model->insert_kardex(array(
+                        'local_id'=>$compra['local_id'],
+                        'producto_id'=>$row->Codigo,
+                        'unidad_id'=>$row->unidad,
+                        'serie'=>$compra['documento_serie'],
+                        'numero'=>$compra['documento_numero'],
+                        'tipo_doc'=>$tipo_doc,
+                        'tipo_operacion'=>$compra['tipo_ingreso'] == 'COMPRA' ? 2 : 9,
+                        'cantidad'=>$row->Cantidad,
+                        'costo_unitario'=>$row->PrecUnt,
+                        'IO'=>1,
+                        'ref_id'=>$insert_id,
+                        'total'=>$list_p['total_detalle'],
+                    ));
+                }
 
 
                 $query = $this->db->query('SELECT id_inventario, cantidad, fraccion
@@ -282,7 +284,8 @@ class ingreso_model extends CI_Model
 
         $this->db->update('ingreso', $compra, array('id_ingreso' => $id_ingreso));
 
-        if($compra['total_ingreso'] > 0 && $compra['pago'] == 'CONTADO'){
+        $ingreso = $this->db->get_where('ingreso', array('id_ingreso'=>$id_ingreso))->row();
+        if($compra['total_ingreso'] > 0 && $ingreso->pago == 'CONTADO'){
 
             $this->cajas_model->update_pendiente(array(
                 'monto'=>$compra['total_ingreso'],
@@ -318,6 +321,8 @@ WHERE detalleingreso.id_ingreso='$compra_id'");
 
         // Detalle de la Venta
         foreach ($query_detalle_ingreso as $row) {
+
+
             $cantidad_venta = $row['cantidad'];
             $unidad_medida_venta = $row['unidad_medida'];
             $id_producto = $row['id_producto'];
@@ -427,6 +432,30 @@ WHERE detalleingreso.id_ingreso='$compra_id'");
 
 
             foreach ($detalle as $row) {
+
+                if($ingreso->ingreso_status == 'COMPLETADO'){
+                    $tipo_doc = 0;
+                    if($ingreso->tipo_documento == 'FACTURA')
+                        $tipo_doc = 1;
+                    elseif($ingreso->tipo_documento == 'BOLETA DE VENTA')
+                        $tipo_doc = 3;
+
+                    $this->kardex_model->insert_kardex(array(
+                        'local_id'=>$ingreso->local_id,
+                        'producto_id'=>$row->Codigo,
+                        'unidad_id'=>$row->unidad,
+                        'serie'=>$ingreso->documento_serie,
+                        'numero'=>$ingreso->documento_numero,
+                        'tipo_doc'=>$tipo_doc,
+                        'tipo_operacion'=>$ingreso->tipo_ingreso == 'COMPRA' ? 2 : 9,
+                        'cantidad'=>$row->Cantidad,
+                        'costo_unitario'=>($row->PrecUnt === 'null') ? 0 : $row->PrecUnt,
+                        'IO'=>1,
+                        'ref_id'=>$id_ingreso,
+                        'total'=>(!isset($row->Importe)) ? 0 : $row->Importe,
+                    ));
+                }
+
                 $cantidad = $row->Cantidad;
                 $id_producto = $row->Codigo;
                 $unidad = $row->unidad;
