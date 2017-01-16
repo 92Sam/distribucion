@@ -114,9 +114,9 @@
     function KARDEXINTERNO(id) {
         $("#ver").html('');
         var local=$("#locales").val();
-        var local=$("#locales").val();
+        var year=$("#year").val();
         var mes=$("#mes").val();
-        $("#ver").load('<?= $ruta ?>inventario/kardex/' + id + '/' + local + '/' + mes + '/' + year);
+        $("#ver").load('<?= $ruta ?>inventario/kardex_interno/' + id + '/' + local + '/' + mes + '/' + year);
         $('#ver').modal('show');
     }
 

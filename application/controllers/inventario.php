@@ -102,6 +102,16 @@ class inventario extends MY_Controller
         $this->load->view('menu/inventario/formMovimiento', $data);
     }
 
+    function kardex_interno($id = false, $local = false, $mes = false, $year = false)
+    {
+        if($local == 'TODOS')
+            $local = false;
+
+        $data['kardex'] = $this->kardex_model->get_kardex_interno($id, $local, $mes, $year);
+
+        $this->load->view('menu/inventario/formMovimiento', $data);
+    }
+
     function getbylocal()
     {
         $local = $this->input->post('local');
