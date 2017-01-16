@@ -92,12 +92,12 @@ class inventario extends MY_Controller
         }
     }
 
-    function kardex($id = false, $local = false, $documento_fiscal = false)
+    function kardex($id = false, $local = false, $mes = false, $year = false)
     {
         if($local == 'TODOS')
             $local = false;
-            
-        $data['kardex'] = $this->kardex_model->get_kardex($id, $local);
+
+        $data['kardex'] = $this->kardex_model->get_kardex($id, $local, $mes, $year);
 
         $this->load->view('menu/inventario/formMovimiento', $data);
     }

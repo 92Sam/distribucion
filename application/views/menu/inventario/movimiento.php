@@ -37,7 +37,7 @@
             <div class="col-md-1">
                 <label>Ubicaci&oacute;n Inventario</label>
             </div>
-            <div class="col-md-5">
+            <div class="col-md-3">
                 <select class="form-control" id="locales" onchange="getproductosbylocal()">
                     <option value="TODOS">Todos</option>
                     <?php foreach($locales as $local){?>
@@ -46,6 +46,27 @@
                     <?php }?>
 
                 </select>
+            </div>
+
+            <div class="col-md-1">
+            </div>
+
+            <div class="col-md-1">
+                <label>Mes</label>
+            </div>
+            <div class="col-md-3">
+                <select class="form-control" id="mes">
+                    <?php for($i = 1; $i < 13; $i++):?>
+                        <option value="<?=$i?>" <?= date('d')==$i ? 'selected="selected"' : ''?>><?= getMes($i) ?></option>
+                    <?php endfor;?>
+                </select>
+            </div>
+
+            <div class="col-md-1">
+                <label>A&ntilde;o</label>
+            </div>
+            <div class="col-md-2">
+                <input type="number" id="year" name="year" value="<?=date('Y')?>" class="form-control">
             </div>
         </div>
     </div>
@@ -93,7 +114,9 @@
     function KARDEXINTERNO(id) {
         $("#ver").html('');
         var local=$("#locales").val();
-        $("#ver").load('<?= $ruta ?>inventario/kardex/' + id + '/' + local);
+        var local=$("#locales").val();
+        var mes=$("#mes").val();
+        $("#ver").load('<?= $ruta ?>inventario/kardex/' + id + '/' + local + '/' + mes + '/' + year);
         $('#ver').modal('show');
     }
 
@@ -101,7 +124,9 @@
         $("#ver").html('');
         var documento_fiscal = true;
         var local=$("#locales").val();
-        $("#ver").load('<?= $ruta ?>inventario/kardex/' + ELID + '/' + local + '/' + documento_fiscal);
+        var mes=$("#mes").val();
+        var year=$("#year").val();
+        $("#ver").load('<?= $ruta ?>inventario/kardex/' + ELID + '/' + local + '/' + mes + '/' + year);
         $('#ver').modal('show');
     }
 

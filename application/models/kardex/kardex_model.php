@@ -59,14 +59,25 @@ class kardex_model extends CI_Model
     }
 
 
-    function get_kardex($producto_id, $local_id = false){
+    function get_kardex($producto_id, $local_id, $mes, $year){
         $where['producto_id'] = $producto_id;
         if($local_id != false)
             $where['local_id'] = $local_id;
 
+        if($mes != false && $year != false){
+            $where['fecha >='] = $year . '-' . sumCod($mes, 2) . '-01';
+            $where['fecha <='] = $year . '-' . sumCod($mes, 2) . '-' . last_day($year, sumCod($mes, 2));
+        }
+
+        $kardex_inicial = $this->db->select('costo_unitario_final, cantidad_final, total_final, unidad_id')
+            ->from('kardex')
+            ->where('fecha <', $year . '-' . sumCod($mes, 2) . '-01')
+            ->order_by('id', 'DESC')
+            ->get()->row();
+
         $kardex = $this->db->get_where('kardex', $where)->result();
 
-        return $kardex;
+        return array('fiscal'=>$kardex, 'inicial'=>$kardex_inicial);
     }
 
 }
