@@ -323,20 +323,21 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
         if (isset($venta_cabecera['retencion']))
             $venta['retencion'] = $venta_cabecera['retencion'];
 
-        if ($venta_cabecera['devolver'] != 1) {
+        if ($venta_cabecera['devolver'] == 'true') {
 
             if ($venta_cabecera['venta_tipo'] == 'ENTREGA') {
                 //actualizo el detalle del consolidado monto cobrdo en liqudiacion
                 $this->db->where('pedido_id', $venta_id);
                 $this->db->update('consolidado_detalle', array('liquidacion_monto_cobrado' => $venta_cabecera['importe']));
 
-                if ($venta_cabecera['devolver'] == 'false') {
-                    $venta['pagado'] = $venta_cabecera['importe'];
-                }
             } else {
                 $venta['pagado'] = $venta_cabecera['importe'];
             }
+
+        } else {
+            $venta['pagado'] = $venta_cabecera['importe'];
         }
+
 
         if (!empty($venta_cabecera['id_cliente'])) {
             $venta['id_cliente'] = $venta_cabecera['id_cliente'];

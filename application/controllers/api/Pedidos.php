@@ -308,7 +308,6 @@ class pedidos extends REST_Controller
     // Update
     public function update_get()
     {
-
         $post = $this->input->get(null, true);
         $montoboletas = $post['MONTO_BOLETAS_VENTA'];
         $newclient = $post['id_cliente'];
@@ -536,6 +535,25 @@ class pedidos extends REST_Controller
         ));
 
         $result = $this->ventas->update_status($id_pedido, $estatus);
+
+        if ($result === false) {
+            $this->response(array('status' => 'failed'));
+        } else {
+            $this->response(array('status' => 'success'));
+        }
+    }
+
+    public function devolver_pedido_get() {
+
+        $get = $this->get(null, true);
+
+        $devol = $get['devoluciones'];
+
+        $venta_id = $get['venta_id'];
+        $total_importe = $get['total_importe'];
+        $devoluciones = json_decode($devol);
+
+        $result = $this->ventas->devolver_venta($venta_id, $total_importe, $devoluciones);
 
         if ($result === false) {
             $this->response(array('status' => 'failed'));
