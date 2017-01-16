@@ -47,8 +47,6 @@ class banco_model extends CI_Model
         $this->db->update('banco', $banco);
 
         $this->db->trans_complete();
-
-        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         if ($this->db->trans_status() === FALSE)
             return FALSE;
         else

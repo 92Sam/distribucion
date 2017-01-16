@@ -441,6 +441,17 @@
                             <div class="row">
                                 <div class="form-group">
                                     <div class="col-md-4">
+                                        <label for="cboTipDoc" class="control-label panel-admin-text">Documento:</label>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <input type="text" class="form-control" readonly id="tipoDocumento" name="tipoDocumento" style="text-align: right;">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="form-group">
+                                    <div class="col-md-4">
                                         <label for="cboTipDoc" class="control-label panel-admin-text">Fecha:</label>
                                     </div>
                                     <div class="col-md-8">
@@ -637,10 +648,10 @@
                     <h4 class="modal-title">Existencia del producto</h4> <h5 id="nombreproduto"></h5>
                 </div>
                 <div class="modal-body" id="modalbodyproducto">
-                    <div class="row">
+                    <div class="row" >
                         <div class="form-group">
-                            <div class="col-md-1">Precio:</div>
-                            <div class="col-md-5">
+                            <div class="col-md-1" style="display: none">Precio:</div>
+                            <div class="col-md-5" style="display: none">
                                 <select class="form-control" name="precio" id="precios" tabindex="0"
                                         onchange="cambiarnombreprecio()" style="width:250px">
                                     <?php foreach ($precios as $precio) { ?>
@@ -649,8 +660,8 @@
                                     <?php } ?>
                                 </select>
                             </div>
-                            <div class="col-md-2">Cantidad en Stock:</div>
-                            <div class="col-md-3">
+                            <div class="col-md-1" align="rigth"><h4>Stock:</h4></div>
+                            <div class="col-md-4">
                                 <span id="stock"></span>
                             </div>
                         </div>
@@ -669,13 +680,15 @@
                     </div>
                     <div class="row">
                         <div class="form-group">
-                            <div class="col-md-2">Cantidad:</div>
-                            <div class="col-md-3">
-                                <input type="number" readonly id="cantidad" class="form-control"
-                                       onkeydown="return soloDecimal3(this, event);">
+                            <div class="col-md-2"><h4>Cantidad:</h4></div>
+                            <div class="col-md-2">
+                                <input readonly id="cantidad" class="form-control" Onkeypress = 'return justNumbers(event);'>
                             </div>
-                            <div class="col-md-2">Precio Sugerido: <input type="checkbox" id="check_precio"></div>
                             <div class="col-md-3">
+                                <h4>Precio Sugerido:</h4>
+                                <input type="checkbox" id="check_precio">
+                            </div>
+                            <div class="col-md-2">
                                 <input style="display:none;" type="number" id="precio_sugerido" class="form-control"
                                        value="0">
                             </div>
@@ -741,6 +754,14 @@
         var vendedores = [];
         var grupo_id = "";
         var grupo_name = "";
+
+        function justNumbers(e)
+        {
+           var keynum = window.event ? window.event.keyCode : e.which;
+           if ((keynum == 8) || (keynum == 46))
+                return true;
+            return /\d/.test(String.fromCharCode(keynum));
+        }
 
         <?php foreach ($clientes as $clie): ?>
         clientes.push({
@@ -1017,6 +1038,7 @@
         }
 
         function dataCliente() {
+
             $('#clienteinformativo').val('');
 
             $('#ruc_dc').val('');
@@ -1049,7 +1071,6 @@
                             $('#representante').val(data.contacto_nombre);
 
                             $('#retencion').val(data.linea_credito_valor);
-
 
                         }
                     }
@@ -1176,6 +1197,8 @@
 
         $(document).ready(function () {
 
+            $("#tipoDocumento").val($("#tipo_documento").val()) ;
+
             tipoDoc();
 
             $('#cont_retencion').click(function () {
@@ -1190,6 +1213,7 @@
 
             $('#tipo_documento').change(function () {
                 tipoDoc();
+                $("#tipoDocumento").val($("#tipo_documento").val()) ;
             });
 
             // Evento Zonas N

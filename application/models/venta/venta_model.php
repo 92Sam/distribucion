@@ -2036,7 +2036,7 @@ LEFT JOIN ingreso ON ingreso.id_ingreso = detalleingreso.id_ingreso WHERE id_pro
 
     function obtener_venta($id_venta)
     {
-        $querystring = "select v.venta_id,v.total as montoTotal,v.subtotal  as subTotal, v.confirmacion_usuario as confirmacion_usuario_pago_adelantado,
+        $querystring = "select v.venta_id,v.total as montoTotal,v.subtotal  as subTotal, v.confirmacion_usuario as confirmacion_usuario_pago_adelantado, v.tipo_doc_fiscal,
  v.total_impuesto as impuesto, v.pagado,cli_dat.valor as clienteDireccion, pd.producto_nombre as nombre,pd.costo_unitario,pd.presentacion,tr.bono,
  pd.producto_cualidad, pd.producto_id as producto_id, pd.venta_sin_stock, tr.precio_sugerido, tr.cantidad as cantidad ,tr.precio as preciounitario, tr.id_detalle,
 tr.detalle_importe as importe, v.fecha as fechaemision, cre.dec_credito_montodeuda,

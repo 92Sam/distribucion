@@ -17,7 +17,8 @@
     <thead>
     <tr>
         <th>ID</th>
-        <th>Escala de Descuentos</th>
+        <th>Grupo de Descuento</th>
+        <th>Nombre de la escala de Descuentos</th>
         <th>Acciones</th>
     </tr>
     </thead>
@@ -29,6 +30,7 @@
             <tr>
 
                 <td><?= $descuento['descuento_id']; ?></td>
+                <td><?= $descuento['nombre_grupos_cliente'] ?></td>
                 <td><?= $descuento['nombre'] ?></td>
 
                 <td class="center">

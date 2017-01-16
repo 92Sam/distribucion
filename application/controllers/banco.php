@@ -114,9 +114,7 @@ class banco extends MY_Controller
 
         if ($resultado > 0)
             echo json_encode(array('error' => 1));
-             //$json['error'] = 'El numero de operacion ya existe';
         else
             echo json_encode(array('success' => 1));
-            //$json['success'] = 'El numero de operacion NO existe';
     }
 }

@@ -57,7 +57,7 @@ class descuentos extends MY_Controller
             $data["grupo_id"] = $id;
 
             if($id == 0){
-                $data["descuentos"] = $this->descuentos_model->get_all();
+                $data["descuentos"] = $this->descuentos_model->get_by_groupclie('');
             }
             else{
                 $data["descuentos"] = $this->descuentos_model->get_by_groupclie($id);
