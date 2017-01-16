@@ -16,7 +16,7 @@ class descuentos_model extends CI_Model
         $this->db->from('descuentos');
         $this->db->join('grupos_cliente','descuentos.id_grupos_cliente = grupos_cliente.id_grupos_cliente','join');
         $this->db->where('descuentos.status', 1);
-        $this->db->order_by('descuentos.nombre', 'asc');
+        $this->db->order_by('grupos_cliente.nombre_grupos_cliente', 'asc');
         $query = $this->db->get();
         return $query->result_array();
     }
@@ -28,7 +28,7 @@ class descuentos_model extends CI_Model
         $this->db->join('grupos_cliente','descuentos.id_grupos_cliente = grupos_cliente.id_grupos_cliente','join');
         $this->db->where('descuentos.status', 1);
         $this->db->like('descuentos.id_grupos_cliente', $id);
-        $this->db->order_by('descuentos.nombre', 'asc');
+        $this->db->order_by('grupos_cliente.nombre_grupos_cliente', 'asc');
         $query = $this->db->get();
         return $query->result_array();
 
