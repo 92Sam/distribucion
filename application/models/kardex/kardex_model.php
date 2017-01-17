@@ -38,10 +38,10 @@ class kardex_model extends CI_Model
         //Calculo los saldos
         if($data['IO'] == 2){
             if($last_record != NULL){
-                $data['costo_unitario'] = $last_record->costo_unitario_final;
+                $data['costo_unitario'] = number_format($last_record->costo_unitario_final, 3);
             }else{
                 if(isset($data['total']))
-                    $data['costo_unitario'] = $data['total'] / $data['cantidad'];
+                    $data['costo_unitario'] = number_format($data['total'] / $data['cantidad'], 3);
                 else
                     $data['costo_unitario'] = 0;
             }
@@ -62,7 +62,9 @@ class kardex_model extends CI_Model
             $data['cantidad_final'] = $data['cantidad'];
             $data['total_final'] = $data['total'];
         }
-        $data['costo_unitario_final'] = $data['cantidad_final'] != 0 ? $data['total_final'] / $data['cantidad_final'] : 0;
+        $data['costo_unitario_final'] = $data['cantidad_final'] != 0 ? number_format($data['total_final'] / $data['cantidad_final'], 3) : 0;
+
+        $data['total'] = number_format($data['total'], 2);
 
         $this->db->insert('kardex', $data);
         return $this->db->insert_id();
