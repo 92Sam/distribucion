@@ -14,7 +14,7 @@ class kardex_model extends CI_Model
     //local_id, producto_id, unidad_id, serie, numero, tipo_doc, tipo_operacion,
     //cantidad, costo_unitario (solo cuando IO = 1), IO
     function insert_kardex($data = array()){
-        $last_record = $this->db->select('cantidad_final, total_final')
+        $last_record = $this->db->select('cantidad_final, total_final, costo_unitario_final')
             ->from('kardex')
             ->where('producto_id', $data['producto_id'])
             ->where('unidad_id', $data['unidad_id'])
