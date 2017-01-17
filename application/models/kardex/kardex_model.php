@@ -43,7 +43,7 @@ class kardex_model extends CI_Model
         if(!isset($data['total']))
             $data['total'] = $data['cantidad'] * $data['costo_unitario'];
 
-        if($data['tipo_operacion'] == 2 && $data['IO'] == 1)
+        if(($data['tipo_operacion'] == 2 || $data['tipo_operacion'] == 6 || $data['tipo_operacion'] == 9) && $data['IO'] == 1)
             $data['total'] = $data['total'] * 1.18;
 
         //Calculo los saldos finales
