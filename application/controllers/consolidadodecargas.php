@@ -909,8 +909,7 @@ class consolidadodecargas extends MY_Controller
 
     function pedidoDevolucion($id)
     {
-        $in = "('" . PEDIDO_DEVUELTO . "', '" . PEDIDO_RECHAZADO . "')";
-        $data['detalleProducto'] = $this->consolidado_model->get_detalle_devueltos($id, $in);
+        $data['detalleProducto'] = $this->consolidado_model->get_detalle_devueltos($id);
 
         $data['notasdeentrega'] = $this->consolidado_model->get_documentoVenta_by_id($id, false);
         $data['consolidado'] = $data['detalleProducto'][0];
@@ -1008,12 +1007,9 @@ class consolidadodecargas extends MY_Controller
             $cantidadvieja = $campoProducto['cantidadTotal'];
 
 
-            $cantidad = floatval($cantidadvieja) - floatval($cantidadnueva);
-            if ($campoProducto['venta_status'] == PEDIDO_RECHAZADO) {
-                $cantidad = $cantidadvieja;
-            }
+            $cantidad = floatval($cantidadvieja);
 
-            if ($cantidad > 0 || $campoProducto['venta_status'] == PEDIDO_RECHAZADO) {
+            if ($cantidad > 0) {
                 if ($count == 1) {
                     $table1->addRow(200, array('exactHeight' => true));
                     if (empty($campoProducto['produto_grupo'])) {

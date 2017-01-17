@@ -1261,6 +1261,12 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
         $this->db->trans_start(true);
         $this->db->trans_begin();
 
+        $this->historial_pedido_model->insertar_pedido(PROCESO_DEVOLVER, array(
+            'pedido_id' => $id,
+            'responsable_id' => $this->session->userdata('nUsuCodigo'),
+            'fecha_plan' => date('Y-m-d H:i:s')
+        ));
+
         $data = array();
 
 
@@ -1377,7 +1383,7 @@ WHERE detalle_venta.id_venta='$id' group by detalle_venta.id_detalle");
             $venta_status['venta_id'] = $id;
             $venta_status['vendedor_id'] = $this->session->userdata('nUsuCodigo');
             $venta_status['estatus'] = PEDIDO_RECHAZADO;
-            $this->db->insert('venta_estatus', PEDIDO_RECHAZADO);
+            $this->db->insert('venta_estatus', $venta_status);
 
             return true;
 
