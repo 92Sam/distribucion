@@ -71,8 +71,9 @@ class kardex_model extends CI_Model
 
     function get_kardex($producto_id, $local_id, $mes, $year){
 
-        $this->db->select('costo_unitario_final, cantidad_final, total_final, unidad_id')
+        $this->db->select('costo_unitario_final, cantidad_final, total_final, kardex.unidad_id,unidades.nombre_unidad')
             ->from('kardex')
+            ->join('unidades','kardex.unidad_id=unidades.id_unidad')
             ->where('producto_id', $producto_id)
             ->where('fecha <', $year . '-' . sumCod($mes, 2) . '-01')
             ->order_by('id', 'DESC');
@@ -91,6 +92,7 @@ class kardex_model extends CI_Model
             $where['fecha <='] = $year . '-' . sumCod($mes, 2) . '-' . last_day($year, sumCod($mes, 2));
         }
 
+        $this->db->join('unidades','kardex.unidad_id=unidades.id_unidad', 'join');
         $kardex = $this->db->get_where('kardex', $where)->result();
 
         return array('fiscal'=>$kardex, 'inicial'=>$kardex_inicial);
@@ -98,8 +100,9 @@ class kardex_model extends CI_Model
 
     function get_kardex_interno($producto_id, $local_id, $mes, $year){
 
-        $this->db->select('costo_unitario_final, cantidad_final, total_final, unidad_id')
+        $this->db->select('costo_unitario_final, cantidad_final, total_final, kardex.unidad_id,unidades.nombre_unidad')
             ->from('kardex')
+            ->join('unidades','kardex.unidad_id=unidades.id_unidad')
             ->where('producto_id', $producto_id)
             ->where('fecha <', $year . '-' . sumCod($mes, 2) . '-01')
             ->order_by('id', 'DESC');
@@ -114,7 +117,7 @@ class kardex_model extends CI_Model
             producto_id,
             serie,
             numero,
-            unidad_id,
+            unidades.nombre_unidad,
             tipo_doc,
             tipo_operacion,
             IO,
@@ -125,6 +128,7 @@ class kardex_model extends CI_Model
             ref_val'
             )
             ->from('kardex')
+            ->join('unidades','kardex.unidad_id=unidades.id_unidad')
             ->group_by('ref_id, tipo_doc, tipo_operacion')
             ->order_by('id');
 

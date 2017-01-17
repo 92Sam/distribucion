@@ -27,7 +27,10 @@
             <div
                 id="caja<?= $caja->id ?>" <?= $caja->moneda_id == 1 ? 'class="tab-pane fade in active"' : 'class="tab-pane"' ?>>
                 <h4>Caja de <?= $caja->moneda_id == 1 ? 'SOLES' : 'DOLARES' ?></h4>
-                <h4 class="col-md-8"><label>Responsable de la caja: </label> <?= $caja->nombre ?></h4>
+                <h4 class="col-md-4"><label>Responsable de la caja: </label> <?= $caja->nombre ?></h4>
+                <h4 class="col-md-4"><label>Importe Total Caja + Bancos: </label>
+                        <?= MONEDA ?><span id="totalSaldo"></span>
+                </h4>
                 <div class="col-md-2">
                     <a data-caja_id="<?= $caja->id ?>" class="btn_new_caja_cuenta btn btn-default">
                         <i class="fa fa-plus"> Nueva Cuenta</i>
@@ -55,11 +58,13 @@
                         </thead>
                         <tbody>
 
+                        <?php $totalSaldo = 0; ?>
                         <?php foreach ($caja->desgloses as $desglose): ?>
+                            <?php $totalSaldo += $desglose->saldo; ?>
                             <tr>
                                 <td><?= $desglose->descripcion ?></td>
                                 <td><?= $desglose->nombre ?></td>
-                                <td><?= $desglose->saldo ?></td>
+                                <td><?= MONEDA . number_format($desglose->saldo,2) ?></td>
                                 <td><?= $desglose->principal == '1' ? 'SI' : 'NO' ?></td>
                                 <td><?= $desglose->estado == '1' ? 'Activa' : 'Inactiva' ?></td>
                                 <td>
@@ -95,6 +100,7 @@
                 </div>
             </div>
         <?php endforeach; ?>
+        <input type="hidden" id="input_saldo" value="<?= number_format($totalSaldo, 2) ?>">
     </div>
 
 
@@ -117,6 +123,8 @@
 <script>
 
     $(document).ready(function () {
+
+        $("#totalSaldo").html($("#input_saldo").val());
 
         $("#btn_new_caja").on('click', function () {
             $.ajax({

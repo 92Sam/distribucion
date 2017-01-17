@@ -56,7 +56,7 @@
                                 <td></td>
                                 <td></td>
                                 <td></td>
-                                <td><?=$kardex['inicial'] != NULL ? $kardex['inicial']->unidad_id : $kardex['fiscal'][0]->unidad_id?></td>
+                                <td><?=$kardex['inicial'] != NULL ? $kardex['inicial']->nombre_unidad : $kardex['fiscal'][0]->nombre_unidad?></td>
                                 <td>SALDO INICIAL</td>
 
                                     <td></td>
@@ -78,7 +78,7 @@
                                     <td><?=$detalle->serie?></td>
                                     <td><?=$detalle->numero?></td>
                                     <td><?=$detalle->referencia?></td>
-                                    <td><?=$detalle->unidad_id?></td>
+                                    <td><?=$detalle->nombre_unidad?></td>
                                     <?php $tipo_operacion = get_tipo_operacion($detalle->tipo_operacion)?>
                                     <td><?= $tipo_operacion['value']?></td>
                                     <?php if($detalle->IO == 1):?>
