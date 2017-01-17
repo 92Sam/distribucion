@@ -37,13 +37,14 @@ class kardex_model extends CI_Model
 
         //Calculo los saldos
         if($data['IO'] == 2){
-            if($last_record != NULL)
+            if($last_record != NULL){
                 $data['costo_unitario'] = $last_record->costo_unitario_final;
-            else
-                if(isset($data['total'])
+            }else{
+                if(isset($data['total']))
                     $data['costo_unitario'] = $data['total'] / $data['cantidad'];
                 else
                     $data['costo_unitario'] = 0;
+            }
         }
 
         if(!isset($data['total']))
