@@ -64,12 +64,16 @@ class kardex_model extends CI_Model
 
     function get_kardex($producto_id, $local_id, $mes, $year){
 
-        $kardex_inicial = $this->db->select('costo_unitario_final, cantidad_final, total_final, unidad_id')
+        $this->db->select('costo_unitario_final, cantidad_final, total_final, unidad_id')
             ->from('kardex')
+            ->where('producto_id', $producto_id)
             ->where('fecha <', $year . '-' . sumCod($mes, 2) . '-01')
-            ->order_by('id', 'DESC')
-            ->get()->row();
+            ->order_by('id', 'DESC');
 
+        if($local_id != false)
+            $this->db->where('local_id', $local_id);
+
+        $kardex_inicial = $this->db->get()->row();
 
         $where['producto_id'] = $producto_id;
         if($local_id != false)
@@ -87,11 +91,16 @@ class kardex_model extends CI_Model
 
     function get_kardex_interno($producto_id, $local_id, $mes, $year){
 
-        $kardex_inicial = $this->db->select('costo_unitario_final, cantidad_final, total_final, unidad_id')
+        $this->db->select('costo_unitario_final, cantidad_final, total_final, unidad_id')
             ->from('kardex')
+            ->where('producto_id', $producto_id)
             ->where('fecha <', $year . '-' . sumCod($mes, 2) . '-01')
-            ->order_by('id', 'DESC')
-            ->get()->row();
+            ->order_by('id', 'DESC');
+
+        if($local_id != false)
+            $this->db->where('local_id', $local_id);
+
+        $kardex_inicial = $this->db->get()->row();
 
         $this->db->select(
             'local_id , fecha,
