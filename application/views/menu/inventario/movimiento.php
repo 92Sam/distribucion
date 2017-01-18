@@ -1,6 +1,5 @@
 <?php $ruta = base_url(); ?>
 
-
 <ul class="breadcrumb breadcrumb-top">
     <li>Inventario</li>
     <li><a href="">Movimiento de Inventario</a></li>
@@ -34,27 +33,23 @@
     <br>
     <div class="row">
         <div class="form-group">
-            <div class="col-md-1">
+            <div class="col-md-1" style="display: none">
                 <label>Ubicaci&oacute;n Inventario</label>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-3" style="display: none">
                 <select class="form-control" id="locales" onchange="getproductosbylocal()">
                     <option value="TODOS">Todos</option>
                     <?php foreach($locales as $local){?>
                         <option value="<?= $local['int_local_id']?>"><?= $local['local_nombre']?></option>
-
                     <?php }?>
-
                 </select>
             </div>
 
-            <div class="col-md-1">
-            </div>
 
             <div class="col-md-1">
-                <label>Mes</label>
+                <label class="control-label panel-admin-text">Mes</label>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-2">
                 <select class="form-control" id="mes">
                     <?php for($i = 1; $i < 13; $i++):?>
                         <option value="<?=$i?>" <?= date('d')==$i ? 'selected="selected"' : ''?>><?= getMes($i) ?></option>
@@ -63,10 +58,14 @@
             </div>
 
             <div class="col-md-1">
-                <label>A&ntilde;o</label>
+                <label class="control-label panel-admin-text">A&ntilde;o</label>
             </div>
-            <div class="col-md-2">
+            <div class="col-md-1">
                 <input type="number" id="year" name="year" value="<?=date('Y')?>" class="form-control">
+            </div>
+
+            <div class="col-md-7">
+                <h4><strong>Recuerde que el kardex se muestra en función al año y mes seleccionado</strong> </h4>
             </div>
         </div>
     </div>
@@ -86,10 +85,6 @@
             </tr>
             </thead>
             <tbody>
-
-
-
-
             </tbody>
         </table>
     </div>
