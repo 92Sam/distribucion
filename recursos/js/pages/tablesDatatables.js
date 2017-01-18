@@ -44,7 +44,7 @@ var TablesDatatables = function () {
                 ],
                 "iDisplayLength": 20,
                 fixedColumns: true,
-                "aLengthMenu": [[10, 20, 30, -1], [10, 20, 30, "All"]],
+                "aLengthMenu": [[10, 20, 30, -1], [10, 20, 30, "Todos"]],
                 "order": [[oder_col, "desc"]],
                 "scrollY": "300px",
 
@@ -57,7 +57,7 @@ var TablesDatatables = function () {
                     "infoFiltered": "(filtrado de _MAX_ total resultados)",
                     "infoPostFix": "",
                     "thousands": ",",
-                    "lengthMenu": "Mostrar _MENU_ resultados",
+                    "lengthMenu": "_MENU_",
                     "loadingRecords": "Cargando...",
                     "processing": "Procesando...",
                     // "search": "Buscar:",
@@ -88,6 +88,11 @@ var TablesDatatables = function () {
 
             /* Add placeholder attribute to the search input */
             $('.dataTables_filter input').attr('placeholder', 'Buscar');
+            $('.dataTables_filter input').css('font-size', '11px');
+            $('.dataTables_filter input').css('height', '28px');
+
+            $('#table_length select').css('height', '28px');
+            $('#table_length select').css('font-size', '11px');
         }
     };
 }();

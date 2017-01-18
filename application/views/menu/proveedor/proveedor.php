@@ -1,18 +1,5 @@
 <?php $ruta = base_url(); ?>
 
-<style>
-    #tablaresult th {
-        font-size: 11px !important;
-        padding: 6px 2px;
-        text-align: center;
-        vertical-align: middle;
-    }
-
-    #tablaresult td {
-        font-size: 10px !important;
-    }
-</style>
-
 <ul class="breadcrumb breadcrumb-top">
     <li>Proveedor</li>
     <li><a href="">Agregar y editar Proveedor</a></li>
@@ -41,9 +28,10 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
     <br><br>
 
     <div class="table-responsive">
-        <table class="table table-striped table-bordered " id="tablaresult">
-            <tr>
+        <table class="table table-striped table-bordered dataTable" id="table">
+
                  <thead>
+                     <tr>
                     <th>Codigo</th>
                     <th>RUC</th>
                     <th>Razón Social</th>
@@ -55,8 +43,9 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                     <th>P&aacute;gina Web</th>
                     <th>Observaci&oacute;n</th>
                     <th>Acciones</th>
+                    </tr>
                 </thead>
-            </tr>
+            <tbody>
 
             <?php if (count($proveedores) > 0):?>
 
@@ -94,6 +83,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
             <?php else:?>
                 <h3>No hay información que mostrar</h3>
             <?php endif;?>
+        </tbody>
         </table>
     </div>
 </div>
@@ -206,4 +196,8 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
 <!-- /.modal-dialog -->
 </div>
 <script src="<?= $ruta?>recursos/js/pages/tablesDatatables.js"></script>
-<script>$(function(){ TablesDatatables.init(); });</script>
+<script>
+$(function(){
+     TablesDatatables.init(0);
+ });
+ </script>

@@ -777,6 +777,17 @@ $primary_nav = array(
         var baseurl = '<?php echo base_url();?>';
     </script>
     <style>
+    table th {
+        font-size: 11px !important;
+        padding: 6px 2px;
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    table td {
+        font-size: 10px !important;
+    }
+    
         .loading-icon {
             background: url("<?php echo $ruta ?>recursos/img/loading.gif") no-repeat;
             width: 192px;
@@ -1698,5 +1709,3 @@ $primary_nav = array(
         }
     }
 </script>
-
-
