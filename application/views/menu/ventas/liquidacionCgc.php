@@ -243,6 +243,19 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                             </div>
                         </div>
                         <br>
+                        <div class="row pago_block" id="fechaoperacion_block" style="display: none;">
+                            <div class="form-group">
+                                <div class="col-md-4">
+                                    <label id="fec_oper_label">Fecha Operación</label>
+                                </div>
+                                <div class="col-md-8">
+                                    <input type="text" id="fec_oper" name="fec_oper"
+                                           class="form-control input-datepicker"
+                                           value="<?= date('d-m-Y') ?>" readonly style="cursor: pointer;">
+                                </div>
+                            </div>
+                        </div>
+                        <br>
                         <div class="row pago_block">
                             <div class="form-group">
                                 <div class="col-md-4">
@@ -372,6 +385,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                 $("#monto").val('0');
                 $("#retencion_block").hide();
                 $("#banco_block").hide();
+                $("#fechaoperacion_block").hide();
 
                 if ($(this).val() == '4') {
                     $("#banco_block").show();
