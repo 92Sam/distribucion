@@ -14,7 +14,7 @@ class kardex_model extends CI_Model
     //local_id, producto_id, unidad_id, serie, numero, tipo_doc, tipo_operacion,
     //cantidad, costo_unitario (solo cuando IO = 1), IO
     function insert_kardex($data = array()){
-        $last_record = $this->db->select('cantidad_final, total_final')
+        $last_record = $this->db->select('cantidad_final, total_final, costo_unitario_final')
             ->from('kardex')
             ->where('producto_id', $data['producto_id'])
             ->where('unidad_id', $data['unidad_id'])
@@ -36,12 +36,22 @@ class kardex_model extends CI_Model
         }
 
         //Calculo los saldos
-        $data['costo_unitario_final'] = $this->producto_model->get_costo_promedio($data['producto_id']);
-        if($data['IO'] == 2)
-            $data['costo_unitario'] = $data['costo_unitario_final'];
+        if($data['IO'] == 2){
+            if($last_record != NULL){
+                $data['costo_unitario'] = $last_record->costo_unitario_final;
+            }else{
+                if(isset($data['total']))
+                    $data['costo_unitario'] = $data['total'] / $data['cantidad'];
+                else
+                    $data['costo_unitario'] = 0;
+            }
+        }
 
         if(!isset($data['total']))
             $data['total'] = $data['cantidad'] * $data['costo_unitario'];
+
+        if(($data['tipo_operacion'] == 2 || $data['tipo_operacion'] == 6 || $data['tipo_operacion'] == 9) && $data['IO'] == 1)
+            $data['total'] = $data['total'] * 1.18;
 
         //Calculo los saldos finales
         if($last_record != NULL){
@@ -61,12 +71,17 @@ class kardex_model extends CI_Model
 
     function get_kardex($producto_id, $local_id, $mes, $year){
 
-        $kardex_inicial = $this->db->select('costo_unitario_final, cantidad_final, total_final, unidad_id')
+        $this->db->select('costo_unitario_final, cantidad_final, total_final, kardex.unidad_id,unidades.nombre_unidad')
             ->from('kardex')
+            ->join('unidades','kardex.unidad_id=unidades.id_unidad')
+            ->where('producto_id', $producto_id)
             ->where('fecha <', $year . '-' . sumCod($mes, 2) . '-01')
-            ->order_by('id', 'DESC')
-            ->get()->row();
+            ->order_by('id', 'DESC');
 
+        if($local_id != false)
+            $this->db->where('local_id', $local_id);
+
+        $kardex_inicial = $this->db->get()->row();
 
         $where['producto_id'] = $producto_id;
         if($local_id != false)
@@ -77,6 +92,7 @@ class kardex_model extends CI_Model
             $where['fecha <='] = $year . '-' . sumCod($mes, 2) . '-' . last_day($year, sumCod($mes, 2));
         }
 
+        $this->db->join('unidades','kardex.unidad_id=unidades.id_unidad', 'join');
         $kardex = $this->db->get_where('kardex', $where)->result();
 
         return array('fiscal'=>$kardex, 'inicial'=>$kardex_inicial);
@@ -84,18 +100,24 @@ class kardex_model extends CI_Model
 
     function get_kardex_interno($producto_id, $local_id, $mes, $year){
 
-        $kardex_inicial = $this->db->select('costo_unitario_final, cantidad_final, total_final, unidad_id')
+        $this->db->select('costo_unitario_final, cantidad_final, total_final, kardex.unidad_id,unidades.nombre_unidad')
             ->from('kardex')
+            ->join('unidades','kardex.unidad_id=unidades.id_unidad')
+            ->where('producto_id', $producto_id)
             ->where('fecha <', $year . '-' . sumCod($mes, 2) . '-01')
-            ->order_by('id', 'DESC')
-            ->get()->row();
+            ->order_by('id', 'DESC');
+
+        if($local_id != false)
+            $this->db->where('local_id', $local_id);
+
+        $kardex_inicial = $this->db->get()->row();
 
         $this->db->select(
             'local_id , fecha,
             producto_id,
             serie,
             numero,
-            unidad_id,
+            unidades.nombre_unidad,
             tipo_doc,
             tipo_operacion,
             IO,
@@ -106,6 +128,7 @@ class kardex_model extends CI_Model
             ref_val'
             )
             ->from('kardex')
+            ->join('unidades','kardex.unidad_id=unidades.id_unidad')
             ->group_by('ref_id, tipo_doc, tipo_operacion')
             ->order_by('id');
 

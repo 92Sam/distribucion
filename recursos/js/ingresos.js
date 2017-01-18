@@ -323,7 +323,7 @@ function addToArray(precio_unitario, producto_id, nombre, cantidad, Importe, uni
     producto.Productor = encodeURIComponent(nombre);
     producto.Cantidad = cantidad;
     producto.ValorUnitario = precio_unitario;
-    producto.PrecUnt = precio_unitario;
+    producto.PrecUnt = parseFloat(precio_unitario * 1.18).toFixed(2);
     producto.Importe = Importe;
     producto.unidad = unidad;
     producto.unidad_nombre = unidad_nombre;
@@ -480,7 +480,8 @@ function llenar_tabla() {
             tbodyhtml += '<td style="text-align: center;">' + value["Importe"] + '</td>';
         }
         if ($("#editar_ingreso").val() == '1') {
-            tbodyhtml += '<td id="precio_unitario_' + value["count"] + '" style="text-align: center;">' + value["ValorUnitario"] + '</td>';
+            tbodyhtml += '<td id="valor_unitario_' + value["count"] + '" style="text-align: center;">' + value["ValorUnitario"] + '</td>';
+            tbodyhtml += '<td id="precio_unitario_' + value["count"] + '" style="text-align: center;">' + value["PrecUnt"] + '</td>';
 
             tbodyhtml += '<td style="text-align: center; width: 150px;">';
             tbodyhtml += '<input type="number" value="' + value["Importe"] + '" ';
@@ -511,19 +512,25 @@ function llenar_tabla() {
 
     if ($("#editar_ingreso").val() == '1') {
         $('.importe_input, .cantidad_input').bind('keyup change click mouseleave', function (e) {
+
             var tecla_enter = 13;
             var letra_left = 37, letra_right = 39;
             var index = $(this).attr('data-index');
             var max_index = lst_producto.length - 1;
             var cantidad = isNaN(parseFloat($("#cantidad_" + index).val())) ? 0 : parseFloat($("#cantidad_" + index).val());
-            var importe = isNaN(parseFloat($("#importe_" + index).val())).toFixed(2) ? 0 : parseFloat($("#importe_" + index).val()).toFixed(2);
+            var importe = isNaN(parseFloat($("#importe_" + index).val())) ? 0 : parseFloat($("#importe_" + index).val());;
             var montos = 0;
 
             var precio_unitario = parseFloat(0).toFixed(2);
-            if (cantidad > 0)
-                precio_unitario = parseFloat(importe / cantidad).toFixed(2);
+            var valor_unitario = parseFloat(0).toFixed(2);
+            if (cantidad > 0){
+                precio_unitario = parseFloat((importe / cantidad) * 1.18).toFixed(2);
+                valor_unitario = parseFloat(importe / cantidad).toFixed(2);
+            }
+
 
             $("#precio_unitario_" + index).html(precio_unitario);
+            $("#valor_unitario_" + index).html(valor_unitario);
 
             for (var i = 0; i < lst_producto.length; i++) {
                 if (lst_producto[i].count == index) {
