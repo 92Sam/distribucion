@@ -619,7 +619,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                         show_msg('warning','El numero de operacion ya se encuentra registrado');
                 },
                 error:function(){
-                    show_msg('warning','Ha ocurrido un error vuelva a intentar');
+                    show_msg('danger','Ha ocurrido un error vuelva a intentar');
                 }
             })
 
@@ -668,5 +668,3 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
         }
 
     </script>
-
-

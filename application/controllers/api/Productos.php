@@ -98,7 +98,7 @@ class productos extends REST_Controller
                     $producto['existencia'] = 0;
                     if (isset($unidades[0])) {
                         $maxima_unidades = $unidades[0]['unidades'];
-                        $cantidad_total = ($producto['cantidad'] * $maxima_unidades) + $producto['fraccion'];
+                        $cantidad_total = ($producto['cantidad'] * $maxima_unidades); //+ $producto['fraccion'];
                         $producto['existencia'] = $cantidad_total;
                     }
                     $datas['productos'][] = $producto;
@@ -114,7 +114,6 @@ class productos extends REST_Controller
                 $producto['producto_id_cero'] = sumCod($producto['producto_id']);
                 $datas['productos'][] = $producto;
             }
-
         }
 
         if ($datas) {

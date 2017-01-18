@@ -777,11 +777,35 @@ $primary_nav = array(
         var baseurl = '<?php echo base_url();?>';
     </script>
     <style>
+    table th {
+        font-size: 11px !important;
+        padding: 6px 2px;
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    table td {
+        font-size: 10px !important;
+    }
+
         .loading-icon {
             background: url("<?php echo $ruta ?>recursos/img/loading.gif") no-repeat;
             width: 192px;
             height: 24px;
             margin: 0 auto;
+        }
+
+        .btn, .btn-sm, .btn-xs {
+            padding: 1px 5px !important;
+            font-size: 12px !important;
+            line-height: 1.5 !important;
+            border-radius: 3px !important;
+        }
+
+        .form-control{
+            font-size: 12px !important;
+            padding: 2px 3px !important;
+            margin: 1px 0 !important;
         }
     </style>
 
@@ -1698,5 +1722,3 @@ $primary_nav = array(
         }
     }
 </script>
-
-
