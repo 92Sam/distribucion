@@ -787,12 +787,19 @@ $primary_nav = array(
     table td {
         font-size: 10px !important;
     }
-    
+
         .loading-icon {
             background: url("<?php echo $ruta ?>recursos/img/loading.gif") no-repeat;
             width: 192px;
             height: 24px;
             margin: 0 auto;
+        }
+
+        .btn, .btn-sm, .btn-xs {
+            padding: 1px 5px !important;
+            font-size: 12px !important;
+            line-height: 1.5 !important;
+            border-radius: 3px !important;
         }
     </style>
 
