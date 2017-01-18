@@ -801,6 +801,12 @@ $primary_nav = array(
             line-height: 1.5 !important;
             border-radius: 3px !important;
         }
+
+        .form-control{
+            font-size: 12px !important;
+            padding: 2px 3px !important;
+            margin: 1px 0 !important;
+        }
     </style>
 
 </head>
