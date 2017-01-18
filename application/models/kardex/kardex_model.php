@@ -22,7 +22,7 @@ class kardex_model extends CI_Model
             ->limit(1)
             ->get()->row();
 
-        $data['fecha'] = date('Y-m-d H:i:s');
+        $data['fecha'] = !isset($data['fecha']) ? date('Y-m-d H:i:s') : $data['fecha'];
 
         //Si es una venta de factura o boleta inserto en ref_id el id del pedido
         if(!isset($data['ref_id']) && ($data['tipo_doc'] == 1 || $data['tipo_doc'] == 3) && $data['IO'] == 2){

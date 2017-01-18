@@ -810,6 +810,9 @@ WHERE detalleingreso.id_ingreso='$compra_id'");
         $data = array();
         $id = $this->input->post('id');
         $local = $this->input->post('local');
+        $anular_serie = $this->input->post('serie');
+        $anular_numero = $this->input->post('numero');
+        $anular_fecha = date('Y-m-d H:i:s', strtotime($this->input->post('fecha') . ' '.date('H:i:s')));
 
 
         $sql_detalle_ingreso = $this->db->query("SELECT * FROM detalleingreso
@@ -824,11 +827,12 @@ WHERE detalleingreso.id_ingreso='$id'");
         for ($i = 0; $i < count($query_detalle_ingreso); $i++) {
 
             $this->kardex_model->insert_kardex(array(
+                'fecha'=>$anular_fecha,
                 'local_id'=>$query_detalle_ingreso[$i]['local_id'],
                 'producto_id'=>$query_detalle_ingreso[$i]['producto_id'],
                 'unidad_id'=>$query_detalle_ingreso[$i]['unidad_medida'],
-                'serie'=>$query_detalle_ingreso[$i]['documento_serie'],
-                'numero'=>$query_detalle_ingreso[$i]['documento_numero'],
+                'serie'=>$anular_serie,
+                'numero'=>$anular_numero,
                 'tipo_doc'=>7,
                 'tipo_operacion'=>6,
                 'cantidad'=>($query_detalle_ingreso[$i]['cantidad'] * -1),

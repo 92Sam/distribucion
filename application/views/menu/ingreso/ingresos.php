@@ -168,7 +168,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
 
                                     </div>
                                 </div>
-                                <div class="control-group">
+                                <div class="control-group" style="display: <?=($costos === 'true') ? 'block' : 'none'?>">
                                     <div class="col-md-2">
                                         <label for="" class="control-label">Impuesto</label>
                                     </div>
@@ -218,7 +218,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
 
                                 </div>
 
-                                <div class="control-group">
+                                <div class="control-group" style="display: <?=($costos === 'true') ? 'block' : 'none'?>">
                                     <div class="col-md-2">
                                         <label class="control-label">Pago:</label>
                                     </div>
