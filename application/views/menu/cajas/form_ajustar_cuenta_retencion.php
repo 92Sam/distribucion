@@ -54,101 +54,62 @@
                         </div>
                     </div>
                 </div>
-
+<br>
                 <div class="row">
                     <div class="form-group">
                         <div class="col-md-4">
-                            <label>Motivo del Ajuste</label>
+                            <label>Buscar retenciones</label>
                         </div>
-                        <div class="col-md-8">
-                            <input type="text" id="motivo_ajuste" name="motivo_ajuste"
-                                   class="form-control"
-                                   value="">
-                        </div>
-                    </div>
-                </div>
-
-                <div class=" row">
-                    <div class="form-group">
                         <div class="col-md-4">
-                            <label>Tipo de Ajuste</label>
+                            <select class="form-control" id="mes">
+                                <?php for($i = 1; $i < 13; $i++):?>
+                                    <option value="<?=$i?>" <?= date('n')==$i ? 'selected="selected"' : ''?>>
+                                        <?= getMes($i) ?>
+                                    </option>
+                                <?php endfor;?>
+                            </select>
                         </div>
-                        <div class="col-md-8">
-                            <select name="tipo_ajuste" id="tipo_ajuste" class="form-control">
-                                <option value="">Seleccione</option>
-                                <option value="TRASPASO">TRASPASO</option>
-                                <option value="INGRESO">INGRESO</option>
-                                <option value="EGRESO">EGRESO</option>
+                        <div class="col-md-4">
+                            <select class="form-control" id="year">
+                                <?php foreach ($year as $y):?>
+                                <option value="<?= $y->year?>" <?=$y->year == date('Y') ? 'selected="selected"' : ''?>>
+                                    <?=$y->year?></option>
+                                <?php endforeach;?>
                             </select>
                         </div>
                     </div>
                 </div>
 
-                <div class="row traspaso_caja" style="display: none;">
-                    <div class="form-group">
-                        <div class="col-md-4">
-                            <label>Caja a Transferir</label>
-                        </div>
-                        <div class="col-md-8">
-                            <select id="caja_select" name="caja_select" class="form-control">
-                                <?php foreach ($cajas as $caja): ?>
-                                    <option <?= $caja->id == $caja_actual->id ? 'selected' : '' ?>
-                                        value="<?= $caja->id ?>"
-                                        data-moneda_id="<?= $caja->moneda_id ?>"
-                                    ><?= $caja->moneda_id == 1 ? 'CAJA SOLES' : 'CAJA DOLARES' ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <label>Selecciones las retenciones</label>
+                    </div>
+                    <div class="col-md-8">
+                        <label class="control-label" style="cursor: pointer;">
+                            <input id="ret_all" type="checkbox"> Selecionar Todas:
+                        </label><br>
+                    <div id="ret_content"
+                         style="width: 100%; height: 100px; border: 1px solid #dae8e7; overflow-y: scroll;">
+                        <?php foreach ($retenciones as $retencion): ?>
+                            <?php if(date('Y-m', strtotime($retencion->fecha_mov)) == date('Y-m')):?>
+                            <label style="cursor: pointer;">
+                                <input class="ret_check" type="checkbox"
+                                       value="<?= $retencion->id ?>"
+                                       data-saldo="<?=$retencion->saldo?>">
+                                       <?= MONEDA.' '.number_format($retencion->saldo, 2)?> |
+                                        #: <?= $retencion->ref_val ?>
+                            </label><br>
+                        <?php endif;?>
+                        <?php endforeach; ?>
+                    </div>
                     </div>
                 </div>
 
-                <div id="moneda_tasa" class="row" style="display: none;">
-                    <div class="form-group">
-                        <div class="col-md-4">
-                            <label>Tipo de Cambio</label>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="input-group">
-                                <div class="input-group-addon"><?= MONEDA ?></div>
-                                <input type="number" id="tasa" name="tasa"
-                                       class="form-control"
-                                       value="">
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="input-group">
-                                <div class="input-group-addon tipo_moneda"></div>
-                                <input type="number" id="subimporte" name="subimporte" readonly
-                                       class="form-control"
-                                       value="0.00">
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
-                <div class="row traspaso_caja" style="display: none;">
+                <div id="ajuste_importe" class="row">
                     <div class="form-group">
                         <div class="col-md-4">
-                            <label>Cuenta Destino</label>
-                        </div>
-                        <div class="col-md-8">
-                            <select id="cuentas_select" name="cuentas_select" class="form-control">
-                                <option value="">Seleccione</option>
-                                <?php foreach ($caja_cuentas as $caja_cuenta): ?>
-                                    <?php if ($caja_cuenta->caja_id == $caja_actual->id && $caja_cuenta->id != $cuenta->id): ?>
-                                        <option
-                                            value="<?= $caja_cuenta->id ?>"><?= $caja_cuenta->descripcion ?></option>
-                                    <?php endif; ?>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="ajuste_importe" class="row" style="display: none;">
-                    <div class="form-group">
-                        <div class="col-md-4">
-                            <label>Importe a Ajustar</label>
+                            <label>Importe a Pagar</label>
                         </div>
                         <div class="col-md-8">
                             <div class="input-group">
@@ -156,7 +117,7 @@
                                     class="input-group-addon"><?= $caja_actual->moneda_id == 1 ? MONEDA : DOLAR ?></div>
                                 <input type="number" id="importe" name="importe"
                                        class="form-control"
-                                       value="">
+                                       value="0.00" readonly>
                             </div>
                         </div>
                     </div>
@@ -193,6 +154,7 @@
 
     var cajas = [];
     var cuentas = [];
+    var retenciones = [];
 
     <?php foreach ($cajas as $caja): ?>
     cajas.push({
@@ -209,65 +171,23 @@
     });
     <?php endforeach; ?>
 
+    <?php foreach ($retenciones as $retencion): ?>
+    retenciones.push({
+        'id': '<?=$retencion->id?>',
+        'operacion': '<?=$retencion->ref_val?>',
+        'fecha': '<?=date('Y-n', strtotime($retencion->fecha_mov))?>',
+        'saldo': <?= $retencion->saldo ?>
+    });
+    <?php endforeach; ?>
+
     $(document).ready(function () {
 
         $('.input-datepicker').datepicker({weekStart: 1, format: 'dd-mm-yyyy'});
 
-        $("#tasa, #importe").on('keyup', function () {
-            var moneda = $("#caja_id").attr('data-moneda_id');
-            var tasa = isNaN(parseFloat($("#tasa").val())) ? 1 : parseFloat($("#tasa").val());
-            var importe = isNaN(parseFloat($("#importe").val())) ? 0 : parseFloat($("#importe").val());
+        add_checkbox_events();
 
-            if (moneda == '1')
-                $("#subimporte").val(formatPrice(parseFloat(importe / tasa)));
-            else
-                $("#subimporte").val(formatPrice(parseFloat(importe * tasa)));
-
-        });
-
-        $("#tipo_ajuste").on('change', function () {
-            $("#importe").val('');
-            $("#tasa").val('');
-            $("#subimporte").val('0.00');
-
-            if ($(this).val() == 'TRASPASO') {
-                $(".traspaso_caja").show();
-                $("#ajuste_importe").show();
-            }
-            else if ($(this).val() == 'INGRESO' || $(this).val() == 'EGRESO') {
-                $(".traspaso_caja").hide();
-                $("#ajuste_importe").show();
-                $("#importe").trigger('focus');
-            }
-            else {
-                $(".traspaso_caja").hide();
-                $("#ajuste_importe").hide();
-                $("#importe").trigger('focus');
-            }
-        });
-
-        $("#caja_select").on('change', function () {
-            var cuenta_id = $("#cuentas_select");
-
-            cuenta_id.html('<option value="">Seleccione</option>');
-
-            for (var i = 0; i < cuentas.length; i++) {
-                if (cuentas[i].caja_id == $(this).val() && cuentas[i].id != $("#cuenta_id").val()) {
-                    cuenta_id.append('<option value="' + cuentas[i].id + '">' + cuentas[i].descripcion + '</option>');
-                }
-            }
-
-            if ($("#caja_id").val() != $(this).val()) {
-                if ($('#caja_id').attr('data-moneda_id') == 1)
-                    $(".tipo_moneda").html('$');
-                else
-                    $(".tipo_moneda").html('S/.');
-                $("#moneda_tasa").show();
-            }
-            else {
-                $("#moneda_tasa").hide();
-            }
-
+        $("#mes, #year").on('change', function(){
+            load_retenciones();
         });
 
         $("#btn_save_form_confirm").on('click', function (e) {
@@ -276,33 +196,13 @@
             var saldo_actual = isNaN(parseFloat($("#saldo_actual").val())) ? 0 : parseFloat($("#saldo_actual").val());
             var importe = isNaN(parseFloat($("#importe").val())) ? 0 : parseFloat($("#importe").val());
 
-            if ($("#motivo_ajuste").val() == '') {
-                show_msg('warning', '<h4>Error. </h4><p>El motivo del ajuste es obligatorio.</p>');
-                return false;
-            }
-            if ($("#tipo_ajuste").val() == '') {
-                show_msg('warning', '<h4>Error. </h4><p>Debe seleccionar el tipo de ajuste.</p>');
-                return false;
-            }
-
             if (importe <= 0) {
                 show_msg('warning', '<h4>Error. </h4><p>El importe a ajustar debe ser mayor que cero.</p>');
                 return false;
             }
 
-            if (importe > saldo_actual && ($("#tipo_ajuste").val() == 'EGRESO' || $("#tipo_ajuste").val() == 'TRASPASO')) {
+            if (importe > saldo_actual) {
                 show_msg('warning', '<h4>Error. </h4><p>El importe a ajustar debe ser menor o igual que el saldo actual.</p>');
-                return false;
-            }
-
-            if ($("#cuentas_select").val() == "" && $("#tipo_ajuste").val() == 'TRASPASO') {
-                show_msg('warning', '<h4>Error. </h4><p>Debe seleccionar la cuenta destino.</p>');
-                return false;
-            }
-
-            var tasa = isNaN(parseFloat($("#tasa").val())) ? 1 : parseFloat($("#tasa").val());
-            if (tasa <= 0 && $("#tipo_ajuste").val() == 'TRASPASO') {
-                show_msg('warning', '<h4>Error. </h4><p>El tipo de cambio debe ser mayor que cero.</p>');
                 return false;
             }
 
@@ -313,18 +213,22 @@
 
             $("#confirm_ajuste").modal('hide');
 
+            var rets = [];
+            $('.ret_check').each(function () {
+                if ($(this).prop('checked')) {
+                    rets.push($(this).val());
+                }
+            });
+            rets = JSON.stringify(rets);
+
             var tasa = isNaN(parseFloat($("#tasa").val())) ? 1 : parseFloat($("#tasa").val());
             var data = {
                 fecha: $("#fecha_ajuste").val(),
-                motivo: $("#motivo_ajuste").val(),
-                tipo_ajuste: $("#tipo_ajuste").val(),
-                cuenta_id: $("#cuentas_select").val(),
-                tasa: tasa,
                 importe: $("#importe").val(),
-                subimporte: $("#subimporte").val()
+                retenciones: rets
             };
 
-            var url = '<?php echo base_url('cajas/caja_ajustar_guardar')?>' + '/' + $("#cuenta_id").val();
+            var url = '<?php echo base_url('cajas/caja_ajustar_retencion_guardar')?>' + '/' + $("#cuenta_id").val();
 
             $("#btn_save_form").attr('disabled', 'disabled');
             $.ajax({
@@ -358,4 +262,63 @@
             });
         });
     });
+
+    function load_retenciones(){
+        var ret = $("#ret_content");
+        var mes = $("#mes").val();
+        var year = $("#year").val();
+
+        ret.html('');
+
+        for(var i = 0; i < retenciones.length; i++){
+            var fecha = year + '-' + mes;
+            if(retenciones[i].fecha == fecha){
+                var template = '<label style="cursor: pointer;">';
+                template += '<input class="ret_check" type="checkbox"';
+                template += 'value="' + retenciones[i].id + '"';
+                template += 'data-saldo="' + retenciones[i].saldo + '">';
+                template += ' S/. ' + formatPrice(retenciones[i].saldo) + ' | ';
+                template += '#: ' + retenciones[i].operacion;
+                template += '</label><br>';
+
+                ret.append(template);
+            }
+        }
+
+        $("#importe").val('0.00');
+        $("#ret_all").prop('checked', false);
+        add_checkbox_events();
+    }
+
+    function add_checkbox_events(){
+        $("#ret_all").on('change', function () {
+            if ($("#ret_all").prop('checked') == true) {
+                $('.ret_check').prop('checked', 'checked');
+            }
+            else {
+                $('.ret_check').removeAttr('checked');
+            }
+            $('.ret_check').trigger('change');
+        });
+
+        $('.ret_check').on('change', function () {
+            var importe = 0;
+            var n = 0;
+            $('.ret_check').each(function () {
+                if ($(this).prop('checked')) {
+                    var saldo = parseFloat($(this).attr('data-saldo'));
+                    importe = parseFloat(importe + saldo);
+                    n++;
+                }
+            });
+
+            $("#importe").val(formatPrice(importe));
+
+
+            if (n == $('.ret_check').length)
+                $('#ret_all').prop('checked', 'checked');
+            else
+                $('#ret_all').removeAttr('checked');
+        });
+    }
 </script>

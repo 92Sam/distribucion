@@ -214,6 +214,41 @@ class cajas_model extends CI_Model
         }
     }
 
+    function ajustar_retencion($data, $id)
+    {
+        $fecha = date('Y-m-d H:i:s', strtotime($data['fecha'] . ' ' . date('H:i:s')));
+        $cuenta = $this->get_cuenta($id);
+
+            $saldo = $cuenta->saldo - $data['importe'];
+            $saldo_old = $cuenta->saldo;
+
+            $this->db->where('id', $id);
+            $this->db->update('caja_desglose', array(
+                'saldo' => $saldo
+            ));
+
+            $this->cajas_mov_model->save_mov(array(
+                'caja_desglose_id' => $id,
+                'usuario_id' => $this->session->userdata('nUsuCodigo'),
+                'fecha_mov' => $fecha,
+                'movimiento' => 'ENGRESO',
+                'operacion' => 'SUNAT',
+                'medio_pago' => '7',
+                'saldo' => $data['importe'],
+                'saldo_old' => $saldo_old,
+                'ref_id' => '',
+                'ref_val' => implode('|', $data['retenciones']),
+            ));
+
+            foreach ($data['retenciones'] as $ret_id) {
+                $this->db->where('id', $ret_id);
+                $this->db->update('caja_movimiento', array(
+                    'operacion' => 'SUNAT'
+                ));
+            }
+
+    }
+
     function valid_caja($data, $id = FALSE)
     {
         $this->db->where('local_id', $data['local_id']);
@@ -292,7 +327,7 @@ class cajas_model extends CI_Model
         else{
             if(!isset($data['IO']))
                 $data['IO'] = 2;
-                
+
             $this->db->insert('caja_pendiente', array(
                 'caja_desglose_id'=>$cuenta->id,
                 'usuario_id'=>$this->session->userdata('nUsuCodigo'),

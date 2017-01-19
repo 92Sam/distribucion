@@ -52,7 +52,7 @@
             <div class="col-md-2">
                 <select class="form-control" id="mes">
                     <?php for($i = 1; $i < 13; $i++):?>
-                        <option value="<?=$i?>" <?= date('d')==$i ? 'selected="selected"' : ''?>><?= getMes($i) ?></option>
+                        <option value="<?=$i?>" <?= date('n')==$i ? 'selected="selected"' : ''?>><?= getMes($i) ?></option>
                     <?php endfor;?>
                 </select>
             </div>

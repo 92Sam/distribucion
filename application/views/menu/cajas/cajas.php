@@ -74,11 +74,19 @@
                                         <i class="fa fa-edit"></i>
                                     </a>
 
+                                <?php if($desglose->retencion == 1):?>
+                                    <a class="btn_ajustar_caja_cuenta_retencion btn btn-primary"
+                                       data-caja_id="<?= $caja->id ?>"
+                                       data-id="<?= $desglose->id ?>">
+                                        <i class="fa fa-money"></i>
+                                    </a>
+                                <?php else:?>
                                     <a class="btn_ajustar_caja_cuenta btn btn-warning"
                                        data-caja_id="<?= $caja->id ?>"
                                        data-id="<?= $desglose->id ?>">
                                         <i class="fa fa-exchange"></i>
                                     </a>
+                                <?php endif;?>
 
                                     <a class="btn_detalle_caja_cuenta btn btn-default"
                                        data-id="<?= $desglose->id ?>">
@@ -173,6 +181,17 @@
         $(".btn_ajustar_caja_cuenta").on('click', function () {
             $.ajax({
                 url: '<?php echo base_url('cajas/caja_ajustar_form')?>' + '/' + $(this).attr('data-caja_id') + '/' + $(this).attr('data-id'),
+                type: 'post',
+                success: function (data) {
+                    $("#dialog_form").html(data);
+                    $("#dialog_form").modal('show');
+                }
+            });
+        });
+
+        $(".btn_ajustar_caja_cuenta_retencion").on('click', function () {
+            $.ajax({
+                url: '<?php echo base_url('cajas/caja_ajustar_retencion_form')?>' + '/' + $(this).attr('data-caja_id') + '/' + $(this).attr('data-id'),
                 type: 'post',
                 success: function (data) {
                     $("#dialog_form").html(data);
