@@ -53,6 +53,7 @@
                             </div>
                         </div>
                     </div>
+
                     <div class="row" id="operacion_block" style="display: block;">
                         <div class="form-group">
                             <div class="col-md-4">
@@ -60,11 +61,24 @@
                             </div>
                             <div class="col-md-8">
                                 <input type="text" id="num_oper" name="num_oper"
-                                       class="form-control"
+                                       class="form-control" autocomplete="off"
                                        value="">
                             </div>
                         </div>
                     </div>
+                    <div class="row" id="fechaoperacion_block" style="display: none;">
+                        <div class="form-group">
+                            <div class="col-md-4">
+                                <label id="fec_oper_label">Fecha Operación</label>
+                            </div>
+                            <div class="col-md-8">
+                                <input type="text" id="fec_oper" name="fec_oper"
+                                       class="form-control input-datepicker"
+                                       value="<?= date('d-m-Y') ?>" readonly style="cursor: pointer;">
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="row">
                         <div class="col-md-4">
                             <label>Monto a Confirmar</label>
@@ -75,7 +89,7 @@
                                    value="0.00" readonly>
                         </div>
                         <div class="col-md-2">
-                            <button id="liquidar" type="button" class="btn btn-sm btn-primary tip" title="Liquidar">
+                            <button id="liquidar" type="button" class="btn btn-lg btn-primary tip" title="Liquidar">
                                 <i class="fa fa-arrow-right"></i>
                             </button>
                         </div>
@@ -223,6 +237,14 @@
                 return false;
             }
 
+            if ($("#pago_id").val() == "4") {
+                if (validarNumeroOperacion() == true){
+                    show_msg('warning', '<h4>Error. </h4><p>El numero de operacion ingresado ya fue registrado.</p>');
+                     return false;
+                }
+             }
+
+
             var importe = isNaN(parseFloat($("#importe").val())) ? 0 : parseFloat($("#importe").val());
             var saldo = parseFloat($("#total_efectivo").val());
 
@@ -237,6 +259,7 @@
                 'banco_id': $("#banco_id").val(),
                 'num_oper': $("#num_oper").val(),
                 'importe': $("#importe").val(),
+                'fecha_documento': $("#fec_oper").val(),
                 'historial_id': prepare_historial_id()
             };
 
@@ -300,9 +323,12 @@
             $("#num_oper").val('');
             $("#importe").val('');
             $("#banco_block").hide();
+            $("#fechaoperacion_block").hide();
+
 
             if ($(this).val() == '4') {
                 $("#banco_block").show();
+                $("#fechaoperacion_block").show();
             }
 
 
@@ -347,6 +373,32 @@
             }
         });
         return JSON.stringify(historial_id);
+
+    }
+
+     function  validarNumeroOperacion(){
+
+        var operacion = $("#num_oper").val();
+        $.ajax({
+            url: '<?= base_url()?>banco/validaNumeroOperacion2/' + operacion,
+            dataType:'json',
+            async: false,
+            data: {'operacion': operacion},
+            type: 'POST',
+
+            success: function(data){
+                if (data.error == undefined)
+                    result = false;
+                else
+                    result = true;
+
+            },
+            error:function(){
+                show_msg('danger','Ha ocurrido un error vuelva a intentar');
+            }
+        })
+
+        return result;
 
     }
 

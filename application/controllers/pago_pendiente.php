@@ -142,6 +142,7 @@ class pago_pendiente extends MY_Controller
         $data['bancos'] = $this->db->get_where('banco', array('banco_status' => 1))->result();
 
         $this->load->view('menu/pagos_pendientes/dialog_pagar_cliente', $data);
+        //var_dump($data);
     }
 
     function ejecutar_pagar_cliente($id)
@@ -150,7 +151,8 @@ class pago_pendiente extends MY_Controller
             'pago_id' => $this->input->post('pago_id'),
             'banco_id' => $this->input->post('banco_id'),
             'num_oper' => $this->input->post('num_oper'),
-            'importe' => $this->input->post('importe')
+            'importe' => $this->input->post('importe'),
+            'fecha_oper' => $this->input->post('fec_oper'),
         );
         $this->venta_cobro_model->pagar_cliente($id, $data);
 
@@ -179,6 +181,7 @@ class pago_pendiente extends MY_Controller
             'banco_id' => $this->input->post('banco_id'),
             'num_oper' => $this->input->post('num_oper'),
             'importe' => $this->input->post('importe'),
+            'fecha_documento' => $this->input->post('fec_oper'),
             'historial_id' => json_decode($this->input->post('historial_id'))
         );
 

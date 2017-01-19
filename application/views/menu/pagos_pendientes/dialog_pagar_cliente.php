@@ -104,6 +104,19 @@
                 </div>
             </div>
 
+            <div class="row" id="fechaoperacion_block" style="display: none;">
+                <div class="form-group">
+                    <div class="col-md-4">
+                        <label id="fec_oper_label">Fecha Operación</label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" id="fec_oper" name="fec_oper"
+                               class="form-control input-datepicker"
+                               value="<?= date('d-m-Y') ?>" readonly style="cursor: pointer;">
+                    </div>
+                </div>
+            </div>
+
             <div class="row">
                 <div class="form-group">
                     <div class="col-md-4">
@@ -111,7 +124,7 @@
                     </div>
                     <div class="col-md-8">
                         <input type="text" id="importe" name="importe"
-                               class="form-control"
+                               class="form-control" autocomplete="off"
                                value="">
                     </div>
                 </div>
@@ -177,6 +190,11 @@
                 return false;
             }
 
+            /*if ($("#pago_id").val() == "4") {
+                validarNumeroOperacion($("#num_oper").val());
+                return true;
+            }*/
+
             var importe = isNaN(parseFloat($("#importe").val())) ? 0 : parseFloat($("#importe").val());
             var saldo = parseFloat($("#saldo").val());
 
@@ -226,15 +244,19 @@
             $("#num_oper").val('');
             $("#importe").val('');
             $("#banco_block").hide();
+            $("#fechaoperacion_block").hide();
 
             if ($(this).val() == '4') {
                 $("#banco_block").show();
                 $("#num_oper_label").html('N&uacute;mero de Operaci&oacute;n');
+                $("#fechaoperacion_block").show();
             }
             else if ($(this).val() != '4') {
 
-                if ($(this).val() == '5')
+                if ($(this).val() == '5'){
+                    $("#fechaoperacion_block").hide();
                     $("#num_oper_label").html('N&uacute;mero de Cheque');
+                }
                 if ($(this).val() == '6')
                     $("#num_oper_label").html('N&uacute;mero de Nota de Cr&eacute;dito');
                 else
@@ -242,6 +264,31 @@
             }
 
         });
+
+        /*function validarNumeroOperacion(num_operacion){
+            var operacion = num_operacion;
+            $.ajax({
+                url: '<?= base_url()?>banco/validaNumeroOperacion/' + operacion,
+                headers:{
+                    Accept:'aplication/json'},
+                data: {'operacion': operacion},
+                type: 'POST',
+
+                success: function(data){
+                    if (data.success == 1) {
+                        //$("#confirmacion").modal('show');
+                        //show_msg('success','NO SE ENCONTRO EL NUMERO DE OPERACION');
+                        return true;
+                    }
+                    else
+                        show_msg('warning','El numero de operacion ya se encuentra registrado');
+                },
+                error:function(){
+                    show_msg('danger','Ha ocurrido un error vuelva a intentar');
+                }
+            })
+
+        }*/
 
     });
 </script>

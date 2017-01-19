@@ -117,4 +117,30 @@ class banco extends MY_Controller
         else
             echo json_encode(array('success' => 1));
     }
+
+    function validaNumeroOperacion2($num_operacion)
+    {
+        $resultado = $this->banco_model->buscarNumeroOperacion($num_operacion);
+
+        $json = array();
+        if ($resultado == true){
+            $json['error'] = '1';
+        }
+
+        echo json_encode($json);
+
+    }
+
+     function DniRucEnBd()
+    {
+        $resultado = $this->cliente_model->DniRucEnBd($this->input->post('dni_ruc'), !empty($_POST['cliente_id']) ? $_POST['cliente_id'] : '');
+
+        $json = array();
+        if ($resultado == true) {
+            $json['error'] = '1';
+        }
+
+        echo json_encode($json);
+
+    }
 }
