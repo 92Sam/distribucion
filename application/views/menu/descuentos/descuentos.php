@@ -955,27 +955,27 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable">', "</
 
     function del_listaProducto(contador, producto_id) {
 
-       // console.log("elimianndo "+producto_id);
+        // console.log("elimianndo "+producto_id);
 
-      //  console.log("contador"+contador);
+        // console.log("contador"+contador);
         var eliminar;
-       // console.log(lst_escalas);
+        //console.log(lst_escalas);
+        //console.log(lst_producto);
+
         jQuery.each(lst_escalas, function (j, valor) {
             jQuery.each(lst_producto, function (i, value) {
 
-               // console.log(value);
+                console.log(value);
                 if (value["contador"] == contador) {
 
                     $("#tr" + valor["contador"] + producto_id).remove();
                     console.log('estes es el que hay que eliminar '+valor["contador"] + producto_id);
                     eliminar = i;
-
                 }
-
             });
         });
 
-//        console.log(eliminar);
+        //console.log(eliminar);
         lst_producto.splice(eliminar, 1);
 
         var arreglo_precios = new Array();
@@ -1004,8 +1004,6 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable">', "</
                         }
                     }
                 });
-
-
             }
         });
 
@@ -1018,19 +1016,17 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable">', "</
 
         });
 
+        console.log(lst_producto_con_precio);
         jQuery.each(lst_producto_con_precio, function (k, valor) {
 
-            if (valor["Codigo"] == producto_id) {
+            if (valor["codigo"] == producto_id) {
 
                 lst_producto_con_precio.splice(k, 1);
             }
 
 
         });
-
-
         //generarListado(false,arreglo_precios);
-
     }
 
 
