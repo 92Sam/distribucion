@@ -291,26 +291,16 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
         </div>
         <!-- confirmar impresion de consolidado -->
         <div class="modal fade" id="modalimprimir" tabindex="-1" role="dialog"
-             aria-labelledby="myModalLabel">
+             aria-labelledby="myModalLabel" aria-hidden="true">
 
             <div class="modal-dialog ">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i
-                                class="fa fa-close"></i>
-                        </button>
-
-                        <h4>Imprimir consolidado</h4>
+                        <button type="button" class="close" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title">Imprimir Consolidado </h4>
                     </div>
-
-
                     <div class="modal-body" id="ventamodalbody">
-                        <div class="form-group row">
-
-                            <h4>¿Está seguro que desea imprimir el consolidado? </h4>
-
-                        </div>
-
+                        ¿Está seguro que desea imprimir el consolidado?
                     </div>
                     <div class="modal-footer">
                         <button type="button" id="imprimirconso" onclick="impirmirGuiaConsolidado(this.value);"
@@ -318,17 +308,16 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                                 class="btn btn-primary" value="">
                             <li class="glyphicon glyphicon-thumbs-up"></li>
                             Aceptar
-
                         </button>
-                        <button type="button" data-dismiss="modal" value="0"
+                        <button type="button" data-dismiss="modal"
                                 class="btn btn-warning">Cancelar
                             <li class="glyphicon glyphicon-thumbs-down"></li>
                         </button>
                     </div>
                 </div>
             </div>
-
         </div>
+
         <!--MODALS PARA VISUALIZAR LA CARGA AL CAMION-->
         <div class="modal fade" id="visualizarCamiones" tabindex="-1" role="dialog"
              aria-labelledby="myModalLabel" aria-hidden="true">

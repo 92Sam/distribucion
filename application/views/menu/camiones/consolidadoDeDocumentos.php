@@ -64,9 +64,8 @@
                             </td>
 
                         </tr>
-                        <?php
-                    } ?>
-
+                            <?php
+                        } ?>
                     <tr style="background-color: #C6EFCE">
                         <td></td>
                         <td style="text-align: right; font-size: 13px"><?php echo '<strong style="fond-family:bold;">Total Bultos => <strong>'; ?></td>
@@ -76,8 +75,9 @@
                         <td></td>
                         <td></td>
 
-
                     </tr>
+
+
                     </tbody>
                 </table>
             </div>
@@ -135,11 +135,12 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <button type="button" class="close" aria-hidden="true">&times;</button>
                 <h4 class="modal-title">Confirmaci&oacute;n</h4>
             </div>
 
-            <div class="modal-body">¿Esta seguro que desea quitar este pedido del consolidado?
+            <div class="modal-body">¿Esta seguro que desea quitar la nota de entrega número
+                    "<?php echo 'NE - ' . $detalle['documento_Numero']; ?>"  del cliente "<?php echo $detalle['razon_social']; ?>"?
             </div>
             <div class="modal-footer">
                 <button type="button" id="" class="btn btn-primary"
@@ -149,7 +150,7 @@
                     <li class="glyphicon glyphicon-thumbs-up"></li>
                     Si
                 </button>
-                <button type="button" class="btn btn-warning" data-dismiss="modal">
+                <button type="button" id="btnCerrarConsulta" class="btn btn-warning">
                         <li class="glyphicon glyphicon-thumbs-down"></li>
                         No
                 </button>
@@ -165,6 +166,11 @@
      aria-hidden="true">
 </div>
 <script type="text/javascript">
+
+    $("#btnCerrarConsulta").click(function() {
+        $("#confirmacion").modal('hide');
+    });
+
 
     function confirmarEliminacion(){
 
@@ -217,6 +223,7 @@
                     else if (data.result == 2) {
                         $("#consolidadoDocumento").html($('#loading').html());
                         $("#consolidadoDocumento").load('<?= $ruta ?>consolidadodecargas/verDetalles/' + id);
+
                     }
                 }
             });
@@ -255,7 +262,6 @@
 
     }
     function docFiscalFact(id) {
-
         {
             $.ajax({
                 url: '<?php echo $ruta . 'consolidadodecargas/docFiscalFactura'; ?>',
