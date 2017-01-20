@@ -19,6 +19,7 @@ class pedidos extends REST_Controller
     function __construct()
     {
         parent::__construct();
+        $this->load->model('historial/historial_pedido_model');
         $this->load->model('consolidadodecargas/consolidado_model');
         $this->load->model('venta/venta_model', 'ventas');
         $this->load->model('venta/venta_estatus_model');
@@ -293,6 +294,12 @@ class pedidos extends REST_Controller
                 $pedido['retencion'] = $post['retencion'];
 
                 $save = $this->ventas->insertar_venta($pedido, $detalle, $montoboletas);
+                if ($resultado != false) {
+                            $this->historial_pedido_model->insertar_pedido(PROCESO_GENERAR, array(
+                                'pedido_id' => $save,
+                                'responsable_id' => $this->session->userdata('nUsuCodigo')
+                            ));
+                        }
                 if ($save === false) {
                     $this->response(array('status' => 'failed'));
                 } else {
@@ -375,6 +382,7 @@ class pedidos extends REST_Controller
             );
             if (!empty($post)) {
                 $save = $this->ventas->actualizar_venta($pedido, $detalle, $montoboletas);
+                $this->historial_pedido_model->editar_pedido(PROCESO_GENERAR, $save);
                 if ($save === false) {
                     $this->response(array('status' => 'failed'));
                 } else {
@@ -431,7 +439,7 @@ class pedidos extends REST_Controller
 
         $select = 'venta.venta_id, venta_tipo, venta.id_cliente, razon_social,fecha, total,var_credito_estado, dec_credito_montodebito, documento_venta.*,
             nombre_condiciones, condiciones_pago.dias,venta.id_cliente as clientV, venta.pagado,consolidado_detalle.confirmacion_monto_cobrado_caja,consolidado_detalle.confirmacion_monto_cobrado_bancos,
-            ciudades.ciudad_nombre as cliente_distrito_nombre, zonas.zona_nombre as cliente_zona_nombre, 
+            ciudades.ciudad_nombre as cliente_distrito_nombre, zonas.zona_nombre as cliente_zona_nombre,
             (select SUM(historial_monto) from historial_pagos_clientes where historial_pagos_clientes.credito_id = venta.venta_id and historial_estatus="PENDIENTE" ) as confirmar,usuario.nUsuCodigo as vendedor_id, usuario.nombre as vendedor_nombre,consolidado_detalle.consolidado_id';
         $from = "venta";
         $join = array('credito', 'cliente', 'documento_venta', 'condiciones_pago', 'consolidado_detalle', 'usuario', 'ciudades', 'zonas');
