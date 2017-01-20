@@ -260,7 +260,7 @@
                     show_msg('warning','<h4>Ha ocurrido un error</h4>')
                 else {
                     $('#editar').modal('hide');
-                    show_msg('warning','<h4>Se ha editado el pago</h4>')
+                    show_msg('success','<h4>Se ha editado el pago</h4>')
                     buscar();
                 }
 

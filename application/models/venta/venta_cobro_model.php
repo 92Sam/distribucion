@@ -356,7 +356,7 @@ class venta_cobro_model extends CI_Model
             'monto_restante' => $credito->dec_credito_montodebito + $data['importe'],
             'historial_usuario' => isset($data['vendedor']) ? $data['vendedor'] : $this->session->userdata('nUsuCodigo'),
             'historial_estatus' => 'PENDIENTE',
-            'fecha_documento' => $data['fecha_documento'],
+            'fecha_documento' => date('Y-m-d H:i:s', strtotime($data['fecha_documento'])),
             'pago_data' => $data['num_oper']
         );
 

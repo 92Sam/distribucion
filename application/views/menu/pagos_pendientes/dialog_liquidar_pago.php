@@ -89,7 +89,8 @@
                                    value="0.00" readonly>
                         </div>
                         <div class="col-md-2">
-                            <button id="liquidar" type="button" class="btn btn-lg btn-primary tip" title="Liquidar">
+                            <button id="liquidar" type="button" class="btn btn-primary form-control tip"
+                                    title="Liquidar" style="color: white;">
                                 <i class="fa fa-arrow-right"></i>
                             </button>
                         </div>
@@ -259,7 +260,7 @@
                 'banco_id': $("#banco_id").val(),
                 'num_oper': $("#num_oper").val(),
                 'importe': $("#importe").val(),
-                'fecha_documento': $("#fec_oper").val(),
+                'fec_oper':$("#fec_oper").val(),
                 'historial_id': prepare_historial_id()
             };
 
@@ -380,7 +381,7 @@
 
         var operacion = $("#num_oper").val();
         $.ajax({
-            url: '<?= base_url()?>banco/validaNumeroOperacion2/' + operacion,
+            url: '<?= base_url()?>banco/validaNumeroOperacion/' + operacion,
             dataType:'json',
             async: false,
             data: {'operacion': operacion},

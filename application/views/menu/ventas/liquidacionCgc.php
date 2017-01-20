@@ -79,13 +79,21 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                            class="form-control fecha input-datepicker filter-input">
                 </div>
 
-                <div class="col-md-3" style="padding:1.5% 1%">
-                    <input type="checkbox" name="limpiar_fecha" id="limpiar_f">
-                    <label for="habilitar_f" class="control-label panel-admin-text">Limpiar Fechas</label>
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    <a class="btn btn-default" id="btn_buscar">
-                        <i class="fa fa-search"> </i>
-                    </a>
+                <div class="col-md-2">
+                    <br>
+                    <input type="checkbox" id="limpiar_f" name="limpiar_fecha" >
+                    <label for="limpiar_f"
+                           class="control-label panel-admin-text"
+                           style="cursor: pointer;">
+                        Limpiar Fechas
+                    </label>
+                </div>
+
+                <div class="col-md-1">
+                    <br>
+                    <button type="button" title="Buscar" id="btn_buscar" class="btn btn-default form-control btn_buscar">
+                        <i class="fa fa-search"></i>
+                    </button>
                 </div>
 
 
@@ -363,6 +371,10 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
         var estatus_select = 'ENTREGADO';
         var estatus_consolidado;
 
+        jQuery(document).ready(function() {
+             $("#fechaoperacion_block").hide();
+        });
+
 
         $(function () {
             $("#estatus").chosen({width: "100%"});
@@ -377,6 +389,8 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
             $("#editar_pedido").on('click', function () {
                 devolver();
             });
+
+
 
             $("#pago_id").on('click', function () {
 
@@ -527,10 +541,15 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
             if ($("#pago_id").val() != 0) {
                 if (mediodePago == 'DEPOSITO') {
                    if (numeroOperacion != '' && $("#banco_id").val() != '' )
-                        if(montoaCobrar == 0 )
+
+                        if(montoaCobrar == 0)
                             show_msg('warning','Ingrese el importe del deposito (Monto a cobrar)');
+
+                        else if(validarNumeroOperacion() == true)
+                                show_msg('warning', '<h4>Error. </h4><p>El numero de operacion ingresado ya fue registrado.</p>');
                         else
-                            validarNumeroOperacion(numeroOperacion);
+                            $("#confirmacion").modal('show');
+
                    else
                        show_msg('warning','Debe seleccionar un banco y numero de operación');
                 }
@@ -611,26 +630,28 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
         }
 
         //Validamos que el numero de operacion no se repita
-        function validarNumeroOperacion(num_operacion){
-            var operacion = num_operacion;
+        function  validarNumeroOperacion(){
+            var operacion = $("#num_oper").val();
             $.ajax({
                 url: '<?= base_url()?>banco/validaNumeroOperacion/' + operacion,
-                headers:{
-                    Accept:'aplication/json'},
+                dataType:'json',
+                async: false,
                 data: {'operacion': operacion},
                 type: 'POST',
 
                 success: function(data){
-                    if (data.success == 1) {
-                        $("#confirmacion").modal('show');
-                    }
+                    if (data.error == undefined)
+                        result = false;
                     else
-                        show_msg('warning','El numero de operacion ya se encuentra registrado');
+                        result = true;
+
                 },
                 error:function(){
                     show_msg('danger','Ha ocurrido un error vuelva a intentar');
                 }
             })
+
+            return result;
 
         }
 

@@ -391,7 +391,7 @@ class consolidadodecargas extends MY_Controller
             'pago_id' => $pago,
             'banco_id' => $banco,
             'num_oper' => $num_oper,
-            'fecha_documento' => $fec_ope,
+            'fecha_documento' => $fec_ope
         ));
 
         $result = $this->venta_model->update_status($id_pedido, $estatus);

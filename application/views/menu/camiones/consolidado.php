@@ -48,13 +48,21 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                            class="form-control fecha input-datepicker filter-input">
                 </div>
 
-                <div class="col-md-3" style="padding:1.5% 1%">
-                    <input type="checkbox" name="limpiar_fecha" id="limpiar_f">
-                    <label for="habilitar_f" class="control-label panel-admin-text">Limpiar Fechas</label>
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    <a class="btn btn-default" id="btn_buscar">
-                        <i class="fa fa-search"> </i>
-                    </a>
+                <div class="col-md-2">
+                    <br>
+                    <input type="checkbox" id="limpiar_f" name="limpiar_fecha" >
+                    <label for="limpiar_f"
+                           class="control-label panel-admin-text"
+                           style="cursor: pointer;">
+                        Limpiar Fechas
+                    </label>
+                </div>
+
+                <div class="col-md-1">
+                    <br>
+                    <button type="button" title="Buscar" id="btn_buscar" class="btn btn-default form-control btn_buscar">
+                        <i class="fa fa-search"></i>
+                    </button>
                 </div>
 
 

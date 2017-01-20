@@ -125,7 +125,9 @@ class pago_pendiente extends MY_Controller
             'banco_id' => $this->input->post('banco_id'),
             'num_oper' => $this->input->post('num_oper'),
             'retencion' => $this->input->post('retencion'),
-            'importe' => $this->input->post('importe')
+            'importe' => $this->input->post('importe'),
+            'fecha_documento' => $this->input->post('fec_oper'),
+
         );
         $this->venta_cobro_model->pagar_nota_pedido($id, $data);
 
@@ -152,7 +154,7 @@ class pago_pendiente extends MY_Controller
             'banco_id' => $this->input->post('banco_id'),
             'num_oper' => $this->input->post('num_oper'),
             'importe' => $this->input->post('importe'),
-            'fecha_oper' => $this->input->post('fec_oper'),
+            'fecha_documento' => $this->input->post('fec_oper'),
         );
         $this->venta_cobro_model->pagar_cliente($id, $data);
 

@@ -109,17 +109,6 @@ class banco extends MY_Controller
 
     function validaNumeroOperacion($num_operacion)
     {
-        header('Content-Type:application/json');
-        $resultado = $this->banco_model->buscarNumeroOperacion($num_operacion);
-
-        if ($resultado > 0)
-            echo json_encode(array('error' => 1));
-        else
-            echo json_encode(array('success' => 1));
-    }
-
-    function validaNumeroOperacion2($num_operacion)
-    {
         $resultado = $this->banco_model->buscarNumeroOperacion($num_operacion);
 
         $json = array();

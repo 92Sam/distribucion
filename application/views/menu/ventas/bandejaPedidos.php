@@ -201,7 +201,8 @@
 
         <div class="col-md-2">
             <div class="input-group">
-                <button type="button" id="añadircamion" onclick="agregarPedidos();" class="btn btn-primary"><i
+                <button type="button" id="añadircamion" onclick="agregarPedidos();" class=".btn btn-primary form-control"
+                style="color: white;"><i
                         class="fa fa-truck"></i>
                     Asignar Pedidos
                 </button>

@@ -102,7 +102,7 @@
                     </div>
                     <div class="col-md-8">
                         <input type="text" id="retencion" name="retencion"
-                               class="form-control"
+                               class="form-control" autocomplete="off"
                                value="">
                     </div>
                 </div>
@@ -115,8 +115,21 @@
                     </div>
                     <div class="col-md-8">
                         <input type="text" id="num_oper" name="num_oper"
-                               class="form-control"
+                               class="form-control" autocomplete="off"
                                value="">
+                    </div>
+                </div>
+            </div>
+
+            <div class="row" id="fechaoperacion_block" style="display: none;">
+                <div class="form-group">
+                    <div class="col-md-4">
+                        <label id="fec_oper_label">Fecha Operación</label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" id="fec_oper" name="fec_oper"
+                               class="form-control input-datepicker"
+                               value="<?= date('d-m-Y') ?>" readonly style="cursor: pointer;">
                     </div>
                 </div>
             </div>
@@ -128,7 +141,7 @@
                     </div>
                     <div class="col-md-8">
                         <input type="text" id="importe" name="importe"
-                               class="form-control"
+                               class="form-control" autocomplete="off"
                                value="">
                     </div>
                 </div>
@@ -205,6 +218,19 @@
                 return false;
             }
 
+            if ($("#pago_id").val() == "4") {
+                if ($("#importe").val() == 0) {
+                    show_msg('warning', '<h4>Error. </h4><p>Debe ingresar el importe del déposito.</p>');
+                    $("#importe").trigger('focus');
+                    return false;
+                }
+                if (validarNumeroOperacion() == true){
+                    show_msg('warning', '<h4>Error. </h4><p>El numero de operación ingresado ya fue registrado.</p>');
+                    $("#num_oper").trigger('focus');
+                    return false;
+                }
+             }
+
             var importe = isNaN(parseFloat($("#importe").val())) ? 0 : parseFloat($("#importe").val());
             var saldo = parseFloat($("#saldo").val());
 
@@ -219,7 +245,8 @@
                 'banco_id': $("#banco_id").val(),
                 'num_oper': $("#num_oper").val(),
                 'retencion': $("#retencion").val(),
-                'importe': $("#importe").val()
+                'importe': $("#importe").val(),
+                'fec_oper':$("#fec_oper").val()
             };
 
             $("#btn_save_form").attr('disabled', 'disabled');
@@ -261,15 +288,22 @@
             if ($(this).val() == '4') {
                 $("#banco_block").show();
                 $("#num_oper_label").html('N&uacute;mero de Operaci&oacute;n');
+                $("#fechaoperacion_block").show();
             }
             else if ($(this).val() != '4') {
 
-                if ($(this).val() == '5')
+                if ($(this).val() == '5'){
                     $("#num_oper_label").html('N&uacute;mero de Cheque');
-                if ($(this).val() == '6')
+                    $("#fechaoperacion_block").hide();
+                }
+                if ($(this).val() == '6'){
                     $("#num_oper_label").html('N&uacute;mero de Nota de Cr&eacute;dito');
-                else
+                    $("#fechaoperacion_block").hide();
+                }
+                else{
                     $("#num_oper_label").html('Dato Adicional');
+                    $("#fechaoperacion_block").hide();
+                }
             }
 
             if ($(this).val() == '7') {
@@ -278,6 +312,7 @@
                 $("#importe").val(calcular_retencion());
                 $("#retencion").val(retencion.retencion);
                 $("#retencion_block").show();
+                $("#fechaoperacion_block").hide();
             }
 
         });
@@ -298,4 +333,31 @@
 
         return formatPrice(parseFloat(venta_total * ret_val / 100));
     }
+
+    function  validarNumeroOperacion(){
+
+        var operacion = $("#num_oper").val();
+        $.ajax({
+            url: '<?= base_url()?>banco/validaNumeroOperacion/' + operacion,
+            dataType:'json',
+            async: false,
+            data: {'operacion': operacion},
+            type: 'POST',
+
+            success: function(data){
+                if (data.error == undefined)
+                    result = false;
+                else
+                    result = true;
+
+            },
+            error:function(){
+                show_msg('danger','Ha ocurrido un error vuelva a intentar');
+            }
+        })
+
+        return result;
+
+    }
+
 </script>

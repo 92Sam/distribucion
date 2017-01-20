@@ -472,10 +472,10 @@ var TablesDatatablesKardex = function () {
                         // this case `data: 0`.
                         "render": function ( data, type, row ) {
                             console.log(row);
-                            return '<div class="btn-group"> <a class="btn btn-default" data-toggle="tooltip"'+
+                            return '<div class="btn-group" > <a class="btn btn-default" data-toggle="tooltip"'+
                                 'title="Kardex Interno" data-original-title="fa fa-comment-o"'+
                                 'href="#" onclick="KARDEXINTERNO(\''+row[0]+'\')"> Kardex interno'+
-                                '</a><a class="btn btn-default" data-toggle="tooltip"  title="Kardex Fiscal" data-original-title="fa fa-comment-o"'+
+                                '</a><a class="btn btn-primary" data-toggle="tooltip"  title="Kardex Fiscal" data-original-title="fa fa-comment-o"'+
                                 'onclick="KARDEXEXTERNO(\'' +row[0]+ '\');">   Kardex Fiscal </a> </div>';
                         },
                         "targets": 5
@@ -496,7 +496,7 @@ var TablesDatatablesKardex = function () {
                     "infoFiltered": "(filtrado de _MAX_ total resultados)",
                     "infoPostFix": "",
                     "thousands": ",",
-                    "lengthMenu": "Mostrar _MENU_ resultados",
+                    "lengthMenu": "_MENU_ ",
                     "loadingRecords": "Cargando...",
                     "processing": "Procesando...",
                     // "search": "Buscar:",

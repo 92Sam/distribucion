@@ -97,7 +97,7 @@
                         <label id="num_oper_label">Dato Adicional</label>
                     </div>
                     <div class="col-md-8">
-                        <input type="text" id="num_oper" name="num_oper"
+                        <input type="text" id="num_oper" name="num_oper" autocomplete="off"
                                class="form-control"
                                value="">
                     </div>
@@ -190,10 +190,18 @@
                 return false;
             }
 
-            /*if ($("#pago_id").val() == "4") {
-                validarNumeroOperacion($("#num_oper").val());
-                return true;
-            }*/
+            if ($("#pago_id").val() == "4") {
+                if ($("#importe").val() == 0) {
+                    show_msg('warning', '<h4>Error. </h4><p>Debe ingresar el importe del déposito.</p>');
+                    $("#importe").trigger('focus');
+                    return false;
+                }
+                if (validarNumeroOperacion() == true){
+                    show_msg('warning', '<h4>Error. </h4><p>El numero de operación ingresado ya fue registrado.</p>');
+                    $("#num_oper").trigger('focus');
+                    return false;
+                }
+             }
 
             var importe = isNaN(parseFloat($("#importe").val())) ? 0 : parseFloat($("#importe").val());
             var saldo = parseFloat($("#saldo").val());
@@ -208,7 +216,8 @@
                 'pago_id': $("#pago_id").val(),
                 'banco_id': $("#banco_id").val(),
                 'num_oper': $("#num_oper").val(),
-                'importe': $("#importe").val()
+                'importe': $("#importe").val(),
+                'fec_oper':$("#fec_oper").val(),
             };
 
             $("#btn_save_form").attr('disabled', 'disabled');
@@ -265,30 +274,31 @@
 
         });
 
-        /*function validarNumeroOperacion(num_operacion){
-            var operacion = num_operacion;
-            $.ajax({
-                url: '<?= base_url()?>banco/validaNumeroOperacion/' + operacion,
-                headers:{
-                    Accept:'aplication/json'},
-                data: {'operacion': operacion},
-                type: 'POST',
-
-                success: function(data){
-                    if (data.success == 1) {
-                        //$("#confirmacion").modal('show');
-                        //show_msg('success','NO SE ENCONTRO EL NUMERO DE OPERACION');
-                        return true;
-                    }
-                    else
-                        show_msg('warning','El numero de operacion ya se encuentra registrado');
-                },
-                error:function(){
-                    show_msg('danger','Ha ocurrido un error vuelva a intentar');
-                }
-            })
-
-        }*/
-
     });
+
+    function  validarNumeroOperacion(){
+
+        var operacion = $("#num_oper").val();
+        $.ajax({
+            url: '<?= base_url()?>banco/validaNumeroOperacion/' + operacion,
+            dataType:'json',
+            async: false,
+            data: {'operacion': operacion},
+            type: 'POST',
+
+            success: function(data){
+                if (data.error == undefined)
+                    result = false;
+                else
+                    result = true;
+
+            },
+            error:function(){
+                show_msg('danger','Ha ocurrido un error vuelva a intentar');
+            }
+        })
+
+        return result;
+    }
+
 </script>

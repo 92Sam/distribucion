@@ -47,7 +47,7 @@
     <h4>
         Pendientes a Confirmaci&oacute;n:
         <div class="btn-group">
-            <button id="confirmar_liquidacion_select" class="btn btn-sm btn-primary tip"
+            <button id="confirmar_liquidacion_select" class=".btn btn-sm btn-primary tip"
                     title="Confirmar Liquidacion">
                 <i class="fa fa-check"></i> Confirmar Selecci&oacute;n
             </button>

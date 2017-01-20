@@ -73,15 +73,15 @@
 
     <div class="table-responsive">
 
-        <table class='table table-striped dataTable table-bordered' id="table">
+        <table class='table table-striped dataTable table-bordered'  id="table">
             <thead>
             <tr>
                 <th>ID</th>
                 <th>Nombre</th>
                 <th>UM</th>
                 <th>Cantidad</th>
-                <th>Fracci&oacute;n</th>
-                <th>Acciones</th>
+                <th>Fracción</th>
+                <th align="center">Acciones</th>
             </tr>
             </thead>
             <tbody>
@@ -111,7 +111,7 @@
         var local=$("#locales").val();
         var year=$("#year").val();
         var mes=$("#mes").val();
-        $("#ver").load('<?= $ruta ?>inventario/kardex_interno/' + id + '/' + local + '/' + mes + '/' + year);
+        $("#ver").load('<?= $ruta ?>inventario/kardex_interno/' + id + '/' + local + '/' + mes + '/' + year );
         $('#ver').modal('show');
     }
 
@@ -125,13 +125,8 @@
         $('#ver').modal('show');
     }
 
-
-
     function getproductosbylocal(){
-
         TablesDatatablesKardex.init('<?php echo base_url()?>inventario/getbyJson',0,false,false);
-
-
     }
 
 </script>
@@ -140,5 +135,4 @@
 
 <script>$(function () {
         getproductosbylocal();
-
     });</script>
