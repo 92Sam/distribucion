@@ -356,15 +356,17 @@ class venta_cobro_model extends CI_Model
             'monto_restante' => $credito->dec_credito_montodebito + $data['importe'],
             'historial_usuario' => isset($data['vendedor']) ? $data['vendedor'] : $this->session->userdata('nUsuCodigo'),
             'historial_estatus' => 'PENDIENTE',
-            'fecha_documento' => date('Y-m-d H:i:s', strtotime($data['fecha_documento'])),
             'pago_data' => $data['num_oper']
         );
 
         if (isset($data['historial_estatus']))
             $historial_pago['historial_estatus'] = $data['historial_estatus'];
 
-        if ($historial_pago['historial_tipopago'] == 4)
+        if ($historial_pago['historial_tipopago'] == 4){
+
+                $historial_pago['fecha_documento'] = $data['fecha_documento'] != NULL ? date('Y-m-d H:i:s', strtotime($data['fecha_documento'].' '.date('H:i:s'))) : NULL;
             $historial_pago['historial_banco_id'] = $data['banco_id'];
+        }
 
         $this->db->insert('historial_pagos_clientes', $historial_pago);
         $result = $this->db->insert_id();

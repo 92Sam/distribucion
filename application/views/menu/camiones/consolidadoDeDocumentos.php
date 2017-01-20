@@ -139,8 +139,7 @@
                 <h4 class="modal-title">Confirmaci&oacute;n</h4>
             </div>
 
-            <div class="modal-body">¿Esta seguro que desea quitar la nota de entrega número
-                    "<?php echo 'NE - ' . $detalle['documento_Numero']; ?>"  del cliente "<?php echo $detalle['razon_social']; ?>"?
+            <div class="modal-body">¿Esta seguro que desea quitar la nota de entrega seleccionada?
             </div>
             <div class="modal-footer">
                 <button type="button" id="" class="btn btn-primary"

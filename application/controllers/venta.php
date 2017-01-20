@@ -25,7 +25,7 @@ class venta extends MY_Controller
         $this->load->model('liquidacioncobranza/liquidacion_cobranza_model');
         $this->load->model('ingreso/ingreso_model');
         $this->load->model('gastos/gastos_model');
-        $this->load->library('phpword');
+        $this->load->library('PHPWord');
 
         $this->load->library('Pdf');
         $this->load->library('session');
@@ -160,7 +160,7 @@ class venta extends MY_Controller
         $devoluciones = json_decode($this->input->post('devoluciones'));
         $this->venta_model->devolver_venta($venta_id, $total_importe, $devoluciones);
     }
-    
+
 
     function registrar_venta()
     {
@@ -249,7 +249,7 @@ class venta extends MY_Controller
                         $this->historial_pedido_model->editar_pedido(PROCESO_GENERAR, $resultado);
                     }
                     if ($resultado != false) {
-                        
+
                         $this->ventaEstatus($id, $this->input->post('venta_status', true));
 
                         $dataresult['estatus_consolidado'] = $this->input->post('estatus_consolidado', true);;
@@ -2408,7 +2408,7 @@ class venta extends MY_Controller
         $notasdentrega = $result['notasdentrega'];
 
         // documento
-        $phpword = new \PhpOffice\PhpWord\PhpWord();
+        $phpword = new \PhpOffice\PHPWord\PHPWord();
         $styles = array(
             'pageSizeW' => '12755.905511811',
             'pageSizeH' => '7937.007874016',
@@ -2556,7 +2556,7 @@ class venta extends MY_Controller
         header('Content-Transfer-Encoding: binary');
         header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
         header('Expires: 0');
-        $xmlWriter = \PhpOffice\PhpWord\IOFactory::createWriter($phpword, 'Word2007');
+        $xmlWriter = \PhpOffice\PHPWord\IOFactory::createWriter($phpword, 'Word2007');
         $xmlWriter->save("php://output");
 
     }
@@ -2609,7 +2609,7 @@ class venta extends MY_Controller
         $boletas = $result['boletas'];
 
         // documento
-        $phpword = new \PhpOffice\PhpWord\PhpWord();
+        $phpword = new \PhpOffice\PHPWord\PHPWord();
         $styles = array(
             'pageSizeW' => '7256.692913386',
             'pageSizeH' => '8798.74015748',
@@ -2803,7 +2803,7 @@ class venta extends MY_Controller
         $boletas = $result['boletas'];
 
         // documento
-        $phpword = new \PhpOffice\PhpWord\PhpWord();
+        $phpword = new \PhpOffice\PHPWord\PHPWord();
         $styles = array(
             'pageSizeW' => '12812.598425197',
             'pageSizeH' => '8617.322834646',
