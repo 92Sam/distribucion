@@ -74,7 +74,8 @@ class kardex_model extends CI_Model
         $this->db->select('costo_unitario_final, cantidad_final, total_final, kardex.unidad_id,unidades.nombre_unidad')
             ->from('kardex')
             ->join('unidades','kardex.unidad_id=unidades.id_unidad')
-            ->where('producto_id', $producto_id)
+            ->join('producto','kardex.producto_id=producto.producto_id')
+            ->where('kardex.producto_id', $producto_id)
             ->where('fecha <', $year . '-' . sumCod($mes, 2) . '-01')
             ->order_by('id', 'DESC');
 
@@ -100,10 +101,11 @@ class kardex_model extends CI_Model
 
     function get_kardex_interno($producto_id, $local_id, $mes, $year){
 
-        $this->db->select('costo_unitario_final, cantidad_final, total_final, kardex.unidad_id,unidades.nombre_unidad')
+        $this->db->select('costo_unitario_final, cantidad_final,                                                            total_final,kardex.unidad_id,unidades.nombre_unidad')
             ->from('kardex')
             ->join('unidades','kardex.unidad_id=unidades.id_unidad')
-            ->where('producto_id', $producto_id)
+            ->join('producto','kardex.producto_id=producto.producto_id')
+            ->where('kardex.producto_id', $producto_id)
             ->where('fecha <', $year . '-' . sumCod($mes, 2) . '-01')
             ->order_by('id', 'DESC');
 

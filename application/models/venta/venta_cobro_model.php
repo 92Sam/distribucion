@@ -15,8 +15,8 @@ class venta_cobro_model extends CI_Model
             cliente.id_cliente as cliente_id,
             cliente.razon_social as cliente_nombre,
             zonas.zona_nombre as cliente_zona_nombre,
-            usuario.nombre as vendedor_nombre, 
-            usuario.nUsuCodigo as vendedor_id, 
+            usuario.nombre as vendedor_nombre,
+            usuario.nUsuCodigo as vendedor_id,
             SUM(venta.total) as subtotal_venta,
             SUM(credito.dec_credito_montodebito) as subtotal_pago
         ")
@@ -64,11 +64,11 @@ class venta_cobro_model extends CI_Model
     {
         $this->db->select("
             venta.venta_id as venta_id,
-            documento_venta.nombre_tipo_documento as documento_nombre, 
-            documento_venta.documento_Serie as documento_serie, 
-            documento_venta.documento_Numero as documento_numero, 
-            historial_pedido_proceso.created_at as fecha_venta, 
-            venta.total as total_deuda, 
+            documento_venta.nombre_tipo_documento as documento_nombre,
+            documento_venta.documento_Serie as documento_serie,
+            documento_venta.documento_Numero as documento_numero,
+            historial_pedido_proceso.created_at as fecha_venta,
+            venta.total as total_deuda,
             credito.dec_credito_montodebito as actual,
             (venta.total - credito.dec_credito_montodebito)  as credito,
             venta.venta_status as venta_estado,
@@ -171,8 +171,8 @@ class venta_cobro_model extends CI_Model
     {
         $this->db->select("
             venta.venta_id as venta_id,
-            documento_venta.nombre_tipo_documento as documento_nombre, 
-            documento_venta.documento_Serie as documento_serie, 
+            documento_venta.nombre_tipo_documento as documento_nombre,
+            documento_venta.documento_Serie as documento_serie,
             documento_venta.documento_Numero as documento_numero,
              usuario.nombre as vendedor_nombre
         ")
@@ -219,8 +219,8 @@ class venta_cobro_model extends CI_Model
 
         $this->db->select("
             venta.venta_id as venta_id,
-            documento_venta.nombre_tipo_documento as documento_nombre, 
-            documento_venta.documento_Serie as documento_serie, 
+            documento_venta.nombre_tipo_documento as documento_nombre,
+            documento_venta.documento_Serie as documento_serie,
             documento_venta.documento_Numero as documento_numero,
             usuario.nombre as vendedor_nombre,
             consolidado_detalle.consolidado_id as consolidado_id
@@ -309,14 +309,14 @@ class venta_cobro_model extends CI_Model
     {
         return $this->db->select("
             venta.venta_id as venta_id,
-            documento_venta.nombre_tipo_documento as documento_nombre, 
-            documento_venta.documento_Serie as documento_serie, 
+            documento_venta.nombre_tipo_documento as documento_nombre,
+            documento_venta.documento_Serie as documento_serie,
             documento_venta.documento_Numero as documento_numero,
             usuario.nombre as vendedor_nombre,
             usuario.nUsuCodigo as vendedor_id,
-            venta.total as total_deuda, 
-            credito.dec_credito_montodebito as actual, 
-            (venta.total - credito.dec_credito_montodebito)  as saldo, 
+            venta.total as total_deuda,
+            credito.dec_credito_montodebito as actual,
+            (venta.total - credito.dec_credito_montodebito)  as saldo,
         ")
             ->from('venta')
             ->join('credito', 'credito.id_venta = venta.venta_id')
@@ -356,6 +356,7 @@ class venta_cobro_model extends CI_Model
             'monto_restante' => $credito->dec_credito_montodebito + $data['importe'],
             'historial_usuario' => isset($data['vendedor']) ? $data['vendedor'] : $this->session->userdata('nUsuCodigo'),
             'historial_estatus' => 'PENDIENTE',
+            'fecha_documento' => date('Y-m-d H:i:s', strtotime($data['fecha_documento'])),
             'pago_data' => $data['num_oper']
         );
 
@@ -384,6 +385,7 @@ class venta_cobro_model extends CI_Model
             'historial_usuario' => isset($data['vendedor']) ? $data['vendedor'] : $this->session->userdata('nUsuCodigo'),
             'historial_estatus' => 'ESPERA',
             'pago_data' => $data['num_oper'],
+            'fecha_documento' => date('Y-m-d H:i:s', strtotime($data['fecha_documento'])),
             'vendedor_id' => $id
         );
         if ($historial_pago['historial_tipopago'] == 4)

@@ -369,7 +369,7 @@ class consolidado_model extends CI_Model
     function get_cantiad_vieja_by_product($product, $consolidado_id)
     {
 
-        $q = "select sum(cantidad) as cantidadnueva 
+        $q = "select sum(cantidad) as cantidadnueva
             from detalle_venta
             join consolidado_detalle on consolidado_detalle.pedido_id=detalle_venta.id_venta
             where id_producto=" . $product . " and consolidado_id=" . $consolidado_id . " GROUP by id_producto ";
@@ -545,6 +545,7 @@ class consolidado_model extends CI_Model
                 'num_oper' => $data['num_oper'],
                 'banco_id' => $data['banco_id'],
                 'vendedor' => isset($data['vendedor']) ? $data['vendedor'] : $this->session->userdata('nUsuCodigo'),
+                'fecha_documento' => date('Y-m-d H:i:s', strtotime($data['fecha_documento'])),
                 'historial_estatus' => 'CONSOLIDADO'
             ));
         }

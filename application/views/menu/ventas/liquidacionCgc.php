@@ -79,13 +79,21 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                            class="form-control fecha input-datepicker filter-input">
                 </div>
 
-                <div class="col-md-3" style="padding:1.5% 1%">
-                    <input type="checkbox" name="limpiar_fecha" id="limpiar_f">
-                    <label for="habilitar_f" class="control-label panel-admin-text">Limpiar Fechas</label>
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    <a class="btn btn-default" id="btn_buscar">
-                        <i class="fa fa-search"> </i>
-                    </a>
+                <div class="col-md-2">
+                    <br>
+                    <input type="checkbox" id="limpiar_f" name="limpiar_fecha" >
+                    <label for="limpiar_f"
+                           class="control-label panel-admin-text"
+                           style="cursor: pointer;">
+                        Limpiar Fechas
+                    </label>
+                </div>
+
+                <div class="col-md-1">
+                    <br>
+                    <button type="button" title="Buscar" id="btn_buscar" class="btn btn-default form-control btn_buscar">
+                        <i class="fa fa-search"></i>
+                    </button>
                 </div>
 
 
@@ -243,6 +251,19 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                             </div>
                         </div>
                         <br>
+                        <div class="row" id="fechaoperacion_block" style="display: none;">
+                            <div class="form-group">
+                                <div class="col-md-4">
+                                    <label id="fec_oper_label">Fecha Operación</label>
+                                </div>
+                                <div class="col-md-8">
+                                    <input type="text" id="fec_oper" name="fec_oper"
+                                           class="form-control input-datepicker"
+                                           value="<?= date('d-m-Y') ?>" readonly style="cursor: pointer;">
+                                </div>
+                            </div>
+                        </div>
+                        <br>
                         <div class="row pago_block">
                             <div class="form-group">
                                 <div class="col-md-4">
@@ -250,7 +271,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                                 </div>
                                 <div class="col-md-8">
                                     <input type="text" id="monto" name="monto"
-                                           class="form-control"
+                                           class="form-control" autocomplete="off"
                                            value="">
                                     <input type="checkbox" id="cobrar_todo">
                                     <label for="cobrar_todo"
@@ -350,6 +371,10 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
         var estatus_select = 'ENTREGADO';
         var estatus_consolidado;
 
+        jQuery(document).ready(function() {
+             $("#fechaoperacion_block").hide();
+        });
+
 
         $(function () {
             $("#estatus").chosen({width: "100%"});
@@ -365,6 +390,8 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                 devolver();
             });
 
+
+
             $("#pago_id").on('click', function () {
 
                 $("#banco_id").val('');
@@ -372,15 +399,17 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                 $("#monto").val('0');
                 $("#retencion_block").hide();
                 $("#banco_block").hide();
+                $("#fechaoperacion_block").hide();
 
                 if ($(this).val() == '4') {
                     $("#banco_block").show();
                     $("#num_oper_label").html('N&uacute;mero de Operaci&oacute;n');
+                    $("#fechaoperacion_block").show();
                 }
                 else if ($(this).val() != '4') {
 
                     if ($(this).val() == '5'){
-                        $("#banco_block").show();
+                        $("#fechaoperacion_block").hide();
                         $("#num_oper_label").html('N&uacute;mero de Cheque');
                     }
                     if ($(this).val() == '6')
@@ -507,14 +536,26 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
         function validar_estatus() {
             var numeroOperacion = $("#num_oper").val();
             var mediodePago = $('#pago_id option:selected').text();
+            var montoaCobrar = $('#monto').val();
 
             if ($("#pago_id").val() != 0) {
-                if (mediodePago != 'EFECTIVO' ) {
-                   if (numeroOperacion != '' && $("#banco_id").val() != '')
-                        validarNumeroOperacion(numeroOperacion);
+                if (mediodePago == 'DEPOSITO') {
+                   if (numeroOperacion != '' && $("#banco_id").val() != '' )
+
+                        if(montoaCobrar == 0)
+                            show_msg('warning','Ingrese el importe del deposito (Monto a cobrar)');
+
+                        else if(validarNumeroOperacion() == true)
+                                show_msg('warning', '<h4>Error. </h4><p>El numero de operacion ingresado ya fue registrado.</p>');
+                        else
+                            $("#confirmacion").modal('show');
+
                    else
                        show_msg('warning','Debe seleccionar un banco y numero de operación');
                 }
+                else if(mediodePago == 'CHEQUE' && montoaCobrar == 0)
+                    show_msg('warning','Ingrese el importe del deposito (Monto a cobrar)');
+
                 else
                     $("#confirmacion").modal('show');
             }
@@ -534,6 +575,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
 
                 var monto = parseFloat($("#monto").val());
                 var total = parseFloat($("#total").val());
+
 
                 if (monto > total) {
                     show_msg('warning','Debe ingresar un monto menor a al total de la deuda');
@@ -588,26 +630,28 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
         }
 
         //Validamos que el numero de operacion no se repita
-        function validarNumeroOperacion(num_operacion){
-            var operacion = num_operacion;
+        function  validarNumeroOperacion(){
+            var operacion = $("#num_oper").val();
             $.ajax({
                 url: '<?= base_url()?>banco/validaNumeroOperacion/' + operacion,
-                headers:{
-                    Accept:'aplication/json'},
+                dataType:'json',
+                async: false,
                 data: {'operacion': operacion},
                 type: 'POST',
 
                 success: function(data){
-                    if (data.success == 1) {
-                        $("#confirmacion").modal('show');
-                    }
+                    if (data.error == undefined)
+                        result = false;
                     else
-                        show_msg('warning','El numero de operacion ya se encuentra registrado');
+                        result = true;
+
                 },
                 error:function(){
                     show_msg('danger','Ha ocurrido un error vuelva a intentar');
                 }
             })
+
+            return result;
 
         }
 

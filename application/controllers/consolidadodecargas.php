@@ -376,6 +376,8 @@ class consolidadodecargas extends MY_Controller
         $banco = $this->input->post('banco_id');
         $num_oper = $this->input->post('num_oper');
         $monto = $this->input->post('monto') != NULL ? $this->input->post('monto') : 0;
+        $fec_ope = $this->input->post('fec_oper');
+
 
         $venta = $this->venta_model->get_by('venta_id', $id_pedido);
 
@@ -388,7 +390,8 @@ class consolidadodecargas extends MY_Controller
             'liquidacion_monto_cobrado' => $monto,
             'pago_id' => $pago,
             'banco_id' => $banco,
-            'num_oper' => $num_oper
+            'num_oper' => $num_oper,
+            'fecha_documento' => $fec_ope
         ));
 
         $result = $this->venta_model->update_status($id_pedido, $estatus);

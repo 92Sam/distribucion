@@ -42,7 +42,7 @@
 
         </div>
         <div class="modal-footer">
-            <a href="#" class="btn btn-warning" onclick="$('#dialog_form').modal('hide');">Cerrar</a>
+            <a href="#" class="btn btn-warning" data-dismiss="modal">Cerrar</a>
         </div>
     </div>
 

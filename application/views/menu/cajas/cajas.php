@@ -67,7 +67,7 @@
                                 <td><?= MONEDA . number_format($desglose->saldo,2) ?></td>
                                 <td><?= $desglose->principal == '1' ? 'SI' : 'NO' ?></td>
                                 <td><?= $desglose->estado == '1' ? 'Activa' : 'Inactiva' ?></td>
-                                <td>
+                                <td align="center">
                                     <a class="btn_edit_caja_cuenta btn btn-primary"
                                        data-caja_id="<?= $caja->id ?>"
                                        data-id="<?= $desglose->id ?>">

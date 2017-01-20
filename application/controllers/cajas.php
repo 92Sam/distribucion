@@ -95,6 +95,7 @@ class cajas extends MY_Controller
 
     function caja_ajustar_form($caja_id, $id)
     {
+
         $data['header_text'] = 'Ajustar Cuenta de Caja';
         $data['cuenta'] = $this->cajas_model->get_cuenta($id);
 
@@ -105,6 +106,7 @@ class cajas extends MY_Controller
         $data['caja_cuentas'] = $this->db->get_where('caja_desglose', array('estado' => 1))->result();
 
         $this->load->view('menu/cajas/form_ajustar_cuenta', $data);
+
     }
 
     function caja_ajustar_guardar($id)
