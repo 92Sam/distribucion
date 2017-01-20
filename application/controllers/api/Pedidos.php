@@ -294,7 +294,7 @@ class pedidos extends REST_Controller
                 $pedido['retencion'] = $post['retencion'];
 
                 $save = $this->ventas->insertar_venta($pedido, $detalle, $montoboletas);
-                if ($resultado != false) {
+                if ($save != false) {
                             $this->historial_pedido_model->insertar_pedido(PROCESO_GENERAR, array(
                                 'pedido_id' => $save,
                                 'responsable_id' => $post['id_vendedor']
