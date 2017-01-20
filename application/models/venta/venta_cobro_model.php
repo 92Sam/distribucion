@@ -363,8 +363,7 @@ class venta_cobro_model extends CI_Model
             $historial_pago['historial_estatus'] = $data['historial_estatus'];
 
         if ($historial_pago['historial_tipopago'] == 4){
-
-                $historial_pago['fecha_documento'] = $data['fecha_documento'] != NULL ? date('Y-m-d H:i:s', strtotime($data['fecha_documento'].' '.date('H:i:s'))) : NULL;
+                $historial_pago['fecha_documento'] = $data['fecha_documento'] != NULL ? date('Y-m-d H:i:s', strtotime($data['fecha_documento'].' '.date('H:i:s'))) :  date('Y-m-d H:i:s');
             $historial_pago['historial_banco_id'] = $data['banco_id'];
         }
 
