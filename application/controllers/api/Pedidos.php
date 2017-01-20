@@ -297,7 +297,7 @@ class pedidos extends REST_Controller
                 if ($resultado != false) {
                             $this->historial_pedido_model->insertar_pedido(PROCESO_GENERAR, array(
                                 'pedido_id' => $save,
-                                'responsable_id' => $this->session->userdata('nUsuCodigo')
+                                'responsable_id' => $post['id_vendedor']
                             ));
                         }
                 if ($save === false) {
