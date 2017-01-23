@@ -211,8 +211,10 @@ class pedidos extends REST_Controller
 
             }
         }
-        $data['pedido']['items_pedido '] = $lista_productos;
-        $data['pedido']['bonos_existentes '] = $lista_bonos_existentes;
+
+        $data['pedido']['ventas'] = $this->ventas->get_venta_detalle($id);
+        $data['pedido']['items_pedido'] = $lista_productos;
+        $data['pedido']['bonos_existentes'] = $lista_bonos_existentes;
 
         if ($data) {
 
@@ -525,6 +527,7 @@ class pedidos extends REST_Controller
         $num_oper = $get['num_oper'];
         $vendedor = $get['vendedor'];
         $monto = $get['monto'] != NULL ? $get['monto'] : 0;
+        $fecha_oper = $get['fecha_oper'];
 
         $venta = $this->ventas->get_by('venta_id', $id_pedido);
 
@@ -539,7 +542,8 @@ class pedidos extends REST_Controller
             'pago_id' => $pago,
             'banco_id' => $banco,
             'num_oper' => $num_oper,
-            'vendedor' => $vendedor
+            'vendedor' => $vendedor,
+            'fecha_documento' => $fecha_oper
         ));
 
         $result = $this->ventas->update_status($id_pedido, $estatus);
