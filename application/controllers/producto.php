@@ -84,37 +84,7 @@ class producto extends MY_Controller
     {
 
         if ($id != FALSE) {
-
-            $precio_venta = $this->precios_model->get_by('nombre_precio', 'Precio Venta');
-            $data['producto_unidad'] = $this->unidades_model->get_by_producto($id);
-
-            //var_dump($data);
-            $select = '*';
-            $from = "unidades_has_precio";
-            $join = false;
-            $campos_join = false;
-            $tipo_join = false;
-
-            $group = false;
-            $where = array(
-                'id_unidad' => $data['producto_unidad'][0]['id_unidad'],
-                'id_producto' => $id,
-                'id_precio' => $precio_venta['id_precio']
-            );
-            $data['precio_venta'] = $this->unidades_has_precio_model->traer_by($select, $from, $join,
-                $campos_join, $tipo_join, $where, false, false, false, false, $group, false, "ROW_ARRAY");
-
-            $select = 'count(id_producto) as cantidad_bonificada';
-            $from = "detalle_venta";
-            $where = array(
-                'id_producto' => $id,
-                'bono' => 1
-            );
-            $data['cantidad_comprada'] = $this->producto_model->cantidad_comprada($id);
-            $data['producto_bonificado'] = $this->venta_model->traer_by($select, $from, $join,
-                $campos_join, $tipo_join, $where, false, false, false, false, $group, false, "ROW_ARRAY");
-
-            $data['datos_producto'] = $this->producto_model->estado_producto_est($id);
+            $data['producto_estados'] = $this->producto_model->get_estado_producto($id);
 
         }
         $this->load->view('menu/ventas/estadoProducto', $data);

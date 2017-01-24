@@ -913,9 +913,9 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
 
         $cantidades = array();
         foreach ($devoluciones as $detalle) {
+            $historia = $this->db->get_where('historial_pedido_detalle', array('id' => $detalle->detalle_id))->row();
+            
             if ($detalle->new_cantidad != 0) {
-                $historia = $this->db->get_where('historial_pedido_detalle', array('id' => $detalle->detalle_id))->row();
-
                 $this->db->insert('detalle_venta', array(
                     'id_venta' => $venta_id,
                     'id_producto' => $historia->producto_id,

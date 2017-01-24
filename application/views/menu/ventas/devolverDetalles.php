@@ -200,7 +200,7 @@
         if (!validar_venta())
             return false;
 
-        var template = '<h3>Devoluvi&oacute;n de la Venta ' + $('#venta_numero').html().trim() + '</h3>';
+        var template = '<h3>Devoluci&oacute;n de la Venta ' + $('#venta_numero').html().trim() + '</h3>';
         template += '<hr class="hr-margin-10">';
         template += '<h4><label>Productos Devueltos:</label></h4>';
         $('.producto_detalles_list').each(function () {

@@ -68,6 +68,7 @@ class ingreso_model extends CI_Model
                     'id_producto' => $row->Codigo,
                     'cantidad' => $row->Cantidad,
                     'precio' => ($row->PrecUnt === 'null') ? 0 : $row->PrecUnt,
+                    'precio_valor' => ($row->ValorUnitario === 'null') ? 0 : $row->ValorUnitario,
                     'unidad_medida' => $row->unidad,
                     'total_detalle' => (!isset($row->Importe) || $cab_pie['status'] == INGRESO_PENDIENTE) ? 0 : $row->Importe
                 );
@@ -465,6 +466,7 @@ WHERE detalleingreso.id_ingreso='$compra_id'");
                     'id_producto' => $row->Codigo,
                     'cantidad' => $row->Cantidad,
                     'precio' => ($row->PrecUnt === 'null') ? 0 : $row->PrecUnt,
+                    'precio_valor' => ($row->ValorUnitario === 'null') ? 0 : $row->ValorUnitario,
                     'unidad_medida' => $row->unidad,
                     'total_detalle' => (!isset($row->Importe)) ? 0 : $row->Importe
                 );

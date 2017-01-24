@@ -231,6 +231,7 @@
             var url = '<?php echo base_url('cajas/caja_ajustar_retencion_guardar')?>' + '/' + $("#cuenta_id").val();
 
             $("#btn_save_form").attr('disabled', 'disabled');
+            $("#btn_save_form_confirm").attr('disabled', 'disabled');
             $.ajax({
                 url: url,
                 data: data,
@@ -258,6 +259,7 @@
                 },
                 complete: function (data) {
                     $("#btn_save_form").removeAttr('disabled');
+                    $("#btn_save_form_confirm").removeAttr('disabled');
                 }
             });
         });

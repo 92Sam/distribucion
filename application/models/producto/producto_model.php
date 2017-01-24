@@ -27,12 +27,13 @@ class producto_model extends CI_Model
     }
 
     //DEVUELVE EL COSTO UNITARIO PROMEDIO DEL PRODUCTO SEGUN SUS INGRESOS
-    function get_costo_promedio($id)
+    function get_costo_promedio($id, $um_id)
     {
         $costo = $this->db->select('(sum(total_detalle) / sum(cantidad)) as costo_promedio')
             ->from('detalleingreso')
             ->join('ingreso', 'ingreso.id_ingreso = detalleingreso.id_ingreso')
             ->where('id_producto', $id)
+            ->where('unidad_medida', $um_id)
             ->where('ingreso_status', 'COMPLETADO')
             ->get()->row();
 
@@ -510,5 +511,72 @@ class producto_model extends CI_Model
         $this->db->like('var_producto_marca', $term);
         $query = $this->db->get();
         return $query->result_array();
+    }
+
+    function get_estado_producto($id){
+        return $this->db->query("
+        SELECT
+            unidades.nombre_unidad AS unidad_nombre,
+            unidades_has_precio.precio AS precio_venta,
+            SUM(detalleingreso.cantidad * detalleingreso.precio) / SUM(detalleingreso.cantidad) AS costo_promedio,
+            (SELECT
+                    precio
+                FROM
+                    detalleingreso
+                        JOIN
+                    ingreso ON ingreso.id_ingreso = detalleingreso.id_ingreso
+                WHERE
+                    ingreso.ingreso_status = 'COMPLETADO'
+                        AND detalleingreso.id_producto = producto.producto_id
+                        AND detalleingreso.unidad_medida = unidades_has_precio.id_unidad
+                ORDER BY detalleingreso.id_ingreso DESC
+                LIMIT 1) AS ultimo_costo,
+            SUM(detalleingreso.cantidad) AS cantidad_comprado,
+            (SELECT
+                    SUM(detalle_venta.cantidad)
+                FROM
+                    detalle_venta
+                        JOIN
+                    venta ON venta.venta_id = detalle_venta.id_venta
+                WHERE
+                    venta.venta_status IN ('ENTREGADO' , 'RECHAZADO', 'DEVUELTO PARCIALMENTE')
+                        AND detalle_venta.id_producto = producto.producto_id
+                        AND unidades_has_precio.id_unidad = detalle_venta.unidad_medida) AS cantidad_vendido,
+            (SELECT
+                    SUM(detalleingreso.cantidad * detalleingreso.precio)
+                FROM
+                    detalleingreso
+                        JOIN
+                    ingreso ON ingreso.id_ingreso = detalleingreso.id_ingreso
+                WHERE
+                    ingreso.ingreso_status = 'COMPLETADO'
+                        AND detalleingreso.id_producto = producto.producto_id
+                        AND detalleingreso.unidad_medida = unidades_has_precio.id_unidad) AS importe_comprado,
+            (SELECT
+                    SUM(detalle_venta.detalle_importe)
+                FROM
+                    detalle_venta
+                        JOIN
+                    venta ON venta.venta_id = detalle_venta.id_venta
+                WHERE
+                    venta.venta_status IN ('ENTREGADO' , 'RECHAZADO', 'DEVUELTO PARCIALMENTE')
+                        AND detalle_venta.id_producto = producto.producto_id
+                        AND unidades_has_precio.id_unidad = detalle_venta.unidad_medida) AS importe_vendido
+            FROM
+            producto
+                JOIN
+            unidades_has_precio ON unidades_has_precio.id_producto = producto.producto_id
+                JOIN
+            unidades ON unidades.id_unidad = unidades_has_precio.id_unidad
+                LEFT JOIN
+            detalleingreso ON detalleingreso.id_producto = producto.producto_id
+                AND detalleingreso.unidad_medida = unidades_has_precio.id_unidad
+                JOIN
+            ingreso ON ingreso.id_ingreso = detalleingreso.id_ingreso
+            WHERE
+            ingreso.ingreso_status = 'COMPLETADO'
+                AND producto.producto_id = ".$id."
+            GROUP BY unidades.id_unidad
+        ")->result();
     }
 }

@@ -408,13 +408,34 @@ class consolidadodecargas extends MY_Controller
     function cerrarLiquidacion()
     {
         $id = $this->input->post('id');
+        $c_detalles = $this->db->get_where('consolidado_detalle', array('consolidado_id' => $id))->result();
+
+        foreach ($c_detalles as $detalle){
+            $pedido = $this->db->get_where('venta', array('venta_id' => $detalle->pedido_id))->row();
+            if ($pedido->venta_status == PEDIDO_DEVUELTO){
+                $detalle_historial = $this->db->select('historial_pedido_detalle.*')
+                    ->from('historial_pedido_detalle')
+                    ->join('historial_pedido_proceso', 'historial_pedido_proceso.id = historial_pedido_detalle.historial_pedido_proceso_id')
+                    ->where('historial_pedido_proceso.pedido_id', $detalle->pedido_id)
+                    ->where('historial_pedido_proceso.proceso_id', PROCESO_DEVOLVER)
+                    ->get()->result();
+
+                if(count($detalle_historial) == 0){
+                    $this->db->where('venta_id', $detalle->pedido_id);
+                    $this->db->update('venta', array('venta_status'=>'ENTREGADO'));
+                }
+            }
+        }
+
+
+
         if ($id == FALSE) {
             $json['error'] = 'Ha ocurrido un error al procesar la solicitud';
         }
         $estatus = 'CERRADO';
         $cerrar = $this->consolidado_model->cambiarEstatus($id, $estatus);
 
-        $c_detalles = $this->db->get_where('consolidado_detalle', array('consolidado_id' => $id))->result();
+
         foreach ($c_detalles as $detalle) {
             $pedido = $this->db->get_where('venta', array('venta_id' => $detalle->pedido_id))->row();
 
