@@ -118,11 +118,16 @@ class pedidos extends REST_Controller
     // Show
     public function ver_get()
     {
-        $id = $this->get('pedido');
-        $local = $this->get('local');
+        $get = $this->input->get(null, true);
+
+        $id = $get['pedido'];
+        $local = $get['local'];
+        $status = isset($get['status']) ? $get['status'] : null;
+
         if (empty($id) or empty($local)) {
             $this->response(array("error" => 'Faltan parametros'), 200);
         }
+
         $data['pedido'] = null;
         $pedido_detalle = $this->ventas->obtener_venta($id);
 
@@ -138,23 +143,38 @@ class pedidos extends REST_Controller
         $data['pedido']['confirmacion_usuario_pago_adelantado'] = $pedido_detalle[0]['confirmacion_usuario_pago_adelantado'];
         $lista_productos = array();
         $lista_bonos_existentes = array();
-        foreach ($pedido_detalle as $pedido) {
 
+        foreach ($pedido_detalle as $pedido) {
             $detalle = $this->db->get_where('detalle_venta', array('id_detalle' => $pedido['id_detalle']))->row();
             $importe_sugerido = 0;
+
             if ($detalle->precio_sugerido == 0)
                 $importe_sugerido += $detalle->precio * $detalle->cantidad;
             else {
                 $importe_sugerido += $detalle->precio_sugerido * $detalle->cantidad;
 
             }
-            if ($pedido['bono'] == false) {
 
+            $cantidad = 0;
+            if ($status == 'devolver') {
+                $venta_hist = $this->ventas->get_venta_hist_cant($id);
+
+                foreach ($venta_hist->detalles as $detalle) {
+                    if ($detalle->producto_id == $pedido['producto_id'] && $detalle->bono == 0) {
+                        $cantidad = $detalle->cantidad;
+                    }
+                }
+
+            } else {
+                $cantidad = $pedido['cantidad'];
+            }
+
+            if ($pedido['bono'] == false) {
                 $producto['producto_id'] = $pedido['producto_id'];
                 $producto['producto_id_cero'] = sumCod($pedido['producto_id']);
                 $producto['nombre'] = $pedido['nombre'];
                 $producto['precio'] = $pedido['preciounitario'];
-                $producto['cantidad'] = $pedido['cantidad'];
+                $producto['cantidad'] = $cantidad;
                 $producto['detalle_importe'] = $pedido['importe'];
                 $producto['detalle_importe_sugerido'] = $importe_sugerido;
                 $producto['producto_cualidad'] = $pedido['producto_cualidad'];
@@ -179,9 +199,7 @@ class pedidos extends REST_Controller
 
             }
 
-
             if ($pedido['bono'] == true) {
-
                 $bono['producto_id'] = $pedido['producto_id'];
                 $bono['producto_id_cero'] = sumCod($pedido['producto_id']);
                 $bono['nombre'] = $pedido['nombre'];
@@ -212,12 +230,10 @@ class pedidos extends REST_Controller
             }
         }
 
-        $data['pedido']['ventas'] = $this->ventas->get_venta_detalle($id);
         $data['pedido']['items_pedido'] = $lista_productos;
         $data['pedido']['bonos_existentes'] = $lista_bonos_existentes;
 
         if ($data) {
-
             $this->response($data, 200);
         } else {
             $this->response(array(), 200);
