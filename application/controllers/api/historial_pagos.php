@@ -166,7 +166,8 @@ class historial_pagos extends REST_Controller
             'banco_id' => $get['banco_id'],
             'num_oper' => $get['num_oper'],
             'importe' => $get['importe'],
-            'vendedor' => $get['vendedor']
+            'vendedor' => $get['vendedor'],
+            'fecha_documento' => $get['fecha_oper']
         );
 
         $result = null;
@@ -193,7 +194,8 @@ class historial_pagos extends REST_Controller
             'banco_id' => $get['banco_id'],
             'num_oper' => $get['num_oper'],
             'importe' => $get['importe'],
-            'vendedor' => $get['vendedor']
+            'vendedor' => $get['vendedor'],
+            'fecha_documento' => $get['fecha_oper']
         );
 
         $result = null;
@@ -222,6 +224,7 @@ class historial_pagos extends REST_Controller
             'num_oper' => $get['num_oper'],
             'importe' => $get['importe'],
             'vendedor' => $id_vendedor,
+            'fecha_documento' => $get['fecha_oper'],
             'historial_id' => json_decode($lista)
         );
 

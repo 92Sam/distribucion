@@ -478,6 +478,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                 data: {'venta_id': venta_id},
 
                 success: function (data) {
+                    $('#fechaoperacion_block').hide();
                     $('#barloadermodal').modal('hide');
                     $("#ventamodal_devolver").html(data);
                     $("#ventamodal_devolver").modal('show');
@@ -528,6 +529,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                 $(".pago_block").fadeIn(100);
                 $(".devolver_block").fadeIn(100);
                 $("#total").val($("#estatus_value_entregado").val());
+
                 devolver();
             }
         }
@@ -537,30 +539,43 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
             var numeroOperacion = $("#num_oper").val();
             var mediodePago = $('#pago_id option:selected').text();
             var montoaCobrar = $('#monto').val();
+            var banco = $("#banco_id").val();
+
+            //EFECTIVO = 3
+            //DEPOSITO = 4
+            //CHEQUE = 5
+
 
             if ($("#pago_id").val() != 0) {
-                if (mediodePago == 'DEPOSITO') {
-                   if (numeroOperacion != '' && $("#banco_id").val() != '' )
 
-                        if(montoaCobrar == 0)
-                            show_msg('warning','Ingrese el importe del deposito (Monto a cobrar)');
+                if ($("#pago_id").val() == 3)
+                    $("#confirmacion").modal('show');
 
-                        else if(validarNumeroOperacion() == true)
-                                show_msg('warning', '<h4>Error. </h4><p>El numero de operacion ingresado ya fue registrado.</p>');
+                if ($("#pago_id").val() == 4){
+                    if (banco != '' && numeroOperacion != '' ){
+                        if (montoaCobrar == '0' || montoaCobrar == ' '){
+                            show_msg('warning','El importe del deposito debe ser mayor a cero');
+                            $('#monto').trigger('focus');
+                        }
                         else
                             $("#confirmacion").modal('show');
-
-                   else
-                       show_msg('warning','Debe seleccionar un banco y numero de operación');
+                    }
+                    else
+                        show_msg('warning','Es necesario seleccionar un banco e indicar el numero de operación');
                 }
-                else if(mediodePago == 'CHEQUE' && montoaCobrar == 0)
-                    show_msg('warning','Ingrese el importe del deposito (Monto a cobrar)');
-
-                else
-                    $("#confirmacion").modal('show');
+                if ($("#pago_id").val() == 5) {
+                    if (montoaCobrar == '0' || montoaCobrar == ' ') {
+                        show_msg('warning','El importe del deposito debe ser mayor a cero');
+                        $('#monto').trigger('focus');
+                    }
+                    else
+                        $("#confirmacion").modal('show');
+                }
             }
-            else
-                show_msg('warning','Debe de seleccionar un medio de pago');
+            else {
+                show_msg('warning','Seleccione un medio medio de pago');
+                $("#pago_id").trigger('focus');
+            }
         }
 
 
@@ -572,7 +587,6 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                 })
             },
             guardar: function () {
-
                 var monto = parseFloat($("#monto").val());
                 var total = parseFloat($("#total").val());
 
@@ -587,19 +601,23 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                     return false;
                 }
 
-
                 $.ajax({
                     url: '<?= base_url() ?>consolidadodecargas/liquidarPedido',
                     type: 'POST',
                     data: $("#formliquidacion").serialize(),
                     dataType: 'json',
                     success: function (data) {
-                        if (data.error == undefined) {
+
+                        if (data.success == '1') {
                             $('#confirmacion').modal('hide');
                             $('#barloadermodal').modal('hide');
                             $('#cambiarEstatus').modal('hide');
                             $("#consolidadoLiquidacion").load('<?= $ruta ?>consolidadodecargas/verDetallesLiquidacion/' + $('#consolidado_id').val() + '/' + estatus_consolidado);
-
+                        }
+                        else if (data.error == '1') {
+                            $("#confirmacion").modal('hide');
+                            show_msg('warning', '<h4>Error. </h4><p>El numero de operación ingresado ya fue registrado</p>');
+                            $("#num_oper").trigger('focus');
                         }
                     }
 

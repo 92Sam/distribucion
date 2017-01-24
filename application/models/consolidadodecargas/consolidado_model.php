@@ -513,6 +513,9 @@ class consolidado_model extends CI_Model
 
     function updateDetalle($data)
     {
+        if ($this->banco_model->buscarNumeroOperacion($data) != 0)
+            return false;
+
         $add = array(
             'pedido_id' => $data['pedido_id'],
             'liquidacion_monto_cobrado' => $data['liquidacion_monto_cobrado']
@@ -545,10 +548,11 @@ class consolidado_model extends CI_Model
                 'num_oper' => $data['num_oper'],
                 'banco_id' => $data['banco_id'],
                 'vendedor' => isset($data['vendedor']) ? $data['vendedor'] : $this->session->userdata('nUsuCodigo'),
-                'fecha_documento' => date('Y-m-d H:i:s', strtotime($data['fecha_documento'])),
+                'fecha_documento' => isset($data['fecha_documento']) ? $data['fecha_documento'] : NULL,
                 'historial_estatus' => 'CONSOLIDADO'
             ));
         }
+
 
         $this->db->trans_complete();
         if ($this->db->trans_status() === FALSE) {

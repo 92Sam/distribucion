@@ -872,6 +872,40 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
         return $venta;
     }
 
+    public function get_venta_hist_cant($venta_id) {
+
+        $venta = $this->db->select('
+            venta.venta_id as venta_id,
+            venta.numero_documento as documento_id
+        ')->from('venta')->where('venta_id', $venta_id)->get()->row();
+
+        $proceso = $this->db->get_where('historial_pedido_proceso', array(
+            'proceso_id' => PROCESO_IMPRIMIR,
+            'pedido_id' => $venta_id
+        ))->row();
+
+        $venta->detalles = $this->db->select('
+            historial_pedido_detalle.id as detalle_id,
+            historial_pedido_detalle.producto_id as producto_id,
+            producto.producto_nombre as producto_nombre,
+            historial_pedido_detalle.precio_unitario as precio,
+            historial_pedido_detalle.stock as cantidad,
+            historial_pedido_detalle.unidad_id as unidad_id,
+            historial_pedido_detalle.bonificacion as bono,
+            unidades.nombre_unidad as unidad_nombre,
+            unidades.abreviatura as unidad_abr,
+            (historial_pedido_detalle.precio_unitario * historial_pedido_detalle.stock) as importe
+            ')
+            ->from('historial_pedido_detalle')
+            ->join('historial_pedido_proceso', 'historial_pedido_proceso.id=historial_pedido_detalle.historial_pedido_proceso_id')
+            ->join('producto', 'producto.producto_id=historial_pedido_detalle.producto_id')
+            ->join('unidades', 'unidades.id_unidad=historial_pedido_detalle.unidad_id')
+            ->where('historial_pedido_detalle.historial_pedido_proceso_id', $proceso->id)
+            ->get()->result();
+
+        return $venta;
+    }
+
     public function devolver_venta($venta_id, $total_importe, $devoluciones)
     {
         $total = $total_importe;

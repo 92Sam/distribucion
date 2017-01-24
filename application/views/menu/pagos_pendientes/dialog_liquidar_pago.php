@@ -241,7 +241,7 @@
             if ($("#pago_id").val() == "4") {
                 if (validarNumeroOperacion() == true){
                     show_msg('warning', '<h4>Error. </h4><p>El numero de operacion ingresado ya fue registrado.</p>');
-                     return false;
+                    return false;
                 }
              }
 
@@ -268,13 +268,11 @@
             $.ajax({
                 url: '<?php echo base_url('pago_pendiente/ejecutar_liquidar_pago')?>' + '/' + $("#vendedor").val(),
                 data: data,
-                headers: {
-                    Accept: 'application/json'
-                },
                 type: 'post',
                 success: function (data) {
-                    if (data.error == '1') {
-                        show_msg('warning', '<h4>Error. </h4><p>Ha ocurrido un error interno.</p>');
+                    if (data == '1') {
+                        show_msg('warning', '<h4>Error. </h4><p>El numero de operación ingresado ya fue registrado.</p>');
+                        $("#num_oper").trigger('focus');
                     }
                     else {
                         show_msg('success', '<h4>Operaci&oacute;n exitosa. </h4><p>Liquidaci&oacute;n ejecutada correctamente.</p>');

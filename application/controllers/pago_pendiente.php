@@ -120,6 +120,8 @@ class pago_pendiente extends MY_Controller
 
     function ejecutar_pagar_nota_pedido($id)
     {
+        header('Content-Type: application/json');
+
         $data = array(
             'pago_id' => $this->input->post('pago_id'),
             'banco_id' => $this->input->post('banco_id'),
@@ -129,10 +131,14 @@ class pago_pendiente extends MY_Controller
             'fecha_documento' => $this->input->post('fec_oper'),
 
         );
-        $this->venta_cobro_model->pagar_nota_pedido($id, $data);
+        $result = $this->venta_cobro_model->pagar_nota_pedido($id, $data);
 
-        header('Content-Type: application/json');
-        echo json_encode(array('success' => 1));
+        if ($result != FALSE) {
+            echo json_encode(array('success' => 1));
+        }
+        else
+            echo json_encode(array('error' => 1));
+
     }
 
 
@@ -149,6 +155,8 @@ class pago_pendiente extends MY_Controller
 
     function ejecutar_pagar_cliente($id)
     {
+        header('Content-Type: application/json');
+
         $data = array(
             'pago_id' => $this->input->post('pago_id'),
             'banco_id' => $this->input->post('banco_id'),
@@ -156,10 +164,13 @@ class pago_pendiente extends MY_Controller
             'importe' => $this->input->post('importe'),
             'fecha_documento' => $this->input->post('fec_oper'),
         );
-        $this->venta_cobro_model->pagar_cliente($id, $data);
+        $result = $this->venta_cobro_model->pagar_cliente($id, $data);
 
-        header('Content-Type: application/json');
-        echo json_encode(array('success' => 1));
+        if ($result !=false) {
+            echo json_encode(array('success' => 1));
+        }
+        else
+            echo json_encode(array('error' => 1));
     }
 
     function liquidar_pago($id)
@@ -187,9 +198,15 @@ class pago_pendiente extends MY_Controller
             'historial_id' => json_decode($this->input->post('historial_id'))
         );
 
-        $this->venta_cobro_model->pagar_by_vendedor($id, $data);
+        $result = $this->venta_cobro_model->pagar_by_vendedor($id, $data);
 
-        $this->liquidar_pago($id);
+        if ($result != false) {
+            $this->liquidar_pago($id);
+        }
+        else
+            echo '1';
+
+
     }
 
     function confirmar_liquidar_pago($id)

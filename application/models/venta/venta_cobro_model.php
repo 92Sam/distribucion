@@ -7,6 +7,7 @@ class venta_cobro_model extends CI_Model
         parent::__construct();
         $this->load->model('cajas/cajas_model');
         $this->load->model('cajas/cajas_mov_model');
+        $this->load->model('banco/banco_model');
     }
 
     function get_pagos_pendientes($params = array())
@@ -345,8 +346,13 @@ class venta_cobro_model extends CI_Model
             ->group_by('cliente.id_cliente')->get()->row();
     }
 
-    function pagar_nota_pedido($venta_id, $data)
+    function pagar_nota_pedido($venta_id, $data, $validar = true)
     {
+        if ($validar) {
+            if ($this->banco_model->buscarNumeroOperacion($data) != 0)
+            return false;
+        }
+
         $credito = $this->db->get_where('credito', array('id_venta' => $venta_id))->row();
         $historial_pago = array(
             'credito_id' => $venta_id,
@@ -356,15 +362,17 @@ class venta_cobro_model extends CI_Model
             'monto_restante' => $credito->dec_credito_montodebito + $data['importe'],
             'historial_usuario' => isset($data['vendedor']) ? $data['vendedor'] : $this->session->userdata('nUsuCodigo'),
             'historial_estatus' => 'PENDIENTE',
-            'fecha_documento' => date('Y-m-d H:i:s', strtotime($data['fecha_documento'])),
             'pago_data' => $data['num_oper']
         );
 
         if (isset($data['historial_estatus']))
             $historial_pago['historial_estatus'] = $data['historial_estatus'];
 
-        if ($historial_pago['historial_tipopago'] == 4)
+        if ($historial_pago['historial_tipopago'] == 4){
+                $historial_pago['fecha_documento'] = $data['fecha_documento'] != NULL ? date('Y-m-d H:i:s', strtotime($data['fecha_documento'].' '.date('H:i:s'))) :  date('Y-m-d H:i:s');
             $historial_pago['historial_banco_id'] = $data['banco_id'];
+        }
+
 
         $this->db->insert('historial_pagos_clientes', $historial_pago);
         $result = $this->db->insert_id();
@@ -377,6 +385,11 @@ class venta_cobro_model extends CI_Model
 
     function pagar_by_vendedor($id, $data)
     {
+
+        if ($this->banco_model->buscarNumeroOperacion($data) != 0)
+            return false;
+
+
         $historial_pago = array(
             'historial_fecha' => date('Y-m-d H:i:s'),
             'historial_monto' => $data['importe'],
@@ -385,11 +398,12 @@ class venta_cobro_model extends CI_Model
             'historial_usuario' => isset($data['vendedor']) ? $data['vendedor'] : $this->session->userdata('nUsuCodigo'),
             'historial_estatus' => 'ESPERA',
             'pago_data' => $data['num_oper'],
-            'fecha_documento' => date('Y-m-d H:i:s', strtotime($data['fecha_documento'])),
             'vendedor_id' => $id
         );
-        if ($historial_pago['historial_tipopago'] == 4)
+        if ($historial_pago['historial_tipopago'] == 4){
             $historial_pago['historial_banco_id'] = $data['banco_id'];
+            $historial_pago['fecha_documento'] = $data['fecha_documento'] != NULL ? date('Y-m-d H:i:s', strtotime($data['fecha_documento'].' '.date('H:i:s'))) :  date('Y-m-d H:i:s');
+        }
 
         $this->db->insert('historial_pagos_clientes', $historial_pago);
         $result = $this->db->insert_id();
@@ -398,6 +412,8 @@ class venta_cobro_model extends CI_Model
             $this->db->where('historial_id', $historial->id);
             $this->db->update('historial_pagos_clientes', array('vendedor_id' => $result));
         }
+
+        return $result;
     }
 
     function confirmar_pago($id, $cuenta_id)
@@ -496,6 +512,9 @@ class venta_cobro_model extends CI_Model
 
     function pagar_cliente($cliente_id, $data)
     {
+        if ($this->banco_model->buscarNumeroOperacion($data) != 0)
+            return false;
+
         $ventas = $this->db->select("
             venta.venta_id as venta_id,
             venta.total as total_deuda,
@@ -519,13 +538,16 @@ class venta_cobro_model extends CI_Model
             elseif ($total_pagado > $venta->saldo) {
                 $data['importe'] = $venta->saldo;
                 $total_pagado -= $venta->saldo;
-                $this->pagar_nota_pedido($venta->venta_id, $data);
+                $this->pagar_nota_pedido($venta->venta_id, $data, false);
+
             } elseif ($total_pagado < $venta->saldo) {
                 $data['importe'] = $total_pagado;
                 $total_pagado = 0;
-                $this->pagar_nota_pedido($venta->venta_id, $data);
+                $this->pagar_nota_pedido($venta->venta_id, $data, false);
             }
         }
+        return 1;
+
     }
 
 

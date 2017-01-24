@@ -224,11 +224,6 @@
                     $("#importe").trigger('focus');
                     return false;
                 }
-                if (validarNumeroOperacion() == true){
-                    show_msg('warning', '<h4>Error. </h4><p>El numero de operación ingresado ya fue registrado.</p>');
-                    $("#num_oper").trigger('focus');
-                    return false;
-                }
              }
 
             var importe = isNaN(parseFloat($("#importe").val())) ? 0 : parseFloat($("#importe").val());
@@ -264,7 +259,8 @@
                         $('.btn_buscar').click();
                     }
                     else if (data.error == '1') {
-                        show_msg('warning', '<h4>Error. </h4><p>Ha ocurrido un error interno.</p>');
+                        show_msg('warning', '<h4>Error. </h4><p>El numero de operación ingresado ya fue registrado</p>');
+                        $("#num_oper").trigger('focus');
                     }
                 },
                 error: function (data) {
@@ -334,7 +330,7 @@
         return formatPrice(parseFloat(venta_total * ret_val / 100));
     }
 
-    function  validarNumeroOperacion(){
+    function validarNumeroOperacion(){
 
         var operacion = $("#num_oper").val();
         $.ajax({

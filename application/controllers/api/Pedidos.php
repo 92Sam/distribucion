@@ -19,6 +19,7 @@ class pedidos extends REST_Controller
     function __construct()
     {
         parent::__construct();
+        $this->load->model('historial/historial_pedido_model');
         $this->load->model('consolidadodecargas/consolidado_model');
         $this->load->model('venta/venta_model', 'ventas');
         $this->load->model('venta/venta_estatus_model');
@@ -117,11 +118,16 @@ class pedidos extends REST_Controller
     // Show
     public function ver_get()
     {
-        $id = $this->get('pedido');
-        $local = $this->get('local');
+        $get = $this->input->get(null, true);
+
+        $id = $get['pedido'];
+        $local = $get['local'];
+        $status = isset($get['status']) ? $get['status'] : null;
+
         if (empty($id) or empty($local)) {
             $this->response(array("error" => 'Faltan parametros'), 200);
         }
+
         $data['pedido'] = null;
         $pedido_detalle = $this->ventas->obtener_venta($id);
 
@@ -137,23 +143,38 @@ class pedidos extends REST_Controller
         $data['pedido']['confirmacion_usuario_pago_adelantado'] = $pedido_detalle[0]['confirmacion_usuario_pago_adelantado'];
         $lista_productos = array();
         $lista_bonos_existentes = array();
-        foreach ($pedido_detalle as $pedido) {
 
+        foreach ($pedido_detalle as $pedido) {
             $detalle = $this->db->get_where('detalle_venta', array('id_detalle' => $pedido['id_detalle']))->row();
             $importe_sugerido = 0;
+
             if ($detalle->precio_sugerido == 0)
                 $importe_sugerido += $detalle->precio * $detalle->cantidad;
             else {
                 $importe_sugerido += $detalle->precio_sugerido * $detalle->cantidad;
 
             }
-            if ($pedido['bono'] == false) {
 
+            $cantidad = 0;
+            if ($status == 'devolver') {
+                $venta_hist = $this->ventas->get_venta_hist_cant($id);
+
+                foreach ($venta_hist->detalles as $detalle) {
+                    if ($detalle->producto_id == $pedido['producto_id'] && $detalle->bono == 0) {
+                        $cantidad = $detalle->cantidad;
+                    }
+                }
+
+            } else {
+                $cantidad = $pedido['cantidad'];
+            }
+
+            if ($pedido['bono'] == false) {
                 $producto['producto_id'] = $pedido['producto_id'];
                 $producto['producto_id_cero'] = sumCod($pedido['producto_id']);
                 $producto['nombre'] = $pedido['nombre'];
                 $producto['precio'] = $pedido['preciounitario'];
-                $producto['cantidad'] = $pedido['cantidad'];
+                $producto['cantidad'] = $cantidad;
                 $producto['detalle_importe'] = $pedido['importe'];
                 $producto['detalle_importe_sugerido'] = $importe_sugerido;
                 $producto['producto_cualidad'] = $pedido['producto_cualidad'];
@@ -178,9 +199,7 @@ class pedidos extends REST_Controller
 
             }
 
-
             if ($pedido['bono'] == true) {
-
                 $bono['producto_id'] = $pedido['producto_id'];
                 $bono['producto_id_cero'] = sumCod($pedido['producto_id']);
                 $bono['nombre'] = $pedido['nombre'];
@@ -210,11 +229,11 @@ class pedidos extends REST_Controller
 
             }
         }
-        $data['pedido']['items_pedido '] = $lista_productos;
-        $data['pedido']['bonos_existentes '] = $lista_bonos_existentes;
+
+        $data['pedido']['items_pedido'] = $lista_productos;
+        $data['pedido']['bonos_existentes'] = $lista_bonos_existentes;
 
         if ($data) {
-
             $this->response($data, 200);
         } else {
             $this->response(array(), 200);
@@ -293,6 +312,12 @@ class pedidos extends REST_Controller
                 $pedido['retencion'] = $post['retencion'];
 
                 $save = $this->ventas->insertar_venta($pedido, $detalle, $montoboletas);
+                if ($save != false) {
+                            $this->historial_pedido_model->insertar_pedido(PROCESO_GENERAR, array(
+                                'pedido_id' => $save,
+                                'responsable_id' => $post['id_vendedor']
+                            ));
+                        }
                 if ($save === false) {
                     $this->response(array('status' => 'failed'));
                 } else {
@@ -375,6 +400,7 @@ class pedidos extends REST_Controller
             );
             if (!empty($post)) {
                 $save = $this->ventas->actualizar_venta($pedido, $detalle, $montoboletas);
+                $this->historial_pedido_model->editar_pedido(PROCESO_GENERAR, $save);
                 if ($save === false) {
                     $this->response(array('status' => 'failed'));
                 } else {
@@ -431,7 +457,7 @@ class pedidos extends REST_Controller
 
         $select = 'venta.venta_id, venta_tipo, venta.id_cliente, razon_social,fecha, total,var_credito_estado, dec_credito_montodebito, documento_venta.*,
             nombre_condiciones, condiciones_pago.dias,venta.id_cliente as clientV, venta.pagado,consolidado_detalle.confirmacion_monto_cobrado_caja,consolidado_detalle.confirmacion_monto_cobrado_bancos,
-            ciudades.ciudad_nombre as cliente_distrito_nombre, zonas.zona_nombre as cliente_zona_nombre, 
+            ciudades.ciudad_nombre as cliente_distrito_nombre, zonas.zona_nombre as cliente_zona_nombre,
             (select SUM(historial_monto) from historial_pagos_clientes where historial_pagos_clientes.credito_id = venta.venta_id and historial_estatus="PENDIENTE" ) as confirmar,usuario.nUsuCodigo as vendedor_id, usuario.nombre as vendedor_nombre,consolidado_detalle.consolidado_id';
         $from = "venta";
         $join = array('credito', 'cliente', 'documento_venta', 'condiciones_pago', 'consolidado_detalle', 'usuario', 'ciudades', 'zonas');
@@ -517,6 +543,7 @@ class pedidos extends REST_Controller
         $num_oper = $get['num_oper'];
         $vendedor = $get['vendedor'];
         $monto = $get['monto'] != NULL ? $get['monto'] : 0;
+        $fecha_oper = $get['fecha_oper'];
 
         $venta = $this->ventas->get_by('venta_id', $id_pedido);
 
@@ -531,7 +558,8 @@ class pedidos extends REST_Controller
             'pago_id' => $pago,
             'banco_id' => $banco,
             'num_oper' => $num_oper,
-            'vendedor' => $vendedor
+            'vendedor' => $vendedor,
+            'fecha_documento' => $fecha_oper
         ));
 
         $result = $this->ventas->update_status($id_pedido, $estatus);
