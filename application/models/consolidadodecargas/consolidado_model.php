@@ -513,8 +513,9 @@ class consolidado_model extends CI_Model
 
     function updateDetalle($data)
     {
-        if ($this->banco_model->buscarNumeroOperacion($data) != 0)
-            return false;
+        if($data['liquidacion_monto_cobrado'] > 0)
+            if ($this->banco_model->buscarNumeroOperacion($data) != 0)
+                return false;
 
         $add = array(
             'pedido_id' => $data['pedido_id'],

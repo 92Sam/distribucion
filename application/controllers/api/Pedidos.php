@@ -632,7 +632,8 @@ class pedidos extends REST_Controller
                         $campos = array('venta_status' => $estatus, 'id_venta' => $venta_id, 'motivo' => 'Pedido anulado', 'nUsuCodigo' => $vendedor_id);
 
                         $data = $this->ventas->devolver_stock($venta_id, $campos, $estatus);
-                        $this->consolidado_model->updateDetalle(array('pedido_id' => $venta_id, 'liquidacion_monto_cobrado' => 0.0));
+                        if($estatus == PEDIDO_RECHAZADO)
+                            $this->consolidado_model->updateDetalle(array('pedido_id' => $venta_id, 'liquidacion_monto_cobrado' => 0.0));
 
                     } else {
                         $value = $ventaEstatus;
