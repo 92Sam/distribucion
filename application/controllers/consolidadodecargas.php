@@ -385,7 +385,7 @@ class consolidadodecargas extends MY_Controller
             $this->venta_model->actualizarCredito(array('dec_credito_montodeuda' => $venta['total']), array('id_venta' => $id_pedido));
         }
 
-        $this->consolidado_model->updateDetalle(array(
+        $validacion = $this->consolidado_model->updateDetalle(array(
             'pedido_id' => $id_pedido,
             'liquidacion_monto_cobrado' => $monto,
             'pago_id' => $pago,
@@ -394,15 +394,18 @@ class consolidadodecargas extends MY_Controller
             'fecha_documento' => $fec_ope
         ));
 
+
         $result = $this->venta_model->update_status($id_pedido, $estatus);
 
-        if ($result != FALSE) {
-            $json['success'] = 'Solicitud Procesada con exito';
+        if ($result != FALSE && $validacion != false) {
+            //$json['success'] = 'Solicitud Procesada con exito';
+            echo json_encode(array('success' => 1));
         } else {
-            $json['error'] = 'Ha ocurrido un error al procesar la solicitud';
+            //$json['error'] = 'Ha ocurrido un error al procesar la solicitud';
+            echo json_encode(array('error' => 1));
         }
 
-        echo json_encode($json);
+        //echo json_encode($json);
     }
 
     function cerrarLiquidacion()

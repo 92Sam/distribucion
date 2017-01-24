@@ -2408,7 +2408,7 @@ class venta extends MY_Controller
         $notasdentrega = $result['notasdentrega'];
 
         // documento
-        $phpword = new \PhpOffice\PHPWord\PHPWord();
+        $phpword = new \PhpOffice\PhpWord\PhpWord();
         $styles = array(
             'pageSizeW' => '12755.905511811',
             'pageSizeH' => '7937.007874016',
@@ -2556,7 +2556,7 @@ class venta extends MY_Controller
         header('Content-Transfer-Encoding: binary');
         header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
         header('Expires: 0');
-        $xmlWriter = \PhpOffice\PHPWord\IOFactory::createWriter($phpword, 'Word2007');
+        $xmlWriter = \PhpOffice\PhpWord\IOFactory::createWriter($phpword, 'Word2007');
         $xmlWriter->save("php://output");
 
     }
@@ -2609,7 +2609,7 @@ class venta extends MY_Controller
         $boletas = $result['boletas'];
 
         // documento
-        $phpword = new \PhpOffice\PHPWord\PHPWord();
+        $phpword = new \PhpOffice\PhpWord\PhpWord();
         $styles = array(
             'pageSizeW' => '7256.692913386',
             'pageSizeH' => '8798.74015748',
