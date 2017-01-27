@@ -79,12 +79,14 @@ class zonas extends REST_Controller
     public function ver_by_user_get() {
 
         $id = $this->get('id');
-        if (empty($id)) {
-            $this->response(array(), 200);
-        }
-
         $data = array();
-        $data['zonas'] = $this->zona_model->get_all_by_user($id);
+
+        if (empty($id)) {
+            $data['zonas'] = $this->zona_model->get_all();
+
+        } else {
+            $data['zonas'] = $this->zona_model->get_all_by_user($id);
+        }
 
         if ($data) {
             $this->response($data, 200);
