@@ -66,7 +66,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable">', "</
 
 </div>
 
-<div class="span12">
+<div class="span12" style="display: none">
     <div class="block">
 
         <div class="row">

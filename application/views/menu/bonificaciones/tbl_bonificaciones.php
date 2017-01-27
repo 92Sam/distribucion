@@ -14,7 +14,7 @@
 
 
 <div class="table-responsive">
-    <table class="table table-striped table-bordered" id="tablaresult">
+    <table class="table table-striped table-bordered dataTable" id="tableyiop">
         <thead>
         <tr">
             <th>ID</th>
