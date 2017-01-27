@@ -1998,8 +1998,6 @@ function buscarProducto() {
     $("#check_precio").prop('checked', false);
     $("#check_precio").trigger('change');
 
-    $("#seleccionunidades").modal('show');
-
     $.ajax({
         type: 'POST',
         data: {'producto': id},
@@ -2080,6 +2078,8 @@ function buscarProducto() {
 
             getBonificacion(id); // Bonificacion verificar
             getEscalas(id);      // Escalas Verificar
+
+            $("#seleccionunidades").modal('show');
 
             setTimeout(function () {
                 $("#precios_chosen .chosen-search input").blur();
@@ -2204,5 +2204,3 @@ function resetear() {
     lst_producto = new Array()
     lst_bonos = new Array()
 }
-
-
