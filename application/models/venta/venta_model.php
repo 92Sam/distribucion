@@ -787,8 +787,11 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
     {
         $venta = $this->db->select('
             venta.venta_id as venta_id,
-            venta.numero_documento as documento_id
-        ')->from('venta')->where('venta_id', $venta_id)->get()->row();
+            venta.numero_documento as documento_id,
+            cliente.grupo_id as grupo_id
+        ')->from('venta')
+        ->join('cliente', 'cliente.id_cliente = venta.id_cliente')
+        ->where('venta_id', $venta_id)->get()->row();
 
         $proceso = $this->db->get_where('historial_pedido_proceso', array(
             'proceso_id' => PROCESO_IMPRIMIR,
@@ -821,48 +824,23 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
 
             $venta->total += $detalle->cantidad * $detalle->precio;
 
-            $detalle->bonus_datos = null;
+            $detalle->bonus_dato = null;
 
-            $where_not = array();
-
-            if ($detalle->bono == 1) {
+            if ($detalle->bono == 0) {
                 $this->db->select('
                     bonificaciones.cantidad_condicion,
                     bonificaciones.bono_cantidad,
-                    bonificaciones.id_unidad as unidad_id,
+                    bonificaciones.bono_unidad as unidad_id,
                     bonificaciones.cantidad_condicion,
-                    bonificaciones_has_producto.id_producto as producto_id,
-                    historial_pedido_detalle.id as detalle_id
+                    bonificaciones.bono_producto as producto_id
                 ')
-                    ->from('venta')
-                    ->join('historial_pedido_proceso', 'historial_pedido_proceso.pedido_id = venta.venta_id')
-                    ->join('historial_pedido_detalle', 'historial_pedido_detalle.historial_pedido_proceso_id = historial_pedido_proceso.id')
-                    ->join('bonificaciones_has_producto', 'bonificaciones_has_producto.id_producto = historial_pedido_detalle.producto_id')
-                    ->join('bonificaciones', 'bonificaciones.id_bonificacion = bonificaciones_has_producto.id_bonificacion')
-                    ->join('cliente', 'cliente.id_cliente = venta.id_cliente')
-                    ->where('cliente.grupo_id = bonificaciones.id_grupos_cliente')
-                    ->where('historial_pedido_detalle.bonificacion = 0')
-                    ->where('historial_pedido_detalle.stock >= bonificaciones.cantidad_condicion')
-                    ->where('historial_pedido_proceso.proceso_id', PROCESO_IMPRIMIR)
-                    ->where('bonificaciones.bono_producto', $detalle->producto_id)
-                    ->where('bonificaciones.bono_unidad', $detalle->unidad_id)
-                    ->where('venta.venta_id', $venta_id);
+                    ->from('bonificaciones')
+                    ->join('bonificaciones_has_producto', 'bonificaciones_has_producto.id_bonificacion = bonificaciones.id_bonificacion')
+                    ->where('bonificaciones_has_producto.id_producto', $detalle->producto_id)
+                    ->where('bonificaciones.id_unidad', $detalle->unidad_id)
+                    ->where('bonificaciones.id_grupos_cliente', $venta->grupo_id);
 
-                if (count($where_not) > 0)
-                    $this->db->where_not_in('historial_pedido_detalle.id', $where_not);
-
-                $temp = $this->db->get()->result();
-
-                $counter = 0;
-                foreach ($temp as $bonus) {
-                    if ($counter++ == 0) {
-                        $detalle->bonus_dato = new stdClass();
-                        $detalle->bonus_dato = $bonus;
-                        $where_not[] = $bonus->detalle_id;
-                    } else
-                        break;
-
-                }
+                $detalle->bonus_dato = $this->db->get()->row();
             }
         }
 
@@ -948,7 +926,7 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
         $cantidades = array();
         foreach ($devoluciones as $detalle) {
             $historia = $this->db->get_where('historial_pedido_detalle', array('id' => $detalle->detalle_id))->row();
-            
+
             if ($detalle->new_cantidad != 0) {
                 $this->db->insert('detalle_venta', array(
                     'id_venta' => $venta_id,

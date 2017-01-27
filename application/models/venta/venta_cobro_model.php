@@ -527,6 +527,7 @@ class venta_cobro_model extends CI_Model
             ->where('historial_pedido_proceso.proceso_id', PROCESO_LIQUIDAR)
             ->where('venta.venta_status !=', 'RECHAZADO')
             ->where('venta.venta_status !=', 'ANULADO')
+            ->where('(venta.total - credito.dec_credito_montodebito) > 0')
             ->where('cliente.id_cliente', $cliente_id)
             ->group_by('venta.venta_id')->get()->result();
 
@@ -540,7 +541,7 @@ class venta_cobro_model extends CI_Model
                 $total_pagado -= $venta->saldo;
                 $this->pagar_nota_pedido($venta->venta_id, $data, false);
 
-            } elseif ($total_pagado < $venta->saldo) {
+            } elseif ($total_pagado <= $venta->saldo) {
                 $data['importe'] = $total_pagado;
                 $total_pagado = 0;
                 $this->pagar_nota_pedido($venta->venta_id, $data, false);
