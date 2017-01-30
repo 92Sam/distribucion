@@ -224,6 +224,7 @@
                         $("#consolidadoDocumento").load('<?= $ruta ?>consolidadodecargas/verDetalles/' + id);
 
                     }
+                    $(".modal-backdrop").remove();
                 }
             });
         }
@@ -275,4 +276,3 @@
 
     }
 </script>
-
