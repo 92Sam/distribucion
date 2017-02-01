@@ -16,7 +16,7 @@
 <div class="table-responsive">
     <table class="table table-striped table-bordered" id="tablaresult">
         <thead>
-        <tr">
+        <tr>
             <th>ID</th>
             <th>Grupo de Bonificación</th>
             <th>Vencimiento</th>

@@ -103,7 +103,7 @@ class producto extends MY_Controller
 
     }
 
-    function stock()
+    function stock($action = '')
     {
 
         if ($this->session->flashdata('success') != FALSE) {
@@ -113,17 +113,47 @@ class producto extends MY_Controller
             $data ['error'] = $this->session->flashdata('error');
         }
 
+        switch ($action) {
+            case 'filter': {
 
-        $data['locales'] = $this->local_model->get_all();
-        $data["lstProducto"] = $this->producto_model->get_all_by_local($data["locales"][0]["int_local_id"], true);
-        $data['columnas'] = $this->columnas;
-        $dataCuerpo['cuerpo'] = $this->load->view('menu/producto/stock', $data, true);
+                echo $this->load->view('menu/producto/stock_table', array(
+                    'lstProducto'=>$this->producto_model->get_all_by_local($this->input->post('local_id'), true, false, array(
+                        'marca_id' => $this->input->post('marca_id'),
+                        'grupo_id' => $this->input->post('grupo_id'),
+                        'linea_id' => $this->input->post('linea_id'),
+                        'familia_id' => $this->input->post('familia_id'),
+                        'subfamilia_id' => $this->input->post('subfamilia_id'),
+                        'talla_id' => $this->input->post('talla_id')
+                    )),
+                    'columnas'=>$this->columnas
 
+                ), true);
+                break;
+            }
+            default: {
 
-        if ($this->input->is_ajax_request()) {
-            echo $dataCuerpo['cuerpo'];
-        } else {
-            $this->load->view('menu/template', $dataCuerpo);
+                $data['locales'] = $this->local_model->get_all();
+                $data['marcas'] = $this->db->get_where('marcas', array('estatus_marca'=>1))->result();
+                $data['grupos'] = $this->db->get_where('grupos', array('estatus_grupo'=>1))->result();
+                $data['lineas'] = $this->db->get_where('subgrupo', array('estatus_subgrupo'=>1))->result();
+                $data['familias'] = $this->db->get_where('familia', array('estatus_familia'=>1))->result();
+                $data['subfamilias'] = $this->db->get_where('subfamilia', array('estatus_subfamilia'=>1))->result();
+                $data['tallas'] = $this->db->get_where('lineas', array('estatus_linea'=>1))->result();
+                $data['columnas'] = $this->columnas;
+
+                $data['reporte_tabla'] = $this->load->view('menu/producto/stock_table', array(
+                    'lstProducto'=>$this->producto_model->get_all_by_local($data["locales"][0]["int_local_id"], true),
+                    'columnas'=>$this->columnas
+
+                ), true);
+
+                $dataCuerpo['cuerpo'] = $this->load->view('menu/producto/stock', $data, true);
+                if ($this->input->is_ajax_request()) {
+                    echo $dataCuerpo['cuerpo'];
+                } else {
+                    $this->load->view('menu/template', $dataCuerpo);
+                }
+            }
         }
 
     }
