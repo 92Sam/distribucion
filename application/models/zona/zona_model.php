@@ -61,6 +61,17 @@ class zona_model extends CI_Model
         return $query->result_array();
     }
 
+    function get_by_user_dia($id, $dia)
+    {
+        $query = $this->db->select('*');
+        $query = $this->db->join('zonas', 'zonas.zona_id=usuario_has_zona.id_zona');
+        $query = $this->db->join('zona_dias', 'zonas.zona_id=zona_dias.id_zona');
+        $query = $this->db->where('id_usuario', $id);
+        $query = $this->db->where('dia_semana', $dia);
+        $query = $this->db->get('usuario_has_zona');
+        return $query->result_array();
+    }
+
     function get_by($campo, $valor)
     {
         $this->db->where($campo, $valor);
