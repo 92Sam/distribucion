@@ -70,12 +70,12 @@ class pedidos extends REST_Controller
         if ($this->input->get('id_local') != "") {
             $condicion['local_id'] = $this->input->get('id_local');
         }
-        if ($this->input->get('desde') != "") {
+        /*if ($this->input->get('desde') != "") {
             $condicion['fecha >= '] = date('Y-m-d', strtotime($this->input->get('desde'))) . " " . date('H:i:s', strtotime('00:00:00'));
         }
         if ($this->input->get('hasta') != "") {
             $condicion['fecha <='] = date('Y-m-d', strtotime($this->input->get('hasta'))) . " " . date('H:i:s', strtotime('23:59:59'));
-        }
+        }*/
         if ($this->input->get('status') != "") {
             $condicion['venta_status'] = $this->input->get('status');
         }

@@ -380,7 +380,7 @@ class producto_model extends CI_Model
     }
 
 
-    function get_all_by_local($local, $activo = false, $producto = false)
+    function get_all_by_local($local, $activo = false, $producto = false, $filter = array())
     {
         $this->db->distinct();
         $this->db->select($this->tabla . '.*, unidades_has_producto.id_unidad, unidades.nombre_unidad, inventario.id_inventario, inventario.id_local, inventario.cantidad, lineas.nombre_linea,
@@ -401,6 +401,25 @@ class producto_model extends CI_Model
         $this->db->group_by('producto_id');
 
         $this->db->where($this->status, '1');
+
+        if(isset($filter['marca_id']) && $filter['marca_id'] != 0)
+            $this->db->where('marcas.id_marca', $filter['marca_id']);
+
+        if(isset($filter['grupo_id']) && $filter['grupo_id'] != 0)
+            $this->db->where('grupos.id_grupo', $filter['grupo_id']);
+
+        if(isset($filter['linea_id']) && $filter['linea_id'] != 0)
+            $this->db->where('subgrupo.id_subgrupo', $filter['linea_id']);
+
+        if(isset($filter['familia_id']) && $filter['familia_id'] != 0)
+            $this->db->where('familia.id_familia', $filter['familia_id']);
+
+        if(isset($filter['subfamilia_id']) && $filter['subfamilia_id'] != 0)
+            $this->db->where('subfamilia.id_subfamilia', $filter['subfamilia_id']);
+
+        if(isset($filter['talla_id']) && $filter['talla_id'] != 0)
+            $this->db->where('lineas.id_linea', $filter['talla_id']);
+
 
 
         if ($producto != false) {
