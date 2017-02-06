@@ -80,14 +80,43 @@ class zonas extends REST_Controller
 
         $id = $this->get('id');
         $dia = $this->get('dia');
+        //$dia = '1';
         $data = array();
+        $valor = array();
+        $result = array();
 
         if (empty($id)) {
-            $data['zonas'] = $this->zona_model->get_all();
+            $zonas = $this->zona_model->get_all();
+
+            foreach($zonas as $z) {
+                $valor['zona_id'] = $z['zona_id'];
+                $valor['zona_nombre'] = $z['zona_nombre'];
+                $valor['today'] = 0;
+
+                $result[] = $valor;
+            }
 
         } else {
-            $data['zonas'] = $this->zona_model->get_by_user_dia($id, $dia);
+            $zonas = $this->zona_model->get_all_by_user($id);
+
+            foreach($zonas as $z) {
+                $valor['zona_id'] = $z['zona_id'];
+                $valor['zona_nombre'] = $z['zona_nombre'];
+
+                $id_zona = $z['zona_id'];
+                $today = $this->zona_model->get_zona_hoy($id, $id_zona, $dia);
+
+                if ($today) {
+                    $valor['today'] = "1";
+                } else {
+                    $valor['today'] = "0";
+                }
+
+                $result[] = $valor;
+            }
         }
+
+        $data['zonas'] = $result;
 
         if ($data) {
             $this->response($data, 200);
