@@ -504,7 +504,7 @@ $primary_nav = array(
                 'sub' => array(
                     array(
                         'name' => 'Stock de Producto',
-                        'url' => $ruta . 'reporte_compra/cliente_estado',
+                        'url' => $ruta . 'producto/stock',
                         'icon' => 'fa fa-bar-chart',
                         'slug' => 'reporteutilidades'
                     ),
@@ -1247,13 +1247,13 @@ $primary_nav = array(
 
                                 <li>
 
-                                    <a class="menulink" href="<?= $ruta ?>venta/estadocuenta">Estado de cuentas</a>
+                                    <a class="menulink" href="<?= $ruta ?>reporte/cliente_estado">Estado de cuentas</a>
                                 </li>
                             <?php } ?>
                             <?php if ($this->usuarios_grupos_model->user_has_perm($this->session->userdata('nUsuCodigo'), 'cuadrecaja')) { ?>
 
                                 <li>
-                                    <a class="menulink" href="#cuadre_caja" data-toggle="modal">Cuadre caja</a>
+                                    <a class="menulink" href="<?= $ruta ?>cajas">Cuadre caja</a>
                                 </li>
                             <?php } ?>
                         </ul>
