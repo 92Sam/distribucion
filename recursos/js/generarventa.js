@@ -703,7 +703,11 @@ function hacerventa(imprimir, flag) {
                                 $("#ventamodal").modal('hide');
                             }
                         } else {
-                            alertModal('<h4>Error</h4> <p>Ha ocurrido un error al guardar la venta</p>', 'warning', true);
+                            if(data.sin_stock == undefined)
+                                alertModal('<h4>Error</h4> <p> Ha ocurrido un error al guardar la venta</p>', 'warning', true);
+                            else {
+                                alertModal('<h4>Error</h4> <p> No hay stock para terminar el pedido</p>', 'warning', true);
+                            }
                             $("#realizarventa").removeClass('disabled');
                             $("#btnRealizarVentaAndView").removeClass('disabled');
                             return false;
@@ -786,7 +790,11 @@ function hacerventa(imprimir, flag) {
                         } else {
                             $("#realizarventa").removeClass('disabled');
                             $("#btnRealizarVentaAndView").removeClass('disabled');
-                            alertModal('<h4>Error</h4> <p> Ha ocurrido un error al guardar la venta</p>', 'warning', true);
+                            if(data.sin_stock == undefined)
+                                alertModal('<h4>Error</h4> <p> Ha ocurrido un error al guardar la venta</p>', 'warning', true);
+                            else {
+                                alertModal('<h4>Error</h4> <p> No hay stock para terminar el pedido</p>', 'warning', true);
+                            }
                             return false;
                         }
                     },

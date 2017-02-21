@@ -9,6 +9,22 @@ class inventario_model extends CI_Model {
         $this->load->database();
     }
 
+    function check_stock($datas){
+        $result = array();
+
+        foreach($datas as $data){
+            $temp = $this->db->get_where('inventario', array(
+                'id_producto'=>$data['producto_id'],
+                'id_local'=>$data['local_id'],
+            ))->row();
+
+            if($temp == null || $temp->cantidad < $data['cantidad'])
+                $result[] = $data['producto_id'];
+        }
+
+        return $result;
+    }
+
     function get_by($campos){
         $this->db->where($campos);
         $query=$this->db->get('inventario');
