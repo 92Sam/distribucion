@@ -703,10 +703,15 @@ function hacerventa(imprimir, flag) {
                                 $("#ventamodal").modal('hide');
                             }
                         } else {
-                            if(data.sin_stock == undefined)
+                            if(data.sin_stock == undefined){
                                 alertModal('<h4>Error</h4> <p> Ha ocurrido un error al guardar la venta</p>', 'warning', true);
-                            else {
+                            } else {
                                 alertModal('<h4>Error</h4> <p> No hay stock para terminar el pedido</p>', 'warning', true);
+                                /*var str = '';
+                                for(var i = 0; i < data.sin_stock.length; i++){
+                                    str += 'Producto: ' + data.sin_stock[i].producto_id + ', cantidad: ' + data.sin_stock[i].cantidad_actual + '<br>';
+                                }
+                                alertModal('<h4>Detalles</h4> <p> '+str+'</p>', 'warning', true);*/
                             }
                             $("#realizarventa").removeClass('disabled');
                             $("#btnRealizarVentaAndView").removeClass('disabled');
@@ -2050,7 +2055,7 @@ function buscarProducto() {
             }
 
             if ($("#stockhidden" + id).length > 0) {
-                var val = parseFloat($("#stockhidden" + id).val());
+                var val = (parseFloat(data.existencia_unidad) * parseFloat(data.maxima_unidades)) + parseFloat(data.existencia_fraccion);
                 var maxima = parseInt(val / parseInt(data.maxima_unidades));
                 var fraccion = parseFloat(val % parseInt(data.maxima_unidades));
                 $("#stock").text(maxima + " " + data.unidad_maxima + " " + fraccion + " " + data.unidad_minima);

@@ -224,17 +224,16 @@ class venta extends MY_Controller
                         }
                     }
 
-                    //var_dump($detalle);
-
                     $validar_detalle = array();
                     foreach($detalle as $d){
                         $validar_detalle[] = array(
                             'producto_id'=>$d->id_producto,
                             'local_id'=>$venta['local_id'],
-                            'cantidad'=>$d->cantidad
+                            'unidad_id'=>$d->unidad_medida,
+                            'cantidad'=>$d->cantidad,
+                            'bono'=>$d->bono
                         );
                     }
-
 
                     $sin_stock = $this->inventario_model->check_stock($validar_detalle);
                     if(count($sin_stock) == 0){
