@@ -65,6 +65,24 @@ class bonificaciones_model extends CI_Model
         return $query->row_array();
 
     }
+    
+    function get_where($where)
+    {
+        $this->db->select('bonificaciones.*, unidades.*, p2.producto_nombre as producto_bonificacion, u2.nombre_unidad as unidad_bonificacion');
+        $this->db->where('bonificacion_status', 1);
+        $this->db->where($where);
+
+
+        $this->db->join('unidades', 'unidades.id_unidad=bonificaciones.id_unidad', 'left');
+        $this->db->join('producto as p2', 'p2.producto_id=bonificaciones.bono_producto');
+        $this->db->join('unidades as u2', 'u2.id_unidad=bonificaciones.bono_unidad');
+
+        $query = $this->db->get('bonificaciones');
+
+
+        return $query->result_array();
+
+    }
 
     function bonificaciones_has_producto($campo, $valor)
     {
