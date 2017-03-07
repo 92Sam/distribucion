@@ -49,6 +49,7 @@
     <script type="text/javascript">
         $(document).ready(function () {
             $("#btnlogin").click(function (event) {
+                event.preventDefault();
                 login();
             });
 
@@ -65,7 +66,7 @@
 
         function login() {
             <?php $mensaje = "<a></a>"; ?>
-            event.preventDefault();
+            
             $.ajax({
                 type: "POST",
                 data: $('#frmLogin').serialize(),
