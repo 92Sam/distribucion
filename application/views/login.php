@@ -65,7 +65,6 @@
 
         function login() {
             <?php $mensaje = "<a></a>"; ?>
-            event.preventDefault();
             $.ajax({
                 type: "POST",
                 data: $('#frmLogin').serialize(),
