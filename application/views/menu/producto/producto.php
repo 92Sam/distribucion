@@ -30,23 +30,23 @@
 <div class="block">
 
     <div class="row">
-        <div class="col-md-1">
+        <div class="col-md-1 justifyright">
             <a class="btn btn-primary" onclick="agregar();">
                 <i class="fa fa-plus "> Nuevo</i>
             </a>
         </div>
-        <div class="col-md-1">
+        <div class="col-md-1 justifyright">
             <a class="btn btn-default" onclick="duplicar();">
                 <i class="fa fa-angle-double-up "> Duplicar</i>
             </a>
         </div>
 
-        <div class="col-md-1">
+        <div class="col-md-1 justifyright">
             <a class="btn btn-default" onclick="editarProducto();">
                 <i class="fa fa-edit"> Editar</i>
             </a>
         </div>
-        <div class="col-md-1">
+        <div class="col-md-1 justifyright">
             <a class="btn btn-default" onclick="confirmar();">
                 <i class="fa fa-remove"> Eliminar</i>
             </a>
@@ -96,7 +96,7 @@
                             echo " <th>" .$col->nombre_mostrar. "</th>";
                         }
                     }
-                ?>  
+                ?>
                 <?php endforeach; ?>
                 <th>Estado</th>
 
@@ -133,17 +133,20 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title">Eliminar Producto</h4>
+                    <h3 class="modal-title">Eliminar Producto</h3>
                 </div>
                 <div class="modal-body">
-                    <p>Est&aacute; seguro que desea eliminar el producto seleccionado</p>
+                    <h4>Est&aacute; seguro que desea eliminar el producto seleccionado</h4>
                     <input type="hidden" name="id" id="id_borrar">
 
                 </div>
                 <div class="modal-footer">
-                    <button type="button" id="botoneliminar" class="btn btn-primary" onclick="eliminar()">Confirmar
+                    <button type="button" id="botoneliminar" class="btn btn-primary" onclick="eliminar()">
+                        <li class="glyphicon glyphicon-thumbs-up"></li> Confirmar
                     </button>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-warning" data-dismiss="modal">Cancelar
+                        <li class="glyphicon glyphicon-thumbs-down"></li>
+                    </button>
 
                 </div>
             </div>

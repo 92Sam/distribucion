@@ -109,6 +109,22 @@
                     <p>Est&aacute; seguro que desea anular el ingreso seleccionado?</p>
                     <input type="hidden" name="id" id="id_ingreso">
                     <input type="hidden" name="nombre" id="local_id">
+
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label>Fecha:</label>
+                            <input type="text" id="anular_fecha" readonly class="form-control fecha_anular">
+                        </div>
+                        <div class="col-md-3"></div>
+                        <div class="col-md-2">
+                            <label>Serie:</label>
+                            <input type="text" id="anular_serie" class="form-control">
+                        </div>
+                        <div class="col-md-3">
+                            <label>Numero:</label>
+                            <input type="text" id="anular_numero" class="form-control">
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <input type="button" id="" class="btn btn-primary" value="Confirmar" onclick="anular()">
@@ -143,7 +159,9 @@
     $(function () {
 
         TablesDatatables.init();
-
+        $(".fecha_anular").datepicker({
+            format: 'dd-mm-yyyy'
+        });
     });
 
     function ver(id, local) {
@@ -158,6 +176,10 @@
         $('#borrar').modal('show');
         $("#id_ingreso").attr('value', id);
         $("#local_id").attr('value', local);
+
+        $("#anular_serie").val('');
+        $("#anular_numero").val('');
+        $("#anular_fecha").val('');
     }
 
     function editaringreso(id) {
@@ -178,6 +200,19 @@
     function anular() {
         var id = $("#id_ingreso").val();
         var local = $("#local_id").val();
+        var serie = $("#anular_serie").val();
+        var numero = $("#anular_numero").val();
+        var fecha = $("#anular_fecha").val();
+
+        if(serie == "" || numero == "" || fecha == ""){
+            $.bootstrapGrowl('<h4>Datos Incompletos!</h4>', {
+                type: 'warning',
+                delay: 2500,
+                allow_dismiss: true
+            });
+            return false;
+        }
+
         $("#barloadermodal").modal({
             show: true,
             backdrop: 'static'
@@ -188,7 +223,10 @@
             url: '<?= base_url()?>ingresos/anular_ingreso',
             data: {
                 'id': id,
-                'local': local
+                'local': local,
+                'serie': serie,
+                'numero': numero,
+                'fecha': fecha
             },
             type: 'POST',
             'dataType': 'json',

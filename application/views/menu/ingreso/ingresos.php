@@ -10,7 +10,8 @@
 
 
 <ul class="breadcrumb breadcrumb-top">
-    <li>Ingresos</li>
+    <li>Compras</li>
+    <li>Registro de Existencia</li>
 </ul>
 <div class="row">
     <div class="col-xs-12">
@@ -20,7 +21,7 @@
                     aria-hidden="true">X
             </button>
             <h4><i class="icon fa fa-ban"></i> Error</h4>
-            <?php echo isset($error) ? $error : '' ?></div>
+            <?= isset($error) ? $error : '' ?></div>
     </div>
 </div>
 
@@ -43,10 +44,6 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
     <div class="row-fluid">
 
         <div class="blok">
-            <div class="block-title">
-                <h3>Formulario De Igresos</h3>
-
-            </div>
             <div class="box-content">
 
 
@@ -171,7 +168,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
 
                                     </div>
                                 </div>
-                                <div class="control-group">
+                                <div class="control-group" style="display: <?=($costos === 'true') ? 'block' : 'none'?>">
                                     <div class="col-md-2">
                                         <label for="" class="control-label">Impuesto</label>
                                     </div>
@@ -221,7 +218,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
 
                                 </div>
 
-                                <div class="control-group">
+                                <div class="control-group" style="display: <?=($costos === 'true') ? 'block' : 'none'?>">
                                     <div class="col-md-2">
                                         <label class="control-label">Pago:</label>
                                     </div>

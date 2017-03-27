@@ -85,26 +85,33 @@ class unidades extends MY_Controller {
         $id = $this->input->post('id');
         $nombre = $this->input->post('nombre');
 
-        $grupo = array(
-            'id_unidad' => $id,
-            'nombre_unidad' => $nombre . time(),
-            'estatus_unidad' => 0
+        //Primero verificaremos que la unidad de medida no este asociado a ningun producto vigente
+        $resultado = $this->unidades_model->consultarUnidad($id);
 
-        );
+        if ($resultado == false) {
+                $grupo = array(
+                'id_unidad' => $id,
+                'nombre_unidad' => $nombre . time(),
+                'estatus_unidad' => 0
+            );
+            $data['resultado'] = $this->unidades_model->update_unidades($grupo);
 
-        $data['resultado'] = $this->unidades_model->update_unidades($grupo);
+            if ($data['resultado'] != FALSE) {
 
-        if ($data['resultado'] != FALSE) {
+                $json['success'] = 'Se ha eliminado la unidad';
 
-            $json['success'] = 'Se ha Eliminado exitosamente';
+            } else {
 
-
-        } else {
-
-            $json['error']= 'Ha ocurrido un error al eliminar el impuesto';
+                $json['error']= 'Ha ocurrido un error al eliminar la unidad ';
+            }
+        }
+        else
+        {
+            $json['error']= 'La unidad de medida que desea eliminar esta asociado a uno o mas productos';
         }
 
         echo json_encode($json);
     }
+
 
 }

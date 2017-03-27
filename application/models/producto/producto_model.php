@@ -27,11 +27,14 @@ class producto_model extends CI_Model
     }
 
     //DEVUELVE EL COSTO UNITARIO PROMEDIO DEL PRODUCTO SEGUN SUS INGRESOS
-    function get_costo_promedio($id)
+    function get_costo_promedio($id, $um_id)
     {
         $costo = $this->db->select('(sum(total_detalle) / sum(cantidad)) as costo_promedio')
             ->from('detalleingreso')
+            ->join('ingreso', 'ingreso.id_ingreso = detalleingreso.id_ingreso')
             ->where('id_producto', $id)
+            ->where('unidad_medida', $um_id)
+            ->where('ingreso_status', 'COMPLETADO')
             ->get()->row();
 
         return $costo->costo_promedio != NULL ? $costo->costo_promedio : 0;
@@ -377,10 +380,10 @@ class producto_model extends CI_Model
     }
 
 
-    function get_all_by_local($local, $activo = false, $producto = false)
+    function get_all_by_local($local, $activo = false, $producto = false, $filter = array())
     {
         $this->db->distinct();
-        $this->db->select($this->tabla . '.*, unidades_has_producto.id_unidad, unidades.nombre_unidad, inventario.id_inventario, inventario.id_local, inventario.cantidad, inventario.fraccion ,lineas.nombre_linea,
+        $this->db->select($this->tabla . '.*, unidades_has_producto.id_unidad, unidades.nombre_unidad, inventario.id_inventario, inventario.id_local, inventario.cantidad, lineas.nombre_linea,
 		 marcas.nombre_marca, familia.nombre_familia, grupos.nombre_grupo, proveedor.proveedor_nombre, impuestos.nombre_impuesto, impuestos.porcentaje_impuesto,
          subfamilia.nombre_subfamilia,subgrupo.nombre_subgrupo');
         $this->db->from($this->tabla);
@@ -390,7 +393,7 @@ class producto_model extends CI_Model
         $this->db->join('grupos', 'grupos.id_grupo=producto.' . $this->grupo, 'left');
         $this->db->join('proveedor', 'proveedor.id_proveedor=producto.' . $this->proveedor, 'left');
         $this->db->join('impuestos', 'impuestos.id_impuesto=producto.' . $this->impuesto, 'left');
-        $this->db->join('(SELECT DISTINCT inventario.id_producto, inventario.id_inventario, inventario.cantidad, inventario.fraccion, inventario.id_local FROM inventario WHERE inventario.id_local=' . $local . '  ORDER by id_inventario DESC ) as inventario', 'inventario.id_producto=producto.' . $this->id, 'left');
+        $this->db->join('(SELECT DISTINCT inventario.id_producto, inventario.id_inventario, inventario.cantidad,  inventario.id_local FROM inventario WHERE inventario.id_local=' . $local . '  ORDER by id_inventario DESC ) as inventario', 'inventario.id_producto=producto.' . $this->id, 'left');
         $this->db->join('unidades_has_producto', 'unidades_has_producto.producto_id=producto.' . $this->id . ' and unidades_has_producto.orden=1', 'left');
         $this->db->join('unidades', 'unidades.id_unidad=unidades_has_producto.id_unidad', 'left');
         $this->db->join('subgrupo', 'subgrupo.id_subgrupo = producto.producto_subgrupo', 'left');
@@ -399,7 +402,26 @@ class producto_model extends CI_Model
 
         $this->db->where($this->status, '1');
 
-       
+        if(isset($filter['marca_id']) && $filter['marca_id'] != 0)
+            $this->db->where('marcas.id_marca', $filter['marca_id']);
+
+        if(isset($filter['grupo_id']) && $filter['grupo_id'] != 0)
+            $this->db->where('grupos.id_grupo', $filter['grupo_id']);
+
+        if(isset($filter['linea_id']) && $filter['linea_id'] != 0)
+            $this->db->where('subgrupo.id_subgrupo', $filter['linea_id']);
+
+        if(isset($filter['familia_id']) && $filter['familia_id'] != 0)
+            $this->db->where('familia.id_familia', $filter['familia_id']);
+
+        if(isset($filter['subfamilia_id']) && $filter['subfamilia_id'] != 0)
+            $this->db->where('subfamilia.id_subfamilia', $filter['subfamilia_id']);
+
+        if(isset($filter['talla_id']) && $filter['talla_id'] != 0)
+            $this->db->where('lineas.id_linea', $filter['talla_id']);
+
+
+
         if ($producto != false) {
             $this->db->where('producto.producto_id', $producto);
         }
@@ -508,5 +530,72 @@ class producto_model extends CI_Model
         $this->db->like('var_producto_marca', $term);
         $query = $this->db->get();
         return $query->result_array();
+    }
+
+    function get_estado_producto($id){
+        return $this->db->query("
+        SELECT
+            unidades.nombre_unidad AS unidad_nombre,
+            unidades_has_precio.precio AS precio_venta,
+            SUM(detalleingreso.cantidad * detalleingreso.precio) / SUM(detalleingreso.cantidad) AS costo_promedio,
+            (SELECT
+                    precio
+                FROM
+                    detalleingreso
+                        JOIN
+                    ingreso ON ingreso.id_ingreso = detalleingreso.id_ingreso
+                WHERE
+                    ingreso.ingreso_status = 'COMPLETADO'
+                        AND detalleingreso.id_producto = producto.producto_id
+                        AND detalleingreso.unidad_medida = unidades_has_precio.id_unidad
+                ORDER BY detalleingreso.id_ingreso DESC
+                LIMIT 1) AS ultimo_costo,
+            SUM(detalleingreso.cantidad) AS cantidad_comprado,
+            (SELECT
+                    SUM(detalle_venta.cantidad)
+                FROM
+                    detalle_venta
+                        JOIN
+                    venta ON venta.venta_id = detalle_venta.id_venta
+                WHERE
+                    venta.venta_status IN ('ENTREGADO' , 'RECHAZADO', 'DEVUELTO PARCIALMENTE')
+                        AND detalle_venta.id_producto = producto.producto_id
+                        AND unidades_has_precio.id_unidad = detalle_venta.unidad_medida) AS cantidad_vendido,
+            (SELECT
+                    SUM(detalleingreso.cantidad * detalleingreso.precio)
+                FROM
+                    detalleingreso
+                        JOIN
+                    ingreso ON ingreso.id_ingreso = detalleingreso.id_ingreso
+                WHERE
+                    ingreso.ingreso_status = 'COMPLETADO'
+                        AND detalleingreso.id_producto = producto.producto_id
+                        AND detalleingreso.unidad_medida = unidades_has_precio.id_unidad) AS importe_comprado,
+            (SELECT
+                    SUM(detalle_venta.detalle_importe)
+                FROM
+                    detalle_venta
+                        JOIN
+                    venta ON venta.venta_id = detalle_venta.id_venta
+                WHERE
+                    venta.venta_status IN ('ENTREGADO' , 'RECHAZADO', 'DEVUELTO PARCIALMENTE')
+                        AND detalle_venta.id_producto = producto.producto_id
+                        AND unidades_has_precio.id_unidad = detalle_venta.unidad_medida) AS importe_vendido
+            FROM
+            producto
+                JOIN
+            unidades_has_precio ON unidades_has_precio.id_producto = producto.producto_id
+                JOIN
+            unidades ON unidades.id_unidad = unidades_has_precio.id_unidad
+                LEFT JOIN
+            detalleingreso ON detalleingreso.id_producto = producto.producto_id
+                AND detalleingreso.unidad_medida = unidades_has_precio.id_unidad
+                JOIN
+            ingreso ON ingreso.id_ingreso = detalleingreso.id_ingreso
+            WHERE
+            ingreso.ingreso_status = 'COMPLETADO'
+                AND producto.producto_id = ".$id."
+            GROUP BY unidades.id_unidad
+        ")->result();
     }
 }

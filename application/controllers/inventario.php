@@ -92,48 +92,24 @@ class inventario extends MY_Controller
         }
     }
 
-    function kardex($id = false, $local = false, $documento_fiscal = false)
+    function kardex($id = false, $local = false, $mes = false, $year = false)
     {
+        if($local == 'TODOS')
+            $local = false;
 
-        if ($id != FALSE) {
-            $data['producto'] = $id;
-            $order_ingreso = "dkardexFecha DESC";
-            if ($local != "TODOS") {
-                $order = "dkardexFecha DESC,cKardexAlmacen";
-                $where = array('cKardexProducto' => $id,
-                    'cKardexAlmacen' => $local);
-                $data['local'] = $this->local_model->get_by('int_local_id', $local);
-            } else {
-                $order = "dkardexFecha DESC";
-                $where = array('cKardexProducto' => $id);
-                $data['local'] = $local;
-            }
-            if ($documento_fiscal != false) {
-                $data['operacion'] = "FISCAL";
+        $data['kardex'] = $this->kardex_model->get_kardex($id, $local, $mes, $year);
 
-                $data['fiscal'] = $this->kardex_model->getKardexFiscal($where, $order_ingreso);
-                $where['cKardexOperacion !=']='VENTA';
-            }else{
-
-                $data['operacion'] = "INTERNO";
-            }
-            $data['kardex'] = $this->kardex_model->getKardex($where, $order_ingreso);
-
-
-            if(isset($data['fiscal'])){
-                $kardex=  $data['kardex'];
-
-                foreach( $data['fiscal'] as $fiscal){
-                    array_push($kardex,$fiscal);
-                }
-                $data['kardex'] = $kardex;
-            }
-
-
-
-        }
         $this->load->view('menu/inventario/formMovimiento', $data);
+    }
 
+    function kardex_interno($id = false, $local = false, $mes = false, $year = false)
+    {
+        if($local == 'TODOS')
+            $local = false;
+
+        $data['kardex'] = $this->kardex_model->get_kardex_interno($id, $local, $mes, $year);
+
+        $this->load->view('menu/inventario/formMovimiento', $data);
     }
 
     function getbylocal()
@@ -200,7 +176,7 @@ class inventario extends MY_Controller
 
             $campos_join = array('producto.producto_id=inventario.id_producto', 'unidades_has_producto.producto_id=producto.producto_id',
                 'unidades.id_unidad=unidades_has_producto.id_unidad');
-            $tipo_join = array('left', 'left', 'left');
+            $tipo_join = array('inner', 'left', 'left');
 
             $search = $this->input->get('search');
             $buscar = $search['value'];
@@ -248,10 +224,6 @@ class inventario extends MY_Controller
 
             $productos = $this->inventario_model->traer_by($select, $from, $join, $campos_join, $tipo_join, $where,
                 $nombre_in, $where_in, $nombre_or, $where_or, $group, $order, "RESULT_ARRAY", $limit, $start, $order_dir, false, $where_custom);
-
-
-            //$produtos = $this->inventario_model->getIventarioProducto($where);
-
 
             foreach ($productos as $pd):
                 $PRODUCTOjson = array();

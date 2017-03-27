@@ -27,7 +27,10 @@
             <div
                 id="caja<?= $caja->id ?>" <?= $caja->moneda_id == 1 ? 'class="tab-pane fade in active"' : 'class="tab-pane"' ?>>
                 <h4>Caja de <?= $caja->moneda_id == 1 ? 'SOLES' : 'DOLARES' ?></h4>
-                <h4 class="col-md-8"><label>Responsable de la caja: </label> <?= $caja->nombre ?></h4>
+                <h4 class="col-md-4"><label>Responsable de la caja: </label> <?= $caja->nombre ?></h4>
+                <h4 class="col-md-4"><label>Importe Total Caja + Bancos: </label>
+                        <?= MONEDA ?><span id="totalSaldo"></span>
+                </h4>
                 <div class="col-md-2">
                     <a data-caja_id="<?= $caja->id ?>" class="btn_new_caja_cuenta btn btn-default">
                         <i class="fa fa-plus"> Nueva Cuenta</i>
@@ -55,30 +58,48 @@
                         </thead>
                         <tbody>
 
+                        <?php $totalSaldo = 0; ?>
                         <?php foreach ($caja->desgloses as $desglose): ?>
+                            <?php $totalSaldo += $desglose->saldo; ?>
                             <tr>
                                 <td><?= $desglose->descripcion ?></td>
                                 <td><?= $desglose->nombre ?></td>
-                                <td><?= $desglose->saldo ?></td>
+                                <td><?= MONEDA . number_format($desglose->saldo,2) ?></td>
                                 <td><?= $desglose->principal == '1' ? 'SI' : 'NO' ?></td>
                                 <td><?= $desglose->estado == '1' ? 'Activa' : 'Inactiva' ?></td>
-                                <td>
+                                <td align="center">
                                     <a class="btn_edit_caja_cuenta btn btn-primary"
                                        data-caja_id="<?= $caja->id ?>"
                                        data-id="<?= $desglose->id ?>">
                                         <i class="fa fa-edit"></i>
                                     </a>
 
+                                <?php if($desglose->retencion == 1):?>
+                                    <a class="btn_ajustar_caja_cuenta_retencion btn btn-primary"
+                                       data-caja_id="<?= $caja->id ?>"
+                                       data-id="<?= $desglose->id ?>">
+                                        <i class="fa fa-money"></i>
+                                    </a>
+                                <?php else:?>
                                     <a class="btn_ajustar_caja_cuenta btn btn-warning"
                                        data-caja_id="<?= $caja->id ?>"
                                        data-id="<?= $desglose->id ?>">
                                         <i class="fa fa-exchange"></i>
                                     </a>
+                                <?php endif;?>
 
                                     <a class="btn_detalle_caja_cuenta btn btn-default"
                                        data-id="<?= $desglose->id ?>">
                                         <i class="fa fa-search"></i>
                                     </a>
+
+                                    <?php if(count($desglose->pendientes) > 0):?>
+                                    <a class="btn_pendiente_caja_cuenta btn btn-danger"
+                                       data-caja_id="<?= $caja->id ?>"
+                                       data-id="<?= $desglose->id ?>">
+                                        <i class="fa fa-check"></i> <?=count($desglose->pendientes)?>
+                                    </a>
+                                <?php endif;?>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -87,6 +108,7 @@
                 </div>
             </div>
         <?php endforeach; ?>
+        <input type="hidden" id="input_saldo" value="<?= number_format($totalSaldo, 2) ?>">
     </div>
 
 
@@ -98,12 +120,19 @@
 
 </div>
 
+<div class="modal fade" id="dialog_form_pendiente" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+
+</div>
+
 
 
 
 <script>
 
     $(document).ready(function () {
+
+        $("#totalSaldo").html($("#input_saldo").val());
 
         $("#btn_new_caja").on('click', function () {
             $.ajax({
@@ -160,6 +189,17 @@
             });
         });
 
+        $(".btn_ajustar_caja_cuenta_retencion").on('click', function () {
+            $.ajax({
+                url: '<?php echo base_url('cajas/caja_ajustar_retencion_form')?>' + '/' + $(this).attr('data-caja_id') + '/' + $(this).attr('data-id'),
+                type: 'post',
+                success: function (data) {
+                    $("#dialog_form").html(data);
+                    $("#dialog_form").modal('show');
+                }
+            });
+        });
+
 
         $(".btn_detalle_caja_cuenta").on('click', function () {
             $.ajax({
@@ -172,8 +212,27 @@
             });
         });
 
+        $(".btn_pendiente_caja_cuenta").on('click', function () {
+            $.ajax({
+                url: '<?php echo base_url('cajas/caja_pendiente_form')?>' + '/' + $(this).attr('data-id'),
+                type: 'post',
+                success: function (data) {
+                    $("#dialog_form_pendiente").html(data);
+                    $("#dialog_form_pendiente").modal('show');
+                }
+            });
+        });
+
+        $('#dialog_form_pendiente').on('hidden.bs.modal', function (e) {
+            $.ajax({
+                url: '<?php echo base_url('cajas')?>',
+                success: function (data) {
+                    $('#page-content').html(data);
+                    $(".modal-backdrop").remove();
+                }
+            });
+        });
+
     });
 
 </script>
-
-

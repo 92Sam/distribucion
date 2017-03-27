@@ -1,5 +1,6 @@
 <?php $ruta = base_url(); ?>
-<div class="modal-dialog modal-lg">
+<div class="modal-dialog modal-lg" tabindex="-1" role="dialog"
+         aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-content">
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
@@ -57,15 +58,14 @@
                                        style="margin-left: 5px;"
                                        title="Eliminar del Consolidado" data-original-title="Eliminar del Consolidado"
                                        href="#"
-                                       onclick="eliminar_pedido('<?= $consolidado['consolidado_id'] ?>', '<?php echo $detalle['venta_id']; ?>'); ">
+                                       onclick="confirmarEliminacion();">
                                         <i class="fa fa-remove" id="ic"></i></a>
                                 <?php endif; ?>
                             </td>
 
                         </tr>
-                        <?php
-                    } ?>
-
+                            <?php
+                        } ?>
                     <tr style="background-color: #C6EFCE">
                         <td></td>
                         <td style="text-align: right; font-size: 13px"><?php echo '<strong style="fond-family:bold;">Total Bultos => <strong>'; ?></td>
@@ -75,8 +75,9 @@
                         <td></td>
                         <td></td>
 
-
                     </tr>
+
+
                     </tbody>
                 </table>
             </div>
@@ -128,11 +129,53 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="confirmacion" tabindex="-1" role="dialog"
+     aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">Confirmaci&oacute;n</h4>
+            </div>
+
+            <div class="modal-body">¿Esta seguro que desea quitar la nota de entrega seleccionada?
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="" class="btn btn-primary"
+                        onclick="eliminar_pedido(
+                        '<?= $consolidado['consolidado_id'] ?>',
+                        '<?php echo $detalle['venta_id']; ?>'); ">
+                    <li class="glyphicon glyphicon-thumbs-up"></li>
+                    Si
+                </button>
+                <button type="button" id="btnCerrarConsulta" class="btn btn-warning">
+                        <li class="glyphicon glyphicon-thumbs-down"></li>
+                        No
+                </button>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <div class="modal fade" id="noteDeEntrega" tabindex="-1" role="dialog"
      aria-labelledby="myModalLabel"
      aria-hidden="true">
 </div>
 <script type="text/javascript">
+
+    $("#btnCerrarConsulta").click(function() {
+        $("#confirmacion").modal('hide');
+    });
+
+
+    function confirmarEliminacion(){
+
+        $("#confirmacion").modal('show');
+    }
+
     function impirmirGuia(id) {
 
         var win = window.open('<?= $ruta ?>consolidadodecargas/rtfRemision/' + id, '_blank');
@@ -158,7 +201,6 @@
 
     }
 
-
     function eliminar_pedido(id, venta_id) {
 
         var venta = 0;
@@ -180,7 +222,9 @@
                     else if (data.result == 2) {
                         $("#consolidadoDocumento").html($('#loading').html());
                         $("#consolidadoDocumento").load('<?= $ruta ?>consolidadodecargas/verDetalles/' + id);
+
                     }
+                    $(".modal-backdrop").remove();
                 }
             });
         }
@@ -218,7 +262,6 @@
 
     }
     function docFiscalFact(id) {
-
         {
             $.ajax({
                 url: '<?php echo $ruta . 'consolidadodecargas/docFiscalFactura'; ?>',
@@ -233,4 +276,3 @@
 
     }
 </script>
-

@@ -76,6 +76,55 @@ class zonas extends REST_Controller
         }
     }
 
+    public function ver_by_user_get() {
+
+        $id = $this->get('id');
+        $dia = $this->get('dia');
+        //$dia = '1';
+        $data = array();
+        $valor = array();
+        $result = array();
+
+        if (empty($id)) {
+            $zonas = $this->zona_model->get_all();
+
+            foreach($zonas as $z) {
+                $valor['zona_id'] = $z['zona_id'];
+                $valor['zona_nombre'] = $z['zona_nombre'];
+                $valor['today'] = 0;
+
+                $result[] = $valor;
+            }
+
+        } else {
+            $zonas = $this->zona_model->get_all_by_user($id);
+
+            foreach($zonas as $z) {
+                $valor['zona_id'] = $z['zona_id'];
+                $valor['zona_nombre'] = $z['zona_nombre'];
+
+                $id_zona = $z['zona_id'];
+                $today = $this->zona_model->get_zona_hoy($id, $id_zona, $dia);
+
+                if ($today) {
+                    $valor['today'] = "1";
+                } else {
+                    $valor['today'] = "0";
+                }
+
+                $result[] = $valor;
+            }
+        }
+
+        $data['zonas'] = $result;
+
+        if ($data) {
+            $this->response($data, 200);
+        } else {
+            $this->response(array(), 200);
+        }
+    }
+
     // Save
     public function create_get()
     {

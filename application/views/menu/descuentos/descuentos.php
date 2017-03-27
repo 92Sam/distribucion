@@ -32,12 +32,14 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable">', "</
             </div>
 
             <form id="frmGrupos">
-                <div class="col-md-1">
-                    <label class="control-label panel-admin-text">Grupos:</label>
+                <div class="col-md-2">
+                    <label class="control-label panel-admin-text">Grupo de Descuento:</label>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
 
                     <select name="grupos" id="grupos" class='cho form-control filter-input'>
+                        <option value="0" selected>TODOS</option>}
+                        option
                         <?php if (count($grupos) > 0): ?>
                             <?php foreach ($grupos as $grupo): ?>
                                 <option
@@ -50,9 +52,8 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable">', "</
                 </div>
             </form>
         </div>
-    </div>
-</div>
 
+<br><br>
 <div class="block">
     <!-- Progress Bars Wizard Title -->
     <div class="row" id="loading" style="display: none;">
@@ -201,7 +202,6 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable">', "</
 <script type="text/javascript">
 
     function borrar(id, nom) {
-
         $('#borrar').modal({show: true, keyboard: false, backdrop: 'static'});
         $("#id_borrar").attr('value', id);
         $("#nom_borrar").attr('value', nom);
@@ -225,13 +225,21 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable">', "</
         countescalas = 0;
         countproductos = 0;
         countprecio = 0;
-        $("#barloadermodal").modal('show');
 
-        $("#agregar").load('<?= $ruta ?>descuentos/form/' + id + '/' + grupo_id + '/', function () {
-            $('#agregar').modal({show: true, keyboard: false, backdrop: 'static'});
-            $("#barloadermodal").modal('hide');
+        var grupoDescuento = $("#grupos option:selected").val();
 
-        });
+        if (grupoDescuento!=0) {
+            $("#barloadermodal").modal('show');
+
+            $("#agregar").load('<?= $ruta ?>descuentos/form/' + id + '/' + grupo_id + '/', function () {
+                $('#agregar').modal({show: true, keyboard: false, backdrop: 'static'});
+                $("#barloadermodal").modal('hide');
+            });
+        } else {
+            grupo.error('Debe de seleccionar un grupo para editar');
+        }
+
+
 
     }
 
@@ -239,22 +247,27 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable">', "</
         var id = false;
         var grupo_id = $("#grupos option:selected").val();
 
-        $("#barloadermodal").modal('show');
+        if (grupo_id != 0) {
+            $("#barloadermodal").modal('show');
 
-        $("#agregar").load('<?= $ruta ?>descuentos/form/' + id + '/' + grupo_id + '/', function(){
-            $('#agregar').modal({show: true, keyboard: false, backdrop: 'static'});
-            $("#barloadermodal").modal('hide');
+            $("#agregar").load('<?= $ruta ?>descuentos/form/' + id + '/' + grupo_id + '/', function(){
+                $('#agregar').modal({show: true, keyboard: false, backdrop: 'static'});
+                $("#barloadermodal").modal('hide');
 
-        });
+            });
 
-        lst_producto = new Array();
-        lst_escalas = new Array();
-        lst_precio = new Array();
+            lst_producto = new Array();
+            lst_escalas = new Array();
+            lst_precio = new Array();
 
-        arreglo_precios = new Array();
-        countescalas = 0;
-        countproductos = 0;
-        countprecio = 0;
+            arreglo_precios = new Array();
+            countescalas = 0;
+            countproductos = 0;
+            countprecio = 0;
+        } else {
+            grupo.error('Debe seleccionar el grupo al que desea agregar un descuento');
+        }
+
     }
 
     var grupo = {
@@ -264,6 +277,20 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable">', "</
 
             })
         },
+
+        error: function (mensaje) {
+                var growlType = 'warning';
+
+                $.bootstrapGrowl('<h4>'+mensaje+'</h4>', {
+                    type: growlType,
+                    delay: 2500,
+                    allow_dismiss: true
+                });
+
+                $(this).prop('disabled', true);
+
+                return false;
+        }
 
     }
     function eliminar() {
@@ -928,27 +955,27 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable">', "</
 
     function del_listaProducto(contador, producto_id) {
 
-       // console.log("elimianndo "+producto_id);
+        // console.log("elimianndo "+producto_id);
 
-      //  console.log("contador"+contador);
+        // console.log("contador"+contador);
         var eliminar;
-       // console.log(lst_escalas);
+        //console.log(lst_escalas);
+        //console.log(lst_producto);
+
         jQuery.each(lst_escalas, function (j, valor) {
             jQuery.each(lst_producto, function (i, value) {
 
-               // console.log(value);
+                console.log(value);
                 if (value["contador"] == contador) {
 
                     $("#tr" + valor["contador"] + producto_id).remove();
                     console.log('estes es el que hay que eliminar '+valor["contador"] + producto_id);
                     eliminar = i;
-
                 }
-
             });
         });
 
-//        console.log(eliminar);
+        //console.log(eliminar);
         lst_producto.splice(eliminar, 1);
 
         var arreglo_precios = new Array();
@@ -977,8 +1004,6 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable">', "</
                         }
                     }
                 });
-
-
             }
         });
 
@@ -991,19 +1016,17 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable">', "</
 
         });
 
+        console.log(lst_producto_con_precio);
         jQuery.each(lst_producto_con_precio, function (k, valor) {
 
-            if (valor["Codigo"] == producto_id) {
+            if (valor["codigo"] == producto_id) {
 
                 lst_producto_con_precio.splice(k, 1);
             }
 
 
         });
-
-
         //generarListado(false,arreglo_precios);
-
     }
 
 
@@ -1037,8 +1060,12 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable">', "</
                     <input type="hidden" name="nombre" id="nom_borrar">
                 </div>
                 <div class="modal-footer">
-                    <button type="button" id="confirmar" class="btn btn-primary" onclick="eliminar()">Confirmar</button>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                    <button type="button" id="confirmar" class="btn btn-primary" onclick="eliminar()">
+                        <li class="glyphicon glyphicon-thumbs-up"></li>Confirmar
+                    </button>
+                    <button type="button" class="btn btn-warning" data-dismiss="modal">
+                        Cancelar <li class="glyphicon glyphicon-thumbs-down"></li>
+                    </button>
 
                 </div>
             </div>

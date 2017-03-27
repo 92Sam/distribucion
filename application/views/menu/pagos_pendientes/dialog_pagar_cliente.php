@@ -97,9 +97,22 @@
                         <label id="num_oper_label">Dato Adicional</label>
                     </div>
                     <div class="col-md-8">
-                        <input type="text" id="num_oper" name="num_oper"
+                        <input type="text" id="num_oper" name="num_oper" autocomplete="off"
                                class="form-control"
                                value="">
+                    </div>
+                </div>
+            </div>
+
+            <div class="row" id="fechaoperacion_block" style="display: none;">
+                <div class="form-group">
+                    <div class="col-md-4">
+                        <label id="fec_oper_label">Fecha Operación</label>
+                    </div>
+                    <div class="col-md-8">
+                        <input type="text" id="fec_oper" name="fec_oper"
+                               class="form-control input-datepicker"
+                               value="<?= date('d-m-Y') ?>" readonly style="cursor: pointer;">
                     </div>
                 </div>
             </div>
@@ -111,7 +124,7 @@
                     </div>
                     <div class="col-md-8">
                         <input type="text" id="importe" name="importe"
-                               class="form-control"
+                               class="form-control" autocomplete="off"
                                value="">
                     </div>
                 </div>
@@ -177,6 +190,14 @@
                 return false;
             }
 
+            if ($("#pago_id").val() == "4") {
+                if ($("#importe").val() == 0) {
+                    show_msg('warning', '<h4>Error. </h4><p>Debe ingresar el importe del déposito.</p>');
+                    $("#importe").trigger('focus');
+                    return false;
+                }
+             }
+
             var importe = isNaN(parseFloat($("#importe").val())) ? 0 : parseFloat($("#importe").val());
             var saldo = parseFloat($("#saldo").val());
 
@@ -190,7 +211,8 @@
                 'pago_id': $("#pago_id").val(),
                 'banco_id': $("#banco_id").val(),
                 'num_oper': $("#num_oper").val(),
-                'importe': $("#importe").val()
+                'importe': $("#importe").val(),
+                'fec_oper':$("#fec_oper").val(),
             };
 
             $("#btn_save_form").attr('disabled', 'disabled');
@@ -208,7 +230,8 @@
                         $('.btn_buscar').click();
                     }
                     else if (data.error == '1') {
-                        show_msg('warning', '<h4>Error. </h4><p>Ha ocurrido un error interno.</p>');
+                        show_msg('warning', '<h4>Error. </h4><p>El numero de operación ingresado ya fue registrado.</p>');
+                        $("#num_oper").trigger('focus');
                     }
                 },
                 error: function (data) {
@@ -226,15 +249,19 @@
             $("#num_oper").val('');
             $("#importe").val('');
             $("#banco_block").hide();
+            $("#fechaoperacion_block").hide();
 
             if ($(this).val() == '4') {
                 $("#banco_block").show();
                 $("#num_oper_label").html('N&uacute;mero de Operaci&oacute;n');
+                $("#fechaoperacion_block").show();
             }
             else if ($(this).val() != '4') {
 
-                if ($(this).val() == '5')
+                if ($(this).val() == '5'){
+                    $("#fechaoperacion_block").hide();
                     $("#num_oper_label").html('N&uacute;mero de Cheque');
+                }
                 if ($(this).val() == '6')
                     $("#num_oper_label").html('N&uacute;mero de Nota de Cr&eacute;dito');
                 else
@@ -244,4 +271,6 @@
         });
 
     });
+
+
 </script>

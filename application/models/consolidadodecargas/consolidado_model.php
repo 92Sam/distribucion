@@ -108,6 +108,63 @@ class consolidado_model extends CI_Model
 
     }
 
+    function get_detalle_devueltos($campo)
+    {
+        $q = "SELECT
+            SUM(historial_pedido_detalle.stock) AS cantidadTotal,
+                venta.*,
+                consolidado_carga.*,
+                zonas.*,
+                producto.*,
+                unidades.*,
+                grupos.*,
+                unidades_has_producto.*,
+                camiones.*,
+                usuarioCarga.*,
+                local.*,
+                chofer.nombre AS chofernombre,
+                usuarioCarga.nombre AS userCarga
+            FROM
+                `consolidado_detalle`
+                    JOIN
+                venta ON venta.venta_id = consolidado_detalle.pedido_id
+                    JOIN
+                consolidado_carga ON consolidado_carga.consolidado_id = consolidado_detalle.consolidado_id
+                    JOIN
+                historial_pedido_proceso ON historial_pedido_proceso.pedido_id = venta.venta_id
+                    JOIN
+                historial_pedido_detalle ON historial_pedido_detalle.historial_pedido_proceso_id = historial_pedido_proceso.id
+                    JOIN
+                producto ON producto.producto_id = historial_pedido_detalle.producto_id
+                    JOIN
+                unidades ON unidades.id_unidad = historial_pedido_detalle.unidad_id
+                    LEFT JOIN
+                grupos ON grupos.id_grupo = producto.produto_grupo
+                    JOIN
+                unidades_has_producto ON unidades_has_producto.producto_id = producto.producto_id
+                    JOIN
+                camiones ON camiones.camiones_id = consolidado_carga.camion
+                    JOIN
+                usuario AS usuarioCarga ON usuarioCarga.nUsuCodigo = consolidado_carga.generado_por
+                    LEFT JOIN
+                usuario AS chofer ON chofer.nUsuCodigo = camiones.id_trabajadores
+                    RIGHT JOIN
+                local ON local.int_local_id = usuarioCarga.id_local
+                    JOIN
+                cliente ON cliente.id_cliente = venta.id_cliente
+                    JOIN
+                zonas ON cliente.id_zona = zonas.zona_id
+            WHERE
+                consolidado_detalle.consolidado_id = ".$campo."
+                    AND venta_status IN ('DEVUELTO PARCIALMENTE' , 'RECHAZADO')
+                    AND historial_pedido_proceso.proceso_id = 6
+            GROUP BY producto.producto_id
+            ORDER BY nombre_grupo";
+
+        $query = $this->db->query($q);
+        return $query->result_array();
+    }
+
     function getData($where = array())
     {
         $this->db->select('camiones.*,SUM(liquidacion_monto_cobrado)as totalC,
@@ -312,7 +369,10 @@ class consolidado_model extends CI_Model
     function get_cantiad_vieja_by_product($product, $consolidado_id)
     {
 
-        $q = "select sum(cantidad) as cantidadnueva from detalle_venta join consolidado_detalle on consolidado_detalle.pedido_id=detalle_venta.id_venta where id_producto=" . $product . " and consolidado_id=" . $consolidado_id . " GROUP by id_producto ";
+        $q = "select sum(cantidad) as cantidadnueva
+            from detalle_venta
+            join consolidado_detalle on consolidado_detalle.pedido_id=detalle_venta.id_venta
+            where id_producto=" . $product . " and consolidado_id=" . $consolidado_id . " GROUP by id_producto ";
         $query = $this->db->query($q);
 
         //echo $this->db->last_query();
@@ -453,6 +513,10 @@ class consolidado_model extends CI_Model
 
     function updateDetalle($data)
     {
+        if($data['liquidacion_monto_cobrado'] > 0)
+            if ($this->banco_model->buscarNumeroOperacion($data) != 0)
+                return false;
+
         $add = array(
             'pedido_id' => $data['pedido_id'],
             'liquidacion_monto_cobrado' => $data['liquidacion_monto_cobrado']
@@ -484,9 +548,12 @@ class consolidado_model extends CI_Model
                 'pago_id' => $data['pago_id'],
                 'num_oper' => $data['num_oper'],
                 'banco_id' => $data['banco_id'],
+                'vendedor' => isset($data['vendedor']) ? $data['vendedor'] : $this->session->userdata('nUsuCodigo'),
+                'fecha_documento' => isset($data['fecha_documento']) ? $data['fecha_documento'] : NULL,
                 'historial_estatus' => 'CONSOLIDADO'
             ));
         }
+
 
         $this->db->trans_complete();
         if ($this->db->trans_status() === FALSE) {

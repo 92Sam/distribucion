@@ -27,7 +27,7 @@
             <div class="col-md-2">
                 <label class="control-label">Pendiente A:</label>
             </div>
-            <div class="col-md-2">
+            <div class="col-md-3">
                 <select id="estado" name="estado" class="form-control">
                     <option value="1">Confirmar Pagos</option>
                     <option value="3">Confirmar Consolidados</option>

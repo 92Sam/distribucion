@@ -7,7 +7,8 @@ class ingreso_model extends CI_Model
     function __construct()
     {
         parent::__construct();
-
+        $this->load->model('kardex/kardex_model');
+        $this->load->model('cajas/cajas_model');
     }
 
     function insertar_compra($cab_pie, $detalle)
@@ -42,6 +43,15 @@ class ingreso_model extends CI_Model
         $this->db->insert('ingreso', $compra);
         $insert_id = $this->db->insert_id();
 
+        if($status == 'COMPLETADO' && $compra['total_ingreso'] > 0 && $compra['pago'] == 'CONTADO'){
+            $this->cajas_model->save_pendiente(array(
+                'monto'=>$compra['total_ingreso'],
+                'tipo'=>'INGRESO',
+                'IO'=>2,
+                'ref_id'=>$insert_id
+            ));
+        }
+
         $data = array();
 
         $local_id = $this->session->userdata('id_local');
@@ -58,9 +68,33 @@ class ingreso_model extends CI_Model
                     'id_producto' => $row->Codigo,
                     'cantidad' => $row->Cantidad,
                     'precio' => ($row->PrecUnt === 'null') ? 0 : $row->PrecUnt,
+                    'precio_valor' => ($row->ValorUnitario === 'null') ? 0 : $row->ValorUnitario,
                     'unidad_medida' => $row->unidad,
                     'total_detalle' => (!isset($row->Importe) || $cab_pie['status'] == INGRESO_PENDIENTE) ? 0 : $row->Importe
                 );
+
+                if($status == 'COMPLETADO'){
+                    $tipo_doc = 0;
+                    if($compra['tipo_documento'] == 'FACTURA')
+                        $tipo_doc = 1;
+                    elseif($compra['tipo_documento'] == 'BOLETA DE VENTA')
+                        $tipo_doc = 3;
+
+                    $this->kardex_model->insert_kardex(array(
+                        'local_id'=>$compra['local_id'],
+                        'producto_id'=>$row->Codigo,
+                        'unidad_id'=>$row->unidad,
+                        'serie'=>$compra['documento_serie'],
+                        'numero'=>$compra['documento_numero'],
+                        'tipo_doc'=>$tipo_doc,
+                        'tipo_operacion'=>$compra['tipo_ingreso'] == 'COMPRA' ? 2 : 9,
+                        'cantidad'=>$row->Cantidad,
+                        'costo_unitario'=>$row->PrecUnt,
+                        'IO'=>1,
+                        'ref_id'=>$insert_id,
+                        'total'=>$list_p['total_detalle'],
+                    ));
+                }
 
 
                 $query = $this->db->query('SELECT id_inventario, cantidad, fraccion
@@ -251,6 +285,16 @@ class ingreso_model extends CI_Model
 
         $this->db->update('ingreso', $compra, array('id_ingreso' => $id_ingreso));
 
+        $ingreso = $this->db->get_where('ingreso', array('id_ingreso'=>$id_ingreso))->row();
+        if($compra['total_ingreso'] > 0 && $ingreso->pago == 'CONTADO'){
+
+            $this->cajas_model->update_pendiente(array(
+                'monto'=>$compra['total_ingreso'],
+                'tipo'=>'INGRESO',
+                'ref_id'=>$id_ingreso
+            ));
+        }
+
         $data = array();
 
         $local_id = $this->session->userdata('id_local');
@@ -278,6 +322,8 @@ WHERE detalleingreso.id_ingreso='$compra_id'");
 
         // Detalle de la Venta
         foreach ($query_detalle_ingreso as $row) {
+
+
             $cantidad_venta = $row['cantidad'];
             $unidad_medida_venta = $row['unidad_medida'];
             $id_producto = $row['id_producto'];
@@ -387,6 +433,30 @@ WHERE detalleingreso.id_ingreso='$compra_id'");
 
 
             foreach ($detalle as $row) {
+
+                if($ingreso->ingreso_status == 'COMPLETADO'){
+                    $tipo_doc = 0;
+                    if($ingreso->tipo_documento == 'FACTURA')
+                        $tipo_doc = 1;
+                    elseif($ingreso->tipo_documento == 'BOLETA DE VENTA')
+                        $tipo_doc = 3;
+
+                    $this->kardex_model->insert_kardex(array(
+                        'local_id'=>$ingreso->local_id,
+                        'producto_id'=>$row->Codigo,
+                        'unidad_id'=>$row->unidad,
+                        'serie'=>$ingreso->documento_serie,
+                        'numero'=>$ingreso->documento_numero,
+                        'tipo_doc'=>$tipo_doc,
+                        'tipo_operacion'=>$ingreso->tipo_ingreso == 'COMPRA' ? 2 : 9,
+                        'cantidad'=>$row->Cantidad,
+                        'costo_unitario'=>($row->PrecUnt === 'null') ? 0 : $row->PrecUnt,
+                        'IO'=>1,
+                        'ref_id'=>$id_ingreso,
+                        'total'=>(!isset($row->Importe)) ? 0 : $row->Importe,
+                    ));
+                }
+
                 $cantidad = $row->Cantidad;
                 $id_producto = $row->Codigo;
                 $unidad = $row->unidad;
@@ -396,6 +466,7 @@ WHERE detalleingreso.id_ingreso='$compra_id'");
                     'id_producto' => $row->Codigo,
                     'cantidad' => $row->Cantidad,
                     'precio' => ($row->PrecUnt === 'null') ? 0 : $row->PrecUnt,
+                    'precio_valor' => ($row->ValorUnitario === 'null') ? 0 : $row->ValorUnitario,
                     'unidad_medida' => $row->unidad,
                     'total_detalle' => (!isset($row->Importe)) ? 0 : $row->Importe
                 );
@@ -741,6 +812,9 @@ WHERE detalleingreso.id_ingreso='$compra_id'");
         $data = array();
         $id = $this->input->post('id');
         $local = $this->input->post('local');
+        $anular_serie = $this->input->post('serie');
+        $anular_numero = $this->input->post('numero');
+        $anular_fecha = date('Y-m-d H:i:s', strtotime($this->input->post('fecha') . ' '.date('H:i:s')));
 
 
         $sql_detalle_ingreso = $this->db->query("SELECT * FROM detalleingreso
@@ -754,6 +828,22 @@ WHERE detalleingreso.id_ingreso='$id'");
 
         for ($i = 0; $i < count($query_detalle_ingreso); $i++) {
 
+            $this->kardex_model->insert_kardex(array(
+                'fecha'=>$anular_fecha,
+                'local_id'=>$query_detalle_ingreso[$i]['local_id'],
+                'producto_id'=>$query_detalle_ingreso[$i]['producto_id'],
+                'unidad_id'=>$query_detalle_ingreso[$i]['unidad_medida'],
+                'serie'=>$anular_serie,
+                'numero'=>$anular_numero,
+                'tipo_doc'=>7,
+                'tipo_operacion'=>6,
+                'cantidad'=>($query_detalle_ingreso[$i]['cantidad'] * -1),
+                'costo_unitario'=>$query_detalle_ingreso[$i]['precio'],
+                'IO'=>1,
+                'ref_id'=>$id,
+                'referencia'=>$id,
+                'total'=>($query_detalle_ingreso[$i]['total_detalle'] * -1),
+            ));
 
             $local = $query_detalle_ingreso[$i]['local_id'];
             $unidad_maxima = $query_detalle_ingreso[$i]['unidades'];
@@ -834,6 +924,11 @@ WHERE detalleingreso.id_ingreso='$id'");
             $this->db->where($condicion);
             $campos = array('ingreso_status' => INGRESO_DEVUELTO);
             $this->db->update('ingreso', $campos);
+
+            $this->cajas_model->delete_pendiente(array(
+                'tipo'=>'INGRESO',
+                'ref_id'=>$id
+            ));
 
             return true;
         }

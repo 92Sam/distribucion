@@ -44,7 +44,7 @@ var TablesDatatables = function () {
                 ],
                 "iDisplayLength": 20,
                 fixedColumns: true,
-                "aLengthMenu": [[10, 20, 30, -1], [10, 20, 30, "All"]],
+                "aLengthMenu": [[10, 20, 30, -1], [10, 20, 30, "Todos"]],
                 "order": [[oder_col, "desc"]],
                 "scrollY": "300px",
 
@@ -57,7 +57,7 @@ var TablesDatatables = function () {
                     "infoFiltered": "(filtrado de _MAX_ total resultados)",
                     "infoPostFix": "",
                     "thousands": ",",
-                    "lengthMenu": "Mostrar _MENU_ resultados",
+                    "lengthMenu": "_MENU_",
                     "loadingRecords": "Cargando...",
                     "processing": "Procesando...",
                     // "search": "Buscar:",
@@ -88,6 +88,11 @@ var TablesDatatables = function () {
 
             /* Add placeholder attribute to the search input */
             $('.dataTables_filter input').attr('placeholder', 'Buscar');
+            $('.dataTables_filter input').css('font-size', '11px');
+            $('.dataTables_filter input').css('height', '28px');
+
+            $('#table_length select').css('height', '28px');
+            $('#table_length select').css('font-size', '11px');
         }
     };
 }();
@@ -467,10 +472,10 @@ var TablesDatatablesKardex = function () {
                         // this case `data: 0`.
                         "render": function ( data, type, row ) {
                             console.log(row);
-                            return '<div class="btn-group"> <a class="btn btn-default" data-toggle="tooltip"'+
+                            return '<div class="btn-group" > <a class="btn btn-default" data-toggle="tooltip"'+
                                 'title="Kardex Interno" data-original-title="fa fa-comment-o"'+
                                 'href="#" onclick="KARDEXINTERNO(\''+row[0]+'\')"> Kardex interno'+
-                                '</a><a class="btn btn-default" data-toggle="tooltip"  title="Kardex Fiscal" data-original-title="fa fa-comment-o"'+
+                                '</a><a class="btn btn-primary" data-toggle="tooltip"  title="Kardex Fiscal" data-original-title="fa fa-comment-o"'+
                                 'onclick="KARDEXEXTERNO(\'' +row[0]+ '\');">   Kardex Fiscal </a> </div>';
                         },
                         "targets": 5
@@ -491,7 +496,7 @@ var TablesDatatablesKardex = function () {
                     "infoFiltered": "(filtrado de _MAX_ total resultados)",
                     "infoPostFix": "",
                     "thousands": ",",
-                    "lengthMenu": "Mostrar _MENU_ resultados",
+                    "lengthMenu": "_MENU_ ",
                     "loadingRecords": "Cargando...",
                     "processing": "Procesando...",
                     // "search": "Buscar:",

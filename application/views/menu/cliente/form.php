@@ -251,7 +251,7 @@
                             </select>
                         </div>
                         <div class="col-md-2">
-                            <input type="text" name="ruc_cliente" id="ruc_cliente" required="true" class="form-control"
+                            <input type="text" disabled name="ruc_cliente" id="ruc_cliente" required="true" class="form-control"
                                    value="<?php if (isset($cliente['ruc_cliente'])) echo $cliente['ruc_cliente']; ?>">
                         </div>
 
@@ -277,9 +277,11 @@
                                     <label class="control-label panel-admin-text">DNI</label>
                                 </div>
                                 <div class="col-md-3" id="dni_ruc_cont">
-                                    <input type="text" name="representante_dni" id="representante_dni" required="true"
+                                    <input type="text" name="representante_dni" id="representante_dni"
+                                            required="true"
                                            class="form-control"
-                                           value="<?php if (isset($cdatos['representante_dni'])) echo $cdatos['representante_dni']; ?>">
+                                    value="<?php if (isset($cdatos['representante_dni'])) echo $cdatos['representante_dni']; ?>">
+
                                 </div>
                             </div>
 
@@ -599,6 +601,17 @@
                 </fieldset>
                 <br>
 
+                <div class="modal-footer">
+                    <button type="button" onclick="validarFrm()" id="" class="btn btn-primary">
+                        <li class="glyphicon glyphicon-thumbs-up"></li>
+                        Guardar
+                    </button>
+                    <button type="button" class="btn btn-warning" data-dismiss="modal"> Cancelar
+                        <li class="glyphicon glyphicon-thumbs-down"></li>
+                    </button>
+                </div>
+
+                <br>
 
                 <div class="row">
 
@@ -621,16 +634,7 @@
                 </div>
             </div>
 
-            <div class="modal-footer">
-                <button type="button" onclick="validarFrm()" id="" class="btn btn-primary">
-                    <li class="glyphicon glyphicon-thumbs-up"></li>
-                    Guardar
-                </button>
-                <button type="button" class="btn btn-warning" data-dismiss="modal"> Cancelar
-                    <li class="glyphicon glyphicon-thumbs-down"></li>
-                </button>
 
-            </div>
             <!-- /.modal-content -->
         </div>
 
@@ -669,6 +673,9 @@
 
 <script type="text/javascript">
     $(document).ready(function () {
+
+        $('#representante_dni').mask('99999999');
+        $('#gerente_dni').mask('99999999');
 
         $("select").chosen({'width': '100%'});
 
@@ -732,9 +739,11 @@
 
         $("#tipo_cliente, #tipo_identificacion").change(function () {
             verificarRucDni();
+
             $("#ruc_cliente").val('');
             $("#gerente_nombre").val('');
             $("#gerente_dni").val('');
+            $('#ruc_cliente').focus();
         });
 
         $('#tipo').change(function () {
@@ -744,20 +753,28 @@
                 $('#valor').attr('type', 'text');
             }
         })
-
-
     });
 
 
     function verificarRucDni() {
+
         if ($('#tipo_identificacion').val() == 1) {
             $('#ruc_cliente').mask('99999999999');
+            $('#ruc_cliente').prop('disabled',false);
+
+
         }
         else if ($('#tipo_identificacion').val() == 2) {
             $('#ruc_cliente').mask('99999999');
+            $('#ruc_cliente').prop('disabled',false);
+
+
         }
         else {
             $('#ruc_cliente').mask('');
+            $('#ruc_cliente').prop('disabled',true);
+
+
         }
     }
 

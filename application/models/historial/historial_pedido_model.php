@@ -35,7 +35,7 @@ class historial_pedido_model extends CI_Model
                 'producto_id' => $detalle->id_producto,
                 'unidad_id' => $detalle->unidad_medida,
                 'stock' => $detalle->cantidad,
-                'costo_unitario' => $this->producto_model->get_costo_promedio($detalle->id_producto),
+                'costo_unitario' => $this->producto_model->get_costo_promedio($detalle->id_producto, $detalle->unidad_medida),
                 'precio_unitario' => $detalle->precio,
                 'bonificacion' => $detalle->bono,
             ));
@@ -61,7 +61,7 @@ class historial_pedido_model extends CI_Model
                 'producto_id' => $detalle->id_producto,
                 'unidad_id' => $detalle->unidad_medida,
                 'stock' => $detalle->cantidad,
-                'costo_unitario' => $this->producto_model->get_costo_promedio($detalle->id_producto),
+                'costo_unitario' => $this->producto_model->get_costo_promedio($detalle->id_producto, $detalle->unidad_medida),
                 'precio_unitario' => $detalle->precio,
                 'bonificacion' => $detalle->bono,
             ));

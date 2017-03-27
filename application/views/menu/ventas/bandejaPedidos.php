@@ -3,7 +3,6 @@
 ?>
 <style>
 
-
     .tcharm {
         background-color: #fff;
         border: 1px solid #dae8e7;
@@ -125,16 +124,14 @@
 
     <div class="form-group row">
         <div class="col-md-1">
-            <label class="label-control">Desde</label>
+            <label class="control-label panel-admin-text">Desde</label>
         </div>
         <div class="col-md-2">
             <input type="text" style="cursor: pointer;" name="fecha_desde" id="fecha_desde" value="<?= date('d-m-Y') ?>"
                    required="true"
                    class="form-control fecha campos input-datepicker" readonly="readonly">
         </div>
-        <div class="col-md-1">
-            <label class="label-control">Hasta</label>
-        </div>
+
         <div class="col-md-2">
             <input type="text" style="cursor: pointer;" name="fecha_hasta" id="fecha_hasta" value="<?= date('d-m-Y') ?>"
                    required="true"
@@ -163,11 +160,11 @@
         <div class="col-md-1">
             <button type="button" title="Parar Consulta Automatica" id="stoprefresh" style="display:none;"
                     onclick="stoprefresh();"
-                    class="btn btn-warning"><i
+                    class="btn btn-warning form-control"><i
                     class="fa fa-stop"></i>
             </button>
             <button type="button" title="Iniciar Consulta Automatica" id="inicrefresh" onclick="refreshpedidos();"
-                    class="btn btn-primary"><i
+                    class="btn btn-primary form-control"><i
                     class="fa fa-play"></i>
             </button>
         </div>
@@ -176,8 +173,8 @@
 
     <div id="consolidado_block" class="form-group row">
         <h4>Asignaci&oacute;n de Consolidado</h4>
-        <div class="col-md-2">
-            <label class="">Consolidados</label>
+        <div class="col-md-1">
+            <label class="control-label panel-admin-text">Consolidados</label>
         </div>
         <div class="col-md-4">
             <div class="input-group">
@@ -199,9 +196,10 @@
             <small style="color: #cdcdcd;"># Consolidado | Fecha de Entrega | Cami&oacute;n</small>
         </div>
 
-        <div class="col-md-2">
+        <div class="col-md-3">
             <div class="input-group">
-                <button type="button" id="añadircamion" onclick="agregarPedidos();" class="btn btn-primary"><i
+                <button type="button" id="añadircamion" onclick="agregarPedidos();" class=".btn btn-primary form-control"
+                style="color: white;"><i
                         class="fa fa-truck"></i>
                     Asignar Pedidos
                 </button>

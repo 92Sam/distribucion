@@ -33,8 +33,8 @@
         <td><?= $ventas->total_rechazado ?></td>
         <td><?= $ventas->total_proceso ?></td>
         <td><?= MONEDA . '' . number_format($ventas->importe_completado, 2) ?></td>
-        <td><?= MONEDA . '' . number_format($ventas->importe_completado - $ventas->importe_cobranza, 2) ?></td>
         <td><?= MONEDA . '' . number_format($ventas->importe_cobranza, 2) ?></td>
+        <td><?= MONEDA . '' . number_format($ventas->importe_completado - $ventas->importe_cobranza, 2) ?></td>
     </tr>
 
     <?php foreach ($ventas->desgloses as $desglose): ?>
@@ -46,8 +46,8 @@
             <td><?= $desglose->total_rechazado ?></td>
             <td><?= $desglose->total_proceso ?></td>
             <td><?= MONEDA . '' . number_format($desglose->importe_completado, 2) ?></td>
-            <td><?= MONEDA . '' . number_format($desglose->importe_completado - $desglose->importe_cobranza, 2) ?></td>
             <td><?= MONEDA . '' . number_format($desglose->importe_cobranza, 2) ?></td>
+            <td><?= MONEDA . '' . number_format($desglose->importe_completado - $desglose->importe_cobranza, 2) ?></td>
         </tr>
     <?php endforeach; ?>
 </table>

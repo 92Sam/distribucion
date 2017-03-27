@@ -154,7 +154,7 @@
                             <div class="input-group">
                                 <div
                                     class="input-group-addon"><?= $caja_actual->moneda_id == 1 ? MONEDA : DOLAR ?></div>
-                                <input type="number" id="importe" name="importe"
+                                <input id="importe" name="importe"
                                        class="form-control"
                                        value="">
                             </div>
@@ -183,7 +183,7 @@
         </div>
         <div class="modal-footer">
             <a id="btn_save_form" href="#" class="btn btn-primary">Guardar</a>
-            <a href="#" class="btn btn-warning" onclick="$('#confirm_ajuste').modal('hide')">Cancelar</a>
+            <a href="#" class="btn btn-warning" data-dismiss="modal">Cancelar</a>
         </div>
     </div>
 </div>
@@ -327,6 +327,7 @@
             var url = '<?php echo base_url('cajas/caja_ajustar_guardar')?>' + '/' + $("#cuenta_id").val();
 
             $("#btn_save_form").attr('disabled', 'disabled');
+            $("#btn_save_form_confirm").attr('disabled', 'disabled');
             $.ajax({
                 url: url,
                 data: data,
@@ -354,12 +355,10 @@
                 },
                 complete: function (data) {
                     $("#btn_save_form").removeAttr('disabled');
+                    $("#btn_save_form_confirm").removeAttr('disabled');
                 }
             });
         });
+
     });
 </script>
-
-
-
-

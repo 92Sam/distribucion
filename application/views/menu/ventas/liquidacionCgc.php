@@ -79,13 +79,21 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                            class="form-control fecha input-datepicker filter-input">
                 </div>
 
-                <div class="col-md-3" style="padding:1.5% 1%">
-                    <input type="checkbox" name="limpiar_fecha" id="limpiar_f">
-                    <label for="habilitar_f" class="control-label panel-admin-text">Limpiar Fechas</label>
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    <a class="btn btn-default" id="btn_buscar">
-                        <i class="fa fa-search"> </i>
-                    </a>
+                <div class="col-md-2">
+                    <br>
+                    <input type="checkbox" id="limpiar_f" name="limpiar_fecha" >
+                    <label for="limpiar_f"
+                           class="control-label panel-admin-text"
+                           style="cursor: pointer;">
+                        Limpiar Fechas
+                    </label>
+                </div>
+
+                <div class="col-md-1">
+                    <br>
+                    <button type="button" title="Buscar" id="btn_buscar" class="btn btn-default form-control btn_buscar">
+                        <i class="fa fa-search"></i>
+                    </button>
                 </div>
 
 
@@ -243,6 +251,19 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                             </div>
                         </div>
                         <br>
+                        <div class="row" id="fechaoperacion_block" style="display: none;">
+                            <div class="form-group">
+                                <div class="col-md-4">
+                                    <label id="fec_oper_label">Fecha Operación</label>
+                                </div>
+                                <div class="col-md-8">
+                                    <input type="text" id="fec_oper" name="fec_oper"
+                                           class="form-control input-datepicker"
+                                           value="<?= date('d-m-Y') ?>" readonly style="cursor: pointer;">
+                                </div>
+                            </div>
+                        </div>
+                        <br>
                         <div class="row pago_block">
                             <div class="form-group">
                                 <div class="col-md-4">
@@ -250,7 +271,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                                 </div>
                                 <div class="col-md-8">
                                     <input type="text" id="monto" name="monto"
-                                           class="form-control"
+                                           class="form-control" autocomplete="off"
                                            value="">
                                     <input type="checkbox" id="cobrar_todo">
                                     <label for="cobrar_todo"
@@ -345,9 +366,14 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
 
 
     <script>
+
         var estatus_actual = 'ENTREGADO';
         var estatus_select = 'ENTREGADO';
         var estatus_consolidado;
+
+        jQuery(document).ready(function() {
+             $("#fechaoperacion_block").hide();
+        });
 
 
         $(function () {
@@ -364,6 +390,8 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                 devolver();
             });
 
+
+
             $("#pago_id").on('click', function () {
 
                 $("#banco_id").val('');
@@ -371,15 +399,19 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                 $("#monto").val('0');
                 $("#retencion_block").hide();
                 $("#banco_block").hide();
+                $("#fechaoperacion_block").hide();
 
                 if ($(this).val() == '4') {
                     $("#banco_block").show();
                     $("#num_oper_label").html('N&uacute;mero de Operaci&oacute;n');
+                    $("#fechaoperacion_block").show();
                 }
                 else if ($(this).val() != '4') {
 
-                    if ($(this).val() == '5')
+                    if ($(this).val() == '5'){
+                        $("#fechaoperacion_block").hide();
                         $("#num_oper_label").html('N&uacute;mero de Cheque');
+                    }
                     if ($(this).val() == '6')
                         $("#num_oper_label").html('N&uacute;mero de Nota de Cr&eacute;dito');
                     else
@@ -393,12 +425,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                     $('#limpiar_f').prop('checked', false)
 
                     if ($('#fecha_ini').val() == '' || $('#fecha_fin').val() == '') {
-
-                        $.bootstrapGrowl('<h4>Debe completar ambos campos del rango de fechas</h4>', {
-                            type: 'warning',
-                            delay: 2500,
-                            allow_dismiss: true
-                        });
+                        show_msg('warning','Debe completar ambos campos del rango de fechas');
                         return false
                     }
                 }
@@ -451,6 +478,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                 data: {'venta_id': venta_id},
 
                 success: function (data) {
+                    $('#fechaoperacion_block').hide();
                     $('#barloadermodal').modal('hide');
                     $("#ventamodal_devolver").html(data);
                     $("#ventamodal_devolver").modal('show');
@@ -479,11 +507,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                 },
                 error: function () {
                     $(".table-responsive").html('');
-                    $.bootstrapGrowl('<h4>Ha ocurrido un error en la opci&oacute;n</h4>', {
-                        type: 'warning',
-                        delay: 2500,
-                        allow_dismiss: true
-                    });
+                    show_msg('warning','Ha ocurrido un error en la opci&oacute;n');
                 }
             })
         }
@@ -505,13 +529,55 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                 $(".pago_block").fadeIn(100);
                 $(".devolver_block").fadeIn(100);
                 $("#total").val($("#estatus_value_entregado").val());
+
                 devolver();
             }
         }
 
+
         function validar_estatus() {
-            $("#confirmacion").modal('show');
+            var numeroOperacion = $("#num_oper").val();
+            var mediodePago = $('#pago_id option:selected').text();
+            var montoaCobrar = $('#monto').val();
+            var banco = $("#banco_id").val();
+
+            //EFECTIVO = 3
+            //DEPOSITO = 4
+            //CHEQUE = 5
+
+
+            if ($("#pago_id").val() != 0) {
+
+                if ($("#pago_id").val() == 3)
+                    $("#confirmacion").modal('show');
+
+                if ($("#pago_id").val() == 4){
+                    if (banco != '' && numeroOperacion != '' ){
+                        if (montoaCobrar == '0' || montoaCobrar == ' '){
+                            show_msg('warning','El importe del deposito debe ser mayor a cero');
+                            $('#monto').trigger('focus');
+                        }
+                        else
+                            $("#confirmacion").modal('show');
+                    }
+                    else
+                        show_msg('warning','Es necesario seleccionar un banco e indicar el numero de operación');
+                }
+                if ($("#pago_id").val() == 5) {
+                    if (montoaCobrar == '0' || montoaCobrar == ' ') {
+                        show_msg('warning','El importe del deposito debe ser mayor a cero');
+                        $('#monto').trigger('focus');
+                    }
+                    else
+                        $("#confirmacion").modal('show');
+                }
+            }
+            else {
+                show_msg('warning','Seleccione un medio medio de pago');
+                $("#pago_id").trigger('focus');
+            }
         }
+
 
         var grupo = {
             ajaxgrupo: function () {
@@ -521,30 +587,19 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                 })
             },
             guardar: function () {
-
                 var monto = parseFloat($("#monto").val());
                 var total = parseFloat($("#total").val());
 
+
                 if (monto > total) {
-                    var growlType = 'warning';
-                    $.bootstrapGrowl('<h4>Debe ingresar un monto menor a al total de la deuda </h4>', {
-                        type: growlType,
-                        delay: 2500,
-                        allow_dismiss: true
-                    });
+                    show_msg('warning','Debe ingresar un monto menor a al total de la deuda');
                     return false;
                 }
 
                 if (monto < 0) {
-                    var growlType = 'warning';
-                    $.bootstrapGrowl('<h4>El monto a liquidar no puede ser negativo</h4>', {
-                        type: growlType,
-                        delay: 2500,
-                        allow_dismiss: true
-                    });
+                    show_msg('warning','El monto a liquidar no puede ser negativo');
                     return false;
                 }
-
 
                 $.ajax({
                     url: '<?= base_url() ?>consolidadodecargas/liquidarPedido',
@@ -552,12 +607,17 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                     data: $("#formliquidacion").serialize(),
                     dataType: 'json',
                     success: function (data) {
-                        if (data.error == undefined) {
+
+                        if (data.success == '1') {
                             $('#confirmacion').modal('hide');
                             $('#barloadermodal').modal('hide');
                             $('#cambiarEstatus').modal('hide');
                             $("#consolidadoLiquidacion").load('<?= $ruta ?>consolidadodecargas/verDetallesLiquidacion/' + $('#consolidado_id').val() + '/' + estatus_consolidado);
-
+                        }
+                        else if (data.error == '1') {
+                            $("#confirmacion").modal('hide');
+                            show_msg('warning', '<h4>Error. </h4><p>El numero de operación ingresado ya fue registrado</p>');
+                            $("#num_oper").trigger('focus');
                         }
                     }
 
@@ -586,6 +646,34 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                 }
             })
         }
+
+        //Validamos que el numero de operacion no se repita
+        function  validarNumeroOperacion(){
+            var operacion = $("#num_oper").val();
+            $.ajax({
+                url: '<?= base_url()?>banco/validaNumeroOperacion/' + operacion,
+                dataType:'json',
+                async: false,
+                data: {'operacion': operacion},
+                type: 'POST',
+
+                success: function(data){
+                    if (data.error == undefined)
+                        result = false;
+                    else
+                        result = true;
+
+                },
+                error:function(){
+                    show_msg('danger','Ha ocurrido un error vuelva a intentar');
+                }
+            })
+
+            return result;
+
+        }
+
+
         function devolverpedido(id, coso_id) {
 
 
@@ -617,13 +705,9 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                 }, error: function (error) {
 
                     $('#barloadermodal').modal('hide');
-                    var growlType = 'danger';
 
-                    $.bootstrapGrowl('<h4>Ha ocurrido un error </h4> <p></p>', {
-                        type: growlType,
-                        delay: 2500,
-                        allow_dismiss: true
-                    });
+                    show_msg('warning','Ha ocurrido un error');
+
                     $('#pago_modal').modal('hide');
                     return false;
                 }
@@ -632,5 +716,3 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
         }
 
     </script>
-
-

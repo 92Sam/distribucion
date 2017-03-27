@@ -124,11 +124,8 @@
             },
             error: function(){
                 $("#lstTabla").html('');
-                $.bootstrapGrowl('<h4>Ha ocurrido un error en la opci&oacute;n</h4>', {
-                    type: 'warning',
-                    delay: 2500,
-                    allow_dismiss: true
-                });
+
+                show_msg('warning','Ha ocurrido un error en la opci&oacute;n')
             }
         });
     }
@@ -163,13 +160,8 @@
         var total = $('input[name="historial[]"]:checked').length;
 
         if (total < 1) {
-            var growlType = 'warning';
 
-            $.bootstrapGrowl('<h4>Debe seleccionar al menos una opci&oacute;n</h4>', {
-                type: growlType,
-                delay: 2500,
-                allow_dismiss: true
-            });
+            show_msg('warning','Debe seleccionar al menos una opci&oacute;n');
 
             $(this).prop('disabled', true);
 
@@ -208,36 +200,20 @@
                             $('#barloadermodal').modal('hide');
                             if (data.exito) {
                                 $('#anular').modal('hide');
-                                var growlType = 'success';
-                                $.bootstrapGrowl('<h4>Los pagos se han anulado con exito</h4>', {
-                                    type: growlType,
-                                    delay: 2500,
-                                    allow_dismiss: true
-                                });
+                                show_msg('success','Los pagos se han anulado con exito')
                                 buscar();
                             }
 
                             if (data.error) {
-                                var growlType = 'warning';
-                                $.bootstrapGrowl('<h4>Ha ocurrido un error</h4>', {
-                                    type: growlType,
-                                    delay: 2500,
-                                    allow_dismiss: true
-                                });
-
+                                show_msg('warning','Ha ocurrido un error')
                                 $(this).prop('disabled', true);
                             }
 
                         },
                         error: function () {
                             $('#barloadermodal').modal('hide');
-                            var growlType = 'warning';
 
-                            $.bootstrapGrowl('<h4>Ha ocurrido un error</h4>', {
-                                type: growlType,
-                                delay: 2500,
-                                allow_dismiss: true
-                            });
+                            show_msg('warning','Ha ocurrido un error');
 
                             $(this).prop('disabled', true);
                         },
@@ -258,14 +234,8 @@
         if ($("#montonuevo").val() < 1) {
 
             $("#montonuevo").focus();
-            var growlType = 'warning';
 
-            $.bootstrapGrowl('<h4>Debe ingresar un monto mayor a 0</h4>', {
-                type: growlType,
-                delay: 2500,
-                allow_dismiss: true
-            });
-
+            show_msg('warning','Debe ingresar un monto mayor a 0');
             $(this).prop('disabled', true);
             return false;
         }
@@ -273,13 +243,7 @@
         if ($("#montonuevo").val() == "") {
 
             $("#montonuevo").focus();
-            var growlType = 'warning'
-            $.bootstrapGrowl('<h4>Debe ingresar un monto</h4>', {
-                type: growlType,
-                delay: 2500,
-                allow_dismiss: true
-            });
-
+            show_msg('warning','Debe ingresar un monto');
             $(this).prop('disabled', true);
 
             return false;
@@ -292,30 +256,19 @@
             dataType: "json",
             url: '<?php echo base_url();?>' + 'venta/editar_historialcobranza',
             success: function (data) {
-                if (data.error != undefined) {
-                    $.bootstrapGrowl('<h4>Ha ocurrido un error</h4>', {
-                        type: 'warning',
-                        delay: 2500,
-                        allow_dismiss: true
-                    });
-                } else {
+                if (data.error != undefined)
+                    show_msg('warning','<h4>Ha ocurrido un error</h4>')
+                else {
                     $('#editar').modal('hide');
-                    $.bootstrapGrowl('<h4>Se ha editado el pago</h4>', {
-                        type: 'success',
-                        delay: 2500,
-                        allow_dismiss: true
-                    });
+                    show_msg('success','<h4>Se ha editado el pago</h4>')
                     buscar();
                 }
 
             },
             error: function () {
-                var growlType = 'warning';
-                $.bootstrapGrowl('<h4>Ha ocurrido un error</h4>', {
-                    type: growlType,
-                    delay: 2500,
-                    allow_dismiss: true
-                });
+
+                show_msg('warning','<h4>Ha ocurrido un error</h4>')
+
                 $(this).prop('disabled', true);
             },
             complete: function () {
@@ -331,11 +284,7 @@
         if (total < 1) {
             var growlType = 'warning';
 
-            $.bootstrapGrowl('<h4>Debe seleccionar al menos una opci&oacute;n</h4>', {
-                type: growlType,
-                delay: 2500,
-                allow_dismiss: true
-            });
+            show_msg('warning','Debe seleccionar al menos una opci&oacute;n');
 
             $(this).prop('disabled', true);
 

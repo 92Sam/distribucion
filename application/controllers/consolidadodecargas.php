@@ -12,7 +12,7 @@ class consolidadodecargas extends MY_Controller
         $this->load->model('banco/banco_model');
 
         $this->load->library('Pdf');
-        $this->load->library('phpword');
+        $this->load->library('PHPWord');
         $this->load->library('phpExcel/PHPExcel.php');
 
     }
@@ -376,45 +376,69 @@ class consolidadodecargas extends MY_Controller
         $banco = $this->input->post('banco_id');
         $num_oper = $this->input->post('num_oper');
         $monto = $this->input->post('monto') != NULL ? $this->input->post('monto') : 0;
+        $fec_ope = $this->input->post('fec_oper');
+
 
         $venta = $this->venta_model->get_by('venta_id', $id_pedido);
 
         if ($estatus != PEDIDO_RECHAZADO) {
-            //$venta['nUsuCodigo'] = $this->session->userdata('nUsuCodigo');
-            //$result = $this->venta_model->devolver_stock($id_pedido, $venta, $venta['venta_status']);
-
             $this->venta_model->actualizarCredito(array('dec_credito_montodeuda' => $venta['total']), array('id_venta' => $id_pedido));
         }
 
-        $this->consolidado_model->updateDetalle(array(
+        $validacion = $this->consolidado_model->updateDetalle(array(
             'pedido_id' => $id_pedido,
             'liquidacion_monto_cobrado' => $monto,
             'pago_id' => $pago,
             'banco_id' => $banco,
-            'num_oper' => $num_oper
+            'num_oper' => $num_oper,
+            'fecha_documento' => $fec_ope
         ));
+
 
         $result = $this->venta_model->update_status($id_pedido, $estatus);
 
-        if ($result != FALSE) {
-            $json['success'] = 'Solicitud Procesada con exito';
+        if ($result != FALSE && $validacion != false) {
+            //$json['success'] = 'Solicitud Procesada con exito';
+            echo json_encode(array('success' => 1));
         } else {
-            $json['error'] = 'Ha ocurrido un error al procesar la solicitud';
+            //$json['error'] = 'Ha ocurrido un error al procesar la solicitud';
+            echo json_encode(array('error' => 1));
         }
 
-        echo json_encode($json);
+        //echo json_encode($json);
     }
 
     function cerrarLiquidacion()
     {
         $id = $this->input->post('id');
+        $c_detalles = $this->db->get_where('consolidado_detalle', array('consolidado_id' => $id))->result();
+
+        foreach ($c_detalles as $detalle){
+            $pedido = $this->db->get_where('venta', array('venta_id' => $detalle->pedido_id))->row();
+            if ($pedido->venta_status == PEDIDO_DEVUELTO){
+                $detalle_historial = $this->db->select('historial_pedido_detalle.*')
+                    ->from('historial_pedido_detalle')
+                    ->join('historial_pedido_proceso', 'historial_pedido_proceso.id = historial_pedido_detalle.historial_pedido_proceso_id')
+                    ->where('historial_pedido_proceso.pedido_id', $detalle->pedido_id)
+                    ->where('historial_pedido_proceso.proceso_id', PROCESO_DEVOLVER)
+                    ->get()->result();
+
+                if(count($detalle_historial) == 0){
+                    $this->db->where('venta_id', $detalle->pedido_id);
+                    $this->db->update('venta', array('venta_status'=>'ENTREGADO'));
+                }
+            }
+        }
+
+
+
         if ($id == FALSE) {
             $json['error'] = 'Ha ocurrido un error al procesar la solicitud';
         }
         $estatus = 'CERRADO';
         $cerrar = $this->consolidado_model->cambiarEstatus($id, $estatus);
 
-        $c_detalles = $this->db->get_where('consolidado_detalle', array('consolidado_id' => $id))->result();
+
         foreach ($c_detalles as $detalle) {
             $pedido = $this->db->get_where('venta', array('venta_id' => $detalle->pedido_id))->row();
 
@@ -422,10 +446,12 @@ class consolidadodecargas extends MY_Controller
                 $this->venta_model->reset_venta($detalle->pedido_id);
             } else {
                 //RETORNO EL STOCK SI ES UN PEDIDO DEVUELTO
+                $this->venta_model->devolver_parcial_stock($detalle->pedido_id);
             }
 
             if ($pedido->venta_status == PEDIDO_RECHAZADO) {
                 //RETORNO TODO EL STOCK
+                $this->venta_model->devolver_all_stock($detalle->pedido_id);
             }
 
             if ($detalle->liquidacion_monto_cobrado == 0 || $detalle->liquidacion_monto_cobrado == null) {
@@ -437,7 +463,7 @@ class consolidadodecargas extends MY_Controller
         }
 
         $this->consolidado_model->confirmar_consolidado($id);
-        
+
         if ($cerrar != FALSE) {
             $json['success'] = 'Solicitud Procesada con exito';
         } else {
@@ -910,8 +936,7 @@ class consolidadodecargas extends MY_Controller
 
     function pedidoDevolucion($id)
     {
-        $in = "('" . PEDIDO_DEVUELTO . "', '" . PEDIDO_RECHAZADO . "')";
-        $data['detalleProducto'] = $this->consolidado_model->get_detalle_devueltos($id, $in);
+        $data['detalleProducto'] = $this->consolidado_model->get_detalle_devueltos($id);
 
         $data['notasdeentrega'] = $this->consolidado_model->get_documentoVenta_by_id($id, false);
         $data['consolidado'] = $data['detalleProducto'][0];
@@ -1009,12 +1034,9 @@ class consolidadodecargas extends MY_Controller
             $cantidadvieja = $campoProducto['cantidadTotal'];
 
 
-            $cantidad = floatval($cantidadvieja) - floatval($cantidadnueva);
-            if ($campoProducto['venta_status'] == PEDIDO_RECHAZADO) {
-                $cantidad = $cantidadvieja;
-            }
+            $cantidad = floatval($cantidadvieja);
 
-            if ($cantidad > 0 || $campoProducto['venta_status'] == PEDIDO_RECHAZADO) {
+            if ($cantidad > 0) {
                 if ($count == 1) {
                     $table1->addRow(200, array('exactHeight' => true));
                     if (empty($campoProducto['produto_grupo'])) {
@@ -1508,4 +1530,3 @@ class consolidadodecargas extends MY_Controller
 
 
 }
-

@@ -172,6 +172,23 @@
                         <div class="row">
                             <div class="form-group">
                                 <div class="col-md-4">
+                                    <label for="tipoDocumento"
+                                           class="control-label panel-admin-text">Documento:</label>
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="input-prepend input-append input-group">
+                                        <input type="text" class='form-control'
+                                               name="tipoDocumento"
+                                               id="tipoDocumento" readonly
+                                               value="<?= $venta[0]['tipo_doc_fiscal']  ?>">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="form-group">
+                                <div class="col-md-4">
                                     <label for="cboTipDoc" class="control-label panel-admin-text">Fecha:</label>
                                 </div>
                                 <div class="col-md-8">
@@ -679,7 +696,7 @@
     }
 
     function obtenerClientesZona(zona_id) {
-// Metodo Ajax 
+// Metodo Ajax
         if (zona_id != '') {
             $.ajax({
                 url: '<?=base_url()?>venta/clientesIdZona',

@@ -47,11 +47,21 @@ class banco_model extends CI_Model
         $this->db->update('banco', $banco);
 
         $this->db->trans_complete();
-
-        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         if ($this->db->trans_status() === FALSE)
             return FALSE;
         else
             return TRUE;
+    }
+    function buscarNumeroOperacion($data = array())
+    {
+        if ($data['pago_id'] != 3) {
+            $this->db->where('pago_data', $data['num_oper']);
+            $this->db->where('historial_tipopago', $data['pago_id']);
+            $resultado=$this->db->get('historial_pagos_clientes');
+            return $resultado->num_rows() ;
+        }
+        else
+            return 0;
+
     }
 }

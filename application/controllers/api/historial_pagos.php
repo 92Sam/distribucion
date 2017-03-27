@@ -157,7 +157,7 @@ class historial_pagos extends REST_Controller
 
     public function pagar_cliente_get() {
 
-        $get = $this->get(null, true);
+        $get = $this->input->get(null, true);
 
         $id_cliente = $get['cliente'];
 
@@ -166,7 +166,8 @@ class historial_pagos extends REST_Controller
             'banco_id' => $get['banco_id'],
             'num_oper' => $get['num_oper'],
             'importe' => $get['importe'],
-            'vendedor' => $get['vendedor']
+            'vendedor' => $get['vendedor'],
+            'fecha_documento' => $get['fecha_oper']
         );
 
         $result = null;
@@ -184,7 +185,7 @@ class historial_pagos extends REST_Controller
 
     public function pagar_documento_get() {
 
-        $get = $this->get(null, true);
+        $get = $this->input->get(null, true);
 
         $id_documento = $get['documento'];
 
@@ -193,7 +194,8 @@ class historial_pagos extends REST_Controller
             'banco_id' => $get['banco_id'],
             'num_oper' => $get['num_oper'],
             'importe' => $get['importe'],
-            'vendedor' => $get['vendedor']
+            'vendedor' => $get['vendedor'],
+            'fecha_documento' => $get['fecha_oper']
         );
 
         $result = null;
@@ -207,12 +209,42 @@ class historial_pagos extends REST_Controller
         } else {
             $this->response(array('status' => 'success'));
         }
+    }
+
+    public function liquidar_pagos_get() {
+
+        $get = $this->input->get(null, true);
+
+        $id_vendedor = $get['vendedor'];
+        $lista = $get['historial'];
+
+        $data = array(
+            'pago_id' => $get['pago_id'],
+            'banco_id' => $get['banco_id'],
+            'num_oper' => $get['num_oper'],
+            'importe' => $get['importe'],
+            'vendedor' => $id_vendedor,
+            'fecha_documento' => $get['fecha_oper'],
+            'historial_id' => json_decode($lista)
+        );
+
+        $result = null;
+
+        if ($id_vendedor) {
+            $result = $this->venta_cobro_model->pagar_by_vendedor($id_vendedor, $data);
+        }
+
+        if ($result === false) {
+            $this->response(array('status' => 'failed'));
+        } else {
+            $this->response(array('status' => 'success'));
+        }
 
     }
 
     public function delete_liquidacion_get() {
 
-        $get = $this->get(null, true);
+        $get = $this->input->get(null, true);
 
         $id_historial = $get['id'];
 

@@ -57,6 +57,20 @@ class zona_model extends CI_Model
         $query = $this->db->join('estados', 'ciudades.estado_id=estados.estados_id');
         $query = $this->db->join('pais', 'pais.id_pais=estados.pais_id');
         $query = $this->db->where('id_usuario', $id);
+        $query = $this->db->where('zonas.status', 1);
+        $query = $this->db->get('usuario_has_zona');
+        return $query->result_array();
+    }
+
+    function get_zona_hoy($id, $id_zona, $dia)
+    {
+        $query = $this->db->select('*');
+        $query = $this->db->join('zonas', 'zonas.zona_id=usuario_has_zona.id_zona');
+        $query = $this->db->join('zona_dias', 'zonas.zona_id=zona_dias.id_zona');
+        $query = $this->db->where('id_usuario', $id);
+        $query = $this->db->where('zona_id', $id_zona);
+        $query = $this->db->where('dia_semana', $dia);
+        $query = $this->db->where('zonas.status', 1);
         $query = $this->db->get('usuario_has_zona');
         return $query->result_array();
     }

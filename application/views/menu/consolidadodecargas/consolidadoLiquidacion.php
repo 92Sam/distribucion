@@ -43,6 +43,7 @@
                                 </td>
                                 <td style="text-align: center"><?= $consolidadoDetalles['venta_status'] ?></td>
                                 <?php if ($consolidadoDetalles['venta_status'] == 'DEVUELTO PARCIALMENTE') $devolucion_flag = true; ?>
+                                <?php if ($consolidadoDetalles['venta_status'] == 'RECHAZADO') $devolucion_flag = true; ?>
                                 <?php if ($consolidadoDetalles['venta_status'] == 'ENVIADO') $cerrar_consolidado_flag = false; ?>
                                 <?php if ($status == 'IMPRESO'): ?>
                                     <td style="text-align: center">
@@ -112,15 +113,7 @@
 
     <script type="text/javascript">
         function pedidoDevolucion(id) {
-            if (asd == 'false') {
 
-                $.bootstrapGrowl('<h4>El consolidado no tiene devoluciones</h4>', {
-                    type: 'warning',
-                    delay: 2500,
-                    allow_dismiss: true
-                });
-
-            } else {
 
                 var win = window.open('<?= $ruta ?>consolidadodecargas/pedidoDevolucion/' + id, '_blank');
                 win.focus();
@@ -128,7 +121,7 @@
                 grupo.ajaxgrupo().success(function (data) {
 
                 });
-            }
+
 
 
         }
@@ -223,5 +216,3 @@
 
         });
     </script>
-
-

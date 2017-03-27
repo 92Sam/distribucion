@@ -1,6 +1,5 @@
 <?php $ruta = base_url(); ?>
 
-
 <ul class="breadcrumb breadcrumb-top">
     <li>Inventario</li>
     <li><a href="">Movimiento de Inventario</a></li>
@@ -34,18 +33,39 @@
     <br>
     <div class="row">
         <div class="form-group">
-            <div class="col-md-1">
+            <div class="col-md-1" style="display: none">
                 <label>Ubicaci&oacute;n Inventario</label>
             </div>
-            <div class="col-md-5">
+            <div class="col-md-3" style="display: none">
                 <select class="form-control" id="locales" onchange="getproductosbylocal()">
                     <option value="TODOS">Todos</option>
                     <?php foreach($locales as $local){?>
                         <option value="<?= $local['int_local_id']?>"><?= $local['local_nombre']?></option>
-
                     <?php }?>
-
                 </select>
+            </div>
+
+
+            <div class="col-md-1">
+                <label class="control-label panel-admin-text">Mes</label>
+            </div>
+            <div class="col-md-2">
+                <select class="form-control" id="mes">
+                    <?php for($i = 1; $i < 13; $i++):?>
+                        <option value="<?=$i?>" <?= date('n')==$i ? 'selected="selected"' : ''?>><?= getMes($i) ?></option>
+                    <?php endfor;?>
+                </select>
+            </div>
+
+            <div class="col-md-1">
+                <label class="control-label panel-admin-text">A&ntilde;o</label>
+            </div>
+            <div class="col-md-1">
+                <input type="number" id="year" name="year" value="<?=date('Y')?>" class="form-control">
+            </div>
+
+            <div class="col-md-7">
+                <h4><strong>Recuerde que el kardex se muestra en función al año y mes seleccionado</strong> </h4>
             </div>
         </div>
     </div>
@@ -53,22 +73,18 @@
 
     <div class="table-responsive">
 
-        <table class='table table-striped dataTable table-bordered' id="table">
+        <table class='table table-striped dataTable table-bordered'  id="table">
             <thead>
             <tr>
                 <th>ID</th>
                 <th>Nombre</th>
                 <th>UM</th>
                 <th>Cantidad</th>
-                <th>Fracci&oacute;n</th>
-                <th>Acciones</th>
+                <th>Fracción</th>
+                <th align="center">Acciones</th>
             </tr>
             </thead>
             <tbody>
-
-
-
-
             </tbody>
         </table>
     </div>
@@ -91,27 +107,26 @@
 
 
     function KARDEXINTERNO(id) {
-
+        $("#ver").html('');
         var local=$("#locales").val();
-        $("#ver").load('<?= $ruta ?>inventario/kardex/' + id + '/' + local);
+        var year=$("#year").val();
+        var mes=$("#mes").val();
+        $("#ver").load('<?= $ruta ?>inventario/kardex_interno/' + id + '/' + local + '/' + mes + '/' + year );
         $('#ver').modal('show');
     }
 
     function KARDEXEXTERNO(ELID) {
-
+        $("#ver").html('');
         var documento_fiscal = true;
         var local=$("#locales").val();
-        $("#ver").load('<?= $ruta ?>inventario/kardex/' + ELID + '/' + local + '/' + documento_fiscal);
+        var mes=$("#mes").val();
+        var year=$("#year").val();
+        $("#ver").load('<?= $ruta ?>inventario/kardex/' + ELID + '/' + local + '/' + mes + '/' + year);
         $('#ver').modal('show');
     }
 
-
-
     function getproductosbylocal(){
-
         TablesDatatablesKardex.init('<?php echo base_url()?>inventario/getbyJson',0,false,false);
-
-
     }
 
 </script>
@@ -120,6 +135,4 @@
 
 <script>$(function () {
         getproductosbylocal();
-
     });</script>
-

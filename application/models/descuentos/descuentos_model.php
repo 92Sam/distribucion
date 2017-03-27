@@ -12,25 +12,28 @@ class descuentos_model extends CI_Model
 
     function get_all()
     {
-
-        $this->db->where('status', 1);
-        $this->db->order_by('nombre', 'asc');
-        $query = $this->db->get('descuentos');
+        $this->db->select('*');
+        $this->db->from('descuentos');
+        $this->db->join('grupos_cliente','descuentos.id_grupos_cliente = grupos_cliente.id_grupos_cliente','join');
+        $this->db->where('descuentos.status', 1);
+        $this->db->order_by('grupos_cliente.nombre_grupos_cliente', 'asc');
+        $query = $this->db->get();
         return $query->result_array();
-
     }
-	
+
 	function get_by_groupclie($id)
     {
-
-        $this->db->where('status', 1);
-        $this->db->where('id_grupos_cliente', $id);
-        $this->db->order_by('nombre', 'asc');
-        $query = $this->db->get('descuentos');
+        $this->db->select('*');
+        $this->db->from('descuentos');
+        $this->db->join('grupos_cliente','descuentos.id_grupos_cliente = grupos_cliente.id_grupos_cliente','join');
+        $this->db->where('descuentos.status', 1);
+        $this->db->like('descuentos.id_grupos_cliente', $id);
+        $this->db->order_by('grupos_cliente.nombre_grupos_cliente', 'asc');
+        $query = $this->db->get();
         return $query->result_array();
 
     }
-	
+
     function get_desc_list($condicion)
     {
 

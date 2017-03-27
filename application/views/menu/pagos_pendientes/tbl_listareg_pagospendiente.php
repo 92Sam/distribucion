@@ -62,10 +62,12 @@
                     <?= MONEDA ?>
                     <?= number_format($cliente->subtotal_venta - $cliente->subtotal_pago, 2) ?>
                 </label>
+                <?php if($cliente->subtotal_venta - $cliente->subtotal_pago > 0):?>
                 <button style="float: right" type="button" class="b-primary pagar_cliente"
                         data-cliente_id="<?= $cliente->cliente_id ?>">
                     <i class="fa fa-money"></i>
                 </button>
+            <?php endif;?>
             </td>
         </tr>
         <tr>

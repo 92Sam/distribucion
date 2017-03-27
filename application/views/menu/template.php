@@ -7,7 +7,7 @@ $ruta = base_url();
 /* Template variables */
 $template = array(
     'name' => 'Distribución',
-    'version' => '1.0',
+    'version' => '2.0',
     'author' => 'Te Ayudo',
     'robots' => 'noindex, nofollow',
     'title' => 'Distribución',
@@ -153,19 +153,7 @@ $primary_nav = array(
                 'url' => $ruta . 'inventario/existencia_minima',
                 'icon' => 'fa fa-minus-square-o',
                 'slug' => 'exitenciaminima'
-            ),
-            array(
-                'name' => 'Existencias bajas',
-                'url' => $ruta . 'inventario/existencia_baja',
-                'icon' => 'fa fa-sort-amount-desc',
-                'slug' => 'existenciabaja'
-            ),
-            array(
-                'name' => 'Existencias altas',
-                'url' => $ruta . 'inventario/existencia_alta',
-                'icon' => 'fa fa-sort-amount-asc',
-                'slug' => 'existenciasalta'
-            ),
+            )
 
         ),
     ),
@@ -233,6 +221,12 @@ $primary_nav = array(
                 'icon' => 'fa fa-gift',
                 'sub' => array(
                     array(
+                        'name' => 'Grupos',
+                        'url' => $ruta . 'clientesgrupos',
+                        'icon' => 'fa fa-group',
+                        'slug' => 'gruposcliente'
+                    ),
+                    array(
                         'name' => 'Bonificaciones',
                         'url' => $ruta . 'bonificaciones',
                         'icon' => 'gi gi-parents',
@@ -250,7 +244,7 @@ $primary_nav = array(
         )
     ),
 
-
+    /* SE QUITA POR QUE AUN NO SE TIENE CLARO EL USO QUE LE DARA EN ESTA VERSION
     array(
         'name' => 'PEDIDOS',
         'slug' => 'ventas', //generarpedidos
@@ -272,6 +266,7 @@ $primary_nav = array(
 
         )
     ),
+    */
     array(
         'name' => 'FLUJO DE TRABAJO',
         'slug' => 'flujodetrabajo',
@@ -313,20 +308,7 @@ $primary_nav = array(
                 'url' => $ruta . 'cliente',
                 'icon' => 'gi gi-parents',
                 'slug' => 'clientes'
-            ),
-            array(
-                'name' => 'Grupos',
-                'url' => $ruta . 'clientesgrupos',
-                'icon' => 'fa fa-group',
-                'slug' => 'gruposcliente'
-            ),
-
-            array(
-                'name' => 'Estado de cuentas',
-                'url' => $ruta . 'venta/estadocuenta',
-                'icon' => 'gi gi-folder_flag',
-                'slug' => 'estadodecuentaclientes'
-            ),
+            )
 
 
         )
@@ -349,12 +331,6 @@ $primary_nav = array(
                 'url' => $ruta . 'pago_pendiente/confirmar_pago',
                 'icon' => 'gi gi-ok',
                 'slug' => 'liquidarcobranzas'
-            ),
-            array(
-                'name' => 'Confirmar Liquidaci&oacute;n',
-                'url' => $ruta . 'consolidadodecargas/confirmarentregadedinero',
-                'icon' => 'gi gi-ok',
-                'slug' => 'confirmacionentregadinero'
             )
         )
     ),
@@ -382,29 +358,29 @@ $primary_nav = array(
 
     // Ingresos
     array(
-        'name' => 'INGRESOS',
+        'name' => 'COMPRAS',
         'slug' => 'ingresos',
         'sub' => array(
             array(
-                'name' => 'Registrar Ingreso',
+                'name' => 'Registro de Compras',
                 'url' => $ruta . 'ingresos?costos=true',
                 'icon' => 'gi gi-cart_in',
                 'slug' => 'registraringreo'
             ),
             array(
-                'name' => 'Registro de existencia',
+                'name' => 'Registro de Existencia',
                 'slug' => 'ingresoexistencia',
                 'icon' => 'gi gi-cart_in',
                 'url' => $ruta . 'ingresos?costos=false',
             ),
             array(
-                'name' => 'Consultar Ingresos',
+                'name' => 'Consultar Compras',
                 'url' => $ruta . 'ingresos/consultar',
                 'icon' => 'gi gi-history',
                 'slug' => 'consultaringresos'
             ),
             array(
-                'name' => 'Devolucion De Ingreso',
+                'name' => 'Devolucion de Compras',
                 'url' => $ruta . 'ingresos/devolucion',
                 'icon' => 'gi gi-cart_out',
                 'slug' => 'devolucioningreso'
@@ -427,7 +403,7 @@ $primary_nav = array(
                 'name' => 'Cuentas por Pagar',
                 'url' => $ruta . 'proveedor/cuentas_por_pagar',
                 'icon' => 'gi gi-wallet',
-                'slug' => 'proveedor'
+                'slug' => 'cuentasporpagar'
             ),
         )
     ),
@@ -528,7 +504,7 @@ $primary_nav = array(
                 'sub' => array(
                     array(
                         'name' => 'Stock de Producto',
-                        'url' => $ruta . 'reporte_compra/cliente_estado',
+                        'url' => $ruta . 'producto/stock',
                         'icon' => 'fa fa-bar-chart',
                         'slug' => 'reporteutilidades'
                     ),
@@ -560,83 +536,45 @@ $primary_nav = array(
             ),
 
             array(
-                'name' => 'Reporte utilidades',
+                'name' => 'Ganancias y Perdidas',
                 'url' => $ruta . 'venta/reporteUtilidades',
                 'icon' => 'fa fa-bar-chart',
                 'slug' => 'reporteutilidades'
             ),
+
+
             array(
-                'name' => 'Estadistica Utilidades',
-                'url' => $ruta . 'estadisticas',
-                'icon' => 'fa fa-pie-chart',
-                'slug' => 'estadisticautilidades'
-            ),
-            array(
-                'name' => 'Utilidades Producto',
-                'url' => $ruta . 'venta/reporteUtilidadesProductos',
-                'icon' => 'fa fa-area-chart',
-                'slug' => 'utilidadesproductos'
-            ),
-            array(
-                'name' => 'Utilidades Cliente',
-                'url' => $ruta . 'venta/reporteUtilidadesCliente',
-                'icon' => 'fa fa-line-chart',
-                'slug' => 'utilidadescliente'
-            ),
-            array(
-                'name' => 'Utilidades Proveedor',
-                'url' => $ruta . 'venta/reporteUtilidadesProveedor',
-                'icon' => 'fa fa-bar-chart-o',
-                'slug' => 'utilidadesproveedor'
-            ),
-            array(
-                'name' => 'Estado Producto',
+                'name' => 'Estado del Producto',
                 'url' => $ruta . 'producto/reporteEstado',
                 'icon' => 'fa fa-history',
                 'slug' => 'reporteestado'
             ),
             array(
-                'name' => 'Rotación Productos',
+                'name' => 'Rotación de Productos',
                 'url' => $ruta . 'venta/reporteRotacionZona',
                 'icon' => 'gi gi-heat',
                 'slug' => 'productoszona'
-            ),
-
-
-            array(
-                'name' => 'Deudas elevadas',
-                'url' => $ruta . 'venta/deudasElevadas',
-                'icon' => 'fa fa-line-chart',
-                'slug' => 'deudaselevadas'
             )
         )
 
     ),
 
-
-    // Opciones
     array(
-        'name' => 'OPCIONES',
-        'slug' => 'opciones',
+        'name' => 'CONFIGURACIONES',
+        'slug' => 'configuraciones',
         'sub' => array(
             array(
                 'name' => 'Opciones',
                 'url' => $ruta . 'opciones',
                 'icon' => 'fa fa-cogs',
                 'slug' => 'opcionesgenerales'
-            ), array(
-                'name' => 'Metodos de Pago',
-                'url' => $ruta . 'metodosdepago',
-                'icon' => 'fa fa-money',
-                'slug' => 'metodospago'
             ),
-
             array(
                 'name' => 'Usuarios',
                 'icon' => 'fa fa-users',
                 'sub' => array(
                     array(
-                        'name' => 'Trabjadores',
+                        'name' => 'Trabajadores',
                         'url' => $ruta . 'usuario',
                         'icon' => 'fa fa-users',
                         'slug' => 'usuarios'
@@ -649,15 +587,13 @@ $primary_nav = array(
                     ),
                 ),
                 'slug' => 'usuariospadre'
-
             ),
 
-
             array(
-                'name' => 'Unidades de Medida',
-                'url' => $ruta . 'unidades',
-                'icon' => 'fa fa-list-ol',
-                'slug' => 'unidadesmedida'
+                'name' => 'Camiones',
+                'url' => $ruta . 'camiones',
+                'icon' => 'fa  fa-truck',
+                'slug' => 'camiones'
             ),
             array(
                 'name' => 'Caja',
@@ -670,38 +606,13 @@ $primary_nav = array(
                 'url' => $ruta . 'banco',
                 'icon' => 'gi gi-kiosk',
                 'slug' => 'bancos'
-            )
-        )
-
-
-    ),
-
-    array(
-        'name' => 'CONFIGURACIONES',
-        'slug' => 'configuraciones',
-        'sub' => array(
-
-            array(
-                'name' => 'Impuestos',
-                'url' => $ruta . 'impuesto',
-                'icon' => 'fa fa-money',
-                'slug' => 'impuestos'
             ),
             array(
-                'name' => 'Condiciones de Pago',
-                'url' => $ruta . 'condicionespago',
-                'icon' => 'fa fa-ticket',
-                'slug' => 'condicionespago'
+                'name' => 'Unidades de Medida',
+                'url' => $ruta . 'unidades',
+                'icon' => 'fa fa-list-ol',
+                'slug' => 'unidadesmedida'
             ),
-
-
-            array(
-                'name' => 'Locales',
-                'url' => $ruta . 'local',
-                'icon' => 'gi gi-shop_window',
-                'slug' => 'locales'
-            ),
-
 
             array(
                 'name' => 'Region',
@@ -734,25 +645,54 @@ $primary_nav = array(
                 ),
                 'slug' => 'region'
 
-            ),
-
-            array(
-                'name' => 'Precios',
-                'url' => $ruta . 'precio',
-                'icon' => 'fa fa-money',
-                'slug' => 'precios'
-            ),
-            array(
-                'name' => 'Camiones',
-                'url' => $ruta . 'camiones',
-                'icon' => 'fa  fa-truck',
-                'slug' => 'camiones'
-            ),
+            )
 
         )
 
 
     ),
+
+    // Opciones
+    array(
+        'name' => 'OPCIONES',
+        'slug' => 'opciones',
+        'sub' => array(
+           array(
+                'name' => 'Metodos de Pago',
+                'url' => $ruta . 'metodosdepago',
+                'icon' => 'fa fa-money',
+                'slug' => 'metodospago'
+            ),
+
+             array(
+                'name' => 'Condiciones de Pago',
+                'url' => $ruta . 'condicionespago',
+                'icon' => 'fa fa-ticket',
+                'slug' => 'condicionespago'
+            ),
+             array(
+                'name' => 'Locales',
+                'url' => $ruta . 'local',
+                'icon' => 'gi gi-shop_window',
+                'slug' => 'locales'
+            ),
+              array(
+                'name' => 'Precios',
+                'url' => $ruta . 'precio',
+                'icon' => 'fa fa-money',
+                'slug' => 'precios'
+            ),
+              array(
+                'name' => 'Impuestos',
+                'url' => $ruta . 'impuesto',
+                'icon' => 'fa fa-money',
+                'slug' => 'impuestos'
+            ),
+        )
+
+
+    ),
+
 );
 
 ?>
@@ -837,11 +777,35 @@ $primary_nav = array(
         var baseurl = '<?php echo base_url();?>';
     </script>
     <style>
+    table th {
+        font-size: 11px !important;
+        padding: 6px 2px;
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    table td {
+        font-size: 10px !important;
+    }
+
         .loading-icon {
             background: url("<?php echo $ruta ?>recursos/img/loading.gif") no-repeat;
             width: 192px;
             height: 24px;
             margin: 0 auto;
+        }
+
+        .btn, .btn-sm, .btn-xs {
+            padding: 1px 5px !important;
+            font-size: 12px !important;
+            line-height: 1.5 !important;
+            border-radius: 3px !important;
+        }
+
+        .form-control{
+            font-size: 12px !important;
+            padding: 2px 3px !important;
+            margin: 1px 0 !important;
         }
     </style>
 
@@ -867,7 +831,7 @@ $primary_nav = array(
         <h1 class="push-top-bottom text-light text-center"><strong>Te</strong>Ayudo</h1>
 
         <div class="inner">
-            <h3 class="text-light visible-lt-ie9 visible-lt-ie10"><strong>Loading..</strong></h3>
+            <h3 class="text-light visible-lt-ie9 visible-lt-ie10"><strong>Cargando..</strong></h3>
 
             <div class="preloader-spinner hidden-lt-ie9 hidden-lt-ie10"></div>
         </div>
@@ -979,8 +943,8 @@ $primary_nav = array(
                                 title="Messages"><i class="gi gi-envelope"></i></a>
                              <!-- Opens the user settings modal that can be found at the bottom of each page (page_footer.php in PHP version) -->
                             <a href="#modal-user-settings" data-toggle="modal" class="enable-tooltip"
-                               data-placement="bottom" title="Settings"><i class="gi gi-user"></i></a>
-                            <a href="logout" data-toggle="tooltip" data-placement="bottom" title="Logout"><i
+                               data-placement="bottom" title="Configuración"><i class="gi gi-user"></i></a>
+                            <a href="logout" data-toggle="tooltip" data-placement="bottom" title="Cerrar Sesion"><i
                                     class="gi gi-exit"></i></a>
                         </div>
                     </div>
@@ -1275,12 +1239,6 @@ $primary_nav = array(
                                     <a class="menulink" href="<?= $ruta ?>producto/stock">Stock Producto(F2)</a>
                                 </li>
                             <?php } ?>
-                            <?php if ($this->usuarios_grupos_model->user_has_perm($this->session->userdata('nUsuCodigo'), 'generarventa')) { ?>
-
-                                <li>
-                                    <a class="menulink" href="<?= $ruta ?>venta">Realizar Venta(F3)</a>
-                                </li>
-                            <?php } ?>
                             <?php if ($this->usuarios_grupos_model->user_has_perm($this->session->userdata('nUsuCodigo'), 'pagospendiente')) { ?>
                                 <li>
                                 <a class="menulink" href="<?= $ruta ?>pago_pendiente/pagos">Pagos Pendientes</a>
@@ -1289,13 +1247,13 @@ $primary_nav = array(
 
                                 <li>
 
-                                    <a class="menulink" href="<?= $ruta ?>venta/estadocuenta">Estado de cuentas</a>
+                                    <a class="menulink" href="<?= $ruta ?>reporte/cliente_estado">Estado de cuentas</a>
                                 </li>
                             <?php } ?>
                             <?php if ($this->usuarios_grupos_model->user_has_perm($this->session->userdata('nUsuCodigo'), 'cuadrecaja')) { ?>
 
                                 <li>
-                                    <a class="menulink" href="#cuadre_caja" data-toggle="modal">Cuadre caja</a>
+                                    <a class="menulink" href="<?= $ruta ?>cajas">Cuadre caja</a>
                                 </li>
                             <?php } ?>
                         </ul>
@@ -1433,7 +1391,7 @@ $primary_nav = array(
                     <fieldset>
                         <legend>Informaci&oacute;n</legend>
                         <div class="form-group">
-                            <label class="col-md-4 control-label">Username</label>
+                            <label class="col-md-4 control-label">Nombre de Usuario</label>
 
 
                             <input type="hidden" value="<?= $this->session->userdata('nUsuCodigo') ?>"
@@ -1471,7 +1429,7 @@ $primary_nav = array(
 
                             <button type="button" id="" class="btn btn-primary" onclick="miperfil.guardar()">Confirmar
                             </button>
-                            <button type="button" class="btn btn-sm btn-default" data-dismiss="modal">Cancelar</button>
+                            <button type="button" class="btn btn-sm btn-warning" data-dismiss="modal">Cancelar</button>
                         </div>
                     </div>
                 </form>
@@ -1659,60 +1617,6 @@ $primary_nav = array(
             }
 
 
-            if (e.keyCode == 114) {
-
-                if ($(".modal").is(":visible")) {
-                    return false;
-                }
-                e.preventDefault();
-
-
-                $('#barloadermodal').modal('show');
-
-                $.ajax({
-                    url: '<?=$ruta?>venta',
-                    success: function (data) {
-
-                        if (data.error == undefined) {
-
-                            $('#page-content').html(data);
-
-
-                        } else {
-
-                            var growlType = 'warning';
-
-                            $.bootstrapGrowl('<h4>' + data.error + '</h4>', {
-                                type: growlType,
-                                delay: 2500,
-                                allow_dismiss: true
-                            });
-
-                            $(this).prop('disabled', true);
-
-                        }
-
-
-                        $('#barloadermodal').modal('hide');
-
-                    },
-                    error: function (response) {
-                        $('#barloadermodal').modal('hide');
-                        var growlType = 'warning';
-
-                        $.bootstrapGrowl('<h4>Ha ocurrido un error al realizar la operacion</h4>', {
-                            type: growlType,
-                            delay: 2500,
-                            allow_dismiss: true
-                        });
-
-                        $(this).prop('disabled', true);
-
-                    }
-                })
-            }
-
-
             if (e.keyCode == 113) {
 
                 e.preventDefault();
@@ -1818,5 +1722,3 @@ $primary_nav = array(
         }
     }
 </script>
-
-

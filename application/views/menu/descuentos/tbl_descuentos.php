@@ -1,9 +1,25 @@
-<table class="table table-striped table-bordered table-condensed dataTable" id="tbldescuentos">
+
+<style>
+    #tablaresult th {
+        font-size: 12px !important;
+        padding: 6px 2px;
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    #tablaresult td {
+        text-align: center;
+        font-size: 12px !important;
+    }
+</style>
+
+<table class="table table-striped table-bordered" id="tablaresult">
     <thead>
     <tr>
         <th>ID</th>
-        <th>Nombre</th>
-        <th class="desktop">Acciones</th>
+        <th>Grupo de Descuento</th>
+        <th>Nombre de la escala de Descuentos</th>
+        <th>Acciones</th>
     </tr>
     </thead>
     <tbody>
@@ -13,27 +29,26 @@
             ?>
             <tr>
 
-                <td class="center"><?= sumCod($descuento['descuento_id']); ?></td>
+                <td><?= $descuento['descuento_id']; ?></td>
+                <td><?= $descuento['nombre_grupos_cliente'] ?></td>
                 <td><?= $descuento['nombre'] ?></td>
 
                 <td class="center">
                     <div class="btn-group">
-                        <?php
-
-                        echo '<a class="btn btn-default btn-default btn-default" data-toggle="tooltip"
-                                                        title="Editar" data-original-title="Ver"
-                                                        href="#" onclick="verModal(' . $descuento['descuento_id'] . ');">'; ?>
+                        <?= '<a class="btn btn-primary" data-toggle="tooltip"
+                             title="Editar" data-original-title="Ver" href="#"
+                             onclick="verModal(' . $descuento['descuento_id'] . ');">'; ?>
                         ver
                         </a>
-                        <?php
-
-                        echo '<a class="btn btn-default btn-default btn-default" data-toggle="tooltip"
-                                                        title="Editar" data-original-title="Editar"
-                                                        href="#" onclick="editar(' . $descuento['descuento_id'] . ',\'' . $grupo_id . '\');">'; ?>
+                        <?='<a class="btn btn-default" data-toggle="tooltip"
+                                    title="Editar" data-original-title="Editar"
+                                    href="#"
+                                    onclick="editar(' . $descuento['descuento_id'] . ',\'' . $grupo_id . '\');">'; ?>
                         <i class="fa fa-edit"></i>
                         </a>
-                        <?php echo '<a class="btn btn-default btn-default btn-default" data-toggle="tooltip"
-                                     title="Eliminar" data-original-title="Eliminar" onclick="borrar(' . $descuento['descuento_id'] . ',\'' . $descuento['nombre'] . '\');">'; ?>
+                        <?php echo '<a class="btn btn-danger" data-toggle="tooltip"
+                                    title="Eliminar" data-original-title="Eliminar"
+                                    onclick="borrar(' . $descuento['descuento_id'] . ',\'' . $descuento['nombre'] . '\');">'; ?>
                         <i class="fa fa-trash-o"></i>
                         </a>
 

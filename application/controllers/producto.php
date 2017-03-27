@@ -84,37 +84,7 @@ class producto extends MY_Controller
     {
 
         if ($id != FALSE) {
-
-            $precio_venta = $this->precios_model->get_by('nombre_precio', 'Precio Venta');
-            $data['producto_unidad'] = $this->unidades_model->get_by_producto($id);
-
-            //var_dump($data);
-            $select = '*';
-            $from = "unidades_has_precio";
-            $join = false;
-            $campos_join = false;
-            $tipo_join = false;
-
-            $group = false;
-            $where = array(
-                'id_unidad' => $data['producto_unidad'][0]['id_unidad'],
-                'id_producto' => $id,
-                'id_precio' => $precio_venta['id_precio']
-            );
-            $data['precio_venta'] = $this->unidades_has_precio_model->traer_by($select, $from, $join,
-                $campos_join, $tipo_join, $where, false, false, false, false, $group, false, "ROW_ARRAY");
-
-            $select = 'count(id_producto) as cantidad_bonificada';
-            $from = "detalle_venta";
-            $where = array(
-                'id_producto' => $id,
-                'bono' => 1
-            );
-            $data['cantidad_comprada'] = $this->producto_model->cantidad_comprada($id);
-            $data['producto_bonificado'] = $this->venta_model->traer_by($select, $from, $join,
-                $campos_join, $tipo_join, $where, false, false, false, false, $group, false, "ROW_ARRAY");
-
-            $data['datos_producto'] = $this->producto_model->estado_producto_est($id);
+            $data['producto_estados'] = $this->producto_model->get_estado_producto($id);
 
         }
         $this->load->view('menu/ventas/estadoProducto', $data);
@@ -133,7 +103,7 @@ class producto extends MY_Controller
 
     }
 
-    function stock()
+    function stock($action = '')
     {
 
         if ($this->session->flashdata('success') != FALSE) {
@@ -143,17 +113,47 @@ class producto extends MY_Controller
             $data ['error'] = $this->session->flashdata('error');
         }
 
+        switch ($action) {
+            case 'filter': {
 
-        $data['locales'] = $this->local_model->get_all();
-        $data["lstProducto"] = $this->producto_model->get_all_by_local($data["locales"][0]["int_local_id"], true);
-        $data['columnas'] = $this->columnas;
-        $dataCuerpo['cuerpo'] = $this->load->view('menu/producto/stock', $data, true);
+                echo $this->load->view('menu/producto/stock_table', array(
+                    'lstProducto'=>$this->producto_model->get_all_by_local($this->input->post('local_id'), true, false, array(
+                        'marca_id' => $this->input->post('marca_id'),
+                        'grupo_id' => $this->input->post('grupo_id'),
+                        'linea_id' => $this->input->post('linea_id'),
+                        'familia_id' => $this->input->post('familia_id'),
+                        'subfamilia_id' => $this->input->post('subfamilia_id'),
+                        'talla_id' => $this->input->post('talla_id')
+                    )),
+                    'columnas'=>$this->columnas
 
+                ), true);
+                break;
+            }
+            default: {
 
-        if ($this->input->is_ajax_request()) {
-            echo $dataCuerpo['cuerpo'];
-        } else {
-            $this->load->view('menu/template', $dataCuerpo);
+                $data['locales'] = $this->local_model->get_all();
+                $data['marcas'] = $this->db->get_where('marcas', array('estatus_marca'=>1))->result();
+                $data['grupos'] = $this->db->get_where('grupos', array('estatus_grupo'=>1))->result();
+                $data['lineas'] = $this->db->get_where('subgrupo', array('estatus_subgrupo'=>1))->result();
+                $data['familias'] = $this->db->get_where('familia', array('estatus_familia'=>1))->result();
+                $data['subfamilias'] = $this->db->get_where('subfamilia', array('estatus_subfamilia'=>1))->result();
+                $data['tallas'] = $this->db->get_where('lineas', array('estatus_linea'=>1))->result();
+                $data['columnas'] = $this->columnas;
+
+                $data['reporte_tabla'] = $this->load->view('menu/producto/stock_table', array(
+                    'lstProducto'=>$this->producto_model->get_all_by_local($data["locales"][0]["int_local_id"], true),
+                    'columnas'=>$this->columnas
+
+                ), true);
+
+                $dataCuerpo['cuerpo'] = $this->load->view('menu/producto/stock', $data, true);
+                if ($this->input->is_ajax_request()) {
+                    echo $dataCuerpo['cuerpo'];
+                } else {
+                    $this->load->view('menu/template', $dataCuerpo);
+                }
+            }
         }
 
     }
@@ -597,8 +597,8 @@ $join = array('lineas', 'marcas', 'familia', 'grupos', 'proveedor', 'impuestos',
             $subfamilia = $this->input->post('producto_subfamilia');
             $subgrupo = $this->input->post('producto_subgrupo');
             $proveedor = $this->input->post('producto_proveedor');
-            $impuesto = $this->input->post('producto_impuesto');
-            $cualidad = $this->input->post('producto_cualidad');
+            $impuesto = 2;//$this->input->post('producto_impuesto'); Coloco manualmente el IGV;
+            $cualidad = "MEDIBLE"; // $this->input->post('producto_cualidad');  Coloco manualmente la cualidad medible;
             $producto_activo = $this->input->post('producto_activo');
             $desccripcion = $this->input->post('producto_descripcion');
             $nota = $this->input->post('producto_nota');
@@ -1408,18 +1408,18 @@ $join = array('lineas', 'marcas', 'familia', 'grupos', 'proveedor', 'impuestos',
             ->setKeywords("Stock")
             ->setCategory("Stock");
 
-        // Columnas de A a Z 26 elementos Maximo    
+        // Columnas de A a Z 26 elementos Maximo
         $columnas = range("A", "Z");
 
         // Configuraci´on de Elementos Titulo
-        for ($i = 'A'; $i <= 'M'; $i++) {
+        for ($i = 'A'; $i <= 'J'; $i++) {
             if ($i == 'A' || $i == 'C' || $i == 'E') {
                 $this->phpexcel->getActiveSheet()->getStyle($i)->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
             }
             $this->phpexcel->getActiveSheet()->getColumnDimension($i)->setAutoSize('true');
         }
 
-        $this->phpexcel->getActiveSheet()->getStyle('A2:M2')->applyFromArray($estiloTituloReporte);
+        $this->phpexcel->getActiveSheet()->getStyle('A2:J2')->applyFromArray($estiloTituloReporte);
         // Configuraci´on de Elementos
 
         // Llenado de Titulo
@@ -1429,10 +1429,9 @@ $join = array('lineas', 'marcas', 'familia', 'grupos', 'proveedor', 'impuestos',
 
         $data['columnas_new'][] = array('nombre_columna' => 'nombre_unidad', 'nombre_mostrar' => 'UM', 'mostrar' => 1);
         $data['columnas_new'][] = array('nombre_columna' => 'cantidad', 'nombre_mostrar' => 'Cantidad', 'mostrar' => 1);
-        $data['columnas_new'][] = array('nombre_columna' => 'fraccion', 'nombre_mostrar' => 'Fraccion', 'mostrar' => 1);
-        $data['columnas_new'][] = array('nombre_columna' => 'activo', 'nombre_mostrar' => 'Fraccion', 'mostrar' => 1);
 
-        $columShow = array('producto_id', 'producto_nombre', 'producto_marca', 'produto_grupo', 'producto_subgrupo', 'producto_familia', 'producto_subfamilia', 'producto_linea', 'presentacion', 'nombre_unidad', 'cantidad', 'fraccion', 'producto_activo');
+
+        $columShow = array('producto_id', 'producto_nombre', 'producto_marca', 'produto_grupo', 'producto_subgrupo', 'producto_familia', 'producto_subfamilia', 'producto_linea', 'presentacion', 'nombre_unidad', 'cantidad');
         $columnasNomalizadas = array();
 
         foreach ($data['columnas_new'] as $col) {

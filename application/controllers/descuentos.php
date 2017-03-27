@@ -47,7 +47,7 @@ class descuentos extends MY_Controller
             $this->load->view('menu/template', $dataCuerpo);
         }
     }
-	
+
 	function lst_descuentos() {
 
         if ($this->input->is_ajax_request()) {
@@ -56,14 +56,20 @@ class descuentos extends MY_Controller
 
             $data["grupo_id"] = $id;
 
-            $data["descuentos"] = $this->descuentos_model->get_by_groupclie($id);
+            if($id == 0){
+                $data["descuentos"] = $this->descuentos_model->get_by_groupclie('');
+            }
+            else{
+                $data["descuentos"] = $this->descuentos_model->get_by_groupclie($id);
+            }
 
             $this->load->view('menu/descuentos/tbl_descuentos', $data);
-        } else {
+        }
+        else {
             redirect(base_url() . 'descuentos/', 'refresh');
         }
     }
-	
+
     function verReglaDescuento($id){
 
         $data['escalas'] = $this->descuentos_model->get_escalas_descuento($id);
@@ -89,20 +95,20 @@ class descuentos extends MY_Controller
         if ($id != FALSE) {
 
             $datax['descuentos'] = $this->descuentos_model->get_by('descuento_id', $id);
-            
+
 			$datax['escalas'] = $this->descuentos_model->get_escalas_by_descuento($id);
-            
+
 			$where = " where  descuentos.descuento_id='" . $id . "'";
-            
+
 			$datax['productosnoagrupados'] = $this->descuentos_model->edit_descuentos($where, false);
-            //var_dump($datax['productosnoagrupados']);
-            
+
+
 			$datax['sizenoagrupados'] = sizeof($datax['productosnoagrupados']);
-            
+
 			$datax['sizeescalas'] = sizeof($datax['escalas']);
 
             $datax['prod_precios'] = $this->descuentos_model->get_prod_precioventa();
-            //var_dump($datax['prod_precios']);
+
 
         }
 

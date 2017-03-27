@@ -25,7 +25,8 @@ class venta extends MY_Controller
         $this->load->model('liquidacioncobranza/liquidacion_cobranza_model');
         $this->load->model('ingreso/ingreso_model');
         $this->load->model('gastos/gastos_model');
-        $this->load->library('phpword');
+        $this->load->model('inventario/inventario_model');
+        $this->load->library('PHPWord');
 
         $this->load->library('Pdf');
         $this->load->library('session');
@@ -79,7 +80,7 @@ class venta extends MY_Controller
         $useradmin = $this->session->userdata('admin');
         if ($useradmin == 1 || $user_grupo != 2) {
             $data["vendedores"] = $this->usuario_model->select_all_by_roll('Vendedor');
-            $data["clientes"] = $this->cliente_model->get_all();
+            $data["clientes"] = $this->cliente_model->get_all($data["vendedores"][0]->nUsuCodigo);
             $data['zonas'] = $this->venta_model->zonaVendedor(FALSE, date('N'));
         } else {
             $vendedor = $this->session->userdata('nUsuCodigo');
@@ -160,7 +161,7 @@ class venta extends MY_Controller
         $devoluciones = json_decode($this->input->post('devoluciones'));
         $this->venta_model->devolver_venta($venta_id, $total_importe, $devoluciones);
     }
-    
+
 
     function registrar_venta()
     {
@@ -204,6 +205,9 @@ class venta extends MY_Controller
                     if (empty($lista_bonos)) $lista_bonos = null;
                     $bonos = json_decode($lista_bonos);
                     $detalle = json_decode($this->input->post('lst_producto', true));
+
+
+
                     if ($bonos) {
                         foreach ($bonos as $item) {
                             $bono = Array();
@@ -220,8 +224,19 @@ class venta extends MY_Controller
                         }
                     }
 
-                    //var_dump($detalle);
+                    $validar_detalle = array();
+                    foreach($detalle as $d){
+                        $validar_detalle[] = array(
+                            'producto_id'=>$d->id_producto,
+                            'local_id'=>$venta['local_id'],
+                            'unidad_id'=>$d->unidad_medida,
+                            'cantidad'=>$d->cantidad,
+                            'bono'=>$d->bono
+                        );
+                    }
 
+                    $sin_stock = $this->inventario_model->check_stock($validar_detalle);
+                    if(count($sin_stock) == 0){
                     $id = $this->input->post('idventa');
                     $montoboletas = $this->session->userdata('MONTO_BOLETAS_VENTA');
                     if (empty($id)) {
@@ -249,7 +264,7 @@ class venta extends MY_Controller
                         $this->historial_pedido_model->editar_pedido(PROCESO_GENERAR, $resultado);
                     }
                     if ($resultado != false) {
-                        
+
                         $this->ventaEstatus($id, $this->input->post('venta_status', true));
 
                         $dataresult['estatus_consolidado'] = $this->input->post('estatus_consolidado', true);;
@@ -258,6 +273,11 @@ class venta extends MY_Controller
                     } else {
                         $dataresult['msj'] = "no guardo";
                     }
+                }
+                else{
+                    $dataresult['msj'] = "no guardo";
+                    $dataresult['sin_stock'] = json_encode($sin_stock);
+                }
                 } else {
                     $dataresult['msj'] = "no guardo";
                 }
@@ -2803,7 +2823,7 @@ class venta extends MY_Controller
         $boletas = $result['boletas'];
 
         // documento
-        $phpword = new \PhpOffice\PhpWord\PhpWord();
+        $phpword = new \PhpOffice\PHPWord\PHPWord();
         $styles = array(
             'pageSizeW' => '12812.598425197',
             'pageSizeH' => '8617.322834646',
@@ -4307,7 +4327,6 @@ class venta extends MY_Controller
 
     function zonaVendedor()
     {
-        $useradmin = $this->session->userdata('admin');
         if ($this->input->post('dia') != '') {
             $dia = $this->input->post('dia');
         } else {
@@ -4315,10 +4334,6 @@ class venta extends MY_Controller
         }
         $vendedor = $this->input->post('vendedor_id');
 
-        $useradmin = $this->db->get_where('usuario', array('nUsuCodigo' => $vendedor))->row();
-
-        if ($useradmin->admin == 1)
-            $vendedor = FALSE;
         $zona_vendedor = $this->venta_model->zonaVendedor($vendedor, $dia);
         die(json_encode($zona_vendedor));
     }
@@ -4341,15 +4356,15 @@ class venta extends MY_Controller
         die(json_encode($this->venta_model->getDeudaCliente($this->input->post('cliente_id'))));
     }
 
-    function clientesIdZona()
+    function clientesIdZona($vendedor)
     {
-        $cliente_direccion = $this->venta_model->dataClienteIdZona($this->input->post('zona_id'));
+        $cliente_direccion = $this->venta_model->dataClienteIdZona($this->input->post('zona_id'), $vendedor);
         die(json_encode($cliente_direccion));
     }
 
-    function listaClientes()
+    function listaClientes($vendedor)
     {
-        die(json_encode($this->cliente_model->get_all()));
+        die(json_encode($this->cliente_model->get_all($vendedor)));
     }
 
     function get_precio_escalas()
@@ -4362,6 +4377,3 @@ class venta extends MY_Controller
         echo json_encode($this->unidadPrecio->get_max_min_precio($producto_id, $unidad_id, $grupo_id));
     }
 }
-
-
-
