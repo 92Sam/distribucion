@@ -40,7 +40,11 @@
 
         <? foreach ($cuenta->detalles as $detalle): ?>
             <tr class="tabla_detalles">
-                <td colspan="3">Pago Cancelado</td>
+                <td colspan="3">
+                    <?= $detalle->pago_nombre?>
+                    <?= $detalle->pago_id == 4 ? '| '. $detalle->banco_nombre . '| '. $detalle->operacion : '' ?>
+                    <?= $detalle->pago_id != 3 && $detalle->pago_id != 4 ? '| '. $detalle->operacion : '' ?>
+                </td>
                 <td><?= date('d/m/Y', strtotime($detalle->fecha)) ?></td>
                 <td></td>
                 <td><?= MONEDA . ' ' . number_format($detalle->monto, 2) ?></td>

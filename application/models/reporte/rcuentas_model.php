@@ -24,7 +24,14 @@ class rcuentas_model extends CI_Model
             ->from('ingreso')
             ->join('proveedor', 'ingreso.int_Proveedor_id = proveedor.id_proveedor')
             ->where('ingreso.ingreso_status', 'COMPLETADO')
-            ->where('ingreso.pago', 'CREDITO');
+            ->where('ingreso.pago', 'CREDITO')
+            ->where("(SELECT 
+                        COUNT(*)
+                    FROM
+                        pagos_ingreso
+                    WHERE
+                        pagoingreso_ingreso_id = ingreso.id_ingreso 
+                        AND pagoingreso_restante = 0) = 0");
 
         if (isset($params['fecha_ini']) && isset($params['fecha_fin']) && $params['fecha_flag'] == 1) {
             $this->db->where('ingreso.fecha_emision >=', date('Y-m-d H:i:s', strtotime($params['fecha_ini'] . ' 00:00:00')));
@@ -80,10 +87,16 @@ class rcuentas_model extends CI_Model
 
             $cuenta->detalles = $this->db->select("
                 pagos_ingreso.pagoingreso_fecha as fecha,
-                pagos_ingreso.pagoingreso_monto as monto,
+                pagos_ingreso.pagoingreso_monto as monto,,
+                pagos_ingreso.medio_pago_id as pago_id,
+                metodos_pago.nombre_metodo as pago_nombre,
+                banco.banco_nombre as banco_nombre,
+                pagos_ingreso.operacion as operacion
             ")
                 ->from('pagos_ingreso')
                 ->where('pagoingreso_ingreso_id', $cuenta->ingreso_id)
+                ->join('metodos_pago', 'metodos_pago.id_metodo = pagos_ingreso.medio_pago_id', 'left')
+                ->join('banco', 'banco.banco_id = pagos_ingreso.banco_id', 'left')
                 ->get()->result();
         }
 

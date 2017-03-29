@@ -79,8 +79,8 @@ $total_cuenta = 0; ?>
             <?php if ($pago->pago == 'CONTADO'): ?>
                 <tr>
                     <td><?= date('d/m/Y', strtotime($pago->fecha_emision)) ?></td>
-                    <td></td>
                     <td>CONTADO</td>
+                    <td></td>
                     <td></td>
                     <td><?= MONEDA . ' ' . number_format($pago->total, 2) ?></td>
                     <?php $actual_desglose -= $pago->total; ?>
@@ -93,9 +93,12 @@ $total_cuenta = 0; ?>
 
                 <tr>
                     <td><?= date('d/m/Y', strtotime($detalle->fecha)) ?></td>
-                    <td></td>
                     <td>CR&Eacute;DITO</td>
-                    <td></td>
+                    <td colspan="2">
+                        <?= $detalle->pago_nombre?>
+                        <?= $detalle->pago_id == 4 ? '| '. $detalle->banco_nombre . '| '. $detalle->operacion : '' ?>
+                        <?= $detalle->pago_id != 3 && $detalle->pago_id != 4 ? '| '. $detalle->operacion : '' ?>        
+                    </td>
                     <td><?= MONEDA . ' ' . number_format($detalle->monto, 2) ?></td>
                     <?php $actual_desglose -= $detalle->monto; ?>
                     <td><?= MONEDA . ' ' . number_format($actual_desglose, 2) ?></td>
