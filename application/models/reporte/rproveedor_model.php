@@ -18,6 +18,7 @@ class rproveedor_model extends CI_Model
         ")
             ->from('proveedor')
             ->join('ingreso', 'ingreso.int_Proveedor_id = proveedor.id_proveedor')
+            ->join('pagos_ingreso', 'pagos_ingreso.pagoingreso_ingreso_id = ingreso.id_ingreso', 'left')
             ->where_in('ingreso.ingreso_status', 'COMPLETADO')
             ->where_in('proveedor.proveedor_status', 1)
             ->group_by('proveedor.id_proveedor');
@@ -37,11 +38,19 @@ class rproveedor_model extends CI_Model
 
             $this->aplicar_filtros($params);
 
+            $this->db->where("(SELECT 
+                        COUNT(pagos_ingreso.pagoingreso_id)
+                    FROM
+                        pagos_ingreso
+                    WHERE
+                        pagos_ingreso.pagoingreso_ingreso_id = ingreso.id_ingreso 
+                        AND pagos_ingreso.pagoingreso_restante = 0.00) <= 0");
 
             $pagado = $this->db->get()->row();
 
             $this->db->select('SUM(ingreso.total_ingreso) as monto_pagado')
                 ->from('ingreso')
+                ->join('pagos_ingreso', 'pagos_ingreso.pagoingreso_ingreso_id = ingreso.id_ingreso', 'left')
                 ->where('ingreso.int_Proveedor_id', $proveedor->proveedor_id)
                 ->where('ingreso.pago', 'CONTADO')
                 ->where('ingreso.ingreso_status', 'COMPLETADO');
@@ -74,11 +83,15 @@ class rproveedor_model extends CI_Model
             ingreso.pago as pago
         ")
             ->from('ingreso')
+            ->join('pagos_ingreso', 'pagos_ingreso.pagoingreso_ingreso_id = ingreso.id_ingreso', 'left')
             ->join('proveedor', 'ingreso.int_Proveedor_id = proveedor.id_proveedor')
             ->where('ingreso.ingreso_status', 'COMPLETADO')
             ->where('ingreso.int_Proveedor_id', $proveedor_id);
 
         $this->aplicar_filtros($params);
+
+        $this->db->group_by('ingreso.id_ingreso');
+        $this->db->order_by('ingreso.fecha_emision', 'ASC');
 
         $pagos = $this->db->get()->result();
 
@@ -126,11 +139,26 @@ class rproveedor_model extends CI_Model
         if (isset($params['estado']) && $params['estado'] != 0) {
             switch ($params['estado']) {
                 case 1: {
-                    $this->db->where('(SELECT pagoingreso_ingreso_id FROM pagos_ingreso WHERE pagoingreso_restante != 0 group by pagoingreso_ingreso_id) != ingreso.id_ingreso');
+                    $this->db->where('IFNULL(pagos_ingreso.pagoingreso_ingreso_id, 0) = 0');
+                    $this->db->or_where("(SELECT 
+                        COUNT(pagos_ingreso.pagoingreso_id)
+                    FROM
+                        pagos_ingreso
+                    WHERE
+                        pagos_ingreso.pagoingreso_ingreso_id = ingreso.id_ingreso 
+                        AND pagos_ingreso.pagoingreso_restante = 0.00) > 0");
                     break;
                 }
                 case 2: {
-                    $this->db->where('(SELECT pagoingreso_ingreso_id FROM pagos_ingreso WHERE pagoingreso_restante != 0 group by pagoingreso_ingreso_id) = ingreso.id_ingreso');
+                    $this->db->where('IFNULL(pagos_ingreso.pagoingreso_ingreso_id, 0) = ingreso.id_ingreso');
+                    $this->db->where("(SELECT 
+                        COUNT(pagos_ingreso.pagoingreso_id)
+                    FROM
+                        pagos_ingreso
+                    WHERE
+                        pagos_ingreso.pagoingreso_ingreso_id = ingreso.id_ingreso 
+                        AND pagos_ingreso.pagoingreso_restante = 0.00) <= 0");
+                    
                     break;
                 }
             }

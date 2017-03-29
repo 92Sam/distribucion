@@ -403,7 +403,7 @@ $primary_nav = array(
                 'name' => 'Cuentas por Pagar',
                 'url' => $ruta . 'proveedor/cuentas_por_pagar',
                 'icon' => 'gi gi-wallet',
-                'slug' => 'cuentasporpagar'
+                'slug' => 'proveedor'
             ),
         )
     ),

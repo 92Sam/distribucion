@@ -12,7 +12,7 @@
     }
 </style>
 
-<!--<script src="<?php echo $ruta; ?>recursos/js/custom.js"></script>-->
+<div class="table-responsive">
 <table class='table table-striped dataTable table-bordered' id="tablaresult" name="tablaresult">
     <thead>
     <tr>
@@ -25,15 +25,31 @@
         <th>Monto Pagado <?= MONEDA ?></th>
         <th>Saldo Deuda<?= MONEDA ?></th>
         <th>Días de atraso</th>
-        <th>Estado</th>
         <th>Accion</th>
-
     </tr>
     </thead>
     <tbody>
+    <?php foreach($lstproveedor as $p):?>
+        <tr>
+            <td><?=$p->ingreso_id?></td>
+            <td><?=$p->documento_nombre?></td>
+            <td><?=$p->documento_serie.' - '.$p->documento_numero?></td>
+            <td><?=$p->proveedor_nombre?></td>
+            <td><?=date('d/m/Y', strtotime($p->fecha_emision))?></td>
+            <td><?=number_format($p->monto_venta, 2)?></td>
+            <td><?=number_format($p->monto_pagado, 2)?></td>
+            <td><?=number_format($p->monto_venta - $p->monto_pagado, 2)?></td>
+            <td><?=$p->atraso?></td>
+            <td>
+            <a onclick="pagar_venta('<?=$p->ingreso_id?>')" class="btn btn-default tip" title="Pagar"><i
+                                class="fa fa-paypal"></i> Pagar</a>
+            </td>
 
+        </tr>
+    <?php endforeach;?>
     </tbody>
 </table>
+</div>
 
 <!-- Seccion Visualizar -->
 <div class="modal fade" id="visualizar_venta" tabindex="-1" role="dialog"
@@ -54,21 +70,16 @@
 
 <script type="text/javascript">
     $(document).ready(function(){
-        TablesDatatablesCuentasPorPagar.init('<?php echo base_url()?>ingresos/lst_cuentas_porpagar_json', 0, false, false);
-
+        //TablesDatatablesBonos.init(4);
     });
 
-    var proveedor = '<?php if(isset($proveedor)){ echo $proveedor; }?>';
-    var fecha_ini = '<?php if(isset($fecIni)){ echo $fecIni; }  ?>';
-    var fecha_fin = '<?php if(isset($fecFin)){ echo $fecFin; }  ?>';
-
-
+    
     function pagar_venta(id){
 
         $.ajax({
             url: '<?= base_url()?>ingresos/ver_deuda',
             type: 'post',
-            data: {'id_ingreso': id, 'proveedor': proveedor, 'fecIni': fecha_ini, 'fecFin': fecha_fin},
+            data: {'id_ingreso': id},
             success: function (data) {
 
                 $("#pagar_venta").html(data);

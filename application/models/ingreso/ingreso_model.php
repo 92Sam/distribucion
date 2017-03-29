@@ -11,6 +11,32 @@ class ingreso_model extends CI_Model
         $this->load->model('cajas/cajas_model');
     }
 
+    function get_deuda_detalle($ingreso_id){
+        $consulta = "
+            SELECT 
+                ingreso.id_ingreso AS ingreso_id, 
+                ingreso.total_ingreso AS total,
+                ingreso.tipo_documento AS documento,
+                CONCAT( ingreso.documento_serie, ' - ', ingreso.documento_numero) AS documento_numero, 
+                (SELECT 
+                        SUM(pagos_ingreso.pagoingreso_monto)
+                    FROM
+                        pagos_ingreso
+                    WHERE
+                        pagos_ingreso.pagoingreso_ingreso_id = ingreso.id_ingreso) AS monto_pagado
+            FROM 
+                ingreso 
+            WHERE 
+                ingreso.id_ingreso = ".$ingreso_id." 
+        ";
+
+        $ingreso = $this->db->query($consulta)->row();
+
+        $ingreso->detalles = $this->db->get_where('pagos_ingreso', array('pagoingreso_ingreso_id'=>$ingreso_id))->result();
+
+        return $ingreso;
+    }
+
     function insertar_compra($cab_pie, $detalle)
     {
 

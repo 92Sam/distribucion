@@ -17,6 +17,51 @@ class proveedor_model extends CI_Model
         return $query->result_array();
     }
 
+    function get_cuentas_pagar($data = array()){
+
+        $consulta = "
+            SELECT 
+                ingreso.id_ingreso as ingreso_id,
+                ingreso.tipo_documento as documento_nombre,
+                ingreso.documento_serie as documento_serie,
+                ingreso.documento_numero as documento_numero,
+                proveedor.proveedor_nombre as proveedor_nombre,
+                ingreso.fecha_emision as fecha_emision,
+                ingreso.total_ingreso as monto_venta,
+                (SELECT 
+                        SUM(pagos_ingreso.pagoingreso_monto)
+                    FROM
+                        pagos_ingreso
+                    WHERE
+                        pagos_ingreso.pagoingreso_ingreso_id = ingreso.id_ingreso) AS monto_pagado,
+                DATEDIFF(CURDATE(), (ingreso.fecha_emision)) as atraso, 
+                ingreso.pago as pago
+            FROM
+                (ingreso)
+                    JOIN
+                proveedor ON ingreso.int_Proveedor_id = proveedor.id_proveedor 
+                    JOIN
+                pagos_ingreso ON pagos_ingreso.pagoingreso_ingreso_id = ingreso.id_ingreso
+            WHERE
+                ingreso.ingreso_status = 'COMPLETADO'  
+                AND (SELECT 
+                        COUNT(pagos_ingreso.pagoingreso_id)
+                    FROM
+                        pagos_ingreso
+                    WHERE
+                        pagos_ingreso.pagoingreso_ingreso_id = ingreso.id_ingreso 
+                        AND pagos_ingreso.pagoingreso_restante = 0.00) <= 0  
+        ";
+
+        if(isset($data['proveedor_id']))
+            $consulta .= "AND ingreso.int_Proveedor_id =".$data['proveedor_id'];
+
+
+        $consulta .= " GROUP BY ingreso.id_ingreso";
+
+        return $this->db->query($consulta)->result();
+    }
+
     function get_by($campo, $valor)
     {
         $this->db->where($campo, $valor);

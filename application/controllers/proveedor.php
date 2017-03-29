@@ -115,7 +115,6 @@ class proveedor extends MY_Controller
 
     public function cuentas_por_pagar()
     {
-        $data = "";
         $data["lstproveedor"] = $this->proveedor_model->get_all();
         $dataCuerpo['cuerpo'] = $this->load->view('menu/proveedor/cuentasporpagar', $data, true);
         if ($this->input->is_ajax_request()) {

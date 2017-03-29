@@ -331,25 +331,12 @@ class ingresos extends MY_Controller
 
     function lst_cuentas_porpagar()
     {
-        $data = array();
+        $params = array();
         if ($this->input->post('proveedor', true) != -1) {
-
-
-            $data['proveedor'] = $this->input->post('proveedor', true);
-
-        }
-        if ($this->input->post('fecIni') != "") {
-
-
-            $data['fecIni'] = $this->input->post('fecIni', true);
-
+            $params['proveedor_id'] = $this->input->post('proveedor', true);
         }
 
-        if ($this->input->post('fecFin') != "") {
-
-
-            $data['fecFin'] = $this->input->post('fecFin', true);
-        }
+        $data["lstproveedor"] = $this->proveedor_model->get_cuentas_pagar($params);
 
 
         if ($this->input->is_ajax_request()) {
@@ -365,29 +352,11 @@ class ingresos extends MY_Controller
     {
         $id_ingreso = $this->input->post('id_ingreso');
 
-
         if ($id_ingreso != FALSE) {
 
-            $select = 'ingreso.*, pagos_ingreso.*, sum(pagoingreso_monto) as suma ';
-            $from = "ingreso";
-            $join = array('pagos_ingreso');
-            $campos_join = array('pagos_ingreso.pagoingreso_ingreso_id=ingreso.id_ingreso');
-
-            $tipo_join = array(0 => "left");
-
-            $where = array(
-                'id_ingreso' => $id_ingreso,
-                'pago' => "CREDITO"
-            );
-
-            $result['cuentas'] = $this->ingreso_model->traer_by($select, $from, $join, $campos_join, $tipo_join, $where, false, false, false, false, false, false, "RESULT_ARRAY");
-
-
-            $result['id_ingreso'] = $id_ingreso;
-
-            $result['fecIni'] = $this->input->post('fecIni');
-            $result['proveedor'] = $this->input->post('proveedor');
-            $result['fecFin'] = $this->input->post('fecFin');
+            $result['ingreso'] = $this->ingreso_model->get_deuda_detalle($id_ingreso);
+            $result['metodos_pago'] = $this->db->get_where('metodos_pago', array('status_metodo' => 1))->result();
+            $result['bancos'] = $this->db->get_where('banco', array('banco_status' => 1))->result();
 
 
             $this->load->view('menu/proveedor/form_montoapagar', $result);
@@ -440,19 +409,24 @@ class ingresos extends MY_Controller
 
         if ($this->input->is_ajax_request()) {
 
-            $detalle = json_decode($this->input->post('lst_producto', true));
-// var_dump($detalle);
+            $detalle = array(
+                'pagoingreso_ingreso_id' => $this->input->post('ingreso_id'),
+                'pagoingreso_fecha' => date("Y-m-d H:i:s"),
+                'pagoingreso_monto' => number_format($this->input->post('cantidad_a_pagar'), 2, '.', ''),
+                'pagoingreso_restante' => number_format($this->input->post('total_pendiente') - $this->input->post('cantidad_a_pagar'), 2, '.', ''),
+                'medio_pago_id' => $this->input->post('pago_id'),
+                'banco_id' => $this->input->post('banco_id', NULL),
+                'operacion' => $this->input->post('num_oper', NULL)
+                );
+
             $save_historial = $this->pagos_ingreso_model->guardar($detalle);
 
             $json = array();
             if ($save_historial != false) {
-
-
                 if ($save_historial != false) {
                     $json['success'] = 'success';
-                    $json['ingreso_id'] = $detalle[0]->id_ingreso;
+                    $json['ingreso_id'] = $detalle['pagoingreso_ingreso_id'];
                     $json['id_historial'] = $save_historial;
-
                 } else {
                     $json['error'] = 'error';
                 }

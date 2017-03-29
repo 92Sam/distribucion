@@ -35,7 +35,7 @@ class pagos_ingreso_model extends CI_Model
         }
     }
 
-    function guardar($listadetalle)
+    function guardar($data)
     {
         $this->db->trans_start(true);
 
@@ -43,26 +43,19 @@ class pagos_ingreso_model extends CI_Model
 
         $this->load->model('cajas/cajas_model');
 
-        foreach ($listadetalle as $row) {
-
-            $list_cp = array(
-                'pagoingreso_ingreso_id' => $row->id_ingreso,
-                'pagoingreso_fecha' => date("Y-m-d H:i:s"),
-                'pagoingreso_monto' => $row->cantidad_ingresada,
-                'pagoingreso_restante' => $row->total_ingreso - ($row->suma + $row->cantidad_ingresada)
-            );
-
-            $this->db->insert('pagos_ingreso', $list_cp);
-            $id = $this->db->insert_id();
-
-            $this->cajas_model->save_pendiente(array(
-                'monto'=>$row->cantidad_ingresada,
-                'tipo'=>'PAGOS',
-                'IO'=>2,
-                'ref_id'=>$id
-            ));
-
+        if($data['medio_pago_id'] != '4'){
+            unset($data['banco_id']);
         }
+
+        $this->db->insert('pagos_ingreso', $data);
+        $id = $this->db->insert_id();
+
+        $this->cajas_model->save_pendiente(array(
+            'monto'=>$data['pagoingreso_monto'],
+            'tipo'=>'PAGOS',
+            'IO'=>2,
+            'ref_id'=>$id
+        ));
 
 
         $this->db->trans_complete();
