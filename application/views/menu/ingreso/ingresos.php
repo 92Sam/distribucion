@@ -73,7 +73,6 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                                                 <span class="add-on"><i class="icon-calendar"></i></span>
 
                                             </div>
-
                                         </div>
                                     </div>
                                     <div class="col-md-2">
@@ -95,55 +94,6 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                                 </div>
 
                             </div>
-                            <br>
-
-                            <div class="row">
-
-                                <div class="control-group">
-                                    <div class="col-md-2">
-                                        <label class="control-label">Documento:</label>
-                                    </div>
-
-                                    <div class="controls">
-                                        <div class="col-md-1">
-                                            <input type="text" class='input-mini required form-control'
-                                                   name="doc_serie" id="doc_serie"
-                                                   autofocus="autofocus" <?php if (isset($ingreso->id_ingreso)) echo 'readonly' ?>
-                                                   required="true"
-                                                   maxlength="5" size="5"
-                                                   value="<? echo isset($ingreso->documento_serie) ? $ingreso->documento_serie : '' ?>">
-                                        </div>
-
-                                        <div class="col-md-2">
-                                            <input type="text" class='input-medium required form-control'
-                                                   name="doc_numero" id="doc_numero"
-                                                   required="true" <?php if (isset($ingreso->id_ingreso)) echo 'readonly' ?>
-                                                   maxlength="20"
-                                                   value="<? echo isset($ingreso->documento_numero) ? $ingreso->documento_numero : '' ?>">
-                                        </div>
-                                    </div>
-
-                                </div>
-
-                                <div class="col-md-2">
-                                    <label for="cboTipDoc" class="control-label">Tipo Documento:</label>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="controls">
-                                        <select name="cboTipDoc" id="cboTipDoc" class='cho form-control'
-                                                required="true">
-
-                                            <option
-                                                value="<?= BOLETAVENTA ?>" <? if (isset($ingreso->tipo_documento) && $ingreso->tipo_documento == BOLETAVENTA) echo 'selected'; ?>><?= BOLETAVENTA ?></option>
-                                            <option
-                                                value="<?= FACTURA ?>" <? if ((isset($ingreso->tipo_documento) && $ingreso->tipo_documento == FACTURA) or !isset($ingreso->tipo_documento)) echo 'selected'; ?>><?= FACTURA ?></option>
-                                            <option
-                                                value="<?= NOTAVENTA ?>" <? if (isset($ingreso->tipo_documento) && $ingreso->tipo_documento == NOTAVENTA) echo 'selected'; ?>><?= NOTAVENTA ?></option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-
                             <br>
 
                             <div class="row">
@@ -249,6 +199,68 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
 
                                 <div class="control-group">
                                     <div class="col-md-2">
+                                        <label class="control-label">Doc/Tipo/Vence:</label>
+                                    </div>
+
+                                    <div class="controls">
+                                        <div class="col-md-1">
+                                            <input type="text" class='input-mini required form-control'
+                                                   name="doc_serie" id="doc_serie"
+                                                   autofocus="autofocus" <?php if (isset($ingreso->id_ingreso)) echo 'readonly' ?>
+                                                   required="true"
+                                                   maxlength="5" size="5"
+                                                   value="<? echo isset($ingreso->documento_serie) ? $ingreso->documento_serie : '' ?>">
+                                        </div>
+
+                                        <div class="col-md-2">
+                                            <input type="text" class='input-medium required form-control'
+                                                   name="doc_numero" id="doc_numero"
+                                                   required="true" <?php if (isset($ingreso->id_ingreso)) echo 'readonly' ?>
+                                                   maxlength="20"
+                                                   value="<? echo isset($ingreso->documento_numero) ? $ingreso->documento_numero : '' ?>">
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                
+                                <div class="col-md-3">
+                                    <div class="controls">
+                                        <select name="cboTipDoc" id="cboTipDoc" class='cho form-control'
+                                                required="true">
+
+                                            <option
+                                                value="<?= BOLETAVENTA ?>" <? if (isset($ingreso->tipo_documento) && $ingreso->tipo_documento == BOLETAVENTA) echo 'selected'; ?>><?= BOLETAVENTA ?></option>
+                                            <option
+                                                value="<?= FACTURA ?>" <? if ((isset($ingreso->tipo_documento) && $ingreso->tipo_documento == FACTURA) or !isset($ingreso->tipo_documento)) echo 'selected'; ?>><?= FACTURA ?></option>
+                                            <option
+                                                value="<?= NOTAVENTA ?>" <? if (isset($ingreso->tipo_documento) && $ingreso->tipo_documento == NOTAVENTA) echo 'selected'; ?>><?= NOTAVENTA ?></option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-2">
+                                    <div class="controls">
+                                            <div class="input-append">
+                                                <input type="text" placeholder="mes-día-año"
+                                                       name="documento_vence"
+                                                       value="<? echo isset($ingreso->documento_vence) ? $ingreso->documento_vence : date('d-m-Y') ?>"
+                                                       id="documento_vence"
+                                                       class='input-small datepick required form-control'
+                                                       required="true" readonly>
+                                                <span class="add-on"><i class="icon-calendar"></i></span>
+
+                                            </div>
+                                        </div>
+                                </div>
+                            </div>
+
+                            <br>
+
+                            <div class="row">
+
+                                <div class="control-group">
+                                    <div class="col-md-2">
                                         <label class="control-label">Producto:</label>
                                     </div>
 
@@ -334,7 +346,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
 
                                 <a class="btn btn-primary" data-placement="bottom"
                                    style="margin-top:-2.2%;cursor: pointer;"
-                                   onclick="listarProductos();" <?php if (isset($ingreso->id_ingreso)) echo 'disabled' ?>>Agregar</a>
+                                   onclick="listarProductos();" <?php if (isset($ingreso->id_ingreso)) echo 'disabled' ?>>Agregar [Enter]</a>
                             </div>
                         </div>
                     </div>
@@ -562,8 +574,13 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
 
 <script>$(function () {
 
-        $("select").chosen({width: '100%'});
-        $("#fecEmision").datepicker({format: 'dd-mm-yyyy'});
+        $("select").chosen({
+            width: '100%', 
+            search_contains: true
+        });
+
+        $("#fecEmision, #documento_vence").datepicker({format: 'dd-mm-yyyy'});
+
         // TablesDatatables.init();
 
     });</script>

@@ -37,6 +37,33 @@ class ingreso_model extends CI_Model
         return $ingreso;
     }
 
+    function documento_existe($serie, $numero, $tipo, $id = FALSE){
+
+        $consulta = "
+            SELECT 
+                COUNT(*) as existe
+            FROM
+                ingreso
+            WHERE
+                documento_serie = '".$serie."' 
+                AND documento_numero = '".$numero."' 
+                AND tipo_documento = '".$tipo."' 
+        ";
+        
+        if($id != FALSE){
+            $consulta .= " AND id_ingreso != '".$id."'";
+        }
+            
+
+        $query = $this->db->query($consulta)->row();
+        
+
+        if($query->existe == 0)
+            return false;
+
+        return true;
+    }
+
     function insertar_compra($cab_pie, $detalle)
     {
 
@@ -54,6 +81,7 @@ class ingreso_model extends CI_Model
             'int_Proveedor_id' => $cab_pie['cboProveedor'],
             'nUsuCodigo' => $this->session->userdata('nUsuCodigo'),
             'fecha_emision' => $cab_pie['fecEmision'],
+            'documento_vence' => $cab_pie['documento_vence'],
             'local_id' => $cab_pie['local'],
             'tipo_documento' => $cab_pie['cboTipDoc'],
             'documento_serie' => $cab_pie['doc_serie'],

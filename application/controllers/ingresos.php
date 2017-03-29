@@ -112,6 +112,7 @@ class ingresos extends MY_Controller
                         'local' => $this->input->post('local', true),
                         'costos' => $this->input->post('costos', true),
                         'fecEmision' => date("y-m-d", strtotime($this->input->post('fecEmision', true))),
+                        'documento_vence' => date("y-m-d", strtotime($this->input->post('documento_vence', true))),
                         'doc_serie' => $this->input->post('doc_serie', true),
                         'doc_numero' => $this->input->post('doc_numero', true),
                         'cboTipDoc' => $this->input->post('cboTipDoc', true),
@@ -129,18 +130,31 @@ class ingresos extends MY_Controller
                     $id = $this->input->post('id_ingreso', true);
 
                     if (empty($id)) {
-                        $rs = $this->ingreso_model->insertar_compra($comp_cab_pie, json_decode($this->input->post('lst_producto', true)));
+                        if($this->ingreso_model->documento_existe($comp_cab_pie['doc_serie'], $comp_cab_pie['doc_numero'], $comp_cab_pie['cboTipDoc']) == false){
+                            $rs = $this->ingreso_model->insertar_compra($comp_cab_pie, json_decode($this->input->post('lst_producto', true)));
+                        }
+                        else{
+                            $rs = false;
+                            $json['error'] = 'Error. Este documento ya existe. Por favor cambielo';
+                        }
                     } else {
                         $comp_cab_pie['id_ingreso'] = $id;
                         $comp_cab_pie['status'] = INGRESO_COMPLETADO;
-                        $rs = $this->ingreso_model->update_compra($comp_cab_pie, json_decode($this->input->post('lst_producto', true)));
+                        if($this->ingreso_model->documento_existe($comp_cab_pie['doc_serie'], $comp_cab_pie['doc_numero'], $comp_cab_pie['cboTipDoc'], $id) == false){
+                            $rs = $this->ingreso_model->update_compra($comp_cab_pie, json_decode($this->input->post('lst_producto', true)));
+                        }
+                        else{
+                            $rs = false;
+                            $json['error'] = 'Error. Este documento ya existe. Por favor cambielo';
+                        }
                     }
                     if ($rs != false) {
                         $json['success'] = 'Solicitud Procesada con exito';
                         $json['id'] = $rs;
 
                     } else {
-                        $json['error'] = 'Ha ocurrido un error al procesar la solicitud';
+                        if(!isset($json['error']))
+                            $json['error'] = 'Ha ocurrido un error al procesar la solicitud';
                     }
 
 

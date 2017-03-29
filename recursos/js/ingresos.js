@@ -18,6 +18,15 @@ $(document).ready(function () {
         }
     });*/
 
+    var tecla_enter = 13
+    $(document).keyup(function(e){
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        if (e.keyCode == tecla_enter) {
+            listarProductos();
+        }
+    });
+
     $("#cboProveedor").change(function () {
         refreshProductos();
     });
@@ -53,7 +62,7 @@ $(document).ready(function () {
     $("#reiniciar").on('click', function (data) {
 
         $.ajax({
-            url: ruta + 'ingresos',
+            url: ruta + 'ingresos?costos=' + $("#costos").val(),
             success: function (data) {
                 $('#page-content').html(data);
             }
@@ -71,7 +80,8 @@ $(document).ready(function () {
 
     $("#cboProducto").chosen({
         placeholder: "Seleccione el producto",
-        allowClear: true
+        allowClear: true, 
+        search_contains: true
     });
 
     $("#local").chosen();
