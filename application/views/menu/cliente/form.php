@@ -117,6 +117,7 @@
                 'representante': $('#representante_nombre').val(),
                 'representante_dni': $('#representante_dni').val(),
                 'razon_social': $('#razon_social').val(),
+                'descuento': $('#descuento_id').val(),
                 'linea_credito_valor': $('#retencion_id').val(),
                 'agente_retencion': $('#s_retencion').val(),
                 'linea_libre': linea_libre,
@@ -505,11 +506,38 @@
                             </select>
 
                         </div>
+
+                        <div class="col-md-2">
+                            <label class="control-label panel-admin-text">Descuento</label>
+                        </div>
+                        <div class="col-md-2">
+                            <select name="s_descuento" id="s_descuento" class="form-control">
+                                <option value="">Seleccione</option>
+                                <option
+                                    value="1" <?php if (isset($cliente['descuento']) and $cliente['descuento'] != NULL) echo 'selected' ?>>
+                                    Si
+                                </option>
+                                <option
+                                    value="0" <?php if (isset($cliente['descuento']) and $cliente['descuento'] == NULL) echo 'selected' ?>>
+                                    No
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-md-2" id='div_descuento'>
+                            <input type="number" name="descuento" id="descuento_id" class="form-control"
+                                   value="<?php if (isset($cliente['descuento'])) echo $cliente['descuento']; ?>">
+
+                        </div>
+                </div>
+                </div>
+
+                <div class="row">
+                    <div class="form-group">
                         <div class="col-md-2">
                             <label class="control-label panel-admin-text">Importe Deuda</label>
                         </div>
 
-                        <div class="col-md-2" id='' ?>
+                        <div class="col-md-4" id=''>
                             <input disabled type="number" name="importe_deuda" id="importe_deuda" class="form-control"
                                    value="<?php if (isset($cliente['importe_deuda'])) echo $cliente['importe_deuda']; ?>">
 
@@ -681,10 +709,15 @@
 
         $('#div_retencion').hide()
 
-        agenteRetencion()
+        agenteRetencion();
+        change_descuento();
 
         $('#s_retencion').change(function () {
             agenteRetencion()
+        })
+
+        $('#s_descuento').change(function () {
+            change_descuento()
         })
 
         validarLineaCredito()
@@ -831,6 +864,15 @@
         } else {
             $('#div_retencion').hide()
             $('#retencion_id').val('')
+        }
+    }
+
+    function change_descuento(){
+        if ($('#s_descuento').val() == 1) {
+            $('#div_descuento').show()
+        } else {
+            $('#div_descuento').hide()
+            $('#descuento_id').val('')
         }
     }
 

@@ -93,6 +93,7 @@ class cliente extends MY_Controller
 
             'agente_retencion' => !empty($_POST['agente_retencion']) ? $_POST['agente_retencion'] : false,
             'linea_credito_valor' => !empty($_POST['linea_credito_valor']) ? $_POST['linea_credito_valor'] : null,
+            'descuento' => !empty($_POST['descuento']) ? $_POST['descuento'] : null,
             'linea_libre' => $linea_libre,
             'linea_libre_valor' => !empty($_POST['linea_libre_valor']) ? $_POST['linea_libre_valor'] : null,
 
