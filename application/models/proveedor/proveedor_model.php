@@ -40,7 +40,7 @@ class proveedor_model extends CI_Model
                 (ingreso)
                     JOIN
                 proveedor ON ingreso.int_Proveedor_id = proveedor.id_proveedor 
-                    JOIN
+                    LEFT JOIN
                 pagos_ingreso ON pagos_ingreso.pagoingreso_ingreso_id = ingreso.id_ingreso
             WHERE
                 ingreso.ingreso_status = 'COMPLETADO'  
@@ -50,7 +50,8 @@ class proveedor_model extends CI_Model
                         pagos_ingreso
                     WHERE
                         pagos_ingreso.pagoingreso_ingreso_id = ingreso.id_ingreso 
-                        AND pagos_ingreso.pagoingreso_restante = 0.00) <= 0  
+                        AND pagos_ingreso.pagoingreso_restante = 0.00) <= 0 
+                        AND ingreso.pago = 'CREDITO' 
         ";
 
         if(isset($data['proveedor_id']))

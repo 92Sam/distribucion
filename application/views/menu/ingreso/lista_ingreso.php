@@ -4,15 +4,19 @@
     <table class="table table-striped dataTable table-bordered" id="tablaresultado">
         <thead>
         <tr>
-            <th>ID Ingreso</th>
-            <th>Tipo de Documento</th>
-            <th>Nro Documento</th>
-            <th>Fecha Registro</th>
-            <th>Status</th>
+            <th>ID</th>
+            <th>Fecha Doc.</th>
+            <th>Documento</th>
+            <th>RUC Proveedor</th>
             <th>Proveedor</th>
-            <th>Responsable</th>
-            <th>Local</th>
+            <th>Condicion</th>
+            <th>Subtotal</th>
+            <th>IGV</th>
             <th>Total</th>
+            <th>Estado</th>
+            <th>Usuario</th>
+            <th>Fecha Registro</th>
+            <th>Local</th>
 
             <th>Acciones</th>
 
@@ -26,9 +30,21 @@
                 ?>
                 <tr>
                     <td><?php echo $ingreso->id_ingreso ?></td>
-                    <td><?= $ingreso->tipo_documento ?></td>
-                    <td><?php echo $ingreso->documento_serie . "-" . $ingreso->documento_numero ?></td>
-                    <td><?= date('d-m-Y H:i:s', strtotime($ingreso->fecha_registro)) ?></td>
+                    <td><span style="display: none;"><?=date('YmdHis', strtotime($ingreso->fecha_emision))?></span><?= date('d/m/Y', strtotime($ingreso->fecha_emision)) ?></td>
+                    <td>
+                        <?php
+                            if($ingreso->tipo_documento == 'FACTURA') echo 'FA ';
+                            if($ingreso->tipo_documento == 'BOLETA DE VENTA') echo 'BO ';
+                            if ($ingreso->tipo_documento == "NOTA DE PEDIDO") echo "NP ";
+                        ?>
+                        <?php echo $ingreso->documento_serie . "-" . $ingreso->documento_numero ?>
+                    </td>
+                    <td><?= $ingreso->proveedor_ruc ?></td>
+                    <td><?= $ingreso->proveedor_nombre ?></td>
+                    <td><?= $ingreso->pago ?></td>
+                    <td><?= $ingreso->sub_total_ingreso ?></td>
+                    <td><?= $ingreso->impuesto_ingreso ?></td>
+                    <td><?= $ingreso->total_ingreso ?></td>
                     <td><label
                             class="label <?php if ($ingreso->ingreso_status == INGRESO_COMPLETADO) {
                                 echo 'label-success';
@@ -40,10 +56,9 @@
                             <?= $ingreso->ingreso_status ?></label>
 
                     </td>
-                    <td><?= $ingreso->proveedor_nombre ?></td>
                     <td><?= $ingreso->nombre ?></td>
+                    <td><?= date('d/m/Y', strtotime($ingreso->fecha_registro)) ?></td>
                     <td><?= $ingreso->local_nombre ?></td>
-                    <td><?= $ingreso->total_ingreso ?></td>
                     <td>
                         <div class="btn-group">
                             <?php
@@ -158,7 +173,7 @@
 <script type="text/javascript">
     $(function () {
 
-        TablesDatatables.init();
+        TablesDatatables.init(1);
         $(".fecha_anular").datepicker({
             format: 'dd-mm-yyyy'
         });

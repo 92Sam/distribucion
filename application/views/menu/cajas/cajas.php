@@ -132,7 +132,10 @@
 
     $(document).ready(function () {
 
-        $("#totalSaldo").html($("#input_saldo").val());
+        setTimeout(function(){
+            $("#totalSaldo").html($("#input_saldo").val());
+        }, 200);
+
 
         $("#btn_new_caja").on('click', function () {
             $.ajax({

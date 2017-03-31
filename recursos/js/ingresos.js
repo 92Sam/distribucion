@@ -18,12 +18,33 @@ $(document).ready(function () {
         }
     });*/
 
-    var tecla_enter = 13
+    var tecla_enter = 13;
+    var F6 = 117;
+
+    $(document).keydown(function(e){
+        if (e.keyCode == F6) {
+            e.preventDefault();
+        }
+    });
+
     $(document).keyup(function(e){
-        e.preventDefault();
-        e.stopImmediatePropagation();
+
         if (e.keyCode == tecla_enter) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
             listarProductos();
+        }
+
+        if (e.keyCode == F6) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            $("#btnGuardar").click();
+        }
+
+        if (e.keyCode == F6 && $("#confirmarmodal").is(":visible") == true) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            guardaringreso();
         }
     });
 
@@ -432,6 +453,9 @@ function listarProductos() {
         $("#unidades").val('').trigger("chosen:updated");
         $("#precio").val('0.0');
         $("#cantp").val('0.0');
+
+        $('#cboProducto').trigger('chosen:open');
+        $('#cboProducto_chosen .chosen-search input').trigger('focus');
 
     } else {
 

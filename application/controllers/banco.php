@@ -112,7 +112,7 @@ class banco extends MY_Controller
         $resultado = $this->banco_model->buscarNumeroOperacion($num_operacion);
 
         $json = array();
-        if ($resultado == true){
+        if ($resultado == true) {
             $json['error'] = '1';
         }
 
@@ -120,7 +120,7 @@ class banco extends MY_Controller
 
     }
 
-     function DniRucEnBd()
+    function DniRucEnBd()
     {
         $resultado = $this->cliente_model->DniRucEnBd($this->input->post('dni_ruc'), !empty($_POST['cliente_id']) ? $_POST['cliente_id'] : '');
 

@@ -577,16 +577,34 @@ class ingresos extends MY_Controller
             $condicion['ingreso_status'] = $this->input->post('status');
             $data['status'] = $this->input->post('status');
         }
-        if ($this->input->post('desde') != "") {
 
-            $condicion['fecha_registro >= '] = date('Y-m-d', strtotime($this->input->post('desde'))) . " " . date('H:i:s');
-            $data['fecha_desde'] = date('Y-m-d', strtotime($this->input->post('desde'))) . " " . date('H:i:s');
-        }
-        if ($this->input->post('hasta') != "") {
+        $mes = $this->input->post('mes');
+        $year = $this->input->post('year');
+        $dia_min = $this->input->post('dia_min');
+        $dia_max = $this->input->post('dia_max');
 
-            $condicion['fecha_registro <='] = date('Y-m-d', strtotime($this->input->post('hasta'))) . " " . date('H:i:s');
-            $data['fecha_hasta'] = date('Y-m-d', strtotime($this->input->post('hasta'))) . " " . date('H:i:s');
+        $desde = "";
+        $hasta = "";
+
+        if($mes != "" && $year != "" && $dia_min != "" && $dia_max != ""){
+            $last_day = last_day($year, sumCod($mes, 2));
+            if($last_day > $dia_max)
+                $last_day = $dia_max;
+
+            $desde = $year . '-' . sumCod($mes, 2) . '-'. $dia_min. " 00:00:00";
+            $hasta = $year . '-' . sumCod($mes, 2) . '-' . $last_day . " 23:59:59";
         }
+
+        if ($desde != "") {
+            $condicion['fecha_registro >= '] = $desde;
+            $data['fecha_desde'] = $desde;
+        }
+        if ($hasta != "") {
+            $condicion['fecha_registro <='] = $hasta;
+            $data['fecha_hasta'] = $hasta;
+        }
+
+
 
         if ($this->input->post('anular') != 0) {
 
