@@ -158,6 +158,7 @@
                 $("#tablaresult").dataTable();
 
                 $("#exportar_pdf").attr('href', $("#exportar_pdf").attr('data-href') + locales + '/' + status + '/' + year + '/' + mes + '/' + dia_min + '/' + dia_max);
+                $("#exportar_excel").attr('href', $("#exportar_excel").attr('data-href') + locales + '/' + status + '/' + year + '/' + mes + '/' + dia_min + '/' + dia_max);
             },
             error: function () {
 

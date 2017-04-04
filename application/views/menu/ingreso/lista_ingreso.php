@@ -120,13 +120,13 @@
    class="btn  btn-default btn-lg" data-toggle="tooltip" title="Exportar a PDF"
    data-original-title="fa fa-file-pdf-o"><i class="fa fa-file-pdf-o fa-fw"></i></a>
 
-<!--
+
 <a id="exportar_excel" data-href="<?= $ruta ?>ingresos/excel/"
    href="#"
    target="_blank"
    class="btn btn-default btn-lg" data-toggle="tooltip" title="Exportar a Excel"
    data-original-title="fa fa-file-excel-o"><i class="fa fa-file-excel-o fa-fw"></i></a>
-   -->
+
 
 <div class="modal fade" id="ver" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
      aria-hidden="true">

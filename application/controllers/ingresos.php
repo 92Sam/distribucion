@@ -130,20 +130,18 @@ class ingresos extends MY_Controller
                     $id = $this->input->post('id_ingreso', true);
 
                     if (empty($id)) {
-                        if($this->ingreso_model->documento_existe($comp_cab_pie['doc_serie'], $comp_cab_pie['doc_numero'], $comp_cab_pie['cboTipDoc']) == false){
+                        if ($this->ingreso_model->documento_existe($comp_cab_pie['doc_serie'], $comp_cab_pie['doc_numero'], $comp_cab_pie['cboTipDoc']) == false) {
                             $rs = $this->ingreso_model->insertar_compra($comp_cab_pie, json_decode($this->input->post('lst_producto', true)));
-                        }
-                        else{
+                        } else {
                             $rs = false;
                             $json['error'] = 'Error. Este documento ya existe. Por favor cambielo';
                         }
                     } else {
                         $comp_cab_pie['id_ingreso'] = $id;
                         $comp_cab_pie['status'] = INGRESO_COMPLETADO;
-                        if($this->ingreso_model->documento_existe($comp_cab_pie['doc_serie'], $comp_cab_pie['doc_numero'], $comp_cab_pie['cboTipDoc'], $id) == false){
+                        if ($this->ingreso_model->documento_existe($comp_cab_pie['doc_serie'], $comp_cab_pie['doc_numero'], $comp_cab_pie['cboTipDoc'], $id) == false) {
                             $rs = $this->ingreso_model->update_compra($comp_cab_pie, json_decode($this->input->post('lst_producto', true)));
-                        }
-                        else{
+                        } else {
                             $rs = false;
                             $json['error'] = 'Error. Este documento ya existe. Por favor cambielo';
                         }
@@ -153,7 +151,7 @@ class ingresos extends MY_Controller
                         $json['id'] = $rs;
 
                     } else {
-                        if(!isset($json['error']))
+                        if (!isset($json['error']))
                             $json['error'] = 'Ha ocurrido un error al procesar la solicitud';
                     }
 
@@ -435,7 +433,7 @@ class ingresos extends MY_Controller
                 'medio_pago_id' => $this->input->post('pago_id'),
                 'banco_id' => $this->input->post('banco_id', NULL),
                 'operacion' => $this->input->post('num_oper', NULL)
-                );
+            );
 
             $save_historial = $this->pagos_ingreso_model->guardar($detalle);
 
@@ -564,7 +562,7 @@ class ingresos extends MY_Controller
         } else {
 
             $json['error'] = 'No se puede devolver el ingreso, uno de los productos devueltos no tiene stock suficiente';
-                  }
+        }
 
         echo json_encode($json);
     }
@@ -590,12 +588,12 @@ class ingresos extends MY_Controller
         $desde = "";
         $hasta = "";
 
-        if($mes != "" && $year != "" && $dia_min != "" && $dia_max != ""){
+        if ($mes != "" && $year != "" && $dia_min != "" && $dia_max != "") {
             $last_day = last_day($year, sumCod($mes, 2));
-            if($last_day > $dia_max)
+            if ($last_day > $dia_max)
                 $last_day = $dia_max;
 
-            $desde = $year . '-' . sumCod($mes, 2) . '-'. $dia_min. " 00:00:00";
+            $desde = $year . '-' . sumCod($mes, 2) . '-' . $dia_min . " 00:00:00";
             $hasta = $year . '-' . sumCod($mes, 2) . '-' . $last_day . " 23:59:59";
         }
 
@@ -607,7 +605,6 @@ class ingresos extends MY_Controller
             $condicion['fecha_registro <='] = $hasta;
             $data['fecha_hasta'] = $hasta;
         }
-
 
 
         if ($this->input->post('anular') != 0) {
@@ -964,12 +961,12 @@ class ingresos extends MY_Controller
         $desde = "";
         $hasta = "";
 
-        if($mes != "" && $year != "" && $dia_min != "" && $dia_max != ""){
+        if ($mes != "" && $year != "" && $dia_min != "" && $dia_max != "") {
             $last_day = last_day($year, sumCod($mes, 2));
-            if($last_day > $dia_max)
+            if ($last_day > $dia_max)
                 $last_day = $dia_max;
 
-            $desde = $year . '-' . sumCod($mes, 2) . '-'. $dia_min. " 00:00:00";
+            $desde = $year . '-' . sumCod($mes, 2) . '-' . $dia_min . " 00:00:00";
             $hasta = $year . '-' . sumCod($mes, 2) . '-' . $last_day . " 23:59:59";
         }
 
@@ -983,11 +980,6 @@ class ingresos extends MY_Controller
         }
 
 
-
-        if ($this->input->post('anular') != 0) {
-
-            $data['anular'] = 1;
-        }
         $data['ingresos'] = $this->ingreso_model->get_ingresos_by($condicion);
         $data['ingreso_totales'] = $this->ingreso_model->sum_ingresos_by($condicion);
 
@@ -997,124 +989,93 @@ class ingresos extends MY_Controller
 
     }
 
-    function excel($local, $fecha_desde, $fecha_hasta, $detalle)
+    function excel($local, $estado, $year, $mes, $dia_min, $dia_max)
     {
 
-
-        if ($local != 0 and $detalle == 0) {
+        $condicion = array();
+        if ($local != "seleccione") {
             $condicion = array('local_id' => $local);
         }
-        if ($fecha_desde != 0) {
-
-            $condicion['fecha_registro >= '] = date('Y-m-d', strtotime($fecha_desde)) . " " . date('H:i:s');
-        }
-        if ($fecha_hasta != 0) {
-
-            $condicion['fecha_registro <='] = date('Y-m-d', strtotime($fecha_hasta)) . " " . date('H:i:s');
+        if ($estado != "seleccione") {
+            $condicion['ingreso_status'] = $estado;
         }
 
-        if ($detalle != 0 and $local != 0) {
+        $desde = "";
+        $hasta = "";
 
-            $compras = $this->detalle_ingreso_model->get_by_result('detalleingreso.id_ingreso', $detalle);
+        if ($mes != "" && $year != "" && $dia_min != "" && $dia_max != "") {
+            $last_day = last_day($year, sumCod($mes, 2));
+            if ($last_day > $dia_max)
+                $last_day = $dia_max;
 
-            $select = array('*');
-            $join = array('ingreso', 'local');
-            $campos_join = array('ingreso.id_ingreso=detalleingreso.id_ingreso', 'local.int_local_id=ingreso.local_id');
-            $where = array('detalleingreso.id_ingreso' => $detalle, 'local_id' => $local);
-            $group = array('local_id');
-            $local_detalle = $this->detalle_ingreso_model->get_by($select, $join, $campos_join, $where, $group, true);
-        } else {
-
-
-            $ingresos = $this->ingreso_model->get_ingresos_by($condicion);
-
+            $desde = $year . '-' . sumCod($mes, 2) . '-' . $dia_min . " 00:00:00";
+            $hasta = $year . '-' . sumCod($mes, 2) . '-' . $last_day . " 23:59:59";
         }
+
+        if ($desde != "") {
+            $condicion['fecha_registro >= '] = $desde;
+            $data['fecha_desde'] = $desde;
+        }
+        if ($hasta != "") {
+            $condicion['fecha_registro <='] = $hasta;
+            $data['fecha_hasta'] = $hasta;
+        }
+
+
+        $data['ingresos'] = $this->ingreso_model->get_ingresos_by($condicion);
+        $data['ingreso_totales'] = $this->ingreso_model->sum_ingresos_by($condicion);
+
 // configuramos las propiedades del documento
         $this->phpexcel->getProperties()
-//->setCreator("Arkos Noem Arenom")
-//->setLastModifiedBy("Arkos Noem Arenom")
             ->setTitle("Ingresos")
             ->setSubject("Ingresos")
             ->setDescription("Ingresos")
             ->setKeywords("Ingresos")
             ->setCategory("Ingresos");
 
-        if (isset($ingresos)) {
-            $columna[0] = "NUMERO DE DOCUMENTO";
-            $columna[1] = "TIPO DE DOCUMENTO";
-            $columna[2] = "FECHA REGISTRO";
-            $columna[3] = "FECHA EMISION";
-            $columna[4] = "PROVEEDOR";
-            $columna[5] = "RESPONSABLE";
-            $columna[6] = "LOCAL";
-            $columna[7] = "TOTAL";
+        $columna[0] = "ID";
+        $columna[1] = "FECHA DOC.";
+        $columna[2] = "DOCUMENTO";
+        $columna[3] = "RUC PROVEEDOR";
+        $columna[4] = "PROVEEDOR";
+        $columna[5] = "CONDICION";
+        $columna[6] = "SUBTOTAL";
+        $columna[7] = "IGV";
+        $columna[8] = "TOTAL";
+        $columna[9] = "ESTADO";
+        $columna[10] = "USUARIO";
+        $columna[11] = "FECHA REGISTRO";
+        $columna[12] = "LOCAL";
 
-
-            $columnas[0] = "documento_serie";
-            $columnas[1] = "tipo_documento";
-            $columnas[2] = "fecha_registro";
-            $columnas[3] = "fecha_emision";
-            $columnas[4] = "proveedor_nombre";
-            $columnas[5] = "nombre";
-            $columnas[6] = "local_nombre";
-            $columnas[7] = "total_ingreso";
-
-        } elseif (isset($compras)) {
-
-            $columna[0] = "ID";
-            $columna[1] = "PRODUCTO";
-            $columna[2] = "CANTIDAD";
-            $columna[3] = "PRECIO";
-            $columna[4] = "UNIDAD DE MEDIDA";
-
-
-            $columnas[0] = "id_detalle_ingreso";
-            $columnas[1] = "producto_nombre";
-            $columnas[2] = "cantidad";
-            $columnas[3] = "precio";
-            $columnas[4] = "nombre_unidad";
-        }
-        $col = 0;
-        for ($i = 0; $i
-        < count($columna); $i++) {
-
-            $this->phpexcel->setActiveSheetIndex(0)
-                ->setCellValueByColumnAndRow($i, 1, $columna[$i]);
-
+        for ($i = 0; $i < count($columna); $i++) {
+            $this->phpexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($i, 1, $columna[$i]);
         }
 
 
-        if (isset($ingresos)) {
-            $row = 2;
-            foreach ($ingresos as $ingresos) {
-                $col = 0;
-                foreach ($columnas as $columna) {
+        $row = 2;
+        foreach ($data['ingresos'] as $ingreso) {
+            $col = 0;
+            $this->phpexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($col++, $row, $ingreso->id_ingreso);
+            $this->phpexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($col++, $row, date('d/m/Y', strtotime($ingreso->fecha_emision)));
+                $documento = '';
+                if ($ingreso->tipo_documento == 'FACTURA') $documento = 'FA ';
+                if ($ingreso->tipo_documento == 'BOLETA DE VENTA') $documento = 'BO ';
+                if ($ingreso->tipo_documento == "NOTA DE PEDIDO") $documento = "NP ";
+                $documento .= $ingreso->documento_serie . "-" . $ingreso->documento_numero;
 
-                    if ($columna == ("fecha_emision") or $columna == ("fecha_registro")) {
-                        $logia[$columna] = date('d-m-Y H:i:s', strtotime($ingresos->$columna));
-                    }
-                    $this->phpexcel->setActiveSheetIndex(0)
-                        ->setCellValueByColumnAndRow($col, $row, $ingresos->$columna);
-                    $col++;
-                }
+            $this->phpexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($col++, $row, $documento);
+            $this->phpexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($col++, $row, $ingreso->proveedor_ruc);
+            $this->phpexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($col++, $row, $ingreso->proveedor_nombre);
+            $this->phpexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($col++, $row, $ingreso->pago);
+            $this->phpexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($col++, $row, $ingreso->sub_total_ingreso);
+            $this->phpexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($col++, $row, $ingreso->impuesto_ingreso);
+            $this->phpexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($col++, $row, $ingreso->total_ingreso);
+            $this->phpexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($col++, $row, $ingreso->ingreso_status);
+            $this->phpexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($col++, $row, $ingreso->nombre);
+            $this->phpexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($col++, $row, date('d/m/Y', strtotime($ingreso->fecha_registro)));
+            $this->phpexcel->setActiveSheetIndex(0)->setCellValueByColumnAndRow($col++, $row, $ingreso->local_nombre);
 
-                $row++;
-            }
-        } elseif (isset($compras)) {
-
-            $row = 2;
-            foreach ($compras as $compra) {
-                $col = 0;
-                foreach ($columnas as $columna) {
-
-
-                    $this->phpexcel->setActiveSheetIndex(0)
-                        ->setCellValueByColumnAndRow($col, $row, $compra->$columna);
-                    $col++;
-                }
-
-                $row++;
-            }
+            $row++;
         }
 
 // Renombramos la hoja de trabajo
