@@ -350,6 +350,10 @@ class ingresos extends MY_Controller
             $params['proveedor_id'] = $this->input->post('proveedor', true);
         }
 
+        if ($this->input->post('documento', true) != -1) {
+            $params['documento'] = $this->input->post('documento', true);
+        }
+
         $data["lstproveedor"] = $this->proveedor_model->get_cuentas_pagar($params);
 
 
@@ -611,6 +615,7 @@ class ingresos extends MY_Controller
             $data['anular'] = 1;
         }
         $data['ingresos'] = $this->ingreso_model->get_ingresos_by($condicion);
+        $data['ingreso_totales'] = $this->ingreso_model->sum_ingresos_by($condicion);
 
         $this->load->view('menu/ingreso/lista_ingreso', $data);
 
@@ -943,151 +948,52 @@ class ingresos extends MY_Controller
 
     }
 
-    function pdf($local, $fecha_desde, $fecha_hasta, $detalle)
+    function pdf($local, $estado, $year, $mes, $dia_min, $dia_max)
     {
+        $this->load->library('mpdf53/mpdf');
+        $mpdf = new mPDF('utf-8', 'A4-L');
 
-
-        if ($local != 0 and $detalle == 0) {
+        $condicion = array();
+        if ($local != "seleccione") {
             $condicion = array('local_id' => $local);
         }
-        if ($fecha_desde != 0) {
-
-            $condicion['fecha_registro >= '] = date('Y-m-d', strtotime($fecha_desde)) . " " . date('H:i:s');
-        }
-        if ($fecha_hasta != 0) {
-
-            $condicion['fecha_registro <='] = date('Y-m-d', strtotime($fecha_hasta)) . " " . date('H:i:s');
+        if ($estado != "seleccione") {
+            $condicion['ingreso_status'] = $estado;
         }
 
+        $desde = "";
+        $hasta = "";
 
-        if ($detalle != 0 and $local != 0) {
+        if($mes != "" && $year != "" && $dia_min != "" && $dia_max != ""){
+            $last_day = last_day($year, sumCod($mes, 2));
+            if($last_day > $dia_max)
+                $last_day = $dia_max;
 
-            $compras = $this->detalle_ingreso_model->get_by_result('detalleingreso.id_ingreso', $detalle);
+            $desde = $year . '-' . sumCod($mes, 2) . '-'. $dia_min. " 00:00:00";
+            $hasta = $year . '-' . sumCod($mes, 2) . '-' . $last_day . " 23:59:59";
+        }
 
-            $select = array('*');
-            $join = array('ingreso', 'local');
-            $campos_join = array('ingreso.id_ingreso=detalleingreso.id_ingreso', 'local.int_local_id=ingreso.local_id');
-            $where = array('detalleingreso.id_ingreso' => $detalle, 'local_id' => $local);
-            $group = array('local_id');
-            $local_detalle = $this->detalle_ingreso_model->get_by($select, $join, $campos_join, $where, $group, true);
-        } else {
-
-
-            $ingresos = $this->ingreso_model->get_ingresos_by($condicion);
-
+        if ($desde != "") {
+            $condicion['fecha_registro >= '] = $desde;
+            $data['fecha_desde'] = $desde;
+        }
+        if ($hasta != "") {
+            $condicion['fecha_registro <='] = $hasta;
+            $data['fecha_hasta'] = $hasta;
         }
 
 
-        $pdf = new Pdf('P', 'mm', 'A4', true, 'UTF-8', false);
-        $pdf->setPageOrientation('L');
-        // $pdf->SetCreator(PDF_CREATOR);
-        $pdf->SetTitle('Ingresos');
-        // $pdf->SetSubject('FICHA DE MIEMBROS');
-        $pdf->SetPrintHeader(false);
-//echo K_PATH_IMAGES;
-// datos por defecto de cabecera, se pueden modificar en el archivo tcpdf_config_alt.php de libraries/config
-        // $pdf->SetHeaderData(PDF_HEADER_LOGO, PDF_HEADER_LOGO_WIDTH, "AL.â€¢.G.â€¢.D.â€¢.G.â€¢.A.â€¢.D.â€¢.U.â€¢.<br>Gran Logia de la RepÃºblica de Venezuela", "Gran Logia de la <br> de Venezuela", array(0, 64, 255), array(0, 64, 128));
 
+        if ($this->input->post('anular') != 0) {
 
-        $pdf->setFooterData($tc = array(0, 64, 0), $lc = array(0, 64, 128));
-
-// datos por defecto de cabecera, se pueden modificar en el archivo tcpdf_config.php de libraries/config
-
-// se pueden modificar en el archivo tcpdf_config.php de libraries/config
-        $pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
-
-// se pueden modificar en el archivo tcpdf_config.php de libraries/config
-        $pdf->SetMargins(PDF_MARGIN_LEFT, 0, PDF_MARGIN_RIGHT);
-        //  $pdf->SetHeaderMargin(PDF_MARGIN_HEADER);
-        $pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
-
-// se pueden modificar en el archivo tcpdf_config.php de libraries/config
-        //  $pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
-
-//relaciÃ³n utilizada para ajustar la conversiÃ³n de los pÃ­xeles
-        $pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
-
-
-// ---------------------------------------------------------
-// establecer el modo de fuente por defecto
-        $pdf->setFontSubsetting(true);
-
-// Establecer el tipo de letra
-
-//Si tienes que imprimir carÃ¡cteres ASCII estÃ¡ndar, puede utilizar las fuentes bÃ¡sicas como
-// Helvetica para reducir el tamaÃ±o del archivo.
-        $pdf->SetFont('helvetica', '', 14, '', true);
-
-// AÃ±adir una pÃ¡gina
-// Este mÃ©todo tiene varias opciones, consulta la documentaciÃ³n para mÃ¡s informaciÃ³n.
-        $pdf->AddPage();
-
-        $pdf->SetFontSize(8);
-
-        $textoheader = "";
-        $pdf->writeHTMLCell(
-            $w = 0, $h = 0, $x = '60', $y = '',
-            $textoheader, $border = 0, $ln = 1, $fill = 0,
-            $reseth = true, $align = 'C', $autopadding = true);
-
-//fijar efecto de sombra en el texto
-//        $pdf->setTextShadow(array('enabled' => true, 'depth_w' => 0.2, 'depth_h' => 0.2, 'color' => array(196, 196, 196), 'opacity' => 1, 'blend_mode' => 'Normal'));
-
-        $pdf->SetFontSize(12);
-
-        $pdf->writeHTMLCell($w = 0, $h = 0, $x = '', $y = '', "<br><br><b><u>LISTA</u></b><br><br>", $border = 0, $ln = 1, $fill = 0, $reseth = true, $align = 'C', $autopadding = true);
-
-
-        //preparamos y maquetamos el contenido a crear
-        $html = '';
-        $html .= "<style type=text/css>";
-        $html .= "th{color: #000; font-weight: bold; background-color: #CED6DB; }";
-        $html .= "td{color: #222; font-weight: bold; background-color: #fff;}";
-        $html .= "table{border:0.2px}";
-        $html .= "body{font-size:15px}";
-        $html .= "</style>";
-
-
-        if (isset($local_detalle)) {
-            $html .= "<br><b>" . $local_detalle['local_nombre'] . ":</b> " . "<br>";
-        } else {
-            $html .= "<br><b>INGRESOS:</b> " . "<br>";
+            $data['anular'] = 1;
         }
+        $data['ingresos'] = $this->ingreso_model->get_ingresos_by($condicion);
+        $data['ingreso_totales'] = $this->ingreso_model->sum_ingresos_by($condicion);
 
-        $html .= "<table>";
-        if (isset($ingresos)) {
-
-            $html .= "<tr> <th>Nro Documento</th><th>Tipo de Documento</th><th>Fecha Registro</th><th>Fecha Emisi&oacute;n</th>";
-            $html .= "<th>Proveedor</th><th>Responsable</th> <th>Local</th> <th>Total</th></tr>";
-
-
-            foreach ($ingresos as $ingreso) {
-                $html .= " <tr><td >" . $ingreso->documento_serie . "-" . $ingreso->documento_numero . "</td><td >" . $ingreso->tipo_documento . "</td><td >" . date('d-m-Y H:i:s', strtotime($ingreso->fecha_registro)) . "</td>";
-                $html .= "<td >" . date('d-m-Y H:i:s', strtotime($ingreso->fecha_emision)) . "</td><td >" . $ingreso->proveedor_nombre . "</td>";
-                $html .= "<td >" . $ingreso->nombre . "</td><td>" . $ingreso->local_nombre . "</td><td>" . $ingreso->total_ingreso . "</td></tr>";
-
-            }
-        } elseif (isset($compras)) {
-            $html .= "<tr><th>ID</th><th>Producto</th><th>Cantidad</th><th>Precio</th><th>Unidad de Medida</th></tr>";
-
-            foreach ($compras as $compra) {
-                $html .= " <tr><td >" . $compra->id_detalle_ingreso . "</td><td >" . $compra->producto_nombre . "</td><td >" . $compra->cantidad . "</td>";
-                $html .= "<td >" . $compra->precio . "</td><td >" . $compra->nombre_unidad . "</td></tr>";
-            }
-
-        }
-
-        $html .= "</table>";
-
-// Imprimimos el texto con writeHTMLCell()
-        $pdf->writeHTMLCell($w = 0, $h = 0, $x = '', $y = '', $html, $border = 0, $ln = 1, $fill = 0, $reseth = true, $align = '', $autopadding = true);
-
-// ---------------------------------------------------------
-// Cerrar el documento PDF y preparamos la salida
-// Este mÃ©todo tiene varias opciones, consulte la documentaciÃ³n para mÃ¡s informaciÃ³n.
-        $nombre_archivo = utf8_decode("Ingresos.pdf");
-        $pdf->Output($nombre_archivo, 'D');
-
+        $html = $this->load->view('menu/ingreso/lista_ingreso_pdf', $data, true);
+        $mpdf->WriteHTML($html);
+        $mpdf->Output();
 
     }
 

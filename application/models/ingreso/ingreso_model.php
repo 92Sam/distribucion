@@ -1144,6 +1144,23 @@ WHERE detalleingreso.id_ingreso='$id'");
         return $query->result();
     }
 
+    function sum_ingresos_by($condicion)
+    {
+        $this->db->select("
+            SUM(ingreso.sub_total_ingreso) as subtotal,
+            SUM(ingreso.impuesto_ingreso) as impuesto,
+            SUM(ingreso.total_ingreso) as total
+            ");
+        $this->db->from('ingreso');
+        $this->db->join('proveedor', 'proveedor.id_proveedor=ingreso.int_Proveedor_id');
+        $this->db->join('local', 'local.int_local_id=ingreso.local_id');
+        $this->db->join('usuario', 'usuario.nUsuCodigo=ingreso.nUsuCodigo');
+        //  $this->db->join('detalleingreso', 'detalleingreso.id_ingreso=ingreso.id_ingreso');
+        $this->db->where($condicion);
+        $query = $this->db->get();
+        return $query->row();
+    }
+
     function update_ingreso($tabla, $campos, $where)
     {
         $this->db->trans_start(true);

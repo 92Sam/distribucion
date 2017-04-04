@@ -43,19 +43,41 @@ class pagos_ingreso_model extends CI_Model
 
         $this->load->model('cajas/cajas_model');
 
-        if($data['medio_pago_id'] != '4'){
+        if ($data['medio_pago_id'] != '4') {
             unset($data['banco_id']);
         }
 
         $this->db->insert('pagos_ingreso', $data);
         $id = $this->db->insert_id();
 
-        $this->cajas_model->save_pendiente(array(
-            'monto'=>$data['pagoingreso_monto'],
-            'tipo'=>'PAGOS',
-            'IO'=>2,
-            'ref_id'=>$id
-        ));
+        if ($data['medio_pago_id'] != '6') {
+            $this->cajas_model->save_pendiente(array(
+                'monto' => $data['pagoingreso_monto'],
+                'tipo' => 'PAGOS',
+                'IO' => 2,
+                'ref_id' => $id
+            ));
+        } else {
+            $this->load->model('kardex/kardex_model');
+            $ingreso = $this->db->get_where('ingreso', array('id_ingreso' => $data['pagoingreso_ingreso_id']))->row();
+
+            $this->kardex_model->insert_kardex(array(
+                'fecha' => date('Y-m-d H:i:s'),
+                'local_id' => $ingreso->local_id,
+                'producto_id' => 0,
+                'unidad_id' => 0,
+                'serie' => '000',
+                'numero' => '00000',
+                'tipo_doc' => 7,
+                'tipo_operacion' => 2,
+                'cantidad' => 0,
+                'costo_unitario' => $data['pagoingreso_monto'],
+                'IO' => 1,
+                'ref_id' => $id,
+                'referencia' => $id,
+                'total' => $data['pagoingreso_monto'],
+            ));
+        }
 
 
         $this->db->trans_complete();

@@ -55,7 +55,10 @@ class proveedor_model extends CI_Model
         ";
 
         if(isset($data['proveedor_id']))
-            $consulta .= "AND ingreso.int_Proveedor_id =".$data['proveedor_id'];
+            $consulta .= " AND ingreso.int_Proveedor_id =".$data['proveedor_id'];
+
+        if(isset($data['documento']))
+            $consulta .= " AND ingreso.tipo_documento ='".$data['documento']."'";
 
 
         $consulta .= " GROUP BY ingreso.id_ingreso";

@@ -113,6 +113,19 @@ class proveedor extends MY_Controller
        echo json_encode($json);
     }
 
+    function ingreso_pago_detalles(){
+        $ingreso_id = $this->input->post('id_ingreso');
+
+        $data['pago_detalles'] = $this->db->select('*')
+            ->from('pagos_ingreso')
+            ->join('metodos_pago', 'metodos_pago.id_metodo=pagos_ingreso.medio_pago_id', 'left')
+            ->join('banco', 'banco.banco_id=pagos_ingreso.banco_id', 'left')
+            ->where('pagos_ingreso.pagoingreso_ingreso_id', $ingreso_id)
+            ->get()->result();
+
+        $this->load->view('menu/proveedor/pagos_lista', $data);
+    }
+
     public function cuentas_por_pagar()
     {
         $data["lstproveedor"] = $this->proveedor_model->get_all();

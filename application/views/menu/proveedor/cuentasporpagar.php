@@ -25,6 +25,19 @@
                     <?php endif; ?>
                 </select>
             </div>
+
+            <div class="col-md-2">
+                <label class="control-label panel-admin-text">Documento:</label>
+            </div>
+            <div class="col-md-3">
+
+                <select name="documento" id="documento" class='cho form-control'>
+                    <option value="-1">TODOS</option>
+                    <option value="BOLETA DE VENTA">BOLETA DE VENTA</option>
+                    <option value="FACTURA">FACTURA</option>
+                    <option value="NOTA DE PEDIDO">NOTA DE PEDIDO</option>
+                </select>
+            </div>
             <button id="btnBuscar" class="btn btn-default">
             <i class="fa fa-search"></i>
             </button>
@@ -55,7 +68,7 @@
         $('select').chosen();
         $(".input-datepicker").datepicker({format: 'dd-mm-yyyy'});
 
-        $("#proveedor").on('change', function(){
+        $("#proveedor, #documento").on('change', function(){
             $("#lstTabla").html('');
         });
 

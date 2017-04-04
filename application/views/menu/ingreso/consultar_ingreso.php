@@ -113,11 +113,11 @@
             format: 'dd-mm-yyyy'
         });
 
-        $("#year, #dia_min, #dia_max").bind('keyup change click', function(){
+        $("#year, #dia_min, #dia_max").bind('keyup change click', function () {
             $("#tabla").html('');
         });
 
-        $(".campos").on('change', function(){
+        $(".campos").on('change', function () {
             $("#tabla").html('');
         });
 
@@ -156,6 +156,8 @@
                 if (data.length > 0)
                     $("#tabla").html(data);
                 $("#tablaresult").dataTable();
+
+                $("#exportar_pdf").attr('href', $("#exportar_pdf").attr('data-href') + locales + '/' + status + '/' + year + '/' + mes + '/' + dia_min + '/' + dia_max);
             },
             error: function () {
 

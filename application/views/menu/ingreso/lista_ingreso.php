@@ -1,5 +1,18 @@
 <?php $ruta = base_url(); ?>
-
+<br>
+<div class="row">
+    <div class="col-md-6"></div>
+    <div class="col-md-2">
+        <label>Subtotal: <?= MONEDA ?> <span
+                    id="subtotal"><?= number_format($ingreso_totales->subtotal, 2) ?></span></label>
+    </div>
+    <div class="col-md-2">
+        <label>IGV: <?= MONEDA ?> <span id="impuesto"><?= number_format($ingreso_totales->impuesto, 2) ?></span></label>
+    </div>
+    <div class="col-md-2">
+        <label>Total: <?= MONEDA ?> <span id="total"><?= number_format($ingreso_totales->total, 2) ?></span></label>
+    </div>
+</div>
 <div class="table-responsive">
     <table class="table table-striped dataTable table-bordered" id="tablaresultado">
         <thead>
@@ -30,12 +43,14 @@
                 ?>
                 <tr>
                     <td><?php echo $ingreso->id_ingreso ?></td>
-                    <td><span style="display: none;"><?=date('YmdHis', strtotime($ingreso->fecha_emision))?></span><?= date('d/m/Y', strtotime($ingreso->fecha_emision)) ?></td>
+                    <td>
+                        <span style="display: none;"><?= date('YmdHis', strtotime($ingreso->fecha_emision)) ?></span><?= date('d/m/Y', strtotime($ingreso->fecha_emision)) ?>
+                    </td>
                     <td>
                         <?php
-                            if($ingreso->tipo_documento == 'FACTURA') echo 'FA ';
-                            if($ingreso->tipo_documento == 'BOLETA DE VENTA') echo 'BO ';
-                            if ($ingreso->tipo_documento == "NOTA DE PEDIDO") echo "NP ";
+                        if ($ingreso->tipo_documento == 'FACTURA') echo 'FA ';
+                        if ($ingreso->tipo_documento == 'BOLETA DE VENTA') echo 'BO ';
+                        if ($ingreso->tipo_documento == "NOTA DE PEDIDO") echo "NP ";
                         ?>
                         <?php echo $ingreso->documento_serie . "-" . $ingreso->documento_numero ?>
                     </td>
@@ -46,13 +61,13 @@
                     <td><?= $ingreso->impuesto_ingreso ?></td>
                     <td><?= $ingreso->total_ingreso ?></td>
                     <td><label
-                            class="label <?php if ($ingreso->ingreso_status == INGRESO_COMPLETADO) {
-                                echo 'label-success';
-                            } elseif ($ingreso->ingreso_status == INGRESO_PENDIENTE) {
-                                echo 'label-danger';
-                            } else {
-                                echo 'label-warning';
-                            } ?>">
+                                class="label <?php if ($ingreso->ingreso_status == INGRESO_COMPLETADO) {
+                                    echo 'label-success';
+                                } elseif ($ingreso->ingreso_status == INGRESO_PENDIENTE) {
+                                    echo 'label-danger';
+                                } else {
+                                    echo 'label-warning';
+                                } ?>">
                             <?= $ingreso->ingreso_status ?></label>
 
                     </td>
@@ -70,12 +85,12 @@
                             </a>
 
                             <?php
-                            if(isset($anular) && $ingreso->ingreso_status !=INGRESO_DEVUELTO ){
+                            if (isset($anular) && $ingreso->ingreso_status != INGRESO_DEVUELTO) {
                                 echo '<a class="btn btn-default btn-default btn-default" data-toggle="tooltip"
                                             title="Anular" data-original-title="Anular"
-                                            href="#" onclick="mostrar(' . $ingreso->id_ingreso . ','.$ingreso->local_id.');">'; ?>
-                            <i class="fa fa-remove"></i>
-                            </a>
+                                            href="#" onclick="mostrar(' . $ingreso->id_ingreso . ',' . $ingreso->local_id . ');">'; ?>
+                                <i class="fa fa-remove"></i>
+                                </a>
                             <?php } ?>
 
                             <?php
@@ -83,8 +98,8 @@
                                 echo '<a class="btn btn-default btn-default btn-default" data-toggle="tooltip"
                                             title="Registrar costos" data-original-title="Registrar costos"
                                             href="#" onclick="editaringreso(' . $ingreso->id_ingreso . ');">'; ?>
-                            <i class="fa fa-money"></i>
-                            </a>
+                                <i class="fa fa-money"></i>
+                                </a>
                             <?php } ?>
                         </div>
                     </td>
@@ -99,12 +114,19 @@
 
 </div>
 
-<a href="<?= $ruta ?>ingresos/pdf/<?php if (isset($local_id)) echo $local_id; else echo 0; ?>/<?php if (isset($fecha_desde)) echo $fecha_desde; else echo 0; ?>/<?php if (isset($fecha_hasta)) echo $fecha_hasta; else echo 0; ?>/0"
+<a id="exportar_pdf" data-href="<?= $ruta ?>ingresos/pdf/"
+   href="#"
+   target="_blank"
    class="btn  btn-default btn-lg" data-toggle="tooltip" title="Exportar a PDF"
    data-original-title="fa fa-file-pdf-o"><i class="fa fa-file-pdf-o fa-fw"></i></a>
-<a href="<?= $ruta ?>ingresos/excel/<?php if (isset($local_id)) echo $local_id; else echo 0; ?>/<?php if (isset($fecha_desde)) echo $fecha_desde; else echo 0; ?>/<?php if (isset($fecha_hasta)) echo $fecha_hasta; else echo 0; ?>/0"
+
+<!--
+<a id="exportar_excel" data-href="<?= $ruta ?>ingresos/excel/"
+   href="#"
+   target="_blank"
    class="btn btn-default btn-lg" data-toggle="tooltip" title="Exportar a Excel"
    data-original-title="fa fa-file-excel-o"><i class="fa fa-file-excel-o fa-fw"></i></a>
+   -->
 
 <div class="modal fade" id="ver" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
      aria-hidden="true">
@@ -219,7 +241,7 @@
         var numero = $("#anular_numero").val();
         var fecha = $("#anular_fecha").val();
 
-        if(serie == "" || numero == "" || fecha == ""){
+        if (serie == "" || numero == "" || fecha == "") {
             $.bootstrapGrowl('<h4>Datos Incompletos!</h4>', {
                 type: 'warning',
                 delay: 2500,

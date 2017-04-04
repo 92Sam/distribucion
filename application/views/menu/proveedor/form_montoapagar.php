@@ -48,7 +48,7 @@
                             <select name="pago_id" id="pago_id" class="form-control">
                                 <option value="">Seleccione</option>
                                 <?php foreach ($metodos_pago as $pago): ?>
-                                    <?php if ($pago->id_metodo != 7 && $pago->id_metodo != 6): ?>
+                                    <?php if ($pago->id_metodo != 7): ?>
                                         <option
                                             value="<?= $pago->id_metodo ?>"><?= $pago->nombre_metodo ?></option>
                                     <?php endif; ?>
@@ -180,7 +180,7 @@
             return false;
         }
 
-        if (($("#pago_id").val() == "4" || $("#pago_id").val() == "5") && $("#num_oper").val() == '') {
+        if (($("#pago_id").val() == "4" || $("#pago_id").val() == "5" || $("#pago_id").val() == "6") && $("#num_oper").val() == '') {
             var growlType = 'danger';
             $.bootstrapGrowl('<h4>Debe ingresar una operacion</h4>', {
                 type: growlType,
@@ -241,6 +241,7 @@
                     });
                     $('#pagar_venta').modal('hide');
                     $("#guardarPago").removeClass('disabled');
+                    $(".modal-backdrop").remove();
                     buscar();
                 }
                 else {
