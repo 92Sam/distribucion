@@ -270,8 +270,3 @@
     }
 </script>
 
-<script>
-
-
-</script>
-

@@ -104,7 +104,6 @@
     }
 
     function buscar() {
-
         $.ajax({
             type: 'POST',
             data: $('#frmBuscar').serialize(),
