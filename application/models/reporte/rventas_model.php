@@ -207,7 +207,7 @@ class rventas_model extends CI_Model
     }
 
 
-    function get_nota_entrega($params)
+    function get_nota_entrega($data)
     {
         $query = "
             SELECT 
@@ -252,6 +252,41 @@ class rventas_model extends CI_Model
 
         ";
 
+        if(isset($data['cliente_id']) && $data['cliente_id'] != 0)
+            $query .= " AND v.id_cliente = ".$data['cliente_id'];
+
+        if(isset($data['estado']) && $data['estado'] != 0){
+            if($data['estado'] == 1){
+                $query .= " AND (SELECT 
+                            var_credito_estado
+                        FROM
+                            credito
+                        WHERE
+                            credito.id_venta = v.venta_id
+                        LIMIT 1) = 'CANCELADA'";
+            }
+
+            if($data['estado'] == 2){
+                $query .= " AND (SELECT 
+                            var_credito_estado
+                        FROM
+                            credito
+                        WHERE
+                            credito.id_venta = v.venta_id
+                        LIMIT 1) != 'CANCELADA'";
+            }
+
+        }
+
+        if (isset($data['mes']) && isset($data['year']) && isset($data['dia_min']) && isset($data['dia_max'])) {
+            $last_day = last_day($data['year'], sumCod($data['mes'], 2));
+            if ($last_day > $data['dia_max'])
+                $last_day = $data['dia_max'];
+
+            $query .= " AND hp.created_at >= '".$data['year'] . '-' . sumCod($data['mes'], 2) . '-' . $data['dia_min'] . " 00:00:00'";
+            $query .= " AND hp.created_at <= '".$data['year'] . '-' . sumCod($data['mes'], 2) . '-' . $last_day . " 23:59:59'";
+        }
+
 
         return $this->db->query($query)->result();
     }
@@ -277,9 +312,107 @@ class rventas_model extends CI_Model
         return $this->db->query($query)->result();
     }
 
-    function get_documentos($params)
+    function get_documentos($data)
     {
+        $query = "
+            SELECT 
+                v.venta_id AS venta_id,
+                hp.created_at AS fecha,
+                df.documento_tipo AS documento,
+                CONCAT(df.documento_serie,
+                        '-',
+                        df.documento_numero) AS documento_numero,
+                c.ruc_cliente AS ruc_dni,
+                c.razon_social AS razon_social,
+                u.nombre AS vendedor,
+                z.zona_nombre AS zona,
+                cp.nombre_condiciones AS condicion,
+                IF(df.documento_tipo = 'FACTURA',
+                    SUM(dd.detalle_importe) * 18 / 100,
+                    0) AS igv,
+                IF(df.documento_tipo = 'FACTURA',
+                    SUM(dd.detalle_importe) - (SUM(dd.detalle_importe) * 18 / 100),
+                    0) AS subtotal,
+                SUM(dd.detalle_importe) AS total,
+                IF((SELECT 
+                            SUM(detalle_importe)
+                        FROM
+                            documento_detalle
+                        WHERE
+                            id_venta = v.venta_id) = v.total,
+                    'S',
+                    'D') AS criterio,
+                IF((SELECT 
+                            var_credito_estado
+                        FROM
+                            credito
+                        WHERE
+                            credito.id_venta = v.venta_id
+                        LIMIT 1) = 'CANCELADA',
+                    'CANCELADO',
+                    'PENDIENTE') AS estado
+            FROM
+                venta AS v
+                    JOIN
+                historial_pedido_proceso AS hp ON hp.pedido_id = v.venta_id
+                    JOIN
+                documento_fiscal AS df ON df.venta_id = v.venta_id
+                    JOIN
+                documento_detalle AS dd ON dd.documento_fiscal_id = df.documento_fiscal_id
+                    JOIN
+                documento_venta AS dv ON dv.id_tipo_documento = v.numero_documento
+                    JOIN
+                cliente AS c ON c.id_cliente = v.id_cliente
+                    JOIN
+                usuario AS u ON u.nUsuCodigo = v.id_vendedor
+                    JOIN
+                zonas AS z ON z.zona_id = c.id_zona
+                    JOIN
+                condiciones_pago AS cp ON cp.id_condiciones = v.condicion_pago
+            WHERE
+                hp.proceso_id = 4 AND v.venta_status != 'RECHAZADO'
+           
+        ";
 
+        if(isset($data['cliente_id']) && $data['cliente_id'] != 0)
+            $query .= " AND v.id_cliente = ".$data['cliente_id'];
+
+        if(isset($data['estado']) && $data['estado'] != 0){
+            if($data['estado'] == 1){
+                $query .= " AND (SELECT 
+                            var_credito_estado
+                        FROM
+                            credito
+                        WHERE
+                            credito.id_venta = v.venta_id
+                        LIMIT 1) = 'CANCELADA'";
+            }
+
+            if($data['estado'] == 2){
+                $query .= " AND (SELECT 
+                            var_credito_estado
+                        FROM
+                            credito
+                        WHERE
+                            credito.id_venta = v.venta_id
+                        LIMIT 1) != 'CANCELADA'";
+            }
+
+        }
+
+        if (isset($data['mes']) && isset($data['year']) && isset($data['dia_min']) && isset($data['dia_max'])) {
+            $last_day = last_day($data['year'], sumCod($data['mes'], 2));
+            if ($last_day > $data['dia_max'])
+                $last_day = $data['dia_max'];
+
+            $query .= " AND hp.created_at >= '".$data['year'] . '-' . sumCod($data['mes'], 2) . '-' . $data['dia_min'] . " 00:00:00'";
+            $query .= " AND hp.created_at <= '".$data['year'] . '-' . sumCod($data['mes'], 2) . '-' . $last_day . " 23:59:59'";
+        }
+
+        $query .= "  GROUP BY df.documento_fiscal_id";
+
+
+        return $this->db->query($query)->result();
     }
 
 }

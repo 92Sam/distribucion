@@ -226,14 +226,26 @@ class reporte extends MY_Controller
 
         switch ($action) {
             case 'filter': {
-                $data['ventas'] = $this->rventas_model->get_nota_entrega(array());
+                $data['ventas'] = $this->rventas_model->get_nota_entrega(array(
+                    'cliente_id'=>$this->input->post('cliente_id'),
+                    'estado'=>$this->input->post('estado'),
+                    'year'=>$this->input->post('year'),
+                    'mes'=>$this->input->post('mes'),
+                    'dia_min'=>$this->input->post('dia_min'),
+                    'dia_max'=>$this->input->post('dia_max')
+                ));
 
                 echo $this->load->view('menu/reports/nota_entrega/tabla', $data, true);
                 break;
             }
             default: {
+                $data['ventas'] = $this->rventas_model->get_nota_entrega(array(
+                    'year'=>date('Y'),
+                    'mes'=>date('m'),
+                    'dia_min'=>date('d'),
+                    'dia_max'=>date('d')
+                ));
 
-                $data['ventas'] = $this->rventas_model->get_nota_entrega(array());
 
                 $data['reporte_filtro'] = $this->load->view('menu/reports/nota_entrega/filtros', array(
                     'clientes' => $this->cliente_model->get_all(),
@@ -273,19 +285,31 @@ class reporte extends MY_Controller
 
         switch ($action) {
             case 'filter': {
-                $data['ventas'] = $this->rventas_model->get_documentos(array());
+                $data['ventas'] = $this->rventas_model->get_documentos(array(
+                    'cliente_id'=>$this->input->post('cliente_id'),
+                    'estado'=>$this->input->post('estado'),
+                    'year'=>$this->input->post('year'),
+                    'mes'=>$this->input->post('mes'),
+                    'dia_min'=>$this->input->post('dia_min'),
+                    'dia_max'=>$this->input->post('dia_max')
+                ));
 
-                echo $this->load->view('menu/reports/doocumentos/tabla', $data, true);
+                echo $this->load->view('menu/reports/documentos/tabla', $data, true);
                 break;
             }
             default: {
 
-                $data['ventas'] = $this->rventas_model->get_documentos(array());
+                $data['ventas'] = $this->rventas_model->get_documentos(array(
+                    'year'=>date('Y'),
+                    'mes'=>date('m'),
+                    'dia_min'=>date('d'),
+                    'dia_max'=>date('d')
+                ));
 
-                $data['reporte_filtro'] = $this->load->view('menu/reports/doocumentos/filtros', array(
+                $data['reporte_filtro'] = $this->load->view('menu/reports/documentos/filtros', array(
                     'clientes' => $this->cliente_model->get_all(),
                 ), true);
-                $data['reporte_tabla'] = $this->load->view('menu/reports/doocumentos/tabla', $data, true);
+                $data['reporte_tabla'] = $this->load->view('menu/reports/documentos/tabla', $data, true);
                 $dataCuerpo['cuerpo'] = $this->load->view('menu/reports/report_template', $data, true);
                 if ($this->input->is_ajax_request()) {
                     echo $dataCuerpo['cuerpo'];

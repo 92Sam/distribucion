@@ -1,7 +1,33 @@
 <div class="row">
+    <label class="col-md-2 control-label panel-admin-text">Cliente:</label>
+    <div class="col-md-4">
 
+        <select id="cliente_id" name="cliente_id" class="form-control">
+            <option value="0">Todos</option>
+            <?php foreach ($clientes as $cliente): ?>
+                <option value="<?= $cliente['id_cliente'] ?>"><?= $cliente['razon_social'] ?></option>
+            <?php endforeach; ?>
+        </select>
+    </div>
+
+    <label class="col-md-2 control-label panel-admin-text">Estado:</label>
     <div class="col-md-2">
-        <label class="control-label panel-admin-text">Periodo:</label>
+
+        <select id="estado" name="estado" class="form-control">
+            <option value="0">Todos</option>
+            <option value="1">Cancelados</option>
+            <option value="2">Pendientes</option>
+        </select>
+
+    </div>
+
+
+</div>
+<br>
+<div class="row">
+    <label class="col-md-2 control-label panel-admin-text">Periodo:</label>
+    <div class="col-md-2">
+
         <select
                 id="mes"
                 class="form-control filter-input" name="mes">
@@ -21,33 +47,22 @@
     </div>
 
     <div class="col-md-2">
-        <label class="control-label panel-admin-text" style="color: #FFFFFF;">_</label>
         <input type="number" id="year" name="year" value="<?= date('Y') ?>" class="form-control">
     </div>
 
-    <div class="col-md-4">
-        <label class="control-label panel-admin-text">Cliente:</label>
-        <select id="cliente_id" name="cliente_id" class="form-control">
-            <option value="0">Todos</option>
-            <?php foreach ($clientes as $cliente): ?>
-                <option value="<?= $cliente['id_cliente'] ?>"><?= $cliente['razon_social'] ?></option>
-            <?php endforeach; ?>
-        </select>
+    <div class="col-md-2">
+        <label class="control-label panel-admin-text">Rango de Dias:</label>
+    </div>
+    <div class="col-md-1">
+        <input type="number" min="1" id="dia_min" name="dia_min" value="<?= date('d') ?>" class="form-control">
     </div>
 
-    <div class="col-md-2">
-        <label class="control-label panel-admin-text">Estado:</label>
-        <select id="estado" name="estado" class="form-control">
-            <option value="0">Todos</option>
-            <option value="1">Cancelados</option>
-            <option value="2">Pendientes</option>
-        </select>
-
+    <div class="col-md-1">
+        <input type="number" min="1" id="dia_max" name="dia_max" value="<?= date('d') ?>" class="form-control">
     </div>
 
     <div class="col-md-1"></div>
     <div class="col-md-1">
-        <label class="control-label panel-admin-text" style="color: #FFFFFF;">_</label>
         <button type="button" class="btn btn-default form-control btn_buscar">
             <i class="fa fa-search"></i>
         </button>
@@ -66,13 +81,27 @@
             filter_cobranzas();
         });
 
+        $("#cliente_id, #estado, #mes").on('change', function(){
+            $("#reporte_tabla").html('');
+        });
+
+        $("#year, #dia_min, #dia_max").bind('keyup change click', function(){
+            $("#reporte_tabla").html('');
+        });
+
     });
 
     function filter_cobranzas() {
         var data = {
-            'fecha_ini': $("#fecha_ini").val(),
-            'fecha_fin': $("#fecha_fin").val(),
+            'cliente_id': $("#cliente_id").val(),
+            'estado': $("#estado").val(),
+            'year': $("#year").val(),
+            'mes': $("#mes").val(),
+            'dia_min': $("#dia_min").val(),
+            'dia_max': $("#dia_max").val()
         };
+
+        console.log(data)
 
         $.ajax({
             url: '<?php echo base_url('reporte/nota_entrega/filter')?>',
