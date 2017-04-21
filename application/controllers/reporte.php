@@ -217,8 +217,83 @@ class reporte extends MY_Controller
                 }
             }
         }
+    }
 
+    function nota_entrega($action = '')
+    {
 
+        $data['reporte_nombre'] = 'Notas de Entrega';
+
+        switch ($action) {
+            case 'filter': {
+                $data['ventas'] = $this->rventas_model->get_nota_entrega(array());
+
+                echo $this->load->view('menu/reports/nota_entrega/tabla', $data, true);
+                break;
+            }
+            default: {
+
+                $data['ventas'] = $this->rventas_model->get_nota_entrega(array());
+
+                $data['reporte_filtro'] = $this->load->view('menu/reports/nota_entrega/filtros', array(
+                    'clientes' => $this->cliente_model->get_all(),
+                ), true);
+                $data['reporte_tabla'] = $this->load->view('menu/reports/nota_entrega/tabla', $data, true);
+                $dataCuerpo['cuerpo'] = $this->load->view('menu/reports/report_template', $data, true);
+                if ($this->input->is_ajax_request()) {
+                    echo $dataCuerpo['cuerpo'];
+                } else {
+                    $this->load->view('menu/template', $dataCuerpo);
+                }
+            }
+        }
+    }
+    
+    function nota_entrega_form($venta_id){
+        $data['venta'] = $this->db->select("
+            v.fecha AS fecha,
+            dv.documento_Serie as serie,
+            dv.documento_Numero as numero,
+            c.razon_social as razon_social
+            ")
+            ->from('venta as v')
+            ->join('documento_venta as dv', 'dv.id_tipo_documento = v.numero_documento')
+            ->join('cliente as c', 'c.id_cliente = v.id_cliente')
+            ->where('v.venta_id', $venta_id)
+            ->get()->row();
+
+        $data['detalles'] = $this->rventas_model->get_nota_entrega_detalle($venta_id);
+        $this->load->view('menu/reports/nota_entrega/detalle', $data);
+    }
+
+    function documentos($action = '')
+    {
+
+        $data['reporte_nombre'] = 'Documentos';
+
+        switch ($action) {
+            case 'filter': {
+                $data['ventas'] = $this->rventas_model->get_documentos(array());
+
+                echo $this->load->view('menu/reports/doocumentos/tabla', $data, true);
+                break;
+            }
+            default: {
+
+                $data['ventas'] = $this->rventas_model->get_documentos(array());
+
+                $data['reporte_filtro'] = $this->load->view('menu/reports/doocumentos/filtros', array(
+                    'clientes' => $this->cliente_model->get_all(),
+                ), true);
+                $data['reporte_tabla'] = $this->load->view('menu/reports/doocumentos/tabla', $data, true);
+                $dataCuerpo['cuerpo'] = $this->load->view('menu/reports/report_template', $data, true);
+                if ($this->input->is_ajax_request()) {
+                    echo $dataCuerpo['cuerpo'];
+                } else {
+                    $this->load->view('menu/template', $dataCuerpo);
+                }
+            }
+        }
     }
 
 }

@@ -206,4 +206,80 @@ class rventas_model extends CI_Model
             ->join('zonas', 'cliente.id_zona = zonas.zona_id');
     }
 
+
+    function get_nota_entrega($params)
+    {
+        $query = "
+            SELECT 
+                hp.created_at AS fecha,
+                CONCAT('NE ',
+                        dv.documento_Serie,
+                        '-',
+                        dv.documento_Numero) AS documento,
+                v.venta_id AS venta_id,
+                c.ruc_cliente AS ruc_dni,
+                c.razon_social AS razon_social,
+                u.nombre AS vendedor,
+                z.zona_nombre AS zona,
+                cp.nombre_condiciones AS condicion,
+                v.total AS total,
+                IF((SELECT 
+                            var_credito_estado
+                        FROM
+                            credito
+                        WHERE
+                            credito.id_venta = v.venta_id
+                        LIMIT 1) = 'CANCELADA',
+                    'CANCELADO',
+                    'PENDIENTE') AS estado
+            FROM
+                distribucion_dev.venta AS v
+                    JOIN
+                historial_pedido_proceso AS hp ON hp.pedido_id = v.venta_id
+                    JOIN
+                documento_venta AS dv ON dv.id_tipo_documento = v.numero_documento
+                    JOIN
+                cliente AS c ON c.id_cliente = v.id_cliente
+                    JOIN
+                usuario AS u ON u.nUsuCodigo = v.id_vendedor
+                    JOIN
+                zonas AS z ON z.zona_id = c.id_zona
+                    JOIN
+                condiciones_pago AS cp ON cp.id_condiciones = v.condicion_pago
+            WHERE
+                hp.proceso_id = 4 AND v.venta_status != 'RECHAZADO' AND v.venta_status != 'ANULADO'
+
+
+        ";
+
+
+        return $this->db->query($query)->result();
+    }
+
+    function get_nota_entrega_detalle($venta_id)
+    {
+        $query = "
+            SELECT 
+                df.documento_tipo AS documento,
+                CONCAT(df.documento_serie,
+                        '-',
+                        df.documento_numero) AS documento_numero,
+                SUM(dd.detalle_importe) AS importe
+            FROM
+                documento_fiscal AS df
+                    JOIN
+                documento_detalle AS dd ON dd.documento_fiscal_id = df.documento_fiscal_id
+            WHERE
+                df.venta_id = " . $venta_id . "
+            GROUP BY df.documento_fiscal_id 
+        ";
+
+        return $this->db->query($query)->result();
+    }
+
+    function get_documentos($params)
+    {
+
+    }
+
 }

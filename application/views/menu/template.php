@@ -467,6 +467,18 @@ $primary_nav = array(
                         'url' => $ruta . 'reporte/cliente_estado',
                         'icon' => 'fa fa-bar-chart',
                         'slug' => 'reporteutilidades'
+                    ),
+                    array(
+                        'name' => 'Notas de Entrega',
+                        'url' => $ruta . 'reporte/nota_entrega',
+                        'icon' => 'fa fa-bar-chart',
+                        'slug' => 'reporteutilidades'
+                    ),
+                    array(
+                        'name' => 'Documentos',
+                        'url' => $ruta . 'reporte/documentos',
+                        'icon' => 'fa fa-bar-chart',
+                        'slug' => 'reporteutilidades'
                     )
                 ),
             ),

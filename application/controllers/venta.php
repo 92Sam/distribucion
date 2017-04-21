@@ -26,7 +26,7 @@ class venta extends MY_Controller
         $this->load->model('ingreso/ingreso_model');
         $this->load->model('gastos/gastos_model');
         $this->load->model('inventario/inventario_model');
-        $this->load->library('PHPWord');
+        $this->load->library('Phpword');
 
         $this->load->library('Pdf');
         $this->load->library('session');

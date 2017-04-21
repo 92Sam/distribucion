@@ -652,6 +652,9 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
         $fiscal_id = $this->updateFiscal($pedido);
         $count_items = 1;
 
+        $cliente = $this->db->get_where('cliente', array('id_cliente'=>$pedido->id_cliente))->row();
+        $cliente_descuento = $cliente->descuento;
+
         foreach ($pedido_detalles as $detalle) {
             $cantidad = 0;
             $end_flag = true;
@@ -681,14 +684,19 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
                     }
                 }
 
+                $detalle_precio = $detalle->precio;
+                if($cliente_descuento != NULL && $detalle->bono != 1){
+                    $detalle_precio = number_format($detalle_precio + ($detalle_precio * $cliente_descuento / 100), 2);
+                }
+
                 $this->db->insert('documento_detalle', array(
                     'documento_fiscal_id' => $fiscal_id,
                     'id_venta' => $pedido->venta_id,
                     'id_producto' => $detalle->id_producto,
-                    'precio' => $detalle->precio,
+                    'precio' => $detalle_precio,
                     'cantidad' => $cantidad,
                     'id_unidad' => $detalle->unidad_medida,
-                    'detalle_importe' => $detalle->precio * $cantidad,
+                    'detalle_importe' => $detalle_precio * $cantidad,
                 ));
 
                 $fiscal = $this->db->get_where('documento_fiscal', array('documento_fiscal_id'=>$fiscal_id))->row();
