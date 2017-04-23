@@ -210,7 +210,7 @@ class rventas_model extends CI_Model
     function get_nota_entrega($data)
     {
         $query = "
-            SELECT 
+            SELECT
                 hp.created_at AS fecha,
                 CONCAT('NE ',
                         dv.documento_Serie,
@@ -223,7 +223,7 @@ class rventas_model extends CI_Model
                 z.zona_nombre AS zona,
                 cp.nombre_condiciones AS condicion,
                 v.total AS total,
-                IF((SELECT 
+                IF((SELECT
                             var_credito_estado
                         FROM
                             credito
@@ -233,7 +233,7 @@ class rventas_model extends CI_Model
                     'CANCELADO',
                     'PENDIENTE') AS estado
             FROM
-                distribucion_dev.venta AS v
+                venta AS v
                     JOIN
                 historial_pedido_proceso AS hp ON hp.pedido_id = v.venta_id
                     JOIN
@@ -257,7 +257,7 @@ class rventas_model extends CI_Model
 
         if(isset($data['estado']) && $data['estado'] != 0){
             if($data['estado'] == 1){
-                $query .= " AND (SELECT 
+                $query .= " AND (SELECT
                             var_credito_estado
                         FROM
                             credito
@@ -267,7 +267,7 @@ class rventas_model extends CI_Model
             }
 
             if($data['estado'] == 2){
-                $query .= " AND (SELECT 
+                $query .= " AND (SELECT
                             var_credito_estado
                         FROM
                             credito
@@ -294,7 +294,7 @@ class rventas_model extends CI_Model
     function get_nota_entrega_detalle($venta_id)
     {
         $query = "
-            SELECT 
+            SELECT
                 df.documento_tipo AS documento,
                 CONCAT(df.documento_serie,
                         '-',
@@ -306,7 +306,7 @@ class rventas_model extends CI_Model
                 documento_detalle AS dd ON dd.documento_fiscal_id = df.documento_fiscal_id
             WHERE
                 df.venta_id = " . $venta_id . "
-            GROUP BY df.documento_fiscal_id 
+            GROUP BY df.documento_fiscal_id
         ";
 
         return $this->db->query($query)->result();
@@ -315,7 +315,7 @@ class rventas_model extends CI_Model
     function get_documentos($data)
     {
         $query = "
-            SELECT 
+            SELECT
                 v.venta_id AS venta_id,
                 hp.created_at AS fecha,
                 df.documento_tipo AS documento,
@@ -334,7 +334,7 @@ class rventas_model extends CI_Model
                     SUM(dd.detalle_importe) - (SUM(dd.detalle_importe) * 18 / 100),
                     0) AS subtotal,
                 SUM(dd.detalle_importe) AS total,
-                IF((SELECT 
+                IF((SELECT
                             SUM(detalle_importe)
                         FROM
                             documento_detalle
@@ -342,7 +342,7 @@ class rventas_model extends CI_Model
                             id_venta = v.venta_id) = v.total,
                     'S',
                     'D') AS criterio,
-                IF((SELECT 
+                IF((SELECT
                             var_credito_estado
                         FROM
                             credito
@@ -371,7 +371,7 @@ class rventas_model extends CI_Model
                 condiciones_pago AS cp ON cp.id_condiciones = v.condicion_pago
             WHERE
                 hp.proceso_id = 4 AND v.venta_status != 'RECHAZADO'
-           
+
         ";
 
         if(isset($data['cliente_id']) && $data['cliente_id'] != 0)
@@ -379,7 +379,7 @@ class rventas_model extends CI_Model
 
         if(isset($data['estado']) && $data['estado'] != 0){
             if($data['estado'] == 1){
-                $query .= " AND (SELECT 
+                $query .= " AND (SELECT
                             var_credito_estado
                         FROM
                             credito
@@ -389,7 +389,7 @@ class rventas_model extends CI_Model
             }
 
             if($data['estado'] == 2){
-                $query .= " AND (SELECT 
+                $query .= " AND (SELECT
                             var_credito_estado
                         FROM
                             credito
