@@ -44,6 +44,11 @@
             return mensajeAlerta("Debe seleccionar un Vendedor");
         }
 
+
+        if ($("#s_descuento").val() == 1 && ($('#descuento_id').val() == '' || parseFloat($('#descuento_id').val()) <= 0)) {
+            return mensajeAlerta("Descuento no valido");
+        }
+
         var direccion = false
         $(".fila").each(function () {
 
@@ -103,6 +108,7 @@
         if (DniRucEnBd() == false) {
             return false;
         }
+
 
         $('#barloadermodal').modal('show');
         $.ajax({
@@ -524,7 +530,7 @@
                             </select>
                         </div>
                         <div class="col-md-2" id='div_descuento'>
-                            <input type="number" name="descuento" id="descuento_id" class="form-control"
+                            <input type="number" min="0" name="descuento" id="descuento_id" class="form-control"
                                    value="<?php if (isset($cliente['descuento'])) echo $cliente['descuento']; ?>">
 
                         </div>

@@ -170,7 +170,12 @@ class cajas extends MY_Controller
     {
         $data['cuenta'] = $this->cajas_model->get_cuenta($id);
 
-        $data['cuenta_movimientos'] = $this->cajas_mov_model->get_movimientos_today($id);
+        $params = array(
+            'fecha_ini'=>date('Y-m-d H:i:s', strtotime($this->input->post('fecha_ini'). "00:00:00")),
+            'fecha_fin'=>date('Y-m-d H:i:s', strtotime($this->input->post('fecha_fin'). "23:59:59")),
+        );
+
+        $data['cuenta_movimientos'] = $this->cajas_mov_model->get_movimientos_today($id, $params);
 
         $this->load->view('menu/cajas/form_detalle', $data);
     }

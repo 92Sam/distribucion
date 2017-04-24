@@ -8,10 +8,31 @@
 <div class="block">
     <!-- Progress Bars Wizard Title -->
 
-    <a class="btn btn-default" id="btn_new_caja">
-        <i class="fa fa-plus"> Nueva Caja</i>
-    </a>
+
     <br>
+
+    <div class="row">
+        <div class="col-md-1">
+            <a class="btn btn-default" id="btn_new_caja">
+                <i class="fa fa-plus"> Nueva Caja</i>
+            </a>
+        </div>
+
+        <div class="col-md-7"></div>
+
+        <div class="col-md-2">
+            <label>Fecha Inicial</label>
+            <input type="text" id="fecha_ini" name="fecha_ini"
+                   class="form-control input-datepicker"
+                   value="<?= date('d-m-Y') ?>" readonly style="cursor: pointer;">
+        </div>
+        <div class="col-md-2">
+            <label>Fecha Final</label>
+            <input type="text" id="fecha_fin" name="fecha_fin"
+                   class="form-control input-datepicker"
+                   value="<?= date('d-m-Y') ?>" readonly style="cursor: pointer;">
+        </div>
+    </div>
 
     <ul class="nav nav-tabs">
         <?php foreach ($cajas as $caja): ?>
@@ -208,6 +229,7 @@
             $.ajax({
                 url: '<?php echo base_url('cajas/caja_detalle_form')?>' + '/' + $(this).attr('data-id'),
                 type: 'post',
+                data: {fecha_ini: $("#fecha_ini").val(), fecha_fin: $("#fecha_fin").val()},
                 success: function (data) {
                     $("#dialog_form").html(data);
                     $("#dialog_form").modal('show');

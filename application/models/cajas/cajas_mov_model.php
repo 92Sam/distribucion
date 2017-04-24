@@ -17,8 +17,11 @@ class cajas_mov_model extends CI_Model
         $this->db->insert('caja_movimiento', $data);
     }
 
-    function get_movimientos_today($cuenta_id)
+    function get_movimientos_today($cuenta_id, $data = array())
     {
+        if(!isset($data['fecha_ini'])) $data['fecha_ini'] = date('Y-m-d') . ' 00:00:00';
+        if(!isset($data['fecha_fin'])) $data['fecha_fin'] = date('Y-m-d') . ' 23:59:59';
+
         $this->db->select('
             caja_movimiento.*,
             usuario.nombre as usuario_nombre,
@@ -31,8 +34,9 @@ class cajas_mov_model extends CI_Model
             ->join('local', 'caja.local_id = local.int_local_id')
             ->join('usuario', 'usuario.nUsuCodigo = caja_movimiento.usuario_id')
             ->where('caja_movimiento.caja_desglose_id', $cuenta_id)
-            ->where('caja_movimiento.created_at >=', date('Y-m-d') . ' 00:00:00')
-            ->where('caja_movimiento.created_at <=', date('Y-m-d') . ' 23:59:59');
+            ->where('caja_movimiento.created_at >=', $data['fecha_ini'])
+            ->where('caja_movimiento.created_at <=', $data['fecha_fin'])
+            ->order_by('caja_movimiento.created_at', 'DESC');
 
         return $this->db->get()->result();
     }

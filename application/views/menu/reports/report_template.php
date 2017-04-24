@@ -10,10 +10,10 @@
 
     <br>
 
-    <div class="box-body">
-        <div id="reporte_tabla" class="table-responsive">
+    <div id="reporte_tabla" class="box-body">
+
             <?= isset($reporte_tabla) ? $reporte_tabla : '' ?>
-        </div>
+
     </div>
 
 </div>

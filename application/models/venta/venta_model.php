@@ -685,8 +685,8 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
                 }
 
                 $detalle_precio = $detalle->precio;
-                if($cliente_descuento != NULL && $detalle->bono != 1){
-                    $detalle_precio = number_format($detalle_precio + ($detalle_precio * $cliente_descuento / 100), 2);
+                if($pedido->tipo_doc_fiscal == 'BOLETA DE VENTA' && $cliente_descuento != NULL && $detalle->bono != 1){
+                    $detalle_precio = number_format($detalle_precio - ($detalle_precio * $cliente_descuento / 100), 2);
                 }
 
                 $this->db->insert('documento_detalle', array(
