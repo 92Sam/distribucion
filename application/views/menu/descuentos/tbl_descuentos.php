@@ -13,7 +13,7 @@
     }
 </style>
 
-<table class="table table-striped table-bordered" id="tablaresult">
+<table class="table table-striped table-bordered dataTable" id="tablaresult">
     <thead>
     <tr>
         <th>ID</th>
@@ -63,7 +63,7 @@
 
 <script>
     $(function () {
-        TablesDatatables.init();
+        TablesDatatablesBonos.init();
 
     });
 </script>

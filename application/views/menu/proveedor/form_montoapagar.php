@@ -76,6 +76,36 @@
                     </div>
                 </div>
 
+
+                <div class="row nc_block" style="display: none;">
+                    <br>
+                    <div class="form-group">
+                        <div class="col-md-4">
+                            <label for="fecha_nc">Fecha de NC</label>
+                        </div>
+                        <div class="col-md-8">
+                            <input type="text" id="fecha_nc" name="fecha_nc"
+                                   class="form-control"
+                                   value="<?=date('d-m-Y')?>" readonly>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="row nc_block" style="display: none;">
+                    <br>
+                    <div class="form-group">
+                        <div class="col-md-4">
+                            <label for="desc_nc">Descripcion de NC</label>
+                        </div>
+                        <div class="col-md-8">
+                            <input type="text" id="desc_nc" name="desc_nc"
+                                   class="form-control"
+                                   value="">
+                        </div>
+                    </div>
+                </div>
+
                 <br>
                 <div class="row pago_block" id="operacion_block" style="display: block;">
                     <div class="form-group">
@@ -99,6 +129,7 @@
                         <div class="col-md-8">
                             <input type="number" id="cantidad_a_pagar" name="cantidad_a_pagar" value="" onkeydown="return:soloDecimal();"
                                    class="form-control">
+                            <input type="checkbox" id="pagar_todo"> <label for="pagar_todo" style="cursor: pointer;">Pagar todo</label>
                             <input type="hidden" id="ingreso_id" name="ingreso_id" value="<?=$ingreso->ingreso_id?>">
 
 
@@ -127,6 +158,17 @@
     var producto = {};
     $(function () {
 
+        $("#fecha_nc").datepicker({format: 'dd-mm-yyyy'});
+
+        $("#pagar_todo").on('change', function(){
+            if($(this).prop('checked')){
+                $("#cantidad_a_pagar").val($("#total_pendiente").val());
+            }
+            else{
+                $("#cantidad_a_pagar").val('');
+            }
+        });
+
         $("#pago_id").on('click', function () {
 
                 $("#banco_id").val('');
@@ -143,10 +185,15 @@
                     if ($(this).val() == '5'){
                         $("#num_oper_label").html('N&uacute;mero de Cheque');
                     }
-                    if ($(this).val() == '6')
+                    if ($(this).val() == '6'){
+                        $(".nc_block").show();
                         $("#num_oper_label").html('N&uacute;mero de Nota de Cr&eacute;dito');
-                    else
+                    }
+                    else{
+                        $(".nc_block").hide();
                         $("#num_oper_label").html('Dato Adicional');
+                    }
+
                 }
 
             });
@@ -183,6 +230,16 @@
         if (($("#pago_id").val() == "4" || $("#pago_id").val() == "5" || $("#pago_id").val() == "6") && $("#num_oper").val() == '') {
             var growlType = 'danger';
             $.bootstrapGrowl('<h4>Debe ingresar una operacion</h4>', {
+                type: growlType,
+                delay: 2500,
+                allow_dismiss: true
+            });
+            return false;
+        }
+
+        if (($("#pago_id").val() == "6" && $("#desc_nc").val() == "")) {
+            var growlType = 'danger';
+            $.bootstrapGrowl('<h4>Debe ingresar un motivo</h4>', {
                 type: growlType,
                 delay: 2500,
                 allow_dismiss: true

@@ -288,7 +288,7 @@
             <div class="modal-footer">
                 <div class="form-actions">
 
-                    <button class="btn btn-primary" id="btnGuardar" type="button">Confirmar
+                    <button class="btn btn-primary" id="btnGuardar" type="button">(F6) Confirmar
                     </button>
                     <!-- <button type="button" class="btn"><i class="fa fa-folder-open-o fa-3x text-info"></i><br>Abrir </button>-->
                     <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
@@ -333,6 +333,9 @@
 
     $(document).ready(function () {
 
+        $(document).off('keydown');
+        $(document).off('keyup');
+
         $('#cboProducto').chosen({
             placeholder: "Seleccione el producto",
             allowClear: true,
@@ -344,6 +347,24 @@
                 width: '100%'
             }
         );
+
+        var F6 = 117;
+
+        $(document).keydown(function (e) {
+
+            if (e.keyCode == F6) {
+                e.preventDefault();
+            }
+        });
+
+        $(document).keyup(function (e) {
+
+            if (e.keyCode == F6 && $("#agregar").is(":visible") == true) {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                guardardescuento();
+            }
+        });
 
 
         $("#btnGuardar").click(function () {

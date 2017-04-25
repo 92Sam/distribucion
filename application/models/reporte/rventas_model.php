@@ -332,7 +332,7 @@ class rventas_model extends CI_Model
                     0) AS igv,
                 IF(df.documento_tipo = 'FACTURA',
                     SUM(dd.detalle_importe) - (SUM(dd.detalle_importe) * 18 / 100),
-                    0) AS subtotal,
+                    SUM(dd.detalle_importe)) AS subtotal,
                 SUM(dd.detalle_importe) AS total,
                 IF((SELECT
                             SUM(detalle_importe)
@@ -370,7 +370,7 @@ class rventas_model extends CI_Model
                     JOIN
                 condiciones_pago AS cp ON cp.id_condiciones = v.condicion_pago
             WHERE
-                hp.proceso_id = 4 AND v.venta_status != 'RECHAZADO'
+                hp.proceso_id = 4 AND v.venta_status != 'RECHAZADO' AND v.venta_status != 'ANULADO'
 
         ";
 

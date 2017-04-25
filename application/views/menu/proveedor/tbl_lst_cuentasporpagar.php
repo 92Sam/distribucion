@@ -73,7 +73,7 @@
 
 <script type="text/javascript">
     $(document).ready(function () {
-        //TablesDatatablesBonos.init(4);
+        TablesDatatables.init(4);
     });
 
 

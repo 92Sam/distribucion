@@ -432,7 +432,9 @@ class ingresos extends MY_Controller
                 'pagoingreso_restante' => number_format($this->input->post('total_pendiente') - $this->input->post('cantidad_a_pagar'), 2, '.', ''),
                 'medio_pago_id' => $this->input->post('pago_id'),
                 'banco_id' => $this->input->post('banco_id', NULL),
-                'operacion' => $this->input->post('num_oper', NULL)
+                'operacion' => $this->input->post('num_oper', NULL),
+                'fecha_operacion' => date("Y-m-d H:i:s", strtotime($this->input->post('fecha_nc', date('Y-m-d H:i:s')))),
+                'motivo' => $this->input->post('desc_nc', NULL)
             );
 
             $save_historial = $this->pagos_ingreso_model->guardar($detalle);
