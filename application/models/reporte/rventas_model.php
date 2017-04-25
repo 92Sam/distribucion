@@ -233,7 +233,7 @@ class rventas_model extends CI_Model
                     'CANCELADO',
                     'PENDIENTE') AS estado
             FROM
-                distribucion_dev.venta AS v
+                venta AS v
                     JOIN
                 historial_pedido_proceso AS hp ON hp.pedido_id = v.venta_id
                     JOIN
@@ -245,7 +245,7 @@ class rventas_model extends CI_Model
                     JOIN
                 zonas AS z ON z.zona_id = c.id_zona
                     JOIN
-                condiciones_pago AS cp ON cp.id_condiciones = v.condicion_pago
+                condiciones_pago AS cp ON cp.id_condiciones = v.condicion_pago 
             WHERE
                 hp.proceso_id = 4 AND v.venta_status != 'RECHAZADO' AND v.venta_status != 'ANULADO'
 
@@ -299,11 +299,11 @@ class rventas_model extends CI_Model
                 CONCAT(df.documento_serie,
                         '-',
                         df.documento_numero) AS documento_numero,
-                SUM(dd.detalle_importe) AS importe
+                SUM(dd.detalle_importe) AS importe 
             FROM
                 documento_fiscal AS df
                     JOIN
-                documento_detalle AS dd ON dd.documento_fiscal_id = df.documento_fiscal_id
+                documento_detalle AS dd ON dd.documento_fiscal_id = df.documento_fiscal_id 
             WHERE
                 df.venta_id = " . $venta_id . "
             GROUP BY df.documento_fiscal_id 

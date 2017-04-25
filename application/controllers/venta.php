@@ -2823,7 +2823,7 @@ class venta extends MY_Controller
         $boletas = $result['boletas'];
 
         // documento
-        $phpword = new \PhpOffice\PHPWord\PHPWord();
+        $phpword = new \PhpOffice\PhpWord\PhpWord();
         $styles = array(
             'pageSizeW' => '12812.598425197',
             'pageSizeH' => '8617.322834646',

@@ -266,11 +266,13 @@ class reporte extends MY_Controller
             v.fecha AS fecha,
             dv.documento_Serie as serie,
             dv.documento_Numero as numero,
-            c.razon_social as razon_social
+            c.razon_social as razon_social, 
+            cd.consolidado_id as consolidado_id
             ")
             ->from('venta as v')
             ->join('documento_venta as dv', 'dv.id_tipo_documento = v.numero_documento')
             ->join('cliente as c', 'c.id_cliente = v.id_cliente')
+            ->join('consolidado_detalle as cd', 'cd.pedido_id = v.venta_id')
             ->where('v.venta_id', $venta_id)
             ->get()->row();
 
