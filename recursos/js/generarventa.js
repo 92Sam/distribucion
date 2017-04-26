@@ -956,7 +956,7 @@ function agregarProducto() {
         }
 
         var subtotal = precio * cantidad;
-        console.log('subtotal' + subtotal);
+        //console.log('subtotal' + subtotal);
         var cantidad_total = (parseFloat(stockhidden.val()) - unidades * cantidad);
         // Stock Insuficiente - Producto
 
@@ -1095,7 +1095,7 @@ function getBonificacion(id, productoeliminar, lista_temporal) {
         console.log('[Bonificacion Error ID]');
     }
 
-    console.log(bonos);
+    //console.log(bonos);
 }
 
 function agregarBono(id_bonificacion, bono_id, bono_producto, bono_cantidad, bono_unidad_id, bono_unidad) {
@@ -1244,7 +1244,7 @@ function addBonosToTable(lacantidadcomprada, unidadseleccionada, idprpod, cantid
                 // if (parseInt(produtyy.id_producto) === parseInt(bonito.bono_id)) {
                 jQuery.each(bonito.bonificaciones_has_producto, function (oo, bonificicion_has_ppp) {
                     var esigual = parseInt(bonificicion_has_ppp.id_producto) === parseInt(produtyy.id_producto);
-                    console.log(esigual);
+                   // console.log(esigual);
                     if (esigual === true && produtyy.bono != 'true') {
 
                         cantidad_p = parseFloat(produtyy.cantidad) + cantidad_p;
@@ -1256,11 +1256,11 @@ function addBonosToTable(lacantidadcomprada, unidadseleccionada, idprpod, cantid
             });
         });
 
-        console.log('cantidad_tomar_en_cuenta1'+cantidad_tomar_en_cuenta);
+        //console.log('cantidad_tomar_en_cuenta1'+cantidad_tomar_en_cuenta);
         cantidad_tomar_en_cuenta = cantidad_p;
         cantidad_tomar_en_cuenta_AUX = cantidad_p;
 
-        console.log('cantidad_tomar_en_cuenta2'+cantidad_tomar_en_cuenta);
+        //console.log('cantidad_tomar_en_cuenta2'+cantidad_tomar_en_cuenta);
 
 
         var cantidad_bonificar = 0;
@@ -1907,6 +1907,7 @@ function deleteproducto(count, porcentaje_impuesto, cualidad) {
     jQuery.each(lstaeliminar, function (i, value) {
         lista_vieja.splice(i, 1);
     });
+
     var stockhidden = $("#stockhidden" + productoeliminar.id_producto);
     var cantidad_total = (parseFloat(stockhidden.val()) + parseFloat(productoeliminar.unidades) * parseFloat(productoeliminar.cantidad));
     stockhidden.val(cantidad_total);
@@ -1986,6 +1987,7 @@ function buscarProducto() {
             }
 
             if ($("#stockhidden" + id).length > 0) {
+
                 var val = (parseFloat(data.existencia_unidad) * parseFloat(data.maxima_unidades)) + parseFloat(data.existencia_fraccion);
                 var maxima = parseInt(val / parseInt(data.maxima_unidades));
                 var fraccion = parseFloat(val % parseInt(data.maxima_unidades));
@@ -1994,7 +1996,8 @@ function buscarProducto() {
                 //console.log(nueva_cantidad);
                 $("#stockhidden" + id).attr('value', nueva_cantidad);
                 $("#stock_status_" + id).attr('value', data.stock_status);
-            } else {
+            }
+            else {
                 $("#inentariocontainer").append('<input id="stockhidden' + id + '" type="hiden" value="0"/><input id="stock_status_' + id + '" type="hiden" value="' + data.stock_status + '"/>');
                 $("#stock").text(data.existencia_unidad + " " + data.unidad_maxima + " " + data.existencia_fraccion + " " + data.unidad_minima);
 
@@ -2034,6 +2037,131 @@ function buscarProducto() {
     });
 }
 
+
+
+function buscarProductoEditar() {
+    var id = $("#selectproductos").val();
+
+    if (id == '') {
+        return false;
+    }
+
+    if ($("#id_cliente").val() == '') {
+        show_msg('warning', '<h4>Error.</h4> <p>Debe seleccionar un cliente</p>');
+        $("#selectproductos").val('').trigger("chosen:updated");
+        return false;
+    }
+
+    $("#check_precio").prop('checked', false);
+    $("#check_precio").trigger('change');
+
+    $.ajax({
+        type: 'POST',
+        data: {'producto': id},
+        dataType: "json",
+        url: ruta + 'inventario/get_existencia_producto',
+        success: function (data) {
+            if (data.precios_normal.length > 0) {
+
+                var precios_normal = data.precios_normal;
+                var opciones = '';
+
+                var i = 0;
+
+
+                // $("#precios").val('');
+                //   alert(precios_normal.length);
+                $("#precios").html('<option value="">Seleccione<option>');
+                for (i = 0; i < precios_normal.length; i++) {
+
+                    if (precios_normal[i]['nombre_precio'] == "Precio Venta") {
+                        opciones += '<option value="'
+                            + precios_normal[i]['id_precio']
+                            + '" selected>'
+                            + precios_normal[i]['nombre_precio']
+                            + '</option>';
+                    } else {
+
+                        opciones += '<option value="'
+                            + precios_normal[i]['id_precio']
+                            + '" >'
+                            + precios_normal[i]['nombre_precio']
+                            + '</option>';
+                    }
+
+
+                }
+                $("#precios").append(opciones);
+                $("#precios").trigger("chosen:updated");
+                $("#precios").trigger("chosen:activate");
+
+
+            }
+
+
+            if ($("#stockhidden" + id).length > 0) {
+
+                var temp_maxima = 0;
+                if(producto_temp[id] != undefined)
+                    temp_maxima = parseFloat(producto_temp[id]);
+
+                var val = (parseFloat(data.existencia_unidad) * parseFloat(data.maxima_unidades)) + parseFloat(data.existencia_fraccion);
+                var maxima = parseInt(val / parseInt(data.maxima_unidades)) + temp_maxima;
+                var fraccion = parseFloat(val % parseInt(data.maxima_unidades));
+                $("#stock").text(maxima + " " + data.unidad_maxima + " " + fraccion + " " + data.unidad_minima);
+                var nueva_cantidad = (parseFloat(data.existencia_unidad) * parseFloat(data.maxima_unidades)) + parseFloat(data.existencia_fraccion);
+                //console.log(nueva_cantidad);
+                $("#stockhidden" + id).attr('value', nueva_cantidad);
+                $("#stock_status_" + id).attr('value', data.stock_status);
+            }
+            else {
+                var temp_maxima = 0;
+                if(producto_temp[id] != undefined)
+                    temp_maxima = parseFloat(producto_temp[id]);
+
+                $("#inentariocontainer").append('<input id="stockhidden' + id + '" type="hiden" value="0"/><input id="stock_status_' + id + '" type="hiden" value="' + data.stock_status + '"/>');
+                $("#stock").text((parseInt(data.existencia_unidad) + temp_maxima) + " " + (data.unidad_maxima) + " " + data.existencia_fraccion + " " + data.unidad_minima);
+
+                var nueva_cantidad = (parseFloat(parseInt(data.existencia_unidad) + temp_maxima) * parseFloat(data.maxima_unidades)) + parseFloat(data.existencia_fraccion);
+
+                $("#stockhidden" + id).attr('value', nueva_cantidad);
+            }
+
+            $("#nombreproduto").text(data.nombre);
+            $("#producto_cualidad").attr('value', data.cualidad);
+
+            if (data.producto_cualidad == "MEDIBLE") {
+                $("#cantidad").attr('min', '1');
+                $("#cantidad").attr('step', '1');
+                $("#cantidad").attr('value', '1');
+            } else {
+                $("#cantidad").attr('min', '0.1');
+                $("#cantidad").attr('step', '0.1');
+                $("#cantidad").attr('value', '0.0');
+            }
+
+            cambiarnombreprecio();
+
+            $("#modalbodyproducto").append(putBonoshow());
+
+            getBonificacion(id); // Bonificacion verificar
+            getEscalas(id);      // Escalas Verificar
+
+            $("#seleccionunidades").modal('show');
+
+            setTimeout(function () {
+                $("#precios_chosen .chosen-search input").blur();
+                selectSelectableElement(jQuery("#preciostbody"), jQuery("#preciostbody").children(":eq(0)"));
+
+            }, 1000);
+        }
+    });
+}
+
+var producto_temp = [];
+function add_cantidad_temp(producto_id, cantidad){
+    producto_temp[producto_id] = cantidad;
+}
 // Escalas
 function getEscalas(id) {
     if (id) {

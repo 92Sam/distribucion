@@ -100,7 +100,7 @@
                         </div>
                         <div class="col-md-5">
                             <select class="form-control" style="width: 100%" id="selectproductos"
-                                    onchange="buscarProducto()"></select>
+                                    onchange="buscarProductoEditar()"></select>
                         </div>
                         <div class="col-md-2">
                             <div class="btn-group">
@@ -155,6 +155,7 @@
 
                                         calculatotales(<?php echo $ven['producto_id']; ?>, encodeURIComponent(nombre), '<?php echo $ven["nombre_unidad"]; ?>', <?php echo $ven['cantidad']; ?>, <?php echo $ven['preciounitario']; ?>, <?php echo $ven['importe']; ?>, <?php echo $ven['porcentaje_impuesto']; ?>, <?php echo $countproductos; ?>, <?php echo $ven['unidades']; ?>, '<?php echo $ven["producto_cualidad"]; ?>', <?php echo $ven['id_unidad']; ?>, <?php echo $ven['precio_sugerido'] ?>, <?php echo ($ven['bono'] == 0) ? '\'false\'' : '\'true\'';?>);
                                         addProductoToArray(<?php echo $ven['producto_id']; ?>, encodeURIComponent(nombre), <?php echo $ven['id_unidad']; ?>, '<?php echo $ven["nombre_unidad"]; ?>', <?php echo $ven['cantidad']; ?>, <?php echo $ven['preciounitario']; ?>, <?php echo isset($ven['precio_sugerido']) ? $ven['precio_sugerido'] : 0;  ?>, <?php echo $ven['importe']; ?>, <?php echo $ven['unidades']; ?>, '<?php echo $ven["producto_cualidad"]; ?>', <?php echo $ven['porcentaje_impuesto']; ?>, <?php echo ($ven['bono'] == 0) ? '\'false\'' : '\'true\'';?>, <?php echo $ven['venta_sin_stock']; ?>);
+                                        add_cantidad_temp(<?php echo $ven['producto_id']; ?>, <?php echo $ven['cantidad']; ?>);
                                     </script>
                                     <?php $countproductos++; ?>
                                     <?php

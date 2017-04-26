@@ -1,60 +1,93 @@
-<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+<?php if (!defined('BASEPATH')) exit('No direct script access allowed');
 
-class inventario_model extends CI_Model {
+class inventario_model extends CI_Model
+{
 
     private $table = 'inventario';
 
-    function __construct() {
+    function __construct()
+    {
         parent::__construct();
         $this->load->database();
     }
 
-    function check_stock($datas){
+    function check_stock($datas, $edit = false)
+    {
         $result = array();
         $data_temp = array();
 
         foreach ($datas as $data) {
-            $index = $data['producto_id'].'-'.$data['unidad_id'];
+            $index = $data['producto_id'] . '-' . $data['unidad_id'];
 
-            if(isset($data_temp[$index])){
+            if (isset($data_temp[$index])) {
                 $data_temp[$index]['cantidad'] += $data['cantidad'];
-            }
-            else{
+            } else {
                 $data_temp[$index] = $data;
             }
         }
 
-        foreach($data_temp as $data){
-            $temp = $this->db->get_where('inventario', array(
-                'id_producto'=>$data['producto_id'],
-                'id_local'=>$data['local_id'],
-            ))->row();
+        foreach ($data_temp as $data) {
 
-            if($temp == null || $temp->cantidad < $data['cantidad'])
-                $result[] = array(
-                    'producto_id'=>$data['producto_id'],
-                    'cantidad_actual'=>$temp->cantidad,
-                    'cantidad_vender'=>$data['cantidad']
-                );
+            if ($edit != false) {
+
+                $temp = $this->db->get_where('inventario', array(
+                    'id_producto' => $data['producto_id'],
+                    'id_local' => $data['local_id'],
+                ))->row();
+
+                $temp2 = $this->db->select_sum('cantidad')
+                    ->from('detalle_venta')
+                    ->where('id_venta', $edit)
+                    ->where('id_producto', $data['producto_id'])
+                    ->get()->row();
+
+                $cant = 0;
+                if($temp2 != null)
+                    $cant = $temp2->cantidad;
+
+                if ($temp == null || ($temp->cantidad + $cant) < $data['cantidad'])
+                    $result[] = array(
+                        'producto_id' => $data['producto_id'],
+                        'cantidad_actual' => $temp->cantidad,
+                        'cantidad_vender' => $data['cantidad']
+                    );
+            }
+            else{
+
+                $temp = $this->db->get_where('inventario', array(
+                    'id_producto' => $data['producto_id'],
+                    'id_local' => $data['local_id'],
+                ))->row();
+
+                if ($temp == null || $temp->cantidad < $data['cantidad'])
+                    $result[] = array(
+                        'producto_id' => $data['producto_id'],
+                        'cantidad_actual' => $temp->cantidad,
+                        'cantidad_vender' => $data['cantidad']
+                    );
+            }
         }
 
         return $result;
     }
 
-    function get_by($campos){
+    function get_by($campos)
+    {
         $this->db->where($campos);
-        $query=$this->db->get('inventario');
+        $query = $this->db->get('inventario');
         return $query->row_array();
     }
 
-    function get_all_by_array($campos){
+    function get_all_by_array($campos)
+    {
 
 
-        $query=$this->db->query($campos);
+        $query = $this->db->query($campos);
         return $query->result();
     }
 
-    function get_by_id_row($producto,$local){
+    function get_by_id_row($producto, $local)
+    {
         $sql = ("SELECT * FROM inventario WHERE id_producto='$producto' AND id_local='$local' ORDER by id_inventario DESC LIMIT 1");
         $query = $this->db->query($sql);
 
@@ -62,31 +95,33 @@ class inventario_model extends CI_Model {
         return $query->row_array();
     }
 
-    function set_inventario($campos){
+    function set_inventario($campos)
+    {
 
 
-        $this->db->trans_start ();
-        $this->db->insert('inventario',$campos);
-        $ultimo_id= $this->db->insert_id();
-        $this->db->trans_complete ();
+        $this->db->trans_start();
+        $this->db->insert('inventario', $campos);
+        $ultimo_id = $this->db->insert_id();
+        $this->db->trans_complete();
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        if ($this->db->trans_status () === FALSE)
+        if ($this->db->trans_status() === FALSE)
             return FALSE;
         else
             return $ultimo_id;
     }
 
-    function update_inventario($campos,$wheres){
+    function update_inventario($campos, $wheres)
+    {
 
 
-        $this->db->trans_start ();
+        $this->db->trans_start();
         $this->db->where($wheres);
-        $this->db->update('inventario',$campos);
-        $this->db->trans_complete ();
+        $this->db->update('inventario', $campos);
+        $this->db->trans_complete();
 
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        if ($this->db->trans_status () === FALSE)
+        if ($this->db->trans_status() === FALSE)
             return FALSE;
         else
             return TRUE;
@@ -102,26 +137,26 @@ class inventario_model extends CI_Model {
 
     }
 
-    function getIventarioProducto($wheres){
+    function getIventarioProducto($wheres)
+    {
 
         $this->db->select('*');
         $this->db->from('producto');
-        $this->db->join('inventario','producto.producto_id=inventario.id_producto', 'left');
-        $this->db->join('unidades_has_producto','unidades_has_producto.producto_id=producto.producto_id','left');
-        $this->db->join('unidades','unidades.id_unidad=unidades_has_producto.id_unidad', 'left');
+        $this->db->join('inventario', 'producto.producto_id=inventario.id_producto', 'left');
+        $this->db->join('unidades_has_producto', 'unidades_has_producto.producto_id=producto.producto_id', 'left');
+        $this->db->join('unidades', 'unidades.id_unidad=unidades_has_producto.id_unidad', 'left');
         $this->db->where($wheres);
-        $this->db->order_by('producto.producto_id','asc');
-        $query=$this->db->get();
+        $this->db->order_by('producto.producto_id', 'asc');
+        $query = $this->db->get();
 
         return $query->result_array();
     }
 
 
-
     public function traer_by($select = false, $from = false, $join = false, $campos_join = false, $tipo_join, $where = false, $nombre_in, $where_in,
                              $nombre_or, $where_or,
                              $group = false,
-                             $order = false, $retorno = false, $limit=false, $start=0,$order_dir=false, $like=false,$where_custom)
+                             $order = false, $retorno = false, $limit = false, $start = 0, $order_dir = false, $like = false, $where_custom)
     {
         if ($select != false) {
             $this->db->select($select);
@@ -172,14 +207,14 @@ class inventario_model extends CI_Model {
         }
 
         if ($limit != false) {
-            $this->db->limit($limit,$start);
+            $this->db->limit($limit, $start);
         }
         if ($group != false) {
             $this->db->group_by($group);
         }
 
         if ($order != false) {
-            $this->db->order_by($order,$order_dir);
+            $this->db->order_by($order, $order_dir);
         }
 
         $query = $this->db->get();

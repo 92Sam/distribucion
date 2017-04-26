@@ -234,10 +234,12 @@ class venta extends MY_Controller
                             'bono'=>$d->bono
                         );
                     }
-
-                    $sin_stock = $this->inventario_model->check_stock($validar_detalle);
-                    if(count($sin_stock) == 0){
+                    
                     $id = $this->input->post('idventa');
+                    $edit = empty($id) ? false : $id;
+                    $sin_stock = $this->inventario_model->check_stock($validar_detalle, $edit);
+
+                    if(count($sin_stock) == 0){
                     $montoboletas = $this->session->userdata('MONTO_BOLETAS_VENTA');
                     if (empty($id)) {
                         $resultado = $this->venta_model->insertar_venta($venta, $detalle, $montoboletas);
