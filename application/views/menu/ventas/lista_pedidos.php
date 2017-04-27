@@ -107,9 +107,11 @@
                 <tr>
                     <td align="center"
                         style="display: <?= ($venta->venta_status == PEDIDO_GENERADO) ? 'block' : 'none' ?>;">
+                        <?php if (!(isset($venta->preciosugerido) and $venta->preciosugerido > 0)): ?>
 
-                        <input type="checkbox" name="pedido" id="pedido" class="cargarPedido"
-                               value="<?= $venta->venta_id ?>" onclick="sumarMetros();">
+                            <input type="checkbox" name="pedido" id="pedido" class="cargarPedido"
+                                   value="<?= $venta->venta_id ?>" onclick="sumarMetros();">
+                        <?php endif; ?>
                         <input type="hidden" name="<?= $venta->venta_id ?>"
                                id="valor_<?= $venta->venta_id ?>"
                                value="<?= isset($venta->total_metos_cubicos) ? $venta->total_metos_cubicos : 0 ?>">
