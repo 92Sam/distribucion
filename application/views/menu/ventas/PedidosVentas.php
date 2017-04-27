@@ -800,7 +800,6 @@
             var cid = $("#current_cliente_id").val();
 
             for (var i = 0; i < clientes.length; i++) {
-
                 if (clientes[i].id_cliente == sele) {
                     if ($("#tbodyproductos tr").size() > 0) {
                         if (clientes[i].grupo_id != $("#grupo_cliente_1").attr('data-id')) {
@@ -1156,6 +1155,10 @@
         }
 
         function obtenerClientes() {
+            $("#grupo_cliente_1").val('');
+            $("#clienteinformativo").val('');
+            $("#gruclie").val('');
+            $("#grupo_cliente_1").attr('data-id', '');
 // Metodo Ajax
             $.ajax({
                 url: '<?=base_url()?>venta/listaClientes' + '/' + $("#id_vendedor").val(),
@@ -1165,7 +1168,18 @@
                     if (data != '') {
                         $('#id_cliente option').remove();
                         $('#id_cliente').append('<option value="">Seleccione</option>');
-                        for (i = 0; i < data.length; i++) {
+                        clientes = [];
+                        for (var i = 0; i < data.length; i++) {
+
+                            clientes.push({
+                                'id_cliente': data[i].id_cliente,
+                                'grupo_id': data[i].grupo_id,
+                                'grupo_name': data[i].nombre_grupos_cliente,
+                                'vendedor_id': data[i].vendedor_a,
+                                'zona_id': data[i].id_zona,
+                            });
+
+
                             $('#id_cliente').append('<option value=' + data[i].id_cliente + '>' + data[i].razon_social + '</option>')
                         }
                     }
@@ -1178,7 +1192,6 @@
         }
 
         function getElementOptionRand(id_input) {
-            alert(id_input)
             var arrayRand = [];
             $(id_input).children().each(function (index, value) {
                 console.log(value);

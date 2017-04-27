@@ -74,6 +74,9 @@ class descuentos extends MY_Controller
 
         $data['escalas'] = $this->descuentos_model->get_escalas_descuento($id);
         $data['escalas_h'] = $this->descuentos_model->get_escalas_descuento_head($id);
+        $data['total_productos'] = $this->db->select('COUNT(*) AS total')->from('producto')
+            ->where('producto_estatus', 1)->get()->row();
+
         $data['id_desc'] = $id;
         $this->load->view('menu/descuentos/reglaDescuento',$data);
 
