@@ -640,7 +640,7 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
         $this->db->trans_off();
     }
 
-    function set_numero_fiscal($venta_id)
+    function set_numero_fiscal_temp($venta_id)
     {
         $pedido = $this->db->get_where('venta', array('venta_id' => $venta_id))->row();
         $pedido_detalles = $this->db->get_where('detalle_venta', array('id_venta' => $venta_id))->result();
@@ -652,7 +652,7 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
         $fiscal_id = $this->updateFiscal($pedido);
         $count_items = 1;
 
-        $cliente = $this->db->get_where('cliente', array('id_cliente'=>$pedido->id_cliente))->row();
+        $cliente = $this->db->get_where('cliente', array('id_cliente' => $pedido->id_cliente))->row();
         $cliente_descuento = $cliente->descuento;
 
         foreach ($pedido_detalles as $detalle) {
@@ -685,7 +685,7 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
                 }
 
                 $detalle_precio = $detalle->precio;
-                if($pedido->tipo_doc_fiscal == 'BOLETA DE VENTA' && $cliente_descuento != NULL && $detalle->bono != 1){
+                if ($pedido->tipo_doc_fiscal == 'BOLETA DE VENTA' && $cliente_descuento != NULL && $detalle->bono != 1) {
                     $detalle_precio = number_format($detalle_precio - ($detalle_precio * $cliente_descuento / 100), 2);
                 }
 
@@ -699,19 +699,19 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
                     'detalle_importe' => $detalle_precio * $cantidad,
                 ));
 
-                $fiscal = $this->db->get_where('documento_fiscal', array('documento_fiscal_id'=>$fiscal_id))->row();
+                $fiscal = $this->db->get_where('documento_fiscal', array('documento_fiscal_id' => $fiscal_id))->row();
 
                 $tipo_doc = 0;
-                if($pedido->tipo_doc_fiscal == 'FACTURA')
+                if ($pedido->tipo_doc_fiscal == 'FACTURA')
                     $tipo_doc = 1;
-                elseif($pedido->tipo_doc_fiscal == 'BOLETA DE VENTA')
+                elseif ($pedido->tipo_doc_fiscal == 'BOLETA DE VENTA')
                     $tipo_doc = 3;
 
                 $serie = $fiscal->documento_serie;
                 $numero = $fiscal->documento_numero;
                 $tipo_oper = 1;
 
-                if($detalle->bono == 1){
+                if ($detalle->bono == 1) {
                     $tipo_doc = 7;
                     $nota_correlativo = $this->db->select_max('numero')
                         ->from('kardex')
@@ -726,17 +726,17 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
                 }
 
                 $this->kardex_model->insert_kardex(array(
-                    'local_id'=>$pedido->local_id,
-                    'producto_id'=>$detalle->id_producto,
-                    'unidad_id'=>$detalle->unidad_medida,
-                    'serie'=>$serie,
-                    'numero'=>$numero,
-                    'tipo_doc'=>$tipo_doc,
-                    'tipo_operacion'=>1,
-                    'cantidad'=>$cantidad,
-                    'IO'=>2,
-                    'ref_id'=>$pedido->venta_id,
-                    'referencia'=>$fiscal_id,
+                    'local_id' => $pedido->local_id,
+                    'producto_id' => $detalle->id_producto,
+                    'unidad_id' => $detalle->unidad_medida,
+                    'serie' => $serie,
+                    'numero' => $numero,
+                    'tipo_doc' => $tipo_doc,
+                    'tipo_operacion' => 1,
+                    'cantidad' => $cantidad,
+                    'IO' => 2,
+                    'ref_id' => $pedido->venta_id,
+                    'referencia' => $fiscal_id,
                 ));
 
                 if ($end_flag) {
@@ -752,48 +752,213 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
         }
     }
 
-    private function updateFiscal($pedido)
+
+    function set_numero_fiscal($venta_id)
     {
-        if ($pedido->tipo_doc_fiscal == 'FACTURA')
-            $this->db->where('config_key', 'FACTURA_NEXT');
-        else
-            $this->db->where('config_key', 'BOLETA_NEXT');
+        $pedido = $this->db->get_where('venta', array('venta_id' => $venta_id))->row();
+        $pedido_detalles = $this->db->get_where('detalle_venta', array(
+            'id_venta' => $venta_id,
+            'bono' => 0
+        ))->result();
 
-        $numero = $this->db->get('configuraciones')->row();
-        $numero = $numero != NULL ? $numero->config_value : 1;
+        $pedido_bonos = $this->db->get_where('detalle_venta', array(
+            'id_venta' => $venta_id,
+            'bono' => 1
+        ))->result();
 
-        if ($pedido->tipo_doc_fiscal == 'FACTURA')
-            $this->db->where('config_key', 'FACTURA_SERIE');
-        else
-            $this->db->where('config_key', 'BOLETA_SERIE');
+        $space = 0;
+        if (count($pedido_bonos) > 0)
+            $space = 1;
 
-        $serie = $this->db->get('configuraciones')->row();
-        $serie = $serie != NULL ? $serie->config_value : 1;
+        $max_items = $pedido->tipo_doc_fiscal == 'FACTURA' ? valueOption('FACTURA_MAX', 1) : valueOption('BOLETA_MAX', 1);
+        $max_boleta_importe = $pedido->tipo_doc_fiscal == 'FACTURA' ? 0 : valueOption('MONTO_BOLETAS_VENTA', 0);
 
-        $this->db->insert('documento_fiscal', array(
-            'venta_id' => $pedido->venta_id,
-            'documento_tipo' => $pedido->tipo_doc_fiscal,
-            'documento_serie' => sumCod($serie, 4),
-            'documento_numero' => sumCod($numero, 5),
-            'estado' => 1
-        ));
+        $max_items -= $space;
 
-        $fiscal_id = $this->db->insert_id();
+        $count_importe = $max_boleta_importe;
+        $fiscal_id = $this->updateFiscal($pedido);
+        $count_items = 1;
 
-        //Actualizo el siguiente correlativo
-        if ($pedido->tipo_doc_fiscal == 'FACTURA')
-            $this->db->where('config_key', 'FACTURA_NEXT');
-        else
-            $this->db->where('config_key', 'BOLETA_NEXT');
+        $cliente = $this->db->get_where('cliente', array('id_cliente' => $pedido->id_cliente))->row();
+        $cliente_descuento = $cliente->descuento;
 
-        $this->db->update('configuraciones', array('config_value' => $numero + 1));
+        foreach ($pedido_detalles as $detalle) {
+            $cantidad = 0;
+            $end_flag = true;
 
-        return $fiscal_id;
+            while ($end_flag) {
+
+                if ($count_items > $max_items) {
+                    $fiscal_id = $this->updateFiscal($pedido);
+                    $count_importe = $max_boleta_importe;
+                    $count_items = 1;
+                }
+
+
+                if ($max_boleta_importe == 0) {
+                    $cantidad = $detalle->cantidad;
+                    $end_flag = false;
+                } else {
+                    if ($count_importe >= ($detalle->cantidad * $detalle->precio)) {
+                        $cantidad = $detalle->cantidad;
+                        $count_importe = $count_importe - ($detalle->cantidad * $detalle->precio);
+                        $end_flag = false;
+                    } else {
+                        $cantidad_disponible = intval($count_importe / $detalle->precio) - 1;
+                        $detalle->cantidad -= $cantidad_disponible;
+                        $cantidad = $cantidad_disponible;
+                        $end_flag = true;
+                    }
+                }
+
+                $detalle_precio = $detalle->precio;
+                if ($pedido->tipo_doc_fiscal == 'BOLETA DE VENTA' && $cliente_descuento != NULL && $detalle->bono != 1) {
+                    $detalle_precio = number_format($detalle_precio - ($detalle_precio * $cliente_descuento / 100), 2);
+                }
+
+                $this->db->insert('documento_detalle', array(
+                    'documento_fiscal_id' => $fiscal_id,
+                    'id_venta' => $pedido->venta_id,
+                    'id_producto' => $detalle->id_producto,
+                    'precio' => $detalle_precio,
+                    'cantidad' => $cantidad,
+                    'id_unidad' => $detalle->unidad_medida,
+                    'detalle_importe' => $detalle_precio * $cantidad,
+                ));
+
+                $fiscal = $this->db->get_where('documento_fiscal', array('documento_fiscal_id' => $fiscal_id))->row();
+
+                $tipo_doc = 0;
+                if ($pedido->tipo_doc_fiscal == 'FACTURA')
+                    $tipo_doc = 1;
+                elseif ($pedido->tipo_doc_fiscal == 'BOLETA DE VENTA')
+                    $tipo_doc = 3;
+
+                $serie = $fiscal->documento_serie;
+                $numero = $fiscal->documento_numero;
+
+                $this->kardex_model->insert_kardex(array(
+                    'local_id' => $pedido->local_id,
+                    'producto_id' => $detalle->id_producto,
+                    'unidad_id' => $detalle->unidad_medida,
+                    'serie' => $serie,
+                    'numero' => $numero,
+                    'tipo_doc' => $tipo_doc,
+                    'tipo_operacion' => 1,
+                    'cantidad' => $cantidad,
+                    'IO' => 2,
+                    'ref_id' => $pedido->venta_id,
+                    'referencia' => $fiscal_id,
+                ));
+
+                if ($end_flag) {
+                    $fiscal_id = $this->updateFiscal($pedido);
+                    $count_importe = $max_boleta_importe;
+                    $count_items = 1;
+                }
+
+                $count_items++;
+
+            }
+
+        }
+
+        // HAGO LAS BONIFICACIONES
+        if ($space > 0) {
+            $documentos = $this->db->get_where('documento_fiscal', array(
+                'venta_id' => $venta_id
+            ))->result();
+
+            $space_per_bono = divide_in(count($documentos), count($pedido_bonos));
+            $index = 0;
+            foreach ($space_per_bono as $key => $val) {
+                $bono = $pedido_bonos[$key];
+                foreach (divide_in($bono->cantidad, $val) as $split) {
+                    if ($split > 0) {
+                        $doc_fiscal = $documentos[$index++];
+                        $this->db->insert('documento_detalle', array(
+                            'documento_fiscal_id' => $doc_fiscal->documento_fiscal_id,
+                            'id_venta' => $pedido->venta_id,
+                            'id_producto' => $bono->id_producto,
+                            'precio' => 0.00,
+                            'cantidad' => $split,
+                            'id_unidad' => $bono->unidad_medida,
+                            'detalle_importe' => 0.00,
+                        ));
+
+                        $tipo_doc = 7;
+                        $nota_correlativo = $this->db->select_max('numero')
+                            ->from('kardex')
+                            ->where('IO', 2)
+                            ->where('tipo_doc', 7)->get()->row();
+
+                        $nota_correlativo = $nota_correlativo->numero != null ? ($nota_correlativo->numero + 1) : 1;
+
+                        $serie = '0001';
+                        $numero = sumCod($nota_correlativo, 5);
+
+                        $this->kardex_model->insert_kardex(array(
+                            'local_id' => $pedido->local_id,
+                            'producto_id' => $bono->id_producto,
+                            'unidad_id' => $bono->unidad_medida,
+                            'serie' => $serie,
+                            'numero' => $numero,
+                            'tipo_doc' => $tipo_doc,
+                            'tipo_operacion' => 1,
+                            'cantidad' => $split,
+                            'IO' => 2,
+                            'ref_id' => $pedido->venta_id,
+                            'referencia' => $doc_fiscal->documento_fiscal_id,
+                        ));
+                    }
+                }
+        }
     }
+}
 
-    function get_venta_detalle($venta_id)
-    {
-        $venta = $this->db->select('
+private
+function updateFiscal($pedido)
+{
+    if ($pedido->tipo_doc_fiscal == 'FACTURA')
+        $this->db->where('config_key', 'FACTURA_NEXT');
+    else
+        $this->db->where('config_key', 'BOLETA_NEXT');
+
+    $numero = $this->db->get('configuraciones')->row();
+    $numero = $numero != NULL ? $numero->config_value : 1;
+
+    if ($pedido->tipo_doc_fiscal == 'FACTURA')
+        $this->db->where('config_key', 'FACTURA_SERIE');
+    else
+        $this->db->where('config_key', 'BOLETA_SERIE');
+
+    $serie = $this->db->get('configuraciones')->row();
+    $serie = $serie != NULL ? $serie->config_value : 1;
+
+    $this->db->insert('documento_fiscal', array(
+        'venta_id' => $pedido->venta_id,
+        'documento_tipo' => $pedido->tipo_doc_fiscal,
+        'documento_serie' => sumCod($serie, 4),
+        'documento_numero' => sumCod($numero, 5),
+        'estado' => 1
+    ));
+
+    $fiscal_id = $this->db->insert_id();
+
+    //Actualizo el siguiente correlativo
+    if ($pedido->tipo_doc_fiscal == 'FACTURA')
+        $this->db->where('config_key', 'FACTURA_NEXT');
+    else
+        $this->db->where('config_key', 'BOLETA_NEXT');
+
+    $this->db->update('configuraciones', array('config_value' => $numero + 1));
+
+    return $fiscal_id;
+}
+
+function get_venta_detalle($venta_id)
+{
+    $venta = $this->db->select('
             venta.venta_id as venta_id,
             venta.numero_documento as documento_id,
             cliente.grupo_id as grupo_id
@@ -801,12 +966,12 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
         ->join('cliente', 'cliente.id_cliente = venta.id_cliente')
         ->where('venta_id', $venta_id)->get()->row();
 
-        $proceso = $this->db->get_where('historial_pedido_proceso', array(
-            'proceso_id' => PROCESO_IMPRIMIR,
-            'pedido_id' => $venta_id
-        ))->row();
+    $proceso = $this->db->get_where('historial_pedido_proceso', array(
+        'proceso_id' => PROCESO_IMPRIMIR,
+        'pedido_id' => $venta_id
+    ))->row();
 
-        $venta->detalles = $this->db->select('
+    $venta->detalles = $this->db->select('
             historial_pedido_detalle.id as detalle_id,
             historial_pedido_detalle.producto_id as producto_id,
             producto.producto_nombre as producto_nombre,
@@ -818,59 +983,61 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
             unidades.abreviatura as unidad_abr,
             (historial_pedido_detalle.precio_unitario * historial_pedido_detalle.stock) as importe
             ')
-            ->from('historial_pedido_detalle')
-            ->join('historial_pedido_proceso', 'historial_pedido_proceso.id=historial_pedido_detalle.historial_pedido_proceso_id')
-            ->join('producto', 'producto.producto_id=historial_pedido_detalle.producto_id')
-            ->join('unidades', 'unidades.id_unidad=historial_pedido_detalle.unidad_id')
-            ->where('historial_pedido_detalle.historial_pedido_proceso_id', $proceso->id)
-            ->order_by('historial_pedido_detalle.bonificacion', 'ASC')
-            ->get()->result();
+        ->from('historial_pedido_detalle')
+        ->join('historial_pedido_proceso', 'historial_pedido_proceso.id=historial_pedido_detalle.historial_pedido_proceso_id')
+        ->join('producto', 'producto.producto_id=historial_pedido_detalle.producto_id')
+        ->join('unidades', 'unidades.id_unidad=historial_pedido_detalle.unidad_id')
+        ->where('historial_pedido_detalle.historial_pedido_proceso_id', $proceso->id)
+        ->order_by('historial_pedido_detalle.bonificacion', 'ASC')
+        ->get()->result();
 
-        $venta->total = 0;
+    $venta->total = 0;
 
-        foreach ($venta->detalles as $detalle) {
+    foreach ($venta->detalles as $detalle) {
 
-            $venta->total += $detalle->cantidad * $detalle->precio;
+        $venta->total += $detalle->cantidad * $detalle->precio;
 
-            $detalle->bonus_dato = null;
+        $detalle->bonus_dato = null;
 
-            if ($detalle->bono == 0) {
-                $this->db->select('
+        if ($detalle->bono == 0) {
+            $this->db->select('
                     bonificaciones.cantidad_condicion,
                     bonificaciones.bono_cantidad,
                     bonificaciones.bono_unidad as unidad_id,
                     bonificaciones.cantidad_condicion,
                     bonificaciones.bono_producto as producto_id
                 ')
-                    ->from('bonificaciones')
-                    ->join('bonificaciones_has_producto', 'bonificaciones_has_producto.id_bonificacion = bonificaciones.id_bonificacion')
-                    ->where('bonificaciones_has_producto.id_producto', $detalle->producto_id)
-                    ->where('bonificaciones.id_unidad', $detalle->unidad_id)
-                    ->where('bonificaciones.id_grupos_cliente', $venta->grupo_id);
+                ->from('bonificaciones')
+                ->join('bonificaciones_has_producto', 'bonificaciones_has_producto.id_bonificacion = bonificaciones.id_bonificacion')
+                ->where('bonificaciones_has_producto.id_producto', $detalle->producto_id)
+                ->where('bonificaciones.id_unidad', $detalle->unidad_id)
+                ->where('bonificaciones.id_grupos_cliente', $venta->grupo_id);
 
-                $detalle->bonus_dato = $this->db->get()->row();
-            }
+            $detalle->bonus_dato = $this->db->get()->row();
         }
-
-        $venta->impuesto = number_format(($venta->total * 18) / 100, 2);
-        $venta->subtotal = $venta->total - $venta->impuesto;
-
-        return $venta;
     }
 
-    public function get_venta_hist_cant($venta_id) {
+    $venta->impuesto = number_format(($venta->total * 18) / 100, 2);
+    $venta->subtotal = $venta->total - $venta->impuesto;
 
-        $venta = $this->db->select('
+    return $venta;
+}
+
+public
+function get_venta_hist_cant($venta_id)
+{
+
+    $venta = $this->db->select('
             venta.venta_id as venta_id,
             venta.numero_documento as documento_id
         ')->from('venta')->where('venta_id', $venta_id)->get()->row();
 
-        $proceso = $this->db->get_where('historial_pedido_proceso', array(
-            'proceso_id' => PROCESO_IMPRIMIR,
-            'pedido_id' => $venta_id
-        ))->row();
+    $proceso = $this->db->get_where('historial_pedido_proceso', array(
+        'proceso_id' => PROCESO_IMPRIMIR,
+        'pedido_id' => $venta_id
+    ))->row();
 
-        $venta->detalles = $this->db->select('
+    $venta->detalles = $this->db->select('
             historial_pedido_detalle.id as detalle_id,
             historial_pedido_detalle.producto_id as producto_id,
             producto.producto_nombre as producto_nombre,
@@ -882,546 +1049,418 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
             unidades.abreviatura as unidad_abr,
             (historial_pedido_detalle.precio_unitario * historial_pedido_detalle.stock) as importe
             ')
-            ->from('historial_pedido_detalle')
-            ->join('historial_pedido_proceso', 'historial_pedido_proceso.id=historial_pedido_detalle.historial_pedido_proceso_id')
-            ->join('producto', 'producto.producto_id=historial_pedido_detalle.producto_id')
-            ->join('unidades', 'unidades.id_unidad=historial_pedido_detalle.unidad_id')
-            ->where('historial_pedido_detalle.historial_pedido_proceso_id', $proceso->id)
-            ->get()->result();
+        ->from('historial_pedido_detalle')
+        ->join('historial_pedido_proceso', 'historial_pedido_proceso.id=historial_pedido_detalle.historial_pedido_proceso_id')
+        ->join('producto', 'producto.producto_id=historial_pedido_detalle.producto_id')
+        ->join('unidades', 'unidades.id_unidad=historial_pedido_detalle.unidad_id')
+        ->where('historial_pedido_detalle.historial_pedido_proceso_id', $proceso->id)
+        ->get()->result();
 
-        return $venta;
-    }
+    return $venta;
+}
 
-    public function devolver_venta($venta_id, $total_importe, $devoluciones)
-    {
-        $total = $total_importe;
-        $impuesto = number_format(($total * 18) / 100, 2);
-        $subtotal = $total - $impuesto;
+public
+function devolver_venta($venta_id, $total_importe, $devoluciones)
+{
+    $total = $total_importe;
+    $impuesto = number_format(($total * 18) / 100, 2);
+    $subtotal = $total - $impuesto;
 
-        $this->db->where('venta_id', $venta_id);
-        $this->db->update('venta', array(
-            'total' => $total,
-            'subtotal' => $subtotal,
-            'total_impuesto' => $impuesto,
-        ));
+    $this->db->where('venta_id', $venta_id);
+    $this->db->update('venta', array(
+        'total' => $total,
+        'subtotal' => $subtotal,
+        'total_impuesto' => $impuesto,
+    ));
 
-        $this->db->where('detalle_venta.id_venta', $venta_id);
-        $this->db->delete('detalle_venta');
+    $this->db->where('detalle_venta.id_venta', $venta_id);
+    $this->db->delete('detalle_venta');
 
-        $proceso = $this->db->get_where('historial_pedido_proceso', array(
-            'proceso_id'=>PROCESO_DEVOLVER,
-            'pedido_id'=>$venta_id,
-        ))->row();
+    $proceso = $this->db->get_where('historial_pedido_proceso', array(
+        'proceso_id' => PROCESO_DEVOLVER,
+        'pedido_id' => $venta_id,
+    ))->row();
 
-        $this->db->where('historial_pedido_proceso_id', $proceso->id);
-        $this->db->delete('historial_pedido_detalle');
+    $this->db->where('historial_pedido_proceso_id', $proceso->id);
+    $this->db->delete('historial_pedido_detalle');
 
-        $this->db->where('proceso_id', PROCESO_DEVOLVER);
-        $this->db->where('pedido_id', $venta_id);
-        $this->db->delete('historial_pedido_proceso');
+    $this->db->where('proceso_id', PROCESO_DEVOLVER);
+    $this->db->where('pedido_id', $venta_id);
+    $this->db->delete('historial_pedido_proceso');
 
-        $this->db->insert('historial_pedido_proceso', array(
-            'proceso_id'=>PROCESO_DEVOLVER,
-            'pedido_id'=>$venta_id,
-            'responsable_id'=>$this->session->userdata('nUsuCodigo'),
-            'fecha_plan'=>date('Y-m-d H:i:s'),
-            'created_at'=>date('Y-m-d H:i:s'),
-            'actual'=>0
-        ));
+    $this->db->insert('historial_pedido_proceso', array(
+        'proceso_id' => PROCESO_DEVOLVER,
+        'pedido_id' => $venta_id,
+        'responsable_id' => $this->session->userdata('nUsuCodigo'),
+        'fecha_plan' => date('Y-m-d H:i:s'),
+        'created_at' => date('Y-m-d H:i:s'),
+        'actual' => 0
+    ));
 
-        $historial_id = $this->db->insert_id();
+    $historial_id = $this->db->insert_id();
 
-        $cantidades = array();
-        foreach ($devoluciones as $detalle) {
-            $historia = $this->db->get_where('historial_pedido_detalle', array('id' => $detalle->detalle_id))->row();
+    $cantidades = array();
+    foreach ($devoluciones as $detalle) {
+        $historia = $this->db->get_where('historial_pedido_detalle', array('id' => $detalle->detalle_id))->row();
 
-            if ($detalle->new_cantidad != 0) {
-                $this->db->insert('detalle_venta', array(
-                    'id_venta' => $venta_id,
-                    'id_producto' => $historia->producto_id,
-                    'precio' => $historia->precio_unitario,
-                    'cantidad' => $detalle->new_cantidad,
-                    'unidad_medida' => $historia->unidad_id,
-                    'detalle_importe' => $historia->precio_unitario * $detalle->new_cantidad,
-                    'precio_sugerido' => 0,
-                    'detalle_costo_promedio' => $historia->costo_unitario,
-                    'detalle_utilidad' => ($historia->precio_unitario - $historia->costo_unitario) * $detalle->new_cantidad,
-                    'bono' => $historia->bonificacion,
-                ));
-            }
-            if($detalle->devolver != 0){
-                $this->db->insert('historial_pedido_detalle', array(
-                    'historial_pedido_proceso_id'=>$historial_id,
-                    'producto_id'=>$historia->producto_id,
-                    'unidad_id'=>$historia->unidad_id,
-                    'stock'=>$detalle->devolver,
-                    'costo_unitario'=>0,
-                    'precio_unitario'=>0,
-                    'bonificacion'=>$historia->bonificacion
-                ));
-            }
-        }
-    }
-
-    public function reset_venta($venta_id)
-    {
-        $this->db->where('detalle_venta.id_venta', $venta_id);
-        $this->db->delete('detalle_venta');
-
-        $proceso = $this->db->get_where('historial_pedido_proceso', array(
-            'proceso_id' => PROCESO_IMPRIMIR,
-            'pedido_id' => $venta_id
-        ))->row();
-
-        $historia = $this->db->get_where('historial_pedido_detalle', array('historial_pedido_proceso_id' => $proceso->id))->result();
-
-        $cantidades = array();
-        $total_importe = 0;
-        foreach ($historia as $detalle) {
-
+        if ($detalle->new_cantidad != 0) {
             $this->db->insert('detalle_venta', array(
                 'id_venta' => $venta_id,
-                'id_producto' => $detalle->producto_id,
-                'precio' => $detalle->precio_unitario,
-                'cantidad' => $detalle->stock,
-                'unidad_medida' => $detalle->unidad_id,
-                'detalle_importe' => $detalle->precio_unitario * $detalle->stock,
+                'id_producto' => $historia->producto_id,
+                'precio' => $historia->precio_unitario,
+                'cantidad' => $detalle->new_cantidad,
+                'unidad_medida' => $historia->unidad_id,
+                'detalle_importe' => $historia->precio_unitario * $detalle->new_cantidad,
                 'precio_sugerido' => 0,
-                'detalle_costo_promedio' => $detalle->costo_unitario,
-                'detalle_utilidad' => ($detalle->precio_unitario - $detalle->costo_unitario) * $detalle->stock,
-                'bono' => $detalle->bonificacion,
+                'detalle_costo_promedio' => $historia->costo_unitario,
+                'detalle_utilidad' => ($historia->precio_unitario - $historia->costo_unitario) * $detalle->new_cantidad,
+                'bono' => $historia->bonificacion,
             ));
-
-            $total_importe += $detalle->precio_unitario * $detalle->stock;
         }
+        if ($detalle->devolver != 0) {
+            $this->db->insert('historial_pedido_detalle', array(
+                'historial_pedido_proceso_id' => $historial_id,
+                'producto_id' => $historia->producto_id,
+                'unidad_id' => $historia->unidad_id,
+                'stock' => $detalle->devolver,
+                'costo_unitario' => 0,
+                'precio_unitario' => 0,
+                'bonificacion' => $historia->bonificacion
+            ));
+        }
+    }
+}
 
-        $total = $total_importe;
-        $impuesto = number_format(($total * 18) / 100, 2);
-        $subtotal = $total - $impuesto;
+public
+function reset_venta($venta_id)
+{
+    $this->db->where('detalle_venta.id_venta', $venta_id);
+    $this->db->delete('detalle_venta');
 
-        $this->db->where('venta_id', $venta_id);
-        $this->db->update('venta', array(
-            'total' => $total,
-            'subtotal' => $subtotal,
-            'total_impuesto' => $impuesto,
+    $proceso = $this->db->get_where('historial_pedido_proceso', array(
+        'proceso_id' => PROCESO_IMPRIMIR,
+        'pedido_id' => $venta_id
+    ))->row();
+
+    $historia = $this->db->get_where('historial_pedido_detalle', array('historial_pedido_proceso_id' => $proceso->id))->result();
+
+    $cantidades = array();
+    $total_importe = 0;
+    foreach ($historia as $detalle) {
+
+        $this->db->insert('detalle_venta', array(
+            'id_venta' => $venta_id,
+            'id_producto' => $detalle->producto_id,
+            'precio' => $detalle->precio_unitario,
+            'cantidad' => $detalle->stock,
+            'unidad_medida' => $detalle->unidad_id,
+            'detalle_importe' => $detalle->precio_unitario * $detalle->stock,
+            'precio_sugerido' => 0,
+            'detalle_costo_promedio' => $detalle->costo_unitario,
+            'detalle_utilidad' => ($detalle->precio_unitario - $detalle->costo_unitario) * $detalle->stock,
+            'bono' => $detalle->bonificacion,
         ));
+
+        $total_importe += $detalle->precio_unitario * $detalle->stock;
     }
 
-    function updateVentaTipo($venta_cabecera)
-    {
+    $total = $total_importe;
+    $impuesto = number_format(($total * 18) / 100, 2);
+    $subtotal = $total - $impuesto;
 
-        $credito = array(
-            'id_venta' => $venta_cabecera['venta_id'],
-            'dec_credito_montodeuda' => $venta_cabecera['total'],
-            'var_credito_estado' => CREDITO_DEBE,
-            'dec_credito_montodebito' => 0.0
-        );
-        $credito_lista = array();
+    $this->db->where('venta_id', $venta_id);
+    $this->db->update('venta', array(
+        'total' => $total,
+        'subtotal' => $subtotal,
+        'total_impuesto' => $impuesto,
+    ));
+}
 
+function updateVentaTipo($venta_cabecera)
+{
 
-        if ($venta_cabecera['venta_tipo'] == VENTA_CAJA OR $venta_cabecera['venta_status'] == PEDIDO_DEVUELTO) {
-
-            $credito_lista[0]['totaldeuda'] = $venta_cabecera['total'];
-
-
-            if ($venta_cabecera['importe'] < $venta_cabecera['total']) {
-                $credito_lista[0]['cuota'] = $venta_cabecera['importe'];
-                $credito_lista[0]['id_venta'] = $venta_cabecera['venta_id'];
-
-
-            } else {
-
-                $credito_lista[0]['cuota'] = $venta_cabecera['importe'];
-                $credito_lista[0]['id_venta'] = $venta_cabecera['venta_id'];
+    $credito = array(
+        'id_venta' => $venta_cabecera['venta_id'],
+        'dec_credito_montodeuda' => $venta_cabecera['total'],
+        'var_credito_estado' => CREDITO_DEBE,
+        'dec_credito_montodebito' => 0.0
+    );
+    $credito_lista = array();
 
 
-            }
-            if ($venta_cabecera['venta_status'] == PEDIDO_DEVUELTO) {
-                $credito_lista[0]['cuota'] = 0;
-            }
+    if ($venta_cabecera['venta_tipo'] == VENTA_CAJA OR $venta_cabecera['venta_status'] == PEDIDO_DEVUELTO) {
 
-            $credito_lista[0] = (object)$credito_lista[0];
-
-        }
+        $credito_lista[0]['totaldeuda'] = $venta_cabecera['total'];
 
 
-        if ($venta_cabecera['diascondicionpagoinput'] < 1) {
-
-            if ($venta_cabecera['devolver'] == 'false') {
-
-                $this->db->where('credito_id', $venta_cabecera['venta_id']);
-                $this->db->delete('historial_pagos_clientes', array('credito_id' => $venta_cabecera['venta_id']));
-                /*******************************************************/////
-
-                $this->db->delete('credito', array('id_venta' => $venta_cabecera['venta_id']));
-
-            }
-
-            if ($venta_cabecera['venta_tipo'] == VENTA_CAJA OR $venta_cabecera['venta_status'] == PEDIDO_DEVUELTO || ($venta_cabecera['venta_tipo'] == VENTA_ENTREGA && $venta_cabecera['devolver'] == 'false')) {
-
-                $select_credito = $this->db->select('*')->from('credito')->where('id_venta', $venta_cabecera['venta_id'])->get()->row_array();
-
-                if (count($select_credito) > 0) {
-                    //  echo "actualizao el creido";
-                    $this->updateCreditos($credito_lista);
-                } else {
-                    $this->insertCredito($credito);
-                }
-            }
+        if ($venta_cabecera['importe'] < $venta_cabecera['total']) {
+            $credito_lista[0]['cuota'] = $venta_cabecera['importe'];
+            $credito_lista[0]['id_venta'] = $venta_cabecera['venta_id'];
 
 
         } else {
 
+            $credito_lista[0]['cuota'] = $venta_cabecera['importe'];
+            $credito_lista[0]['id_venta'] = $venta_cabecera['venta_id'];
+
+
+        }
+        if ($venta_cabecera['venta_status'] == PEDIDO_DEVUELTO) {
+            $credito_lista[0]['cuota'] = 0;
+        }
+
+        $credito_lista[0] = (object)$credito_lista[0];
+
+    }
+
+
+    if ($venta_cabecera['diascondicionpagoinput'] < 1) {
+
+        if ($venta_cabecera['devolver'] == 'false') {
+
+            $this->db->where('credito_id', $venta_cabecera['venta_id']);
+            $this->db->delete('historial_pagos_clientes', array('credito_id' => $venta_cabecera['venta_id']));
+            /*******************************************************/////
+
+            $this->db->delete('credito', array('id_venta' => $venta_cabecera['venta_id']));
+
+        }
+
+        if ($venta_cabecera['venta_tipo'] == VENTA_CAJA OR $venta_cabecera['venta_status'] == PEDIDO_DEVUELTO || ($venta_cabecera['venta_tipo'] == VENTA_ENTREGA && $venta_cabecera['devolver'] == 'false')) {
 
             $select_credito = $this->db->select('*')->from('credito')->where('id_venta', $venta_cabecera['venta_id'])->get()->row_array();
-            if (count($select_credito) > 0) {
-                if ($venta_cabecera['venta_tipo'] == VENTA_CAJA OR $venta_cabecera['venta_status'] == PEDIDO_DEVUELTO) {
-                    $this->updateCreditos($credito_lista);
-                } else {
-                    $this->db->where('id_venta', $venta_cabecera['venta_id']);
-                    $this->db->update('credito', $credito);
-                }
-            } else {
 
+            if (count($select_credito) > 0) {
+                //  echo "actualizao el creido";
+                $this->updateCreditos($credito_lista);
+            } else {
                 $this->insertCredito($credito);
             }
-
         }
-    }
 
 
-    function insertCredito($credito)
-    {
-        $this->db->trans_start(true);
-        $this->db->trans_begin();
-        $this->db->insert('credito', $credito);
+    } else {
 
 
-        $this->db->trans_complete();
-
-        if ($this->db->trans_status() === FALSE) {
-            return false;
+        $select_credito = $this->db->select('*')->from('credito')->where('id_venta', $venta_cabecera['venta_id'])->get()->row_array();
+        if (count($select_credito) > 0) {
+            if ($venta_cabecera['venta_tipo'] == VENTA_CAJA OR $venta_cabecera['venta_status'] == PEDIDO_DEVUELTO) {
+                $this->updateCreditos($credito_lista);
+            } else {
+                $this->db->where('id_venta', $venta_cabecera['venta_id']);
+                $this->db->update('credito', $credito);
+            }
         } else {
-            return true;
+
+            $this->insertCredito($credito);
         }
 
-        $this->db->trans_off();
     }
+}
+
+
+function insertCredito($credito)
+{
+    $this->db->trans_start(true);
+    $this->db->trans_begin();
+    $this->db->insert('credito', $credito);
+
+
+    $this->db->trans_complete();
+
+    if ($this->db->trans_status() === FALSE) {
+        return false;
+    } else {
+        return true;
+    }
+
+    $this->db->trans_off();
+}
 
 //Lo uso para actulizar la tabla credito arbitrariamente
-    function actualizarCredito($values, $condition)
-    {
-        $this->db->trans_start(true);
-        $this->db->trans_begin();
+function actualizarCredito($values, $condition)
+{
+    $this->db->trans_start(true);
+    $this->db->trans_begin();
 
-        $this->db->where($condition);
-        $this->db->update('credito', $values);
+    $this->db->where($condition);
+    $this->db->update('credito', $values);
 
-        $this->db->trans_complete();
+    $this->db->trans_complete();
 
-        if ($this->db->trans_status() === FALSE) {
-            return false;
-        } else {
-            return true;
-        }
-
-        $this->db->trans_off();
+    if ($this->db->trans_status() === FALSE) {
+        return false;
+    } else {
+        return true;
     }
 
-    function updateCreditos($lista_creditos, $nota_credito = false)
-    {
-        $this->db->trans_start(true);
-        $this->db->trans_begin();
-        $where = array('id_venta' => $lista_creditos[0]->id_venta);
+    $this->db->trans_off();
+}
 
-        if ($nota_credito == false) {
-            foreach ($lista_creditos as $row) {
-                $where = array('id_venta' => $row->id_venta);
-                $queryCredito = $this->getCredito($where);
-                $total_venta = $queryCredito['dec_credito_montodeuda'];
+function updateCreditos($lista_creditos, $nota_credito = false)
+{
+    $this->db->trans_start(true);
+    $this->db->trans_begin();
+    $where = array('id_venta' => $lista_creditos[0]->id_venta);
 
-                if (isset($row->totaldeuda)) {
-                    $credito = array('dec_credito_montodeuda' => $row->totaldeuda);
-                }
+    if ($nota_credito == false) {
+        foreach ($lista_creditos as $row) {
+            $where = array('id_venta' => $row->id_venta);
+            $queryCredito = $this->getCredito($where);
+            $total_venta = $queryCredito['dec_credito_montodeuda'];
 
-                /* if (($queryCredito['dec_credito_montodebito'] + $row->cuota) >= $total_venta) {
-
-                     $credito['var_credito_estado'] = CREDITO_CANCELADO;
-                     $credito['dec_credito_montodebito'] = $queryCredito['dec_credito_montodebito'] + $row->cuota;
-
-                 } else*/
-                if (($queryCredito['dec_credito_montodeuda'] - $queryCredito['dec_credito_montodebito']) > 0) {
-
-                    $credito['var_credito_estado'] = CREDITO_ACUENTA;
-                    $credito['dec_credito_montodebito'] = $queryCredito['dec_credito_montodebito'] + $row->cuota;
-
-                } else {
-
-                    $credito['dec_credito_montodebito'] = $queryCredito['dec_credito_montodebito'] + $row->cuota;
-
-
-                }
-
-            }
-        } else {
-
-            $credito = array(
-                'var_credito_estado' => CREDITO_NOTACREDITO
-            );
-        }
-
-        $this->db->where($where);
-        $this->db->update('credito', $credito);
-
-        $this->db->trans_complete();
-
-        if ($this->db->trans_status() === FALSE) {
-            return false;
-        } else {
-            return true;
-        }
-
-        $this->db->trans_off();
-    }
-
-    function getCredito($where)
-    {
-        $this->db->where($where);
-        $query = $this->db->get('credito');
-        return $query->row_array();
-    }
-
-    function devolver_parcial_stock($venta_id){
-        $this->db->trans_start(true);
-        $this->db->trans_begin();
-
-        $venta = $this->db->get_where('venta', array('venta_id'=>$venta_id))->row();
-
-        $detalle_historial = $this->db->select('historial_pedido_detalle.*')
-            ->from('historial_pedido_detalle')
-            ->join('historial_pedido_proceso', 'historial_pedido_proceso.id = historial_pedido_detalle.historial_pedido_proceso_id')
-            ->where('historial_pedido_proceso.pedido_id', $venta_id)
-            ->where('historial_pedido_proceso.proceso_id', PROCESO_DEVOLVER)
-            ->get()->result();
-
-        foreach ($detalle_historial as $historial) {
-            $detalle_fiscal = $this->db->get_where('documento_detalle', array(
-                'id_venta'=>$venta_id,
-                'id_producto'=>$historial->producto_id,
-                'id_unidad'=>$historial->unidad_id
-            ))->result();
-
-            $referencia = array();
-            foreach ($detalle_fiscal as $detalle) {
-                $referencia[] = $detalle->documento_fiscal_id;
+            if (isset($row->totaldeuda)) {
+                $credito = array('dec_credito_montodeuda' => $row->totaldeuda);
             }
 
-            $nota_correlativo = $this->db->select_max('numero')
-                ->from('kardex')
-                ->where('IO', 2)
-                ->where('tipo_doc', 7)->get()->row();
+            /* if (($queryCredito['dec_credito_montodebito'] + $row->cuota) >= $total_venta) {
 
-            $nota_correlativo = $nota_correlativo->numero != null ? ($nota_correlativo->numero + 1) : 1;
-            $this->kardex_model->insert_kardex(array(
-                'local_id'=>$venta->local_id,
-                'producto_id'=>$historial->producto_id,
-                'unidad_id'=>$historial->unidad_id,
-                'serie'=>'0001',
-                'numero'=>sumCod($nota_correlativo, 5),
-                'tipo_doc'=>7,
-                'tipo_operacion'=>5,
-                'cantidad'=>($historial->stock * -1),
-                'IO'=>2,
-                'ref_id'=>$venta_id,
-                'referencia'=>implode("|", $referencia)
-            ));
+                 $credito['var_credito_estado'] = CREDITO_CANCELADO;
+                 $credito['dec_credito_montodebito'] = $queryCredito['dec_credito_montodebito'] + $row->cuota;
 
-            $stock_actual = $this->db->get_where('inventario', array(
-                'id_producto'=>$historial->producto_id,
-                'id_local'=>$venta->local_id
-            ))->row();
+             } else*/
+            if (($queryCredito['dec_credito_montodeuda'] - $queryCredito['dec_credito_montodebito']) > 0) {
 
-            if($stock_actual == NULL){
-                $this->db->insert('inventario', array(
-                    'id_producto'=>$historial->producto_id,
-                    'id_local'=>$venta->local_id,
-                    'cantidad'=>0,
-                    'fraccion'=>0,
-                ));
+                $credito['var_credito_estado'] = CREDITO_ACUENTA;
+                $credito['dec_credito_montodebito'] = $queryCredito['dec_credito_montodebito'] + $row->cuota;
+
+            } else {
+
+                $credito['dec_credito_montodebito'] = $queryCredito['dec_credito_montodebito'] + $row->cuota;
+
+
             }
 
-            $stock_actual_min = $stock_actual != NULL ? $this->unidades_model->convert_minimo_um(
-                $historial->producto_id, $stock_actual->cantidad, $stock_actual->fraccion) : 0;
-
-            $stock_devolver_min = $this->unidades_model->convert_minimo_by_um($historial->producto_id, $historial->unidad_id, $historial->stock);
-
-            $new_stock = $this->unidades_model->get_cantidad_fraccion($historial->producto_id, $stock_actual_min + $stock_devolver_min);
-
-            $this->db->where('id_producto', $historial->producto_id);
-            $this->db->where('id_local', $venta->local_id);
-            $this->db->update('inventario', array(
-                'cantidad'=>$new_stock['cantidad'],
-                'fraccion'=>$new_stock['fraccion'],
-            ));
         }
+    } else {
 
-
-        $this->db->trans_complete();
-        if ($this->db->trans_status() === FALSE) {
-            return false;
-        } else {
-            return true;
-        }
-
-        $this->db->trans_off();
+        $credito = array(
+            'var_credito_estado' => CREDITO_NOTACREDITO
+        );
     }
 
-    function devolver_all_stock($id)
-    {
-        $this->db->trans_start(true);
-        $this->db->trans_begin();
+    $this->db->where($where);
+    $this->db->update('credito', $credito);
 
-        $this->historial_pedido_model->insertar_pedido(PROCESO_DEVOLVER, array(
-            'pedido_id' => $id,
-            'responsable_id' => $this->session->userdata('nUsuCodigo'),
-            'fecha_plan' => date('Y-m-d H:i:s')
+    $this->db->trans_complete();
+
+    if ($this->db->trans_status() === FALSE) {
+        return false;
+    } else {
+        return true;
+    }
+
+    $this->db->trans_off();
+}
+
+function getCredito($where)
+{
+    $this->db->where($where);
+    $query = $this->db->get('credito');
+    return $query->row_array();
+}
+
+function devolver_parcial_stock($venta_id)
+{
+    $this->db->trans_start(true);
+    $this->db->trans_begin();
+
+    $venta = $this->db->get_where('venta', array('venta_id' => $venta_id))->row();
+
+    $detalle_historial = $this->db->select('historial_pedido_detalle.*')
+        ->from('historial_pedido_detalle')
+        ->join('historial_pedido_proceso', 'historial_pedido_proceso.id = historial_pedido_detalle.historial_pedido_proceso_id')
+        ->where('historial_pedido_proceso.pedido_id', $venta_id)
+        ->where('historial_pedido_proceso.proceso_id', PROCESO_DEVOLVER)
+        ->get()->result();
+
+    foreach ($detalle_historial as $historial) {
+        $detalle_fiscal = $this->db->get_where('documento_detalle', array(
+            'id_venta' => $venta_id,
+            'id_producto' => $historial->producto_id,
+            'id_unidad' => $historial->unidad_id
+        ))->result();
+
+        $referencia = array();
+        foreach ($detalle_fiscal as $detalle) {
+            $referencia[] = $detalle->documento_fiscal_id;
+        }
+
+        $nota_correlativo = $this->db->select_max('numero')
+            ->from('kardex')
+            ->where('IO', 2)
+            ->where('tipo_doc', 7)->get()->row();
+
+        $nota_correlativo = $nota_correlativo->numero != null ? ($nota_correlativo->numero + 1) : 1;
+        $this->kardex_model->insert_kardex(array(
+            'local_id' => $venta->local_id,
+            'producto_id' => $historial->producto_id,
+            'unidad_id' => $historial->unidad_id,
+            'serie' => '0001',
+            'numero' => sumCod($nota_correlativo, 5),
+            'tipo_doc' => 7,
+            'tipo_operacion' => 5,
+            'cantidad' => ($historial->stock * -1),
+            'IO' => 2,
+            'ref_id' => $venta_id,
+            'referencia' => implode("|", $referencia)
         ));
 
-        $data = array();
+        $stock_actual = $this->db->get_where('inventario', array(
+            'id_producto' => $historial->producto_id,
+            'id_local' => $venta->local_id
+        ))->row();
 
-
-        $sql_detalle_venta = $this->db->query("SELECT * FROM detalle_venta
-JOIN producto ON producto.producto_id=detalle_venta.id_producto
-LEFT JOIN unidades_has_producto ON unidades_has_producto.producto_id=producto.producto_id AND unidades_has_producto.orden=1
-LEFT JOIN unidades ON unidades.id_unidad=unidades_has_producto.id_unidad
-JOIN venta ON venta.`venta_id`=detalle_venta.`id_venta` join documento_venta on documento_venta.id_tipo_documento=venta.numero_documento
- left join documento_fiscal on documento_fiscal.venta_id=venta.venta_id
-WHERE detalle_venta.id_venta='$id' group by detalle_venta.id_detalle");
-
-        $query_detalle_venta = $sql_detalle_venta->result_array();
-
-        /*************COMIENZO A DEVOLVER EL STOCK**********/
-        for ($i = 0; $i < count($query_detalle_venta); $i++) {
-
-            $nota_correlativo = $this->db->select_max('numero')
-                ->from('kardex')
-                ->where('IO', 2)
-                ->where('tipo_doc', 7)->get()->row();
-
-            $nota_correlativo = $nota_correlativo->numero != null ? ($nota_correlativo->numero + 1) : 1;
-            $this->kardex_model->insert_kardex(array(
-                'local_id'=>$query_detalle_venta[$i]['local_id'],
-                'producto_id'=>$query_detalle_venta[$i]['producto_id'],
-                'unidad_id'=>$query_detalle_venta[$i]['unidad_medida'],
-                'serie'=>'0001',
-                'numero'=>sumCod($nota_correlativo, 5),
-                'tipo_doc'=>7,
-                'tipo_operacion'=>5,
-                'cantidad'=>($query_detalle_venta[$i]['cantidad'] * -1),
-                'IO'=>2,
-                'ref_id'=>$id,
-                'referencia'=>$id,
+        if ($stock_actual == NULL) {
+            $this->db->insert('inventario', array(
+                'id_producto' => $historial->producto_id,
+                'id_local' => $venta->local_id,
+                'cantidad' => 0,
+                'fraccion' => 0,
             ));
-
-
-            $local = $query_detalle_venta[$i]['local_id'];
-            $unidad_maxima = $query_detalle_venta[$i]['unidades'];
-            $unidad_minima = $query_detalle_venta[sizeof($query_detalle_venta) - 1];
-
-            $producto_id = $query_detalle_venta[$i]['producto_id'];
-            $unidad = $query_detalle_venta[$i]['unidad_medida'];
-            $cantidad_compra = $query_detalle_venta[$i]['cantidad'];
-
-            $sql_inventario = $this->db->query("SELECT id_inventario, cantidad, fraccion
-            FROM inventario where id_producto='$producto_id' and id_local='$local'");
-            $inventario_existente = $sql_inventario->row_array();
-            if (count($inventario_existente) > 0) {
-                $id_inventario = $inventario_existente['id_inventario'];
-                $cantidad_vieja = $inventario_existente['cantidad'];
-                $fraccion_vieja = $inventario_existente['fraccion'];
-            } else {
-                $cantidad_vieja = 0;
-                $fraccion_vieja = 0;
-            }
-
-
-            $query = $this->db->query("SELECT * FROM unidades_has_producto WHERE producto_id='$producto_id' ORDER BY orden");
-
-            $unidades_producto = $query->result_array();
-
-            foreach ($unidades_producto as $row) {
-                if ($row['id_unidad'] == $unidad) {
-                    $unidad_form = $row;
-                }
-            }
-
-            if ($cantidad_vieja >= 1) {
-                $unidades_minimas_inventario = ($cantidad_vieja * $query_detalle_venta[$i]['unidades']) + $fraccion_vieja;
-            } else {
-                $unidades_minimas_inventario = $fraccion_vieja;
-            }
-
-            $unidades_minimas_detalle = $unidad_form['unidades'] * $cantidad_compra;
-
-            $suma = $unidades_minimas_inventario + $unidades_minimas_detalle;
-
-            $cont = 0;
-            while ($suma >= $unidad_maxima) {
-                $cont++;
-                $suma = $suma - $unidad_maxima;
-            }
-
-            if ($cont < 1) {
-                $cantidad_nueva = 0;
-                $fraccion_nueva = $suma;
-            } else {
-                $cantidad_nueva = $cont;
-                $fraccion_nueva = $suma;
-            }
-
-            $inventario_nuevo = array(
-                'cantidad' => $cantidad_nueva,
-                'fraccion' => $fraccion_nueva
-            );
-
-
-            $where = array('id_inventario' => $id_inventario);
-            $this->update_inventario($inventario_nuevo, $where);
         }
 
+        $stock_actual_min = $stock_actual != NULL ? $this->unidades_model->convert_minimo_um(
+            $historial->producto_id, $stock_actual->cantidad, $stock_actual->fraccion) : 0;
 
-        $this->db->trans_complete();
+        $stock_devolver_min = $this->unidades_model->convert_minimo_by_um($historial->producto_id, $historial->unidad_id, $historial->stock);
 
-        if ($this->db->trans_status() === FALSE) {
-            return false;
-        } else {
+        $new_stock = $this->unidades_model->get_cantidad_fraccion($historial->producto_id, $stock_actual_min + $stock_devolver_min);
 
-            $this->db->where('venta_id', $id);
-            $this->db->update('documento_fiscal', array('estado'=>0));
-
-            $venta_status['fecha'] = date('Y-m-d h:m:s');
-            $venta_status['venta_id'] = $id;
-            $venta_status['vendedor_id'] = $this->session->userdata('nUsuCodigo');
-            $venta_status['estatus'] = PEDIDO_RECHAZADO;
-            $this->db->insert('venta_estatus', $venta_status);
-
-            return true;
-
-        }
-
-        $this->db->trans_off();
+        $this->db->where('id_producto', $historial->producto_id);
+        $this->db->where('id_local', $venta->local_id);
+        $this->db->update('inventario', array(
+            'cantidad' => $new_stock['cantidad'],
+            'fraccion' => $new_stock['fraccion'],
+        ));
     }
 
 
-    function devolver_stock($id, $campos, $status = false)
-    {
-        $this->db->trans_start(true);
-        $this->db->trans_begin();
+    $this->db->trans_complete();
+    if ($this->db->trans_status() === FALSE) {
+        return false;
+    } else {
+        return true;
+    }
 
-        $data = array();
+    $this->db->trans_off();
+}
+
+function devolver_all_stock($id)
+{
+    $this->db->trans_start(true);
+    $this->db->trans_begin();
+
+    $this->historial_pedido_model->insertar_pedido(PROCESO_DEVOLVER, array(
+        'pedido_id' => $id,
+        'responsable_id' => $this->session->userdata('nUsuCodigo'),
+        'fecha_plan' => date('Y-m-d H:i:s')
+    ));
+
+    $data = array();
 
 
-        $sql_detalle_venta = $this->db->query("SELECT * FROM detalle_venta
+    $sql_detalle_venta = $this->db->query("SELECT * FROM detalle_venta
 JOIN producto ON producto.producto_id=detalle_venta.id_producto
 LEFT JOIN unidades_has_producto ON unidades_has_producto.producto_id=producto.producto_id AND unidades_has_producto.orden=1
 LEFT JOIN unidades ON unidades.id_unidad=unidades_has_producto.id_unidad
@@ -1429,497 +1468,628 @@ JOIN venta ON venta.`venta_id`=detalle_venta.`id_venta` join documento_venta on 
  left join documento_fiscal on documento_fiscal.venta_id=venta.venta_id
 WHERE detalle_venta.id_venta='$id' group by detalle_venta.id_detalle");
 
-        $query_detalle_venta = $sql_detalle_venta->result_array();
+    $query_detalle_venta = $sql_detalle_venta->result_array();
 
-        /*************COMIENZO A DEVOLVER EL STOCK**********/
-        for ($i = 0; $i < count($query_detalle_venta); $i++) {
-            $local = $query_detalle_venta[$i]['local_id'];
-            $unidad_maxima = $query_detalle_venta[$i]['unidades'];
-            $unidad_minima = $query_detalle_venta[sizeof($query_detalle_venta) - 1];
+    /*************COMIENZO A DEVOLVER EL STOCK**********/
+    for ($i = 0; $i < count($query_detalle_venta); $i++) {
 
-            $producto_id = $query_detalle_venta[$i]['producto_id'];
-            $unidad = $query_detalle_venta[$i]['unidad_medida'];
-            $cantidad_compra = $query_detalle_venta[$i]['cantidad'];
+        $nota_correlativo = $this->db->select_max('numero')
+            ->from('kardex')
+            ->where('IO', 2)
+            ->where('tipo_doc', 7)->get()->row();
 
-            $sql_inventario = $this->db->query("SELECT id_inventario, cantidad, fraccion
+        $nota_correlativo = $nota_correlativo->numero != null ? ($nota_correlativo->numero + 1) : 1;
+        $this->kardex_model->insert_kardex(array(
+            'local_id' => $query_detalle_venta[$i]['local_id'],
+            'producto_id' => $query_detalle_venta[$i]['producto_id'],
+            'unidad_id' => $query_detalle_venta[$i]['unidad_medida'],
+            'serie' => '0001',
+            'numero' => sumCod($nota_correlativo, 5),
+            'tipo_doc' => 7,
+            'tipo_operacion' => 5,
+            'cantidad' => ($query_detalle_venta[$i]['cantidad'] * -1),
+            'IO' => 2,
+            'ref_id' => $id,
+            'referencia' => $id,
+        ));
+
+
+        $local = $query_detalle_venta[$i]['local_id'];
+        $unidad_maxima = $query_detalle_venta[$i]['unidades'];
+        $unidad_minima = $query_detalle_venta[sizeof($query_detalle_venta) - 1];
+
+        $producto_id = $query_detalle_venta[$i]['producto_id'];
+        $unidad = $query_detalle_venta[$i]['unidad_medida'];
+        $cantidad_compra = $query_detalle_venta[$i]['cantidad'];
+
+        $sql_inventario = $this->db->query("SELECT id_inventario, cantidad, fraccion
             FROM inventario where id_producto='$producto_id' and id_local='$local'");
-            $inventario_existente = $sql_inventario->row_array();
-            if (count($inventario_existente) > 0) {
-                $id_inventario = $inventario_existente['id_inventario'];
-                $cantidad_vieja = $inventario_existente['cantidad'];
-                $fraccion_vieja = $inventario_existente['fraccion'];
-            } else {
-                $cantidad_vieja = 0;
-                $fraccion_vieja = 0;
-            }
-
-
-            $query = $this->db->query("SELECT * FROM unidades_has_producto WHERE producto_id='$producto_id' ORDER BY orden");
-
-            $unidades_producto = $query->result_array();
-
-            foreach ($unidades_producto as $row) {
-                if ($row['id_unidad'] == $unidad) {
-                    $unidad_form = $row;
-                }
-            }
-
-            if ($cantidad_vieja >= 1) {
-                $unidades_minimas_inventario = ($cantidad_vieja * $query_detalle_venta[$i]['unidades']) + $fraccion_vieja;
-            } else {
-                $unidades_minimas_inventario = $fraccion_vieja;
-            }
-
-            $unidades_minimas_detalle = $unidad_form['unidades'] * $cantidad_compra;
-
-            $suma = $unidades_minimas_inventario + $unidades_minimas_detalle;
-
-            $cont = 0;
-            while ($suma >= $unidad_maxima) {
-                $cont++;
-                $suma = $suma - $unidad_maxima;
-            }
-
-            if ($cont < 1) {
-                $cantidad_nueva = 0;
-                $fraccion_nueva = $suma;
-            } else {
-                $cantidad_nueva = $cont;
-                $fraccion_nueva = $suma;
-            }
-
-            $inventario_nuevo = array(
-                'cantidad' => $cantidad_nueva,
-                'fraccion' => $fraccion_nueva
-            );
-
-
-            $where = array('id_inventario' => $id_inventario);
-            $this->update_inventario($inventario_nuevo, $where);
-
-
-        }
-
-
-        $this->db->trans_complete();
-
-        if ($this->db->trans_status() === FALSE) {
-            return false;
+        $inventario_existente = $sql_inventario->row_array();
+        if (count($inventario_existente) > 0) {
+            $id_inventario = $inventario_existente['id_inventario'];
+            $cantidad_vieja = $inventario_existente['cantidad'];
+            $fraccion_vieja = $inventario_existente['fraccion'];
         } else {
+            $cantidad_vieja = 0;
+            $fraccion_vieja = 0;
+        }
 
-            if ($status == PEDIDO_ANULADO) {
-                $arreglo = array(
-                    'id_venta' => $id,
-                    'var_venanular_descripcion' => $campos['motivo'],
-                    'nUsuCodigo' => $campos['nUsuCodigo']
 
-                );
-                $this->db->insert('venta_anular', $arreglo);
+        $query = $this->db->query("SELECT * FROM unidades_has_producto WHERE producto_id='$producto_id' ORDER BY orden");
 
+        $unidades_producto = $query->result_array();
+
+        foreach ($unidades_producto as $row) {
+            if ($row['id_unidad'] == $unidad) {
+                $unidad_form = $row;
             }
+        }
 
-            $condicion = array('venta_id' => $id);
-            $campos2 = array('venta_status' => $status);
+        if ($cantidad_vieja >= 1) {
+            $unidades_minimas_inventario = ($cantidad_vieja * $query_detalle_venta[$i]['unidades']) + $fraccion_vieja;
+        } else {
+            $unidades_minimas_inventario = $fraccion_vieja;
+        }
 
-            $data['resultado'] = $this->update_venta($condicion, $campos2);
+        $unidades_minimas_detalle = $unidad_form['unidades'] * $cantidad_compra;
 
-            $venta_status['fecha'] = date('Y-m-d h:m:s');
-            $venta_status['venta_id'] = $id;
-            $venta_status['vendedor_id'] = $campos['nUsuCodigo'];
-            $venta_status['estatus'] = $status;
-            $this->db->insert('venta_estatus', $venta_status);
+        $suma = $unidades_minimas_inventario + $unidades_minimas_detalle;
 
-            return true;
+        $cont = 0;
+        while ($suma >= $unidad_maxima) {
+            $cont++;
+            $suma = $suma - $unidad_maxima;
+        }
+
+        if ($cont < 1) {
+            $cantidad_nueva = 0;
+            $fraccion_nueva = $suma;
+        } else {
+            $cantidad_nueva = $cont;
+            $fraccion_nueva = $suma;
+        }
+
+        $inventario_nuevo = array(
+            'cantidad' => $cantidad_nueva,
+            'fraccion' => $fraccion_nueva
+        );
+
+
+        $where = array('id_inventario' => $id_inventario);
+        $this->update_inventario($inventario_nuevo, $where);
+    }
+
+
+    $this->db->trans_complete();
+
+    if ($this->db->trans_status() === FALSE) {
+        return false;
+    } else {
+
+        $this->db->where('venta_id', $id);
+        $this->db->update('documento_fiscal', array('estado' => 0));
+
+        $venta_status['fecha'] = date('Y-m-d h:m:s');
+        $venta_status['venta_id'] = $id;
+        $venta_status['vendedor_id'] = $this->session->userdata('nUsuCodigo');
+        $venta_status['estatus'] = PEDIDO_RECHAZADO;
+        $this->db->insert('venta_estatus', $venta_status);
+
+        return true;
+
+    }
+
+    $this->db->trans_off();
+}
+
+
+function devolver_stock($id, $campos, $status = false)
+{
+    $this->db->trans_start(true);
+    $this->db->trans_begin();
+
+    $data = array();
+
+
+    $sql_detalle_venta = $this->db->query("SELECT * FROM detalle_venta
+JOIN producto ON producto.producto_id=detalle_venta.id_producto
+LEFT JOIN unidades_has_producto ON unidades_has_producto.producto_id=producto.producto_id AND unidades_has_producto.orden=1
+LEFT JOIN unidades ON unidades.id_unidad=unidades_has_producto.id_unidad
+JOIN venta ON venta.`venta_id`=detalle_venta.`id_venta` join documento_venta on documento_venta.id_tipo_documento=venta.numero_documento
+ left join documento_fiscal on documento_fiscal.venta_id=venta.venta_id
+WHERE detalle_venta.id_venta='$id' group by detalle_venta.id_detalle");
+
+    $query_detalle_venta = $sql_detalle_venta->result_array();
+
+    /*************COMIENZO A DEVOLVER EL STOCK**********/
+    for ($i = 0; $i < count($query_detalle_venta); $i++) {
+        $local = $query_detalle_venta[$i]['local_id'];
+        $unidad_maxima = $query_detalle_venta[$i]['unidades'];
+        $unidad_minima = $query_detalle_venta[sizeof($query_detalle_venta) - 1];
+
+        $producto_id = $query_detalle_venta[$i]['producto_id'];
+        $unidad = $query_detalle_venta[$i]['unidad_medida'];
+        $cantidad_compra = $query_detalle_venta[$i]['cantidad'];
+
+        $sql_inventario = $this->db->query("SELECT id_inventario, cantidad, fraccion
+            FROM inventario where id_producto='$producto_id' and id_local='$local'");
+        $inventario_existente = $sql_inventario->row_array();
+        if (count($inventario_existente) > 0) {
+            $id_inventario = $inventario_existente['id_inventario'];
+            $cantidad_vieja = $inventario_existente['cantidad'];
+            $fraccion_vieja = $inventario_existente['fraccion'];
+        } else {
+            $cantidad_vieja = 0;
+            $fraccion_vieja = 0;
+        }
+
+
+        $query = $this->db->query("SELECT * FROM unidades_has_producto WHERE producto_id='$producto_id' ORDER BY orden");
+
+        $unidades_producto = $query->result_array();
+
+        foreach ($unidades_producto as $row) {
+            if ($row['id_unidad'] == $unidad) {
+                $unidad_form = $row;
+            }
+        }
+
+        if ($cantidad_vieja >= 1) {
+            $unidades_minimas_inventario = ($cantidad_vieja * $query_detalle_venta[$i]['unidades']) + $fraccion_vieja;
+        } else {
+            $unidades_minimas_inventario = $fraccion_vieja;
+        }
+
+        $unidades_minimas_detalle = $unidad_form['unidades'] * $cantidad_compra;
+
+        $suma = $unidades_minimas_inventario + $unidades_minimas_detalle;
+
+        $cont = 0;
+        while ($suma >= $unidad_maxima) {
+            $cont++;
+            $suma = $suma - $unidad_maxima;
+        }
+
+        if ($cont < 1) {
+            $cantidad_nueva = 0;
+            $fraccion_nueva = $suma;
+        } else {
+            $cantidad_nueva = $cont;
+            $fraccion_nueva = $suma;
+        }
+
+        $inventario_nuevo = array(
+            'cantidad' => $cantidad_nueva,
+            'fraccion' => $fraccion_nueva
+        );
+
+
+        $where = array('id_inventario' => $id_inventario);
+        $this->update_inventario($inventario_nuevo, $where);
+
+
+    }
+
+
+    $this->db->trans_complete();
+
+    if ($this->db->trans_status() === FALSE) {
+        return false;
+    } else {
+
+        if ($status == PEDIDO_ANULADO) {
+            $arreglo = array(
+                'id_venta' => $id,
+                'var_venanular_descripcion' => $campos['motivo'],
+                'nUsuCodigo' => $campos['nUsuCodigo']
+
+            );
+            $this->db->insert('venta_anular', $arreglo);
 
         }
 
-        $this->db->trans_off();
+        $condicion = array('venta_id' => $id);
+        $campos2 = array('venta_status' => $status);
+
+        $data['resultado'] = $this->update_venta($condicion, $campos2);
+
+        $venta_status['fecha'] = date('Y-m-d h:m:s');
+        $venta_status['venta_id'] = $id;
+        $venta_status['vendedor_id'] = $campos['nUsuCodigo'];
+        $venta_status['estatus'] = $status;
+        $this->db->insert('venta_estatus', $venta_status);
+
+        return true;
+
     }
 
-    function get_credito_by_venta($venta)
-    {
+    $this->db->trans_off();
+}
 
-        $this->db->select('*, consolidado_detalle.confirmacion_monto_cobrado_caja,consolidado_detalle.confirmacion_monto_cobrado_bancos, venta.pagado, venta.total');
-        $this->db->from('credito');
-        $this->db->join('consolidado_detalle', 'consolidado_detalle.pedido_id=credito.id_venta', 'left');
-        $this->db->join('venta', 'venta.venta_id=credito.id_venta');
-        $this->db->where('id_venta', $venta);
-        $query = $this->db->get();
-        return $query->result_array();
+function get_credito_by_venta($venta)
+{
 
-    }
+    $this->db->select('*, consolidado_detalle.confirmacion_monto_cobrado_caja,consolidado_detalle.confirmacion_monto_cobrado_bancos, venta.pagado, venta.total');
+    $this->db->from('credito');
+    $this->db->join('consolidado_detalle', 'consolidado_detalle.pedido_id=credito.id_venta', 'left');
+    $this->db->join('venta', 'venta.venta_id=credito.id_venta');
+    $this->db->where('id_venta', $venta);
+    $query = $this->db->get();
+    return $query->result_array();
+
+}
 
 
 //TODO CAMBIAR TODOS LOS DEMAS POR ESTE METODO
-    public
-    function traer_by_mejorado($select = false, $from = false, $join = false, $campos_join = false, $tipo_join, $where = false, $nombre_in, $where_in,
-                               $nombre_or, $where_or,
-                               $group = false,
-                               $order = false, $retorno = false, $limit = false, $start = 0, $order_dir = false, $like = false, $where_custom)
-    {
-        if ($select != false) {
-            $this->db->select($select);
-            $this->db->from($from);
-        }
-        if ($join != false and $campos_join != false) {
+public
+function traer_by_mejorado($select = false, $from = false, $join = false, $campos_join = false, $tipo_join, $where = false, $nombre_in, $where_in,
+                           $nombre_or, $where_or,
+                           $group = false,
+                           $order = false, $retorno = false, $limit = false, $start = 0, $order_dir = false, $like = false, $where_custom)
+{
+    if ($select != false) {
+        $this->db->select($select);
+        $this->db->from($from);
+    }
+    if ($join != false and $campos_join != false) {
 
-            for ($i = 0; $i < count($join); $i++) {
+        for ($i = 0; $i < count($join); $i++) {
 
-                if ($tipo_join != false) {
+            if ($tipo_join != false) {
 
-                    // for ($t = 0; $t < count($tipo_join); $t++) {
+                // for ($t = 0; $t < count($tipo_join); $t++) {
 
-                    // if ($tipo_join[$t] != "") {
+                // if ($tipo_join[$t] != "") {
 
-                    $this->db->join($join[$i], $campos_join[$i], $tipo_join[$i]);
-                    //}
+                $this->db->join($join[$i], $campos_join[$i], $tipo_join[$i]);
+                //}
 
-                    //}
+                //}
 
-                } else {
+            } else {
 
-                    $this->db->join($join[$i], $campos_join[$i]);
-                }
-
+                $this->db->join($join[$i], $campos_join[$i]);
             }
-        }
-        if ($where != false) {
-            $this->db->where($where);
-        }
-        if ($like != false) {
-            $this->db->like($like);
-        }
-        if ($where_custom != false) {
-            $this->db->where($where_custom);
-        }
 
-        if ($nombre_in != false) {
-            for ($i = 0; $i < count($nombre_in); $i++) {
-                $this->db->where_in($nombre_in[$i], $where_in[$i]);
-            }
         }
-
-        if ($nombre_or != false) {
-            for ($i = 0; $i < count($nombre_or); $i++) {
-                $this->db->or_where($where_or);
-            }
-        }
-
-        if ($limit != false) {
-            $this->db->limit($limit, $start);
-        }
-        if ($group != false) {
-            $this->db->group_by($group);
-        }
-
-        if ($order != false) {
-            $this->db->order_by($order, $order_dir);
-        }
-
-        $query = $this->db->get();
-
-        // echo $this->db->last_query();
-        if ($retorno == "RESULT_ARRAY") {
-
-            return $query->result_array();
-        } elseif ($retorno == "RESULT") {
-            return $query->result();
-
-        } else {
-            return $query->row_array();
-        }
-
+    }
+    if ($where != false) {
+        $this->db->where($where);
+    }
+    if ($like != false) {
+        $this->db->like($like);
+    }
+    if ($where_custom != false) {
+        $this->db->where($where_custom);
     }
 
-
-    public
-    function traer_by($select = false, $from = false, $join = false, $campos_join = false, $tipo_join, $where = false, $nombre_in, $where_in,
-                      $nombre_or, $where_or,
-                      $group = false,
-                      $order = false, $retorno = false)
-    {
-        if ($select != false) {
-            $this->db->select($select);
-            $this->db->from($from);
+    if ($nombre_in != false) {
+        for ($i = 0; $i < count($nombre_in); $i++) {
+            $this->db->where_in($nombre_in[$i], $where_in[$i]);
         }
-        if ($join != false and $campos_join != false) {
-
-            for ($i = 0; $i < count($join); $i++) {
-
-                if ($tipo_join != false) {
-
-                    // for ($t = 0; $t < count($tipo_join); $t++) {
-
-///                        if ($tipo_join[$t] != "") {
-
-                    $this->db->join($join[$i], $campos_join[$i], $tipo_join[$i]);
-                    //                     }
-
-                    // }
-
-                } else {
-
-                    $this->db->join($join[$i], $campos_join[$i]);
-                }
-
-            }
-        }
-        if ($where != false) {
-            $this->db->where($where);
-        }
-
-        if ($nombre_in != false) {
-            for ($i = 0; $i < count($nombre_in); $i++) {
-                $this->db->where_in($nombre_in[$i], $where_in[$i]);
-            }
-        }
-
-        if ($nombre_or != false) {
-            for ($i = 0; $i < count($nombre_or); $i++) {
-                $this->db->or_where($where_or);
-            }
-        }
-
-        if ($group != false) {
-            $this->db->group_by($group);
-        }
-
-        if ($order != false) {
-            $this->db->order_by($order);
-        }
-
-        $query = $this->db->get();
-        //echo $this->db->last_query();
-
-        if ($retorno == "RESULT_ARRAY") {
-
-            return $query->result_array();
-        } elseif ($retorno == "RESULT") {
-            return $query->result();
-
-        } else {
-            return $query->row_array();
-        }
-
     }
 
-    function get_by($campo, $valor)
-    {
-        $this->db->where($campo, $valor);
-        $this->db->join('condiciones_pago', 'condiciones_pago.id_condiciones=venta.condicion_pago');
-        $query = $this->db->get('venta');
+    if ($nombre_or != false) {
+        for ($i = 0; $i < count($nombre_or); $i++) {
+            $this->db->or_where($where_or);
+        }
+    }
+
+    if ($limit != false) {
+        $this->db->limit($limit, $start);
+    }
+    if ($group != false) {
+        $this->db->group_by($group);
+    }
+
+    if ($order != false) {
+        $this->db->order_by($order, $order_dir);
+    }
+
+    $query = $this->db->get();
+
+    // echo $this->db->last_query();
+    if ($retorno == "RESULT_ARRAY") {
+
+        return $query->result_array();
+    } elseif ($retorno == "RESULT") {
+        return $query->result();
+
+    } else {
         return $query->row_array();
     }
 
-    function getProductosZona($select, $where, $retorno, $group, $condicion2)
-    {
+}
+
+
+public
+function traer_by($select = false, $from = false, $join = false, $campos_join = false, $tipo_join, $where = false, $nombre_in, $where_in,
+                  $nombre_or, $where_or,
+                  $group = false,
+                  $order = false, $retorno = false)
+{
+    if ($select != false) {
         $this->db->select($select);
-        $this->db->from('detalle_venta');
-        $this->db->join('venta', 'venta.venta_id=detalle_venta.id_venta');
-        $this->db->join('producto', 'producto.producto_id=detalle_venta.id_producto');
-        $this->db->join('cliente', 'venta.id_cliente=cliente.id_cliente');
-        $this->db->join('usuario', 'usuario.nUsuCodigo=venta.id_vendedor');
-        $this->db->join('unidades', 'unidades.id_unidad=detalle_venta.unidad_medida');
-        $this->db->join('familia', 'familia.id_familia=producto.producto_familia', 'left');
-        $this->db->join('lineas', 'lineas.id_linea=producto.producto_linea', 'left');
-        $this->db->join('usuario_has_zona', 'usuario_has_zona.id_usuario=usuario.nUsuCodigo', 'left');
-        $this->db->join('zonas', 'usuario_has_zona.id_zona=zonas.zona_id', 'left');
-        $this->db->join('ciudades', 'ciudades.ciudad_id=zonas.ciudad_id');
-        $this->db->join('grupos', 'grupos.id_grupo=producto.produto_grupo', 'left');
-        $this->db->join('consolidado_detalle', 'consolidado_detalle.pedido_id=venta.venta_id', 'left');
-        $this->db->join('consolidado_carga', 'consolidado_carga.consolidado_id=consolidado_detalle.consolidado_id', 'left');
-        $this->db->where('zonas.status', 1);
-        $this->db->where($condicion2);
+        $this->db->from($from);
+    }
+    if ($join != false and $campos_join != false) {
 
-        $this->db->where($where);
+        for ($i = 0; $i < count($join); $i++) {
 
+            if ($tipo_join != false) {
 
-        if ($group != false) {
-            $this->db->group_by($group);
+                // for ($t = 0; $t < count($tipo_join); $t++) {
+
+///                        if ($tipo_join[$t] != "") {
+
+                $this->db->join($join[$i], $campos_join[$i], $tipo_join[$i]);
+                //                     }
+
+                // }
+
+            } else {
+
+                $this->db->join($join[$i], $campos_join[$i]);
+            }
+
         }
+    }
+    if ($where != false) {
+        $this->db->where($where);
+    }
 
-        $query = $this->db->get();
-
-        //echo $this->db->last_query();
-        if ($retorno == "RESULT") {
-            return $query->result();
+    if ($nombre_in != false) {
+        for ($i = 0; $i < count($nombre_in); $i++) {
+            $this->db->where_in($nombre_in[$i], $where_in[$i]);
         }
     }
 
-    function getProductosZonaX($select, $where, $retorno, $group)
-    {
-        $this->db->select($select);
-        $this->db->from('detalle_venta');
-        $this->db->join('venta', 'venta.venta_id=detalle_venta.id_venta');
-        $this->db->join('producto', 'producto.producto_id=detalle_venta.id_producto');
-        $this->db->join('cliente', 'venta.id_cliente=cliente.id_cliente');
-        $this->db->join('usuario', 'usuario.nUsuCodigo=venta.id_vendedor');
-        $this->db->join('documento_venta', 'documento_venta.id_tipo_documento=venta.numero_documento');
-        $this->db->join('proveedor', 'producto.producto_proveedor=proveedor.id_proveedor');
-        $this->db->join('unidades', 'unidades.id_unidad=detalle_venta.unidad_medida');
-        $this->db->join('familia', 'familia.id_familia=producto.producto_familia');
-        $this->db->join('lineas', 'lineas.id_linea=producto.producto_linea');
-        $this->db->join('usuario_has_zona', 'usuario_has_zona.id_usuario=usuario.nUsuCodigo');
-        $this->db->join('zonas', 'usuario_has_zona.id_zona=zonas.zona_id');
-        $this->db->join('ciudades', 'ciudades.ciudad_id=zonas.ciudad_id');
-        $this->db->join('grupos', 'grupos.id_grupo=producto.produto_grupo');
-        $this->db->where('zonas.status', 1);
-
-        $this->db->where($where);
-
-        if ($group != false) {
-            $this->db->group_by($group);
-            $this->db->order_by("count(venta.venta_id)", "desc");
-            $this->db->limit(10);
-        }
-
-        $query = $this->db->get();
-
-        if ($retorno == "RESULT") {
-            return $query->result();
+    if ($nombre_or != false) {
+        for ($i = 0; $i < count($nombre_or); $i++) {
+            $this->db->or_where($where_or);
         }
     }
 
-
-    function getUtilidades($select, $where, $retorno, $group)
-    {
-        $this->db->select($select);
-        $this->db->from('detalle_venta');
-        $this->db->join('venta', 'venta.venta_id=detalle_venta.id_venta');
-        $this->db->join('producto', 'producto.producto_id=detalle_venta.id_producto');
-        $this->db->join('cliente', 'venta.id_cliente=cliente.id_cliente');
-        $this->db->join('usuario', 'usuario.nUsuCodigo=venta.id_vendedor');
-        $this->db->join('documento_venta', 'documento_venta.id_tipo_documento=venta.numero_documento');
-        $this->db->join('proveedor', 'producto.producto_proveedor=proveedor.id_proveedor');
-
-        $this->db->where($where);
-        if ($group != false) {
-            $this->db->group_by($group);
-            $this->db->group_by($group);
-            $this->db->order_by('sum(detalle_utilidad)', "desc");
-            $this->db->limit(10);
-        }
-        $query = $this->db->get();
-        if ($retorno == "RESULT") {
-            return $query->result();
-        }
+    if ($group != false) {
+        $this->db->group_by($group);
     }
 
-    function get_ventas_user()
-    {
-        $this->db->join('usuario', 'usuario.nUsuCodigo=venta.id_vendedor');
-        $this->db->join('cliente', 'cliente.id_cliente=venta.id_cliente');
-        $this->db->group_by('id_vendedor');
-        $query = $this->db->get('venta');
+    if ($order != false) {
+        $this->db->order_by($order);
+    }
+
+    $query = $this->db->get();
+    //echo $this->db->last_query();
+
+    if ($retorno == "RESULT_ARRAY") {
+
         return $query->result_array();
+    } elseif ($retorno == "RESULT") {
+        return $query->result();
+
+    } else {
+        return $query->row_array();
     }
 
-    function ventas_grafica($where)
-    {
+}
 
-        $query = $this->db->query("SELECT  detalle_venta.id_producto,venta.fecha,precio FROM `detalle_venta`
+function get_by($campo, $valor)
+{
+    $this->db->where($campo, $valor);
+    $this->db->join('condiciones_pago', 'condiciones_pago.id_condiciones=venta.condicion_pago');
+    $query = $this->db->get('venta');
+    return $query->row_array();
+}
+
+function getProductosZona($select, $where, $retorno, $group, $condicion2)
+{
+    $this->db->select($select);
+    $this->db->from('detalle_venta');
+    $this->db->join('venta', 'venta.venta_id=detalle_venta.id_venta');
+    $this->db->join('producto', 'producto.producto_id=detalle_venta.id_producto');
+    $this->db->join('cliente', 'venta.id_cliente=cliente.id_cliente');
+    $this->db->join('usuario', 'usuario.nUsuCodigo=venta.id_vendedor');
+    $this->db->join('unidades', 'unidades.id_unidad=detalle_venta.unidad_medida');
+    $this->db->join('familia', 'familia.id_familia=producto.producto_familia', 'left');
+    $this->db->join('lineas', 'lineas.id_linea=producto.producto_linea', 'left');
+    $this->db->join('usuario_has_zona', 'usuario_has_zona.id_usuario=usuario.nUsuCodigo', 'left');
+    $this->db->join('zonas', 'usuario_has_zona.id_zona=zonas.zona_id', 'left');
+    $this->db->join('ciudades', 'ciudades.ciudad_id=zonas.ciudad_id');
+    $this->db->join('grupos', 'grupos.id_grupo=producto.produto_grupo', 'left');
+    $this->db->join('consolidado_detalle', 'consolidado_detalle.pedido_id=venta.venta_id', 'left');
+    $this->db->join('consolidado_carga', 'consolidado_carga.consolidado_id=consolidado_detalle.consolidado_id', 'left');
+    $this->db->where('zonas.status', 1);
+    $this->db->where($condicion2);
+
+    $this->db->where($where);
+
+
+    if ($group != false) {
+        $this->db->group_by($group);
+    }
+
+    $query = $this->db->get();
+
+    //echo $this->db->last_query();
+    if ($retorno == "RESULT") {
+        return $query->result();
+    }
+}
+
+function getProductosZonaX($select, $where, $retorno, $group)
+{
+    $this->db->select($select);
+    $this->db->from('detalle_venta');
+    $this->db->join('venta', 'venta.venta_id=detalle_venta.id_venta');
+    $this->db->join('producto', 'producto.producto_id=detalle_venta.id_producto');
+    $this->db->join('cliente', 'venta.id_cliente=cliente.id_cliente');
+    $this->db->join('usuario', 'usuario.nUsuCodigo=venta.id_vendedor');
+    $this->db->join('documento_venta', 'documento_venta.id_tipo_documento=venta.numero_documento');
+    $this->db->join('proveedor', 'producto.producto_proveedor=proveedor.id_proveedor');
+    $this->db->join('unidades', 'unidades.id_unidad=detalle_venta.unidad_medida');
+    $this->db->join('familia', 'familia.id_familia=producto.producto_familia');
+    $this->db->join('lineas', 'lineas.id_linea=producto.producto_linea');
+    $this->db->join('usuario_has_zona', 'usuario_has_zona.id_usuario=usuario.nUsuCodigo');
+    $this->db->join('zonas', 'usuario_has_zona.id_zona=zonas.zona_id');
+    $this->db->join('ciudades', 'ciudades.ciudad_id=zonas.ciudad_id');
+    $this->db->join('grupos', 'grupos.id_grupo=producto.produto_grupo');
+    $this->db->where('zonas.status', 1);
+
+    $this->db->where($where);
+
+    if ($group != false) {
+        $this->db->group_by($group);
+        $this->db->order_by("count(venta.venta_id)", "desc");
+        $this->db->limit(10);
+    }
+
+    $query = $this->db->get();
+
+    if ($retorno == "RESULT") {
+        return $query->result();
+    }
+}
+
+
+function getUtilidades($select, $where, $retorno, $group)
+{
+    $this->db->select($select);
+    $this->db->from('detalle_venta');
+    $this->db->join('venta', 'venta.venta_id=detalle_venta.id_venta');
+    $this->db->join('producto', 'producto.producto_id=detalle_venta.id_producto');
+    $this->db->join('cliente', 'venta.id_cliente=cliente.id_cliente');
+    $this->db->join('usuario', 'usuario.nUsuCodigo=venta.id_vendedor');
+    $this->db->join('documento_venta', 'documento_venta.id_tipo_documento=venta.numero_documento');
+    $this->db->join('proveedor', 'producto.producto_proveedor=proveedor.id_proveedor');
+
+    $this->db->where($where);
+    if ($group != false) {
+        $this->db->group_by($group);
+        $this->db->group_by($group);
+        $this->db->order_by('sum(detalle_utilidad)', "desc");
+        $this->db->limit(10);
+    }
+    $query = $this->db->get();
+    if ($retorno == "RESULT") {
+        return $query->result();
+    }
+}
+
+function get_ventas_user()
+{
+    $this->db->join('usuario', 'usuario.nUsuCodigo=venta.id_vendedor');
+    $this->db->join('cliente', 'cliente.id_cliente=venta.id_cliente');
+    $this->db->group_by('id_vendedor');
+    $query = $this->db->get('venta');
+    return $query->result_array();
+}
+
+function ventas_grafica($where)
+{
+
+    $query = $this->db->query("SELECT  detalle_venta.id_producto,venta.fecha,precio FROM `detalle_venta`
 LEFT JOIN venta ON venta.venta_id = detalle_venta.id_venta
 WHERE  id_producto =" . $where . " ");
-        return $query->result_array();
+    return $query->result_array();
 
-    }
+}
 
-    function compras_grafica($where)
-    {
+function compras_grafica($where)
+{
 
-        $query = $this->db->query("SELECT id_producto,precio,fecha_registro FROM `detalleingreso`
+    $query = $this->db->query("SELECT id_producto,precio,fecha_registro FROM `detalleingreso`
 LEFT JOIN ingreso ON ingreso.id_ingreso = detalleingreso.id_ingreso WHERE id_producto=" . $where . " ");
+    return $query->result_array();
+
+}
+
+function getDetalleVenta($retorno, $order, $where)
+{
+    $this->db->select('unidades.*,detalle_venta.*,producto.*,venta.fecha,venta.venta_id AS numero,venta.venta_status AS estado,local_nombre');
+    $this->db->from('detalle_venta');
+    $this->db->join('producto', 'producto.producto_id=detalle_venta.id_producto');
+    $this->db->join('venta', 'venta.venta_id=detalle_venta.id_venta');
+    $this->db->join('unidades', 'unidades.id_unidad=detalle_venta.unidad_medida');
+    $this->db->join('local', 'local.int_local_id=venta.local_id');
+    $this->db->where($where);
+    $this->db->order_by($order);
+
+    $query = $this->db->get();
+
+    if ($retorno == "ARRAY") {
         return $query->result_array();
-
     }
-
-    function getDetalleVenta($retorno, $order, $where)
-    {
-        $this->db->select('unidades.*,detalle_venta.*,producto.*,venta.fecha,venta.venta_id AS numero,venta.venta_status AS estado,local_nombre');
-        $this->db->from('detalle_venta');
-        $this->db->join('producto', 'producto.producto_id=detalle_venta.id_producto');
-        $this->db->join('venta', 'venta.venta_id=detalle_venta.id_venta');
-        $this->db->join('unidades', 'unidades.id_unidad=detalle_venta.unidad_medida');
-        $this->db->join('local', 'local.int_local_id=venta.local_id');
-        $this->db->where($where);
-        $this->db->order_by($order);
-
-        $query = $this->db->get();
-
-        if ($retorno == "ARRAY") {
-            return $query->result_array();
-        }
-    }
+}
 
 
-    function update_inventario($campos, $wheres)
-    {
-        $this->db->trans_start();
-        $this->db->where($wheres);
-        $this->db->update('inventario', $campos);
-        $this->db->trans_complete();
-    }
+function update_inventario($campos, $wheres)
+{
+    $this->db->trans_start();
+    $this->db->where($wheres);
+    $this->db->update('inventario', $campos);
+    $this->db->trans_complete();
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////
-    function update_venta($condicion, $campos)
-    {
-        $this->db->trans_start();
-        $this->db->where($condicion);
-        $this->db->update('venta', $campos);
+function update_venta($condicion, $campos)
+{
+    $this->db->trans_start();
+    $this->db->where($condicion);
+    $this->db->update('venta', $campos);
 
-        $this->db->trans_complete();
+    $this->db->trans_complete();
 
-        if ($this->db->trans_status() === FALSE) {
-            return FALSE;
-        } else {
-            return TRUE;
-        }
+    if ($this->db->trans_status() === FALSE) {
+        return FALSE;
+    } else {
+        return TRUE;
     }
+}
 
-    function get_estatus($id)
-    {
-        $this->db->where('venta_id', $id);
-        $query = $this->db->get('venta');
-        if ($query->num_rows() > 0) {
-            $row = $query->row_array();
-            return $row['venta_status'];
-        } else {
-            return '';
-        }
+function get_estatus($id)
+{
+    $this->db->where('venta_id', $id);
+    $query = $this->db->get('venta');
+    if ($query->num_rows() > 0) {
+        $row = $query->row_array();
+        return $row['venta_status'];
+    } else {
+        return '';
     }
+}
 
-    function buscar_NroVenta_credito($nroVenta)
-    {
-        $this->db->select('v.venta_id,c.dec_credito_montodeuda,cl.razon_social');
-        $this->db->from('venta v');
-        $this->db->join('credito c', 'v.venta_id=c.id_venta');
-        $this->db->join('documento_venta', 'documento_venta.id_tipo_documento = v.numero_documento');
-        $this->db->join('cliente cl', 'cl.id_cliente = v.id_cliente');
-        $this->db->where('v.venta_id', $nroVenta);
+function buscar_NroVenta_credito($nroVenta)
+{
+    $this->db->select('v.venta_id,c.dec_credito_montodeuda,cl.razon_social');
+    $this->db->from('venta v');
+    $this->db->join('credito c', 'v.venta_id=c.id_venta');
+    $this->db->join('documento_venta', 'documento_venta.id_tipo_documento = v.numero_documento');
+    $this->db->join('cliente cl', 'cl.id_cliente = v.id_cliente');
+    $this->db->where('v.venta_id', $nroVenta);
 
-        $query = $this->db->get();
+    $query = $this->db->get();
 
-        return $query->result();
-    }
+    return $query->result();
+}
 
-    function get_venta_by_status($estatus)
-    {
-        $this->db->select('*');
-        $this->db->from('venta');
-        $this->db->join('cliente', 'cliente.id_cliente=venta.id_cliente');
-        $this->db->join('local', 'local.int_local_id=venta.local_id');
-        $this->db->join('condiciones_pago', 'condiciones_pago.id_condiciones=venta.condicion_pago');
-        $this->db->join('documento_venta', 'documento_venta.id_tipo_documento=venta.numero_documento');
-        $this->db->join('usuario', 'usuario.nUsuCodigo=venta.id_vendedor');
-        $this->db->where_in('venta_status', $estatus);
-        $query = $this->db->get();
+function get_venta_by_status($estatus)
+{
+    $this->db->select('*');
+    $this->db->from('venta');
+    $this->db->join('cliente', 'cliente.id_cliente=venta.id_cliente');
+    $this->db->join('local', 'local.int_local_id=venta.local_id');
+    $this->db->join('condiciones_pago', 'condiciones_pago.id_condiciones=venta.condicion_pago');
+    $this->db->join('documento_venta', 'documento_venta.id_tipo_documento=venta.numero_documento');
+    $this->db->join('usuario', 'usuario.nUsuCodigo=venta.id_vendedor');
+    $this->db->where_in('venta_status', $estatus);
+    $query = $this->db->get();
 
-        return $query->result();
-    }
+    return $query->result();
+}
 
-    function get_ventas_by($condicion, $completado = FALSE)
-    {
-        $this->db->select('venta.*, cliente.*, zonas.zona_nombre, local.*,condiciones_pago.*,documento_venta.*,usuario.*,
+function get_ventas_by($condicion, $completado = FALSE)
+{
+    $this->db->select('venta.*, cliente.*, zonas.zona_nombre, local.*,condiciones_pago.*,documento_venta.*,usuario.*,
         (select SUM(metros_cubicos*detalle_venta.cantidad) from unidades_has_producto join detalle_venta
          on detalle_venta.id_producto=unidades_has_producto.producto_id where detalle_venta.id_venta=venta.venta_id
          and detalle_venta.unidad_medida=unidades_has_producto.id_unidad) as total_metos_cubicos,  (select count(id_detalle)
@@ -1927,59 +2097,59 @@ LEFT JOIN ingreso ON ingreso.id_ingreso = detalleingreso.id_ingreso WHERE id_pro
             (select count(id_producto) from detalle_venta where id_venta = venta.venta_id ) as cantidad_productos,
             grupos_cliente.*');
 
-        $this->db->from('venta');
-        $this->db->join('cliente', 'cliente.id_cliente=venta.id_cliente');
-        $this->db->join('zonas', 'cliente.id_zona=zonas.zona_id');
-        $this->db->join('local', 'local.int_local_id=venta.local_id');
-        $this->db->join('condiciones_pago', 'condiciones_pago.id_condiciones=venta.condicion_pago');
-        $this->db->join('documento_venta', 'documento_venta.id_tipo_documento=venta.numero_documento');
-        $this->db->join('usuario', 'usuario.nUsuCodigo=venta.id_vendedor');
-        $this->db->join('grupos_cliente', 'grupos_cliente.id_grupos_cliente = cliente.grupo_id');
-        $this->db->order_by('venta.venta_id', 'desc');
-        if ($completado != FALSE) {
-            $this->db->where('venta_status !=', PEDIDO_GENERADO);
-            $this->db->where('venta_status !=', PEDIDO_ANULADO);
-            $this->db->where('venta_status !=', PEDIDO_ENVIADO);
-            unset($condicion['venta_status']);
-        }
-        $this->db->where($condicion);
-        $query = $this->db->get();
-
-        // echo $this->db->last_query();
-
-        return $query->result();
+    $this->db->from('venta');
+    $this->db->join('cliente', 'cliente.id_cliente=venta.id_cliente');
+    $this->db->join('zonas', 'cliente.id_zona=zonas.zona_id');
+    $this->db->join('local', 'local.int_local_id=venta.local_id');
+    $this->db->join('condiciones_pago', 'condiciones_pago.id_condiciones=venta.condicion_pago');
+    $this->db->join('documento_venta', 'documento_venta.id_tipo_documento=venta.numero_documento');
+    $this->db->join('usuario', 'usuario.nUsuCodigo=venta.id_vendedor');
+    $this->db->join('grupos_cliente', 'grupos_cliente.id_grupos_cliente = cliente.grupo_id');
+    $this->db->order_by('venta.venta_id', 'desc');
+    if ($completado != FALSE) {
+        $this->db->where('venta_status !=', PEDIDO_GENERADO);
+        $this->db->where('venta_status !=', PEDIDO_ANULADO);
+        $this->db->where('venta_status !=', PEDIDO_ENVIADO);
+        unset($condicion['venta_status']);
     }
+    $this->db->where($condicion);
+    $query = $this->db->get();
+
+    // echo $this->db->last_query();
+
+    return $query->result();
+}
 
 
-    function get_total_ventas_by_date($condicion)
-    {
-        $sql = "SELECT SUM(total) as suma FROM `venta` WHERE venta_status = 'COMPLETADO' AND DATE(fecha)='" . $condicion . "'";
-        $query = $this->db->query($sql);
+function get_total_ventas_by_date($condicion)
+{
+    $sql = "SELECT SUM(total) as suma FROM `venta` WHERE venta_status = 'COMPLETADO' AND DATE(fecha)='" . $condicion . "'";
+    $query = $this->db->query($sql);
 
-        return $query->row_array();
-    }
+    return $query->row_array();
+}
 
-    function get_ventas_by_cliente($condicion)
-    {
-        $this->db->select('SUM(subtotal) AS sub_total,SUM(total_impuesto) AS impuesto,SUM(total) AS totalizado,
+function get_ventas_by_cliente($condicion)
+{
+    $this->db->select('SUM(subtotal) AS sub_total,SUM(total_impuesto) AS impuesto,SUM(total) AS totalizado,
          a.*,b.*,c.*,d.*,e.*,f.*');
-        $this->db->from('venta a');
-        $this->db->join('cliente b', 'b.id_cliente=a.id_cliente');
-        $this->db->join('local c', 'c.int_local_id=a.local_id');
-        $this->db->join('condiciones_pago d', 'd.id_condiciones=a.condicion_pago');
-        $this->db->join('documento_venta e', 'e.id_tipo_documento=a.numero_documento');
-        $this->db->join('usuario f', 'f.nUsuCodigo=a.id_vendedor');
-        $this->db->group_by('a.id_cliente');
-        $this->db->where($condicion);
-        $query = $this->db->get();
+    $this->db->from('venta a');
+    $this->db->join('cliente b', 'b.id_cliente=a.id_cliente');
+    $this->db->join('local c', 'c.int_local_id=a.local_id');
+    $this->db->join('condiciones_pago d', 'd.id_condiciones=a.condicion_pago');
+    $this->db->join('documento_venta e', 'e.id_tipo_documento=a.numero_documento');
+    $this->db->join('usuario f', 'f.nUsuCodigo=a.id_vendedor');
+    $this->db->group_by('a.id_cliente');
+    $this->db->where($condicion);
+    $query = $this->db->get();
 
-        return $query->result();
-    }
+    return $query->result();
+}
 
 //////////////////////////////////////////////////////////////////////////////////////
-    function select_rpt_venta($tipo, $fecha, $anio, $mes, $forma)
-    {
-        $this->db->select('nVenCodigo,
+function select_rpt_venta($tipo, $fecha, $anio, $mes, $forma)
+{
+    $this->db->select('nVenCodigo,
 						cliente.var_cliente_nombre,
 						usuario.nombre,
 						dat_venta_fecregistro,
@@ -1990,80 +2160,80 @@ LEFT JOIN ingreso ON ingreso.id_ingreso = detalleingreso.id_ingreso WHERE id_pro
 						var_venta_estado,
 						l.var_local_nombre,
 						ct.var_constante_descripcion as cFormapago');
-        $this->db->from('venta');
-        $this->db->join('cliente', 'cliente.nCliCodigo=venta.nCliCodigo');
-        $this->db->join('documento_venta', 'documento_venta.nTipDocumento=venta.nTipDocumento');
-        $this->db->join('usuario', 'usuario.nUsuCodigo=venta.nUsuCodigo');
-        $this->db->join('constante ct', 'ct.int_constante_valor=venta.int_venta_formaPago');
-        $this->db->join('local l', 'l.int_local_id=venta.int_venta_local');
-        $this->db->where('venta.var_venta_estado != ', 2);
-        $this->db->where('ct.int_constante_clase', 3);
+    $this->db->from('venta');
+    $this->db->join('cliente', 'cliente.nCliCodigo=venta.nCliCodigo');
+    $this->db->join('documento_venta', 'documento_venta.nTipDocumento=venta.nTipDocumento');
+    $this->db->join('usuario', 'usuario.nUsuCodigo=venta.nUsuCodigo');
+    $this->db->join('constante ct', 'ct.int_constante_valor=venta.int_venta_formaPago');
+    $this->db->join('local l', 'l.int_local_id=venta.int_venta_local');
+    $this->db->where('venta.var_venta_estado != ', 2);
+    $this->db->where('ct.int_constante_clase', 3);
 
-        switch ($tipo) {
-            case 1:
-                $this->db->where('venta.int_venta_formaPago', $forma);
-                $this->db->where('DATE(venta.dat_venta_fecregistro)', $fecha);
-                break;
-            case 2:
-                $this->db->where('DATE(venta.dat_venta_fecregistro)', $fecha);
-                break;
-            case 3:
-                $this->db->where('venta.int_venta_formaPago', $forma);
-                $this->db->where('YEAR(venta.dat_venta_fecregistro)', $anio);
-                $this->db->where('MONTH(venta.dat_venta_fecregistro)', $mes);
-                break;
-            case 4:
-                $this->db->where('YEAR(venta.dat_venta_fecregistro)', $anio);
-                $this->db->where('MONTH(venta.dat_venta_fecregistro)', $mes);
-                break;
-            case 5:
-                $this->db->where('venta.int_venta_formaPago', $forma);
-                $this->db->where('YEAR(venta.dat_venta_fecregistro)', $anio);
-                break;
-            case 6:
-                $this->db->where('YEAR(venta.dat_venta_fecregistro)', $anio);
-                break;
-        }
-        $query = $this->db->get();
-
-        return $query->result();
+    switch ($tipo) {
+        case 1:
+            $this->db->where('venta.int_venta_formaPago', $forma);
+            $this->db->where('DATE(venta.dat_venta_fecregistro)', $fecha);
+            break;
+        case 2:
+            $this->db->where('DATE(venta.dat_venta_fecregistro)', $fecha);
+            break;
+        case 3:
+            $this->db->where('venta.int_venta_formaPago', $forma);
+            $this->db->where('YEAR(venta.dat_venta_fecregistro)', $anio);
+            $this->db->where('MONTH(venta.dat_venta_fecregistro)', $mes);
+            break;
+        case 4:
+            $this->db->where('YEAR(venta.dat_venta_fecregistro)', $anio);
+            $this->db->where('MONTH(venta.dat_venta_fecregistro)', $mes);
+            break;
+        case 5:
+            $this->db->where('venta.int_venta_formaPago', $forma);
+            $this->db->where('YEAR(venta.dat_venta_fecregistro)', $anio);
+            break;
+        case 6:
+            $this->db->where('YEAR(venta.dat_venta_fecregistro)', $anio);
+            break;
     }
+    $query = $this->db->get();
 
-    function select_ventas_credito()
-    {
-        $this->db->select('*');
-        $this->db->from('venta');
-        $this->db->join('credito', 'credito.id_venta=venta.venta_id');
-        $this->db->join('documento_venta', 'documento_venta.id_tipo_documento=venta.numero_documento');
-        $query = $this->db->get();
+    return $query->result();
+}
 
-        return $query->result();
-    }
+function select_ventas_credito()
+{
+    $this->db->select('*');
+    $this->db->from('venta');
+    $this->db->join('credito', 'credito.id_venta=venta.venta_id');
+    $this->db->join('documento_venta', 'documento_venta.id_tipo_documento=venta.numero_documento');
+    $query = $this->db->get();
 
-    function select_venta_estadocuenta()
-    {
-        $this->db->select('*');
-        $this->db->from('venta');
-        $this->db->join('credito', 'credito.id_venta=venta.venta_id');
-        $this->db->join('documento_venta', 'documento_venta.id_tipo_documento=venta.numero_documento');
-        $query = $this->db->get();
+    return $query->result();
+}
 
-        return $query->result();
-    }
+function select_venta_estadocuenta()
+{
+    $this->db->select('*');
+    $this->db->from('venta');
+    $this->db->join('credito', 'credito.id_venta=venta.venta_id');
+    $this->db->join('documento_venta', 'documento_venta.id_tipo_documento=venta.numero_documento');
+    $query = $this->db->get();
 
-    function count_by($field, $where)
-    {
-        $this->db->select('count(venta_id) as count');
-        $this->db->from('venta');
-        $this->db->where_in($field, $where);
-        $query = $this->db->get();
-        return $query->row_array();
-    }
+    return $query->result();
+}
+
+function count_by($field, $where)
+{
+    $this->db->select('count(venta_id) as count');
+    $this->db->from('venta');
+    $this->db->where_in($field, $where);
+    $query = $this->db->get();
+    return $query->row_array();
+}
 
 
-    function obtener_venta($id_venta)
-    {
-        $querystring = "select v.venta_id,v.total as montoTotal,v.subtotal  as subTotal, v.confirmacion_usuario as confirmacion_usuario_pago_adelantado, v.tipo_doc_fiscal,
+function obtener_venta($id_venta)
+{
+    $querystring = "select v.venta_id,v.total as montoTotal,v.subtotal  as subTotal, v.confirmacion_usuario as confirmacion_usuario_pago_adelantado, v.tipo_doc_fiscal,
  v.total_impuesto as impuesto, v.pagado,cli_dat.valor as clienteDireccion, pd.producto_nombre as nombre,pd.costo_unitario,pd.presentacion,tr.bono,
  pd.producto_cualidad, pd.producto_id as producto_id, pd.venta_sin_stock, tr.precio_sugerido, tr.cantidad as cantidad ,tr.precio as preciounitario, tr.id_detalle,
 tr.detalle_importe as importe, v.fecha as fechaemision, cre.dec_credito_montodeuda,
@@ -2092,40 +2262,40 @@ left join (SELECT c1.cliente_id, c1.tipo, c1.valor, c1.principal, COUNT(*) FROM 
 left join credito cre on cre.id_venta=v.venta_id
 where v.venta_id=" . $id_venta . " group by tr.id_detalle order by 1 ";
 
-        $query = $this->db->query($querystring);
-        //echo $this->db->last_Query();
+    $query = $this->db->query($querystring);
+    //echo $this->db->last_Query();
 
-        return $query->result_array();
-    }
+    return $query->result_array();
+}
 
 
-    function documentoVenta($id_venta = null)
-    {
-        $ventaCol = "'0' as documento_id,
+function documentoVenta($id_venta = null)
+{
+    $ventaCol = "'0' as documento_id,
 			t.nombre_tipo_documento as descripcion,
 			t.documento_Serie as serie,
 			t.documento_Numero as numero,";
-        $ventaAdd = "inner join documento_venta t on t.id_tipo_documento = v.numero_documento";
+    $ventaAdd = "inner join documento_venta t on t.id_tipo_documento = v.numero_documento";
 
-        $produCol = "'0' as documento_id,";
-        $unidadCol = "dd.unidad_medida";
-        $produAdd = "inner join detalle_venta dd on dd.id_venta = v.venta_id";
+    $produCol = "'0' as documento_id,";
+    $unidadCol = "dd.unidad_medida";
+    $produAdd = "inner join detalle_venta dd on dd.id_venta = v.venta_id";
 
-        $documento = $this->db->query('SELECT venta_id FROM documento_fiscal WHERE venta_id = ' . $id_venta);
-        if ($documento->num_rows() > 0) {
-            $ventaCol = "df.documento_fiscal_id as documento_id,
+    $documento = $this->db->query('SELECT venta_id FROM documento_fiscal WHERE venta_id = ' . $id_venta);
+    if ($documento->num_rows() > 0) {
+        $ventaCol = "df.documento_fiscal_id as documento_id,
 				df.documento_tipo as descripcion,
 				df.documento_serie as serie,
 				df.documento_numero as numero,
 				df.documento_tipo,";
-            $ventaAdd = "inner join documento_fiscal df on df.venta_id = v.venta_id";
+        $ventaAdd = "inner join documento_fiscal df on df.venta_id = v.venta_id";
 
-            $produCol = "dd.documento_fiscal_id as documento_id,";
-            $unidadCol = "dd.id_unidad";
-            $produAdd = "inner join documento_detalle dd on dd.id_venta = v.venta_id";
-        }
+        $produCol = "dd.documento_fiscal_id as documento_id,";
+        $unidadCol = "dd.id_unidad";
+        $produAdd = "inner join documento_detalle dd on dd.id_venta = v.venta_id";
+    }
 
-        $descripcion = $this->db->query("select
+    $descripcion = $this->db->query("select
 				v.venta_id,
 				v.total as montoTotal,
 				v.subtotal as subTotal,
@@ -2164,13 +2334,13 @@ where v.venta_id=" . $id_venta . " group by tr.id_detalle order by 1 ";
 			where
 				v.venta_id = " . $id_venta . " order by 1");
 
-        $data = array();
-        $ventas = $descripcion->result_array();
+    $data = array();
+    $ventas = $descripcion->result_array();
 
-        $data['ventas'] = array();
+    $data['ventas'] = array();
 
-        foreach ($ventas as $venta) {
-            $productos = $this->db->query("select
+    foreach ($ventas as $venta) {
+        $productos = $this->db->query("select
 				v.venta_id,
 				" . $produCol . "
 				pd.producto_nombre as nombre,
@@ -2208,190 +2378,217 @@ where v.venta_id=" . $id_venta . " group by tr.id_detalle order by 1 ";
 			where
 				v.venta_id = " . $id_venta . " and dd.documento_fiscal_id=" . $venta['documento_id'] . " group by documento_detalle_id  order by 1, productoDV desc ");
 
-            $productos = $productos->result_array();
+        $productos = $productos->result_array();
 //echo $this->db->last_query();
-            //  var_dump($productos);
+        //  var_dump($productos);
 
-            foreach ($productos as $p) {
-                $data['productos'][] = $p;
-            }
-
-            $venta['productos'] = $productos;
-            $data['ventas'][] = $venta;
-
+        foreach ($productos as $p) {
+            $data['productos'][] = $p;
         }
 
+        $venta['productos'] = $productos;
+        $data['ventas'][] = $venta;
+
+    }
+
 //var_dump( $data['productos']);
-        return $data;
-    }
+    return $data;
+}
 
-    function update_status($id_venta, $estatus)
-    {
-        $this->db->trans_start();
-        $pedido = $this->db->get_where('venta', array('venta_id' => $id_venta))->row();
-        $data = array('venta_status' => $estatus);
-        //CAMBIO DE ESTATUS EN EL DE LA VENTA
-        $this->db->where('venta_id', $id_venta);
-        $this->db->update('venta', $data);
-        //INSERCION PARA LLEVAR REGISTRO DE CAMBIO DE ESTATUS
+function update_status($id_venta, $estatus)
+{
+    $this->db->trans_start();
+    $pedido = $this->db->get_where('venta', array('venta_id' => $id_venta))->row();
+    $data = array('venta_status' => $estatus);
+    //CAMBIO DE ESTATUS EN EL DE LA VENTA
+    $this->db->where('venta_id', $id_venta);
+    $this->db->update('venta', $data);
+    //INSERCION PARA LLEVAR REGISTRO DE CAMBIO DE ESTATUS
 
-        $dataregistro = array('venta_id' => $id_venta, 'vendedor_id' => $pedido->id_vendedor,
-            'estatus' => $estatus, 'fecha' => date('Y-m-d h:m:s'));
-        $this->db->insert('venta_estatus', $dataregistro);
+    $dataregistro = array('venta_id' => $id_venta, 'vendedor_id' => $pedido->id_vendedor,
+        'estatus' => $estatus, 'fecha' => date('Y-m-d h:m:s'));
+    $this->db->insert('venta_estatus', $dataregistro);
 
-        $this->db->trans_complete();
-        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        if ($this->db->trans_status() === FALSE)
-            return FALSE;
-        else
-            return TRUE;
-    }
+    $this->db->trans_complete();
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    if ($this->db->trans_status() === FALSE)
+        return FALSE;
+    else
+        return TRUE;
+}
 
-    function ventas_contado($where)
-    {
-        $w = "DATE(fecha) >= DATE('" . $where['fecha'] . "') AND DATE(fecha) <= DATE('" . $where['fecha'] . "')";
-        $this->db->select('SUM(pagado) as totalV');
-        $this->db->where($w);
-        $this->db->where('condiciones_pago.dias', 0);
-        $this->db->where_in('venta.venta_status', array(COMPLETADO));
-        $this->db->from('venta');
-        $this->db->join('condiciones_pago', 'condiciones_pago.id_condiciones=venta.condicion_pago');
-        $query = $this->db->get();
-        //echo $this->db->last_query();
-        return $query->row_array();
-    }
+function ventas_contado($where)
+{
+    $w = "DATE(fecha) >= DATE('" . $where['fecha'] . "') AND DATE(fecha) <= DATE('" . $where['fecha'] . "')";
+    $this->db->select('SUM(pagado) as totalV');
+    $this->db->where($w);
+    $this->db->where('condiciones_pago.dias', 0);
+    $this->db->where_in('venta.venta_status', array(COMPLETADO));
+    $this->db->from('venta');
+    $this->db->join('condiciones_pago', 'condiciones_pago.id_condiciones=venta.condicion_pago');
+    $query = $this->db->get();
+    //echo $this->db->last_query();
+    return $query->row_array();
+}
 
-    function cobrosadelantados_caja($where)
-    {
-        $w = "DATE(venta.confirmacion_fecha) >= DATE('" . $where['fecha'] . "') AND DATE(venta.confirmacion_fecha) <= DATE('" . $where['fecha'] . "') AND venta.confirmacion_caja IS NOT NULL AND pagado > 0.00
+function cobrosadelantados_caja($where)
+{
+    $w = "DATE(venta.confirmacion_fecha) >= DATE('" . $where['fecha'] . "') AND DATE(venta.confirmacion_fecha) <= DATE('" . $where['fecha'] . "') AND venta.confirmacion_caja IS NOT NULL AND pagado > 0.00
         and venta.confirmacion_usuario IS NOT NULL AND venta_tipo='ENTREGA' ";
-        $this->db->select('SUM(pagado) as adelantoCaja');
-        $this->db->where($w);
+    $this->db->select('SUM(pagado) as adelantoCaja');
+    $this->db->where($w);
 
-        //$this->db->where_in('venta.venta_status', array(PEDIDO_DEVUELTO, PEDIDO_ENTREGADO, COMPLETADO, PEDIDO_GENERADO));
+    //$this->db->where_in('venta.venta_status', array(PEDIDO_DEVUELTO, PEDIDO_ENTREGADO, COMPLETADO, PEDIDO_GENERADO));
 
-        $this->db->from('venta');
+    $this->db->from('venta');
 
-        $query = $this->db->get();
-        //echo $this->db->last_query();
-        return $query->row_array();
-    }
+    $query = $this->db->get();
+    //echo $this->db->last_query();
+    return $query->row_array();
+}
 
-    function cobrosadelantados_banco($where)
-    {
-        $w = "DATE(venta.confirmacion_fecha) >= DATE('" . $where['fecha'] . "') AND DATE(venta.confirmacion_fecha) <= DATE('" . $where['fecha'] . "') AND venta.confirmacion_banco IS NOT NULL AND pagado > 0.00
+function cobrosadelantados_banco($where)
+{
+    $w = "DATE(venta.confirmacion_fecha) >= DATE('" . $where['fecha'] . "') AND DATE(venta.confirmacion_fecha) <= DATE('" . $where['fecha'] . "') AND venta.confirmacion_banco IS NOT NULL AND pagado > 0.00
        and venta.confirmacion_usuario IS NOT NULL AND venta_tipo='ENTREGA' ";
-        $this->db->select('SUM(pagado) as adelantoBanco');
-        $this->db->where($w);
+    $this->db->select('SUM(pagado) as adelantoBanco');
+    $this->db->where($w);
 
-        //   $this->db->where_in('venta.venta_status', array(PEDIDO_DEVUELTO, PEDIDO_ENTREGADO, COMPLETADO, PEDIDO_GENERADO));
+    //   $this->db->where_in('venta.venta_status', array(PEDIDO_DEVUELTO, PEDIDO_ENTREGADO, COMPLETADO, PEDIDO_GENERADO));
 
-        $this->db->from('venta');
+    $this->db->from('venta');
 
-        $query = $this->db->get();
-        //echo $this->db->last_query();
-        return $query->row_array();
+    $query = $this->db->get();
+    //echo $this->db->last_query();
+    return $query->row_array();
+}
+
+function cuadre_caja_cobros_caja($where)
+{
+
+    /* $w = array('DATE(liquidacion_fecha) >=' => $where['fecha'],
+         'DATE(liquidacion_fecha) <=' => $where['fecha'],
+         'historial_estatus' => 'CONFIRMADO'
+     );
+     $this->db->select('liquidacion_cobranza.liquidacion_id as liq,historial_pagos_clientes.*,liquidacion_cobranza_detalle.*'); //SUM(historial_monto) as suma
+
+     $this->db->from('liquidacion_cobranza_detalle');
+     $this->db->join('historial_pagos_clientes', 'liquidacion_cobranza_detalle.pago_id=historial_pagos_clientes.historial_id');
+     $this->db->join('liquidacion_cobranza', 'liquidacion_cobranza.liquidacion_id=liquidacion_cobranza_detalle.liquidacion_id');
+     $this->db->where($w);
+     $this->db->order_by('liquidacion_cobranza_detalle.liquidacion_id', 'desc');
+     $query = $this->db->get();
+
+     return $query->result_array();*/
+
+
+    $w = array('DATE(liquidacion_fecha) >=' => $where['fecha'],
+        'DATE(liquidacion_fecha) <=' => $where['fecha'],
+        'historial_estatus' => 'CONFIRMADO'
+    );
+    $this->db->select('*,SUM(historial_monto) as suma');
+    $this->db->where($w);
+    $this->db->from('historial_pagos_clientes');
+    $this->db->join('liquidacion_cobranza_detalle', 'liquidacion_cobranza_detalle.pago_id=historial_id');
+    $this->db->join('liquidacion_cobranza', 'liquidacion_cobranza.liquidacion_id=liquidacion_cobranza_detalle.liquidacion_id');
+    $query = $this->db->get();
+
+    //  echo $this->db->last_query();
+    return $query->row_array();
+}
+
+function cuadre_caja_cobros_banco($where)
+{
+    $w = array('DATE(liquidacion_fecha) >=' => $where['fecha'],
+        'DATE(liquidacion_fecha) <=' => $where['fecha'],
+        'historial_estatus' => 'CONFIRMADO');
+    $this->db->select('*,SUM(historial_monto) as duedaBanco');
+    $this->db->where($w);
+    $this->db->where('historial_banco_id IS NOT NULL');
+    $this->db->from('historial_pagos_clientes');
+    $this->db->join('liquidacion_cobranza_detalle', 'liquidacion_cobranza_detalle.pago_id=historial_id');
+    $this->db->join('liquidacion_cobranza', 'liquidacion_cobranza.liquidacion_id=liquidacion_cobranza_detalle.liquidacion_id');
+    $query = $this->db->get();
+
+    return $query->row_array();
+}
+
+function pagos_adelantados($where)
+{
+    $this->db->select('venta.*, banco.banco_nombre, cliente.razon_social, usuario.nombre as nombreVendedor,cliente.id_cliente as cod_cliente, consolidado_carga.status');
+    $this->db->from('venta');
+    $this->db->join('usuario', 'usuario.nUsuCodigo = venta.id_vendedor');
+    $this->db->join('cliente', 'cliente.id_cliente  = venta.id_cliente');
+    $this->db->join('consolidado_detalle', 'consolidado_detalle.pedido_id  = venta.venta_id', 'left');
+    $this->db->join('banco', 'banco.banco_id  = venta.confirmacion_banco', 'left');
+    $this->db->join('consolidado_carga', 'consolidado_detalle.consolidado_id  = consolidado_carga.consolidado_id', 'left');
+    $this->db->where($where);
+    $query = $this->db->get();
+    return $query->result_array();
+}
+
+function pagos_caja_banco($where)
+{
+    $this->db->select('venta.*, usuario.nombre as nombreVendedor,cliente.id_cliente as cod_cliente');
+    $this->db->from('venta');
+    $this->db->join('usuario', 'usuario.nUsuCodigo = venta.id_vendedor');
+    $this->db->join('cliente', 'cliente.id_cliente  = venta.id_cliente');
+    $this->db->where('venta_id', $where);
+    $query = $this->db->get();
+    return $query->result_array();
+}
+
+function pagos_adelantados_filtro($where)
+{
+    /* if($where == 1){
+         $where = 'confirmacion_usuario IS NOT NULL';
+     }elseif($where == 2){
+         $where = 'confirmacion_usuario IS NULL';
+     }*/
+
+    $this->db->select('*, usuario.nombre as nombreVendedor,cliente.id_cliente as cod_cliente');
+    $this->db->from('venta');
+    $this->db->join('usuario', 'usuario.nUsuCodigo = venta.id_vendedor');
+    $this->db->join('cliente', 'cliente.id_cliente  = venta.id_cliente');
+    $this->db->where($where);
+    $query = $this->db->get();
+    return $query->result_array();
+}
+
+function pagos_caja_cobrado($datos, $id, $monto)
+{
+    $this->db->where('venta_id', $id);
+    $this->db->update('venta', $datos);
+    $where = array('id_venta' => $id);
+    $queryCredito = $this->getCredito($where);
+    $credito['var_credito_estado'] = CREDITO_ACUENTA;
+    if (($queryCredito['dec_credito_montodebito'] + $monto) >= $queryCredito['dec_credito_montodeuda']) {
+
+        $credito['var_credito_estado'] = CREDITO_CANCELADO;
+        $credito['dec_credito_montodebito'] = $queryCredito['dec_credito_montodebito'] + $monto;
+
     }
 
-    function cuadre_caja_cobros_caja($where)
-    {
 
-        /* $w = array('DATE(liquidacion_fecha) >=' => $where['fecha'],
-             'DATE(liquidacion_fecha) <=' => $where['fecha'],
-             'historial_estatus' => 'CONFIRMADO'
-         );
-         $this->db->select('liquidacion_cobranza.liquidacion_id as liq,historial_pagos_clientes.*,liquidacion_cobranza_detalle.*'); //SUM(historial_monto) as suma
+    $credito['dec_credito_montodebito'] = $monto;
 
-         $this->db->from('liquidacion_cobranza_detalle');
-         $this->db->join('historial_pagos_clientes', 'liquidacion_cobranza_detalle.pago_id=historial_pagos_clientes.historial_id');
-         $this->db->join('liquidacion_cobranza', 'liquidacion_cobranza.liquidacion_id=liquidacion_cobranza_detalle.liquidacion_id');
-         $this->db->where($w);
-         $this->db->order_by('liquidacion_cobranza_detalle.liquidacion_id', 'desc');
-         $query = $this->db->get();
+    $condition = array('id_venta' => $id);
+    return $this->actualizarCredito($credito, $condition);
+}
 
-         return $query->result_array();*/
+function pagos_banco_cobrado($datos, $id, $monto)
+{
+    $this->db->where('venta_id', $id);
+    $result1 = $this->db->update('venta', $datos);
 
+    $credito['dec_credito_montodebito'] = $monto;
+    $credito['var_credito_estado'] = CREDITO_ACUENTA;
 
-        $w = array('DATE(liquidacion_fecha) >=' => $where['fecha'],
-            'DATE(liquidacion_fecha) <=' => $where['fecha'],
-            'historial_estatus' => 'CONFIRMADO'
-        );
-        $this->db->select('*,SUM(historial_monto) as suma');
-        $this->db->where($w);
-        $this->db->from('historial_pagos_clientes');
-        $this->db->join('liquidacion_cobranza_detalle', 'liquidacion_cobranza_detalle.pago_id=historial_id');
-        $this->db->join('liquidacion_cobranza', 'liquidacion_cobranza.liquidacion_id=liquidacion_cobranza_detalle.liquidacion_id');
-        $query = $this->db->get();
+    $where = array('id_venta' => $id);
 
-        //  echo $this->db->last_query();
-        return $query->row_array();
-    }
+    $queryCredito = $this->getCredito($where);
+    if (sizeof($queryCredito)) {
 
-    function cuadre_caja_cobros_banco($where)
-    {
-        $w = array('DATE(liquidacion_fecha) >=' => $where['fecha'],
-            'DATE(liquidacion_fecha) <=' => $where['fecha'],
-            'historial_estatus' => 'CONFIRMADO');
-        $this->db->select('*,SUM(historial_monto) as duedaBanco');
-        $this->db->where($w);
-        $this->db->where('historial_banco_id IS NOT NULL');
-        $this->db->from('historial_pagos_clientes');
-        $this->db->join('liquidacion_cobranza_detalle', 'liquidacion_cobranza_detalle.pago_id=historial_id');
-        $this->db->join('liquidacion_cobranza', 'liquidacion_cobranza.liquidacion_id=liquidacion_cobranza_detalle.liquidacion_id');
-        $query = $this->db->get();
-
-        return $query->row_array();
-    }
-
-    function pagos_adelantados($where)
-    {
-        $this->db->select('venta.*, banco.banco_nombre, cliente.razon_social, usuario.nombre as nombreVendedor,cliente.id_cliente as cod_cliente, consolidado_carga.status');
-        $this->db->from('venta');
-        $this->db->join('usuario', 'usuario.nUsuCodigo = venta.id_vendedor');
-        $this->db->join('cliente', 'cliente.id_cliente  = venta.id_cliente');
-        $this->db->join('consolidado_detalle', 'consolidado_detalle.pedido_id  = venta.venta_id', 'left');
-        $this->db->join('banco', 'banco.banco_id  = venta.confirmacion_banco', 'left');
-        $this->db->join('consolidado_carga', 'consolidado_detalle.consolidado_id  = consolidado_carga.consolidado_id', 'left');
-        $this->db->where($where);
-        $query = $this->db->get();
-        return $query->result_array();
-    }
-
-    function pagos_caja_banco($where)
-    {
-        $this->db->select('venta.*, usuario.nombre as nombreVendedor,cliente.id_cliente as cod_cliente');
-        $this->db->from('venta');
-        $this->db->join('usuario', 'usuario.nUsuCodigo = venta.id_vendedor');
-        $this->db->join('cliente', 'cliente.id_cliente  = venta.id_cliente');
-        $this->db->where('venta_id', $where);
-        $query = $this->db->get();
-        return $query->result_array();
-    }
-
-    function pagos_adelantados_filtro($where)
-    {
-        /* if($where == 1){
-             $where = 'confirmacion_usuario IS NOT NULL';
-         }elseif($where == 2){
-             $where = 'confirmacion_usuario IS NULL';
-         }*/
-
-        $this->db->select('*, usuario.nombre as nombreVendedor,cliente.id_cliente as cod_cliente');
-        $this->db->from('venta');
-        $this->db->join('usuario', 'usuario.nUsuCodigo = venta.id_vendedor');
-        $this->db->join('cliente', 'cliente.id_cliente  = venta.id_cliente');
-        $this->db->where($where);
-        $query = $this->db->get();
-        return $query->result_array();
-    }
-
-    function pagos_caja_cobrado($datos, $id, $monto)
-    {
-        $this->db->where('venta_id', $id);
-        $this->db->update('venta', $datos);
-        $where = array('id_venta' => $id);
-        $queryCredito = $this->getCredito($where);
-        $credito['var_credito_estado'] = CREDITO_ACUENTA;
         if (($queryCredito['dec_credito_montodebito'] + $monto) >= $queryCredito['dec_credito_montodeuda']) {
 
             $credito['var_credito_estado'] = CREDITO_CANCELADO;
@@ -2400,154 +2597,127 @@ where v.venta_id=" . $id_venta . " group by tr.id_detalle order by 1 ";
         }
 
 
-        $credito['dec_credito_montodebito'] = $monto;
-
         $condition = array('id_venta' => $id);
         return $this->actualizarCredito($credito, $condition);
+    } else {
+        return $result1;
     }
-
-    function pagos_banco_cobrado($datos, $id, $monto)
-    {
-        $this->db->where('venta_id', $id);
-        $result1 = $this->db->update('venta', $datos);
-
-        $credito['dec_credito_montodebito'] = $monto;
-        $credito['var_credito_estado'] = CREDITO_ACUENTA;
-
-        $where = array('id_venta' => $id);
-
-        $queryCredito = $this->getCredito($where);
-        if (sizeof($queryCredito)) {
-
-            if (($queryCredito['dec_credito_montodebito'] + $monto) >= $queryCredito['dec_credito_montodeuda']) {
-
-                $credito['var_credito_estado'] = CREDITO_CANCELADO;
-                $credito['dec_credito_montodebito'] = $queryCredito['dec_credito_montodebito'] + $monto;
-
-            }
+}
 
 
-            $condition = array('id_venta' => $id);
-            return $this->actualizarCredito($credito, $condition);
-        } else {
-            return $result1;
-        }
+function zonaVendedor($vendedor_id = FALSE, $dia)
+{
+    $this->db->select('*');
+    $this->db->from('usuario u');
+    $this->db->join('usuario_has_zona uhz', 'uhz.id_usuario = u.nUsuCodigo');
+    $this->db->join('zonas z', 'z.zona_id = uhz.id_zona');
+    if ($dia != null) {
+        $this->db->join('zona_dias zd', 'zd.id_zona = z.zona_id ');
+        $this->db->where('zd.dia_semana', $dia);
     }
+    if ($vendedor_id != FALSE)
+        $this->db->where('u.nUsuCodigo', $vendedor_id);
 
+    $query = $this->db->group_by('z.zona_id')->get();
+    return $query->result_array();
+}
 
-    function zonaVendedor($vendedor_id = FALSE, $dia)
-    {
-        $this->db->select('*');
-        $this->db->from('usuario u');
-        $this->db->join('usuario_has_zona uhz', 'uhz.id_usuario = u.nUsuCodigo');
-        $this->db->join('zonas z', 'z.zona_id = uhz.id_zona');
-        if ($dia != null) {
-            $this->db->join('zona_dias zd', 'zd.id_zona = z.zona_id ');
-            $this->db->where('zd.dia_semana', $dia);
-        }
-        if ($vendedor_id != FALSE)
-            $this->db->where('u.nUsuCodigo', $vendedor_id);
+function clienteDireccion($cliente_id)
+{
+    $this->db->select('*');
+    $this->db->from('cliente c');
+    $this->db->join('cliente_datos cd', 'cd.cliente_id = c.id_cliente', 'left');
+    $this->db->where('c.id_cliente', $cliente_id);
+    $this->db->where('cd.tipo', 1);
 
-        $query = $this->db->group_by('z.zona_id')->get();
-        return $query->result_array();
-    }
+    $query = $this->db->get();
+    return $query->result_array();
+}
 
-    function clienteDireccion($cliente_id)
-    {
-        $this->db->select('*');
-        $this->db->from('cliente c');
-        $this->db->join('cliente_datos cd', 'cd.cliente_id = c.id_cliente', 'left');
-        $this->db->where('c.id_cliente', $cliente_id);
-        $this->db->where('cd.tipo', 1);
+function dataCliente($cliente_id)
+{
+    $this->db->select('*');
+    $this->db->from('cliente c');
+    $this->db->where('c.id_cliente', $cliente_id);
 
-        $query = $this->db->get();
-        return $query->result_array();
-    }
+    $query = $this->db->get()->row_array();
 
-    function dataCliente($cliente_id)
-    {
-        $this->db->select('*');
-        $this->db->from('cliente c');
-        $this->db->where('c.id_cliente', $cliente_id);
+    $temp = $this->db->get_where('cliente_datos', array(
+        'cliente_id' => $cliente_id,
+        'tipo' => CGERENTE_DNI
+    ))->row();
+    $query['gerente_dni'] = $temp != NULL ? $temp->valor : '';
 
-        $query = $this->db->get()->row_array();
+    $temp = $this->db->get_where('cliente_datos', array(
+        'cliente_id' => $cliente_id,
+        'tipo' => CCONTACTO_DNI
+    ))->row();
+    $query['contacto_dni'] = $temp != NULL ? $temp->valor : '';
 
-        $temp = $this->db->get_where('cliente_datos', array(
-            'cliente_id' => $cliente_id,
-            'tipo' => CGERENTE_DNI
-        ))->row();
-        $query['gerente_dni'] = $temp != NULL ? $temp->valor : '';
+    $temp = $this->db->get_where('cliente_datos', array(
+        'cliente_id' => $cliente_id,
+        'tipo' => CCONTACTO_NOMBRE
+    ))->row();
+    $query['contacto_nombre'] = $temp != NULL ? $temp->valor : '';
 
-        $temp = $this->db->get_where('cliente_datos', array(
-            'cliente_id' => $cliente_id,
-            'tipo' => CCONTACTO_DNI
-        ))->row();
-        $query['contacto_dni'] = $temp != NULL ? $temp->valor : '';
+    return $query;
+}
 
-        $temp = $this->db->get_where('cliente_datos', array(
-            'cliente_id' => $cliente_id,
-            'tipo' => CCONTACTO_NOMBRE
-        ))->row();
-        $query['contacto_nombre'] = $temp != NULL ? $temp->valor : '';
-
-        return $query;
-    }
-
-    function getDeudaCliente($cliente_id)
-    {
-        $this->db->select("
+function getDeudaCliente($cliente_id)
+{
+    $this->db->select("
             SUM(venta.total) as subtotal_venta,
             SUM(credito.dec_credito_montodebito) as subtotal_pago
         ")
-            ->from('cliente')
-            ->join('venta', 'venta.id_cliente = cliente.id_cliente')
-            ->join('credito', 'credito.id_venta = venta.venta_id')
-            ->join('historial_pedido_proceso', 'historial_pedido_proceso.pedido_id = venta.venta_id')
-            ->join('zonas', 'cliente.id_zona = zonas.zona_id')
-            ->join('usuario', 'venta.id_vendedor = usuario.nUsuCodigo')
-            ->where('cliente.cliente_status', 1)
-            ->where('historial_pedido_proceso.proceso_id', PROCESO_LIQUIDAR)
-            ->where('venta.venta_status !=', 'RECHAZADO')
-            ->where('venta.venta_status !=', 'ANULADO')
-            ->group_by('cliente.id_cliente');
-        $this->db->where('cliente.id_cliente', $cliente_id);
+        ->from('cliente')
+        ->join('venta', 'venta.id_cliente = cliente.id_cliente')
+        ->join('credito', 'credito.id_venta = venta.venta_id')
+        ->join('historial_pedido_proceso', 'historial_pedido_proceso.pedido_id = venta.venta_id')
+        ->join('zonas', 'cliente.id_zona = zonas.zona_id')
+        ->join('usuario', 'venta.id_vendedor = usuario.nUsuCodigo')
+        ->where('cliente.cliente_status', 1)
+        ->where('historial_pedido_proceso.proceso_id', PROCESO_LIQUIDAR)
+        ->where('venta.venta_status !=', 'RECHAZADO')
+        ->where('venta.venta_status !=', 'ANULADO')
+        ->group_by('cliente.id_cliente');
+    $this->db->where('cliente.id_cliente', $cliente_id);
 
-        $cliente = $this->db->get()->row();
+    $cliente = $this->db->get()->row();
 
-        if ($cliente == NULL) {
-            return array('deuda' => 0);
-        }
+    if ($cliente == NULL) {
+        return array('deuda' => 0);
+    }
 
-        $this->db->select("
+    $this->db->select("
                 SUM(historial_pagos_clientes.historial_monto) as monto,
             ")
-            ->from('historial_pagos_clientes')
-            ->join('venta', 'venta.venta_id = historial_pagos_clientes.credito_id')
-            ->join('credito', 'credito.id_venta = historial_pagos_clientes.credito_id')
-            ->join('historial_pedido_proceso', 'historial_pedido_proceso.pedido_id = venta.venta_id')
-            ->where('historial_pedido_proceso.proceso_id', PROCESO_LIQUIDAR)
-            ->where('venta.venta_status !=', 'RECHAZADO')
-            ->where('venta.venta_status !=', 'ANULADO')
-            ->where('venta.id_cliente', $cliente_id)
-            ->where('historial_pagos_clientes.historial_estatus', 'PENDIENTE');
+        ->from('historial_pagos_clientes')
+        ->join('venta', 'venta.venta_id = historial_pagos_clientes.credito_id')
+        ->join('credito', 'credito.id_venta = historial_pagos_clientes.credito_id')
+        ->join('historial_pedido_proceso', 'historial_pedido_proceso.pedido_id = venta.venta_id')
+        ->where('historial_pedido_proceso.proceso_id', PROCESO_LIQUIDAR)
+        ->where('venta.venta_status !=', 'RECHAZADO')
+        ->where('venta.venta_status !=', 'ANULADO')
+        ->where('venta.id_cliente', $cliente_id)
+        ->where('historial_pagos_clientes.historial_estatus', 'PENDIENTE');
 
-        $pagado_pendientes = $this->db->get()->row();
+    $pagado_pendientes = $this->db->get()->row();
 
-        $cliente->pagado_pendientes = $pagado_pendientes->monto != NULL ? $pagado_pendientes->monto : 0;
-        $cliente->subtotal_pago -= $cliente->pagado_pendientes;
+    $cliente->pagado_pendientes = $pagado_pendientes->monto != NULL ? $pagado_pendientes->monto : 0;
+    $cliente->subtotal_pago -= $cliente->pagado_pendientes;
 
-        return array('deuda' => $cliente->subtotal_venta - $cliente->subtotal_pago);
-    }
+    return array('deuda' => $cliente->subtotal_venta - $cliente->subtotal_pago);
+}
 
-    function dataClienteIdZona($id_zona, $vendedor)
-    {
-        $this->db->select('*');
-        $this->db->from('cliente c');
-        $this->db->where('c.id_zona', $id_zona);
-        $this->db->where('c.vendedor_a', $vendedor);
-        $this->db->order_by('c.representante', 'asc');
+function dataClienteIdZona($id_zona, $vendedor)
+{
+    $this->db->select('*');
+    $this->db->from('cliente c');
+    $this->db->where('c.id_zona', $id_zona);
+    $this->db->where('c.vendedor_a', $vendedor);
+    $this->db->order_by('c.representante', 'asc');
 
-        $query = $this->db->get();
-        return $query->result_array();
-    }
+    $query = $this->db->get();
+    return $query->result_array();
+}
 }
