@@ -2657,7 +2657,7 @@ class venta extends MY_Controller
                     $id = sumCod($productos[$i]->id, 4);
                     $nombre = $productos[$i]->precio > 0 ? $productos[$i]->nombre : 'BONIF -- '.$productos[$i]->nombre;
                     $um = $productos[$i]->um;
-                    $cantidad = $productos[$i]->cantidad;
+                    $cantidad = intval($productos[$i]->cantidad);
                     $precio = $productos[$i]->precio;
                     $importe = $productos[$i]->importe;
                     $total += $importe;
@@ -2667,7 +2667,7 @@ class venta extends MY_Controller
                 $template->setValue('cod' . $index_p, $id);
                 $template->setValue('producto' . $index_p, $nombre);
                 $template->setValue('um' . $index_p, $um);
-                $template->setValue('c' . $index_p, number_format($cantidad, 0));
+                $template->setValue('c' . $index_p, $cantidad);
                 $template->setValue('prc' . $index_p, $precio);
                 $template->setValue('imp' . $index_p, $importe);
             }
