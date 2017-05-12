@@ -2655,7 +2655,7 @@ class venta extends MY_Controller
 
                 if (isset($productos[$i])) {
                     $id = sumCod($productos[$i]->id, 4);
-                    $nombre = $productos[$i]->nombre;
+                    $nombre = $productos[$i]->precio > 0 ? $productos[$i]->nombre : 'BONIF -- '.$productos[$i]->nombre;
                     $um = $productos[$i]->um;
                     $cantidad = $productos[$i]->cantidad;
                     $precio = $productos[$i]->precio;
