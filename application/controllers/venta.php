@@ -207,7 +207,6 @@ class venta extends MY_Controller
                     $detalle = json_decode($this->input->post('lst_producto', true));
 
 
-
                     if ($bonos) {
                         foreach ($bonos as $item) {
                             $bono = Array();
@@ -225,61 +224,60 @@ class venta extends MY_Controller
                     }
 
                     $validar_detalle = array();
-                    foreach($detalle as $d){
+                    foreach ($detalle as $d) {
                         $validar_detalle[] = array(
-                            'producto_id'=>$d->id_producto,
-                            'local_id'=>$venta['local_id'],
-                            'unidad_id'=>$d->unidad_medida,
-                            'cantidad'=>$d->cantidad,
-                            'bono'=>$d->bono
+                            'producto_id' => $d->id_producto,
+                            'local_id' => $venta['local_id'],
+                            'unidad_id' => $d->unidad_medida,
+                            'cantidad' => $d->cantidad,
+                            'bono' => $d->bono
                         );
                     }
-                    
+
                     $id = $this->input->post('idventa');
                     $edit = empty($id) ? false : $id;
                     $sin_stock = $this->inventario_model->check_stock($validar_detalle, $edit);
 
-                    if(count($sin_stock) == 0){
-                    $montoboletas = $this->session->userdata('MONTO_BOLETAS_VENTA');
-                    if (empty($id)) {
-                        $resultado = $this->venta_model->insertar_venta($venta, $detalle, $montoboletas);
-                        $id = $resultado;
+                    if (count($sin_stock) == 0) {
+                        $montoboletas = $this->session->userdata('MONTO_BOLETAS_VENTA');
+                        if (empty($id)) {
+                            $resultado = $this->venta_model->insertar_venta($venta, $detalle, $montoboletas);
+                            $id = $resultado;
+                            if ($resultado != false) {
+                                $this->historial_pedido_model->insertar_pedido(PROCESO_GENERAR, array(
+                                    'pedido_id' => $resultado,
+                                    'responsable_id' => $this->session->userdata('nUsuCodigo')
+                                ));
+                            }
+                        } else {
+                            if ($this->input->post('accion_resetear')) {
+                                $venta['accion'] = $this->input->post('accion_resetear');
+                            }
+
+                            $venta['venta_id'] = $id;
+                            $venta['devolver'] = $this->input->post('devolver');
+                            //$venta['estatus_actual'] = PEDIDO_DEVUELTO;
+
+                            //quito retencion pq no edito aqui ese campo
+                            unset($venta['retencion']);
+                            $resultado = $this->venta_model->actualizar_venta($venta, $detalle, $montoboletas);
+
+                            $this->historial_pedido_model->editar_pedido(PROCESO_GENERAR, $resultado);
+                        }
                         if ($resultado != false) {
-                            $this->historial_pedido_model->insertar_pedido(PROCESO_GENERAR, array(
-                                'pedido_id' => $resultado,
-                                'responsable_id' => $this->session->userdata('nUsuCodigo')
-                            ));
+
+                            $this->ventaEstatus($id, $this->input->post('venta_status', true));
+
+                            $dataresult['estatus_consolidado'] = $this->input->post('estatus_consolidado', true);;
+                            $dataresult['msj'] = "guardo";
+                            $dataresult['idventa'] = $resultado;
+                        } else {
+                            $dataresult['msj'] = "no guardo";
                         }
-                    } else {
-                        if ($this->input->post('accion_resetear')) {
-                            $venta['accion'] = $this->input->post('accion_resetear');
-                        }
-
-                        $venta['venta_id'] = $id;
-                        $venta['devolver'] = $this->input->post('devolver');
-                        //$venta['estatus_actual'] = PEDIDO_DEVUELTO;
-
-                        //quito retencion pq no edito aqui ese campo
-                        unset($venta['retencion']);
-                        $resultado = $this->venta_model->actualizar_venta($venta, $detalle, $montoboletas);
-
-                        $this->historial_pedido_model->editar_pedido(PROCESO_GENERAR, $resultado);
-                    }
-                    if ($resultado != false) {
-
-                        $this->ventaEstatus($id, $this->input->post('venta_status', true));
-
-                        $dataresult['estatus_consolidado'] = $this->input->post('estatus_consolidado', true);;
-                        $dataresult['msj'] = "guardo";
-                        $dataresult['idventa'] = $resultado;
                     } else {
                         $dataresult['msj'] = "no guardo";
+                        $dataresult['sin_stock'] = json_encode($sin_stock);
                     }
-                }
-                else{
-                    $dataresult['msj'] = "no guardo";
-                    $dataresult['sin_stock'] = json_encode($sin_stock);
-                }
                 } else {
                     $dataresult['msj'] = "no guardo";
                 }
@@ -2583,7 +2581,114 @@ class venta extends MY_Controller
 
     }
 
-    public function rtfBoleta($id, $tipo)
+    public function imprimir_boleta_rtf($id, $tipo)
+    {
+
+        $this->db->select('
+            df.documento_fiscal_id AS fiscal_id,
+            hpp.fecha_plan AS fecha,
+            cd.consolidado_id AS consolidado_id,
+            df.venta_id AS pedido_id,
+            gc.nombre_grupos_cliente AS tipo_cliente,
+            cp.nombre_condiciones AS venta_condicion,
+            z.zona_id AS zona_id,
+            u.username AS vendedor,
+            c.id_cliente AS cliente_id,
+            df.documento_serie AS serie,
+            df.documento_numero AS numero
+        ')->from('documento_fiscal AS df')
+            ->join('venta AS v', 'v.venta_id = df.venta_id')
+            ->join('historial_pedido_proceso AS hpp', 'hpp.pedido_id = df.venta_id')
+            ->join('consolidado_detalle AS cd', 'cd.pedido_id = df.venta_id')
+            ->join('usuario AS u', 'u.nUsuCodigo = v.id_vendedor')
+            ->join('condiciones_pago AS cp', 'cp.id_condiciones = v.condicion_pago')
+            ->join('cliente AS c', 'c.id_cliente = v.id_cliente')
+            ->join('grupos_cliente AS gc', 'gc.id_grupos_cliente = c.grupo_id')
+            ->join('zonas AS z', 'z.zona_id = c.id_zona')
+            ->where('hpp.proceso_id', PROCESO_IMPRIMIR);
+
+        if ($tipo == 'CONSOLIDADO')
+            $this->db->where('cd.consolidado_id', $id);
+        elseif ($tipo == 'VENTA')
+            $this->db->where('df.venta_id', $id);
+
+        $documentos = $this->db->group_by('df.documento_fiscal_id')->get()->result();
+
+        $template_name = 'boleta'.count($documentos).'.docx';
+        $word = new \PhpOffice\PhpWord\PhpWord();
+        $template = new \PhpOffice\PhpWord\TemplateProcessor(base_url('recursos/formatos/boleta/' . $template_name));
+
+
+        for ($n = 0; $n < count($documentos); $n++) {
+            $index = $n + 1;
+            $template->setValue('fecha' . $index, date('d/m/Y', strtotime($documentos[$n]->fecha)));
+            $template->setValue('cnld' . $index, $documentos[$n]->consolidado_id);
+            $template->setValue('numero' . $index, $documentos[$n]->serie . "-" . $documentos[$n]->numero);
+            $template->setValue('pedido' . $index, $documentos[$n]->pedido_id, 4);
+            $template->setValue('tipo_clien' . $index, $documentos[$n]->tipo_cliente);
+            $template->setValue('cond' . $index, $documentos[$n]->venta_condicion);
+            $template->setValue('distrito' . $index, $documentos[$n]->zona_id);
+            $template->setValue('vendedor' . $index, $documentos[$n]->vendedor);
+            $template->setValue('cliente_id' . $index, $documentos[$n]->cliente_id);
+
+            $productos = $this->db->select('
+                dd.id_producto AS id,
+                p.producto_nombre AS nombre,
+                u.abreviatura AS um,
+                dd.cantidad AS cantidad,
+                dd.precio AS precio,
+                dd.detalle_importe AS importe
+            ')->from('documento_detalle AS dd')
+                ->join('producto AS p', 'p.producto_id = dd.id_producto')
+                ->join('unidades AS u', 'u.id_unidad = dd.id_unidad')
+                ->where('dd.documento_fiscal_id', $documentos[$n]->fiscal_id)
+                ->get()->result();
+
+            $total = 0;
+            for ($i = 0; $i < 9; $i++) {
+                $id = '';
+                $nombre = '';
+                $um = '';
+                $cantidad = '';
+                $precio = '';
+                $importe = '';
+
+                if (isset($productos[$i])) {
+                    $id = sumCod($productos[$i]->id, 4);
+                    $nombre = $productos[$i]->nombre;
+                    $um = $productos[$i]->um;
+                    $cantidad = $productos[$i]->cantidad;
+                    $precio = $productos[$i]->precio;
+                    $importe = $productos[$i]->importe;
+                    $total += $importe;
+                }
+
+                $index_p = $index . '-' . ($i + 1);
+                $template->setValue('cod' . $index_p, $id);
+                $template->setValue('producto' . $index_p, $nombre);
+                $template->setValue('um' . $index_p, $um);
+                $template->setValue('cant' . $index_p, $cantidad);
+                $template->setValue('prc' . $index_p, $precio);
+                $template->setValue('imp' . $index_p, $importe);
+
+                $template->setValue('producto1-1', 'as');
+            }
+
+
+            $template->setValue('letra' . $index, numtoletras($total));
+            $template->setValue('total' . $index, 'S/. ' . number_format($total, 2));
+        }
+
+
+        $template->saveAs(sys_get_temp_dir() . '/boleta_temp.docx');
+        header("Content-Disposition: attachment; filename='boleta.docx'");
+        readfile(sys_get_temp_dir() . '/boleta_temp.docx'); // or echo file_get_contents($temp_file);
+        unlink(sys_get_temp_dir() . '/boleta_temp.docx');
+
+    }
+
+    public
+    function rtfBoleta($id, $tipo)
     {
 
         if ($tipo == 'VENTA') {
@@ -2777,7 +2882,8 @@ class venta extends MY_Controller
     }
 
 
-    public function rtfFactura($id, $tipo)
+    public
+    function rtfFactura($id, $tipo)
     {
 
         if ($tipo == 'VENTA') {
@@ -2976,7 +3082,8 @@ class venta extends MY_Controller
         $xmlWriter->save("php://output");
     }
 
-    public function verDocumentoFisal()
+    public
+    function verDocumentoFisal()
     {
         $idventa = $this->input->post('idventa');
         if ($idventa != FALSE) {
@@ -2995,7 +3102,8 @@ class venta extends MY_Controller
         }
     }
 
-    public function verVentaJson()
+    public
+    function verVentaJson()
     {
         $idventa = $this->input->post('idventa');
 
@@ -3007,7 +3115,8 @@ class venta extends MY_Controller
         }
     }
 
-    public function vercredito()
+    public
+    function vercredito()
     {
         $idventa = $this->input->post('idventa');
 
@@ -3028,7 +3137,8 @@ class venta extends MY_Controller
         }
     }
 
-    public function cargarCamion()
+    public
+    function cargarCamion()
     {
         if ($this->input->post('id_consolidado') != "") {
             $id = $this->input->post('id_consolidado');
@@ -3198,7 +3308,8 @@ class venta extends MY_Controller
     }
 
 
-    public function liquidacion()
+    public
+    function liquidacion()
     {
         $data = "";
         $data['vendedores'] = $this->usuario_model->select_all_user();
@@ -3210,7 +3321,8 @@ class venta extends MY_Controller
         }
     }
 
-    public function lst_liquidaciones_confirmadas()
+    public
+    function lst_liquidaciones_confirmadas()
     {
         if ($this->input->is_ajax_request()) {
 
@@ -3355,7 +3467,8 @@ class venta extends MY_Controller
 
     }
 
-    public function lst_liquidaciones()
+    public
+    function lst_liquidaciones()
     {
         if ($this->input->is_ajax_request()) {
             if ($this->input->post('vendedor', true) != -1) {
