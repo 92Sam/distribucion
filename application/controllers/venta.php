@@ -2675,7 +2675,7 @@ class venta extends MY_Controller
             }
 
 
-            $template->setValue('letra' . $index, numtoletras($total));
+            $template->setValue('letras' . $index, numtoletras($total));
             $template->setValue('total' . $index, 'S/. ' . number_format($total, 2));
         }
 
