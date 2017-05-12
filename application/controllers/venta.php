@@ -2670,8 +2670,6 @@ class venta extends MY_Controller
                 $template->setValue('c' . $index_p, number_format($cantidad, 0));
                 $template->setValue('prc' . $index_p, $precio);
                 $template->setValue('imp' . $index_p, $importe);
-
-                $template->setValue('producto1-1', 'as');
             }
 
 
