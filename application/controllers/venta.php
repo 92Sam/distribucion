@@ -2667,7 +2667,7 @@ class venta extends MY_Controller
                 $template->setValue('cod' . $index_p, $id);
                 $template->setValue('producto' . $index_p, $nombre);
                 $template->setValue('um' . $index_p, $um);
-                $template->setValue('cant' . $index_p, $cantidad);
+                $template->setValue('c' . $index_p, $cantidad);
                 $template->setValue('prc' . $index_p, $precio);
                 $template->setValue('imp' . $index_p, $importe);
 
