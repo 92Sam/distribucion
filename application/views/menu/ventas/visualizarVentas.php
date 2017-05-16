@@ -229,7 +229,7 @@
 
     function imprimirBoletaFactura(id,tipo){
        // $("#mvisualizarVenta").modal('hide');
-        var win = window.open('<?= $ruta ?>venta/rtfFactura/' + id+ '/' + tipo);
+        var win = window.open('<?= $ruta ?>venta/imprimir_factura_rtf/' + id+ '/' + tipo);
         win.focus();
 
     }

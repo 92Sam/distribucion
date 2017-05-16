@@ -413,9 +413,9 @@ class consolidadodecargas extends MY_Controller
         $id = $this->input->post('id');
         $c_detalles = $this->db->get_where('consolidado_detalle', array('consolidado_id' => $id))->result();
 
-        foreach ($c_detalles as $detalle){
+        foreach ($c_detalles as $detalle) {
             $pedido = $this->db->get_where('venta', array('venta_id' => $detalle->pedido_id))->row();
-            if ($pedido->venta_status == PEDIDO_DEVUELTO){
+            if ($pedido->venta_status == PEDIDO_DEVUELTO) {
                 $detalle_historial = $this->db->select('historial_pedido_detalle.*')
                     ->from('historial_pedido_detalle')
                     ->join('historial_pedido_proceso', 'historial_pedido_proceso.id = historial_pedido_detalle.historial_pedido_proceso_id')
@@ -423,13 +423,12 @@ class consolidadodecargas extends MY_Controller
                     ->where('historial_pedido_proceso.proceso_id', PROCESO_DEVOLVER)
                     ->get()->result();
 
-                if(count($detalle_historial) == 0){
+                if (count($detalle_historial) == 0) {
                     $this->db->where('venta_id', $detalle->pedido_id);
-                    $this->db->update('venta', array('venta_status'=>'ENTREGADO'));
+                    $this->db->update('venta', array('venta_status' => 'ENTREGADO'));
                 }
             }
         }
-
 
 
         if ($id == FALSE) {
@@ -676,7 +675,11 @@ class consolidadodecargas extends MY_Controller
         if ($consolidado->status == 'ABIERTO') {
             $pedidos = $this->db->get_where('consolidado_detalle', array('consolidado_id' => $id))->result();
             foreach ($pedidos as $pedido) {
-                $this->venta_model->set_numero_fiscal($pedido->pedido_id);
+                $venta = $this->db->get_where('venta', array('venta_id' => $pedido->pedido_id))->row();
+                if ($venta->tipo_doc_fiscal == 'BOLETA DE VENTA')
+                    $this->venta_model->set_numero_fiscal($pedido->pedido_id);
+                else
+                    $this->venta_model->set_numero_fiscal_temp($pedido->pedido_id);
             }
         }
 

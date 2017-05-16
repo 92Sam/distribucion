@@ -2605,6 +2605,7 @@ class venta extends MY_Controller
             ->join('cliente AS c', 'c.id_cliente = v.id_cliente')
             ->join('grupos_cliente AS gc', 'gc.id_grupos_cliente = c.grupo_id')
             ->join('zonas AS z', 'z.zona_id = c.id_zona')
+            ->where('df.documento_tipo', 'BOLETA DE VENTA')
             ->where('hpp.proceso_id', PROCESO_IMPRIMIR);
 
         if ($tipo == 'CONSOLIDADO')
@@ -2614,7 +2615,7 @@ class venta extends MY_Controller
 
         $documentos = $this->db->group_by('df.documento_fiscal_id')->get()->result();
 
-        $template_name = 'boleta'.count($documentos).'.docx';
+        $template_name = 'boleta' . count($documentos) . '.docx';
         $word = new \PhpOffice\PhpWord\PhpWord();
         $template = new \PhpOffice\PhpWord\TemplateProcessor(base_url('recursos/formatos/boleta/' . $template_name));
 
@@ -2655,7 +2656,7 @@ class venta extends MY_Controller
 
                 if (isset($productos[$i])) {
                     $id = sumCod($productos[$i]->id, 4);
-                    $nombre = $productos[$i]->precio > 0 ? $productos[$i]->nombre : 'BONIF -- '.$productos[$i]->nombre;
+                    $nombre = $productos[$i]->precio > 0 ? $productos[$i]->nombre : 'BONIF -- ' . $productos[$i]->nombre;
                     $um = $productos[$i]->um;
                     $cantidad = intval($productos[$i]->cantidad);
                     $precio = $productos[$i]->precio;
@@ -2682,6 +2683,126 @@ class venta extends MY_Controller
         header("Content-Disposition: attachment; filename='boleta.docx'");
         readfile(sys_get_temp_dir() . '/boleta_temp.docx'); // or echo file_get_contents($temp_file);
         unlink(sys_get_temp_dir() . '/boleta_temp.docx');
+
+    }
+
+    public function imprimir_factura_rtf($id, $tipo)
+    {
+
+        $this->db->select('
+            df.documento_fiscal_id AS fiscal_id,
+            hpp.fecha_plan AS fecha,
+            v.fecha AS fecha_vencimiento,
+            cd.consolidado_id AS consolidado_id,
+            df.venta_id AS pedido_id,
+            gc.nombre_grupos_cliente AS tipo_cliente,
+            cp.nombre_condiciones AS venta_condicion,
+            z.zona_id AS zona_id,
+            u.username AS vendedor,
+            c.razon_social AS razon_social,
+            c.ruc_cliente AS ruc,
+            c.id_cliente AS cliente_id,
+            df.documento_serie AS serie,
+            df.documento_numero AS numero
+        ')->from('documento_fiscal AS df')
+            ->join('venta AS v', 'v.venta_id = df.venta_id')
+            ->join('historial_pedido_proceso AS hpp', 'hpp.pedido_id = df.venta_id')
+            ->join('consolidado_detalle AS cd', 'cd.pedido_id = df.venta_id')
+            ->join('usuario AS u', 'u.nUsuCodigo = v.id_vendedor')
+            ->join('condiciones_pago AS cp', 'cp.id_condiciones = v.condicion_pago')
+            ->join('cliente AS c', 'c.id_cliente = v.id_cliente')
+            ->join('grupos_cliente AS gc', 'gc.id_grupos_cliente = c.grupo_id')
+            ->join('zonas AS z', 'z.zona_id = c.id_zona')
+            ->where('df.documento_tipo', 'FACTURA')
+            ->where('hpp.proceso_id', PROCESO_IMPRIMIR);
+
+        if ($tipo == 'CONSOLIDADO')
+            $this->db->where('cd.consolidado_id', $id);
+        elseif ($tipo == 'VENTA')
+            $this->db->where('df.venta_id', $id);
+
+        $documentos = $this->db->group_by('df.documento_fiscal_id')->get()->result();
+
+        $template_name = 'factura' . count($documentos) . '.docx';
+        $word = new \PhpOffice\PhpWord\PhpWord();
+        $template = new \PhpOffice\PhpWord\TemplateProcessor(base_url('recursos/formatos/factura/' . $template_name));
+
+
+        for ($n = 0; $n < count($documentos); $n++) {
+
+            $dato = $this->db->get_where('cliente_datos', array(
+                'cliente_id' => $documentos[$n]->cliente_id,
+                'principal' => 1,
+                'tipo' => 1
+            ))->row();
+
+            $index = $n + 1;
+            $template->setValue('cliente' . $index, $documentos[$n]->razon_social);
+            $template->setValue('ruc' . $index, $documentos[$n]->ruc);
+            $template->setValue('direccion' . $index, $dato->valor);
+            $template->setValue('fecha' . $index, date('d/m/Y', strtotime($documentos[$n]->fecha)));
+            $template->setValue('fecha_v' . $index, date('d/m/Y', strtotime($documentos[$n]->fecha_vencimiento)));
+            $template->setValue('numero' . $index, $documentos[$n]->serie . "-" . $documentos[$n]->numero);
+            $template->setValue('pedido' . $index, $documentos[$n]->serie.'-'.$documentos[$n]->numero, 4);
+            $template->setValue('tipo_cliente' . $index, $documentos[$n]->tipo_cliente);
+            $template->setValue('venta_cond' . $index, $documentos[$n]->venta_condicion);
+            $template->setValue('vendedor' . $index, $documentos[$n]->vendedor);
+            $template->setValue('cliente_id' . $index, $documentos[$n]->cliente_id);
+
+            $productos = $this->db->select('
+                dd.id_producto AS id,
+                p.producto_nombre AS nombre,
+                u.abreviatura AS um,
+                dd.cantidad AS cantidad,
+                dd.precio AS precio,
+                dd.detalle_importe AS importe
+            ')->from('documento_detalle AS dd')
+                ->join('producto AS p', 'p.producto_id = dd.id_producto')
+                ->join('unidades AS u', 'u.id_unidad = dd.id_unidad')
+                ->where('dd.documento_fiscal_id', $documentos[$n]->fiscal_id)
+                ->get()->result();
+
+            $total = 0;
+            for ($i = 0; $i < 12; $i++) {
+                $id = '';
+                $nombre = '';
+                $um = '';
+                $cantidad = '';
+                $precio = '';
+                $importe = '';
+
+                if (isset($productos[$i])) {
+                    $id = sumCod($productos[$i]->id, 4);
+                    $nombre = $productos[$i]->precio > 0 ? $productos[$i]->nombre : 'BONIF -- ' . $productos[$i]->nombre;
+                    $um = $productos[$i]->um;
+                    $cantidad = intval($productos[$i]->cantidad);
+                    $precio = $productos[$i]->precio;
+                    $importe = $productos[$i]->importe;
+                    $total += $importe;
+                }
+
+                $index_p = $index . '-' . ($i + 1);
+                $template->setValue('c' . $index_p, $id);
+                $template->setValue('producto' . $index_p, $nombre);
+                $template->setValue('um' . $index_p, $um);
+                $template->setValue('ca' . $index_p, $cantidad);
+                $template->setValue('pre' . $index_p, $precio);
+                $template->setValue('imp' . $index_p, $importe);
+            }
+
+            $igv = $total * 0.18;
+            $sub = $total - $igv;
+            $template->setValue('letras' . $index, numtoletras($total));
+            $template->setValue('sub' . $index, 'S/. ' . number_format($sub, 2));
+            $template->setValue('igv' . $index, 'S/. ' . number_format($igv, 2));
+            $template->setValue('total' . $index, 'S/. ' . number_format($total, 2));
+        }
+
+
+        $template->saveAs(sys_get_temp_dir() . '/factura_temp.docx');
+        header("Content-Disposition: attachment; filename='factura.docx'");
+        readfile(sys_get_temp_dir() . '/factura_temp.docx'); // or echo file_get_contents($temp_file);
+        unlink(sys_get_temp_dir() . '/factura_temp.docx');
 
     }
 
