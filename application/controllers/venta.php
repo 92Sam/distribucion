@@ -2742,13 +2742,13 @@ class venta extends MY_Controller
             $template->setValue('direccion' . $index, $dato->valor);
             $template->setValue('fecha' . $index, date('d/m/Y', strtotime($documentos[$n]->fecha)));
             $template->setValue('fecha_v' . $index, date('d/m/Y', strtotime($documentos[$n]->fecha_vencimiento)));
-            $template->setValue('numero' . $index, $documentos[$n]->serie . "-" . $documentos[$n]->numero);
+            $template->setValue('documento' . $index, $documentos[$n]->serie . "-" . $documentos[$n]->numero);
             $template->setValue('pedido' . $index, sumCod($documentos[$n]->pedido_id, 4));
             $template->setValue('tipo_cliente' . $index, $documentos[$n]->tipo_cliente);
             $template->setValue('venta_cond' . $index, $documentos[$n]->venta_condicion);
             $template->setValue('vendedor' . $index, $documentos[$n]->vendedor);
             $template->setValue('cliente_id' . $index, $documentos[$n]->cliente_id);
-            $template->setValue('cnld' . $index, $documentos[$n]->consolidado_id);
+            $template->setValue('consolidado' . $index, $documentos[$n]->consolidado_id);
 
             $productos = $this->db->select('
                 dd.id_producto AS id,
