@@ -1,6 +1,6 @@
 <?php $ruta = base_url(); ?>
 <div class="modal-dialog modal-lg" tabindex="-1" role="dialog"
-         aria-labelledby="myModalLabel" aria-hidden="true">
+     aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-content">
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
@@ -64,8 +64,8 @@
                             </td>
 
                         </tr>
-                            <?php
-                        } ?>
+                        <?php
+                    } ?>
                     <tr style="background-color: #C6EFCE">
                         <td></td>
                         <td style="text-align: right; font-size: 13px"><?php echo '<strong style="fond-family:bold;">Total Bultos => <strong>'; ?></td>
@@ -83,15 +83,27 @@
             </div>
             <br>
 
+            <?php if ($total_boleta != 0): ?>
+                <div class="btn-group">
+                    <a class="btn btn-sm btn-default" data-toggle="tooltip"
+                       title="Ver" data-original-title="Ver"
+                       href="#"
+                       onclick="impirmirGuiaBoleta('<?php if (isset($consolidado['consolidado_id'])) echo $consolidado['consolidado_id']; ?>'); ">
+                        <span>Guia de remision Boletas</span>
+                    </a>
+                </div>
+            <?php endif; ?>
 
-            <div class="btn-group">
-                <a class="btn btn-sm btn-default" data-toggle="tooltip"
-                   title="Ver" data-original-title="Ver"
-                   href="#"
-                   onclick="impirmirGuia('<?php if (isset($consolidado['consolidado_id'])) echo $consolidado['consolidado_id']; ?>'); ">
-                    <span>Guia de remision</span>
-                </a>
-            </div>
+            <?php if ($total_factura != 0): ?>
+                <div class="btn-group">
+                    <a class="btn btn-sm btn-default" data-toggle="tooltip"
+                       title="Ver" data-original-title="Ver"
+                       href="#"
+                       onclick="impirmirGuiaFactura('<?php if (isset($consolidado['consolidado_id'])) echo $consolidado['consolidado_id']; ?>'); ">
+                        <span>Guia de remision Facturas</span>
+                    </a>
+                </div>
+            <?php endif; ?>
             <!-- nuevos btns-->
 
             <?php if ($consolidado['status'] == 'IMPRESO' || $consolidado['status'] == 'CONFIRMADO' || $consolidado['status'] == 'CERRADO') { ?>
@@ -103,26 +115,26 @@
                         <span>Notas de Entrega</span>
                     </a>
                 </div>
-                <?php if($total_factura != 0):?>
-                <div class="btn-group">
-                    <a class="btn btn-sm btn-primary" data-toggle="tooltip"
-                       title="Facturas" data-original-title="Ver"
-                       href="#"
-                       onclick="docFiscalFact('<?php if (isset($consolidado['consolidado_id'])) echo $consolidado['consolidado_id']; ?>'); ">
-                        <span>Facturas</span>
-                    </a>
-                </div>
-                    <?php endif;?>
+                <?php if ($total_factura != 0): ?>
+                    <div class="btn-group">
+                        <a class="btn btn-sm btn-primary" data-toggle="tooltip"
+                           title="Facturas" data-original-title="Ver"
+                           href="#"
+                           onclick="docFiscalFact('<?php if (isset($consolidado['consolidado_id'])) echo $consolidado['consolidado_id']; ?>'); ">
+                            <span>Facturas</span>
+                        </a>
+                    </div>
+                <?php endif; ?>
 
-                <?php if($total_boleta != 0):?>
-                <div class="btn-group">
+                <?php if ($total_boleta != 0): ?>
+                    <div class="btn-group">
                     <a class="btn btn-sm btn-primary" data-toggle="tooltip"
                        title="Boletas" data-original-title="Ver"
                        href="#"
                        onclick="docFiscal('<?php if (isset($consolidado['consolidado_id'])) echo $consolidado['consolidado_id']; ?>'); ">
                         <span>Boletas de ventas</span>
                     </a>
-                    <?php endif;?>
+                <?php endif; ?>
                 </div>
             <?php } ?>
 
@@ -144,14 +156,14 @@
             <div class="modal-footer">
                 <button type="button" id="" class="btn btn-primary"
                         onclick="eliminar_pedido(
-                        '<?= $consolidado['consolidado_id'] ?>',
-                        '<?php echo $detalle['venta_id']; ?>'); ">
+                                '<?= $consolidado['consolidado_id'] ?>',
+                                '<?php echo $detalle['venta_id']; ?>'); ">
                     <li class="glyphicon glyphicon-thumbs-up"></li>
                     Si
                 </button>
                 <button type="button" id="btnCerrarConsulta" class="btn btn-warning">
-                        <li class="glyphicon glyphicon-thumbs-down"></li>
-                        No
+                    <li class="glyphicon glyphicon-thumbs-down"></li>
+                    No
                 </button>
 
             </div>
@@ -166,19 +178,26 @@
 </div>
 <script type="text/javascript">
 
-    $("#btnCerrarConsulta").click(function() {
+    $("#btnCerrarConsulta").click(function () {
         $("#confirmacion").modal('hide');
     });
 
 
-    function confirmarEliminacion(){
+    function confirmarEliminacion() {
 
         $("#confirmacion").modal('show');
     }
 
-    function impirmirGuia(id) {
+    function impirmirGuiaBoleta(id) {
 
-        var win = window.open('<?= $ruta ?>consolidadodecargas/rtfRemision/' + id, '_blank');
+        var win = window.open('<?= $ruta ?>consolidadodecargas/rtfRemisionBoleta/' + id, '_blank');
+        win.focus();
+
+    }
+
+    function impirmirGuiaFactura(id) {
+
+        var win = window.open('<?= $ruta ?>consolidadodecargas/rtfRemisionFactura/' + id, '_blank');
         win.focus();
 
     }
