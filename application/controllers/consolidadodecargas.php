@@ -668,6 +668,203 @@ class consolidadodecargas extends MY_Controller
 
     }
 
+    function rtfRemisionBoleta($id)
+    {
+
+        $remision = $this->db->select('
+            cc.fecha_creacion AS fecha_emision,
+            cc.fecha AS fecha_traslado,
+            c.camiones_placa AS placa,
+            u.nombre AS transportista
+        ')->from('consolidado_carga AS cc')
+            ->join('camiones AS c', 'c.camiones_id = cc.camion')
+            ->join('usuario AS u', 'u.nUsuCodigo = c.id_trabajadores')
+            ->where('cc.consolidado_id', $id)
+            ->get()->row();
+
+        $consolidado_detalles = $this->db->select('
+            dv.id_producto AS producto_id,
+            dv.cantidad AS cantidad,
+            dv.precio AS precio,
+            dv.detalle_importe AS importe,
+            dv.bono AS bono,
+            um.abreviatura AS um,
+            p.producto_nombre AS producto_nombre,
+            c.id_zona AS zona_id
+        ')->from('detalle_venta AS dv')
+            ->join('venta AS v', 'v.venta_id = dv.id_venta')
+            ->join('cliente AS c', 'c.id_cliente = v.id_cliente')
+            ->join('consolidado_detalle AS cd', 'cd.pedido_id = dv.id_venta')
+            ->join('unidades AS um', 'um.id_unidad = dv.unidad_medida')
+            ->join('producto AS p', 'p.producto_id = dv.id_producto')
+            ->where('cd.consolidado_id', $id)
+            ->where('v.tipo_doc_fiscal', 'BOLETA DE VENTA')
+            ->get()->result();
+
+        $distrito = $this->db->select(
+            'ciu.ciudad_nombre AS distrito'
+        )->from('zonas AS z')
+            ->join('ciudades AS ciu', 'ciu.ciudad_id = z.ciudad_id')
+            ->where('z.zona_id', $consolidado_detalles[0]->zona_id)
+            ->get()->row();
+
+        $cantidad_paginas = 1;
+        if (count($consolidado_detalles) > 38)
+            $cantidad_paginas = intval(count($consolidado_detalles) / 38) + 1;
+
+        $template_name = 'remision' . $cantidad_paginas . '.docx';
+        $word = new \PhpOffice\PhpWord\PhpWord();
+        $template = new \PhpOffice\PhpWord\TemplateProcessor(base_url('recursos/formatos/remision/' . $template_name));
+
+        $detalle_index = 0;
+        for ($n = 0; $n < $cantidad_paginas; $n++) {
+
+            $index = $n + 1;
+            $template->setValue('fecha_e' . $index, date('d/m/Y', strtotime($remision->fecha_emision)));
+            $template->setValue('fecha_t' . $index, date('d/m/Y', strtotime($remision->fecha_traslado)));
+            $template->setValue('placa' . $index, $remision->placa);
+            $template->setValue('transportista' . $index, $remision->transportista);
+
+            $template->setValue('cliente' . $index, 'VARIOS');
+            $template->setValue('ruc' . $index, '');
+            $template->setValue('direccion' . $index, $distrito->distrito);
+            $template->setValue('llegada' . $index, $distrito->distrito);
+
+            for ($i = 0; $i < 38; $i++) {
+                $id = '';
+                $nombre = '';
+                $um = '';
+                $cantidad = '';
+                $valor_unitario = '';
+                $valor_venta = '';
+
+                if (isset($consolidado_detalles[$detalle_index])) {
+                    $id = sumCod($consolidado_detalles[$detalle_index]->producto_id, 4);
+                    $nombre = $consolidado_detalles[$detalle_index]->bono == 1 ? 'BONIF -- ' . $consolidado_detalles[$detalle_index]->producto_nombre : $consolidado_detalles[$detalle_index]->producto_nombre;
+                    $um = $consolidado_detalles[$detalle_index]->um;
+                    $cantidad = intval($consolidado_detalles[$detalle_index]->cantidad);
+                    $valor_unitario = $consolidado_detalles[$detalle_index]->precio;
+                    $valor_venta = $consolidado_detalles[$detalle_index]->importe;
+
+                    $detalle_index++;
+                }
+
+                $index_p = $index . '-' . ($i + 1);
+                $template->setValue($index_p, $id);
+                $template->setValue('c' . $index_p, $cantidad);
+                $template->setValue('u' . $index_p, $um);
+                $template->setValue('producto' . $index_p, $nombre);
+                $template->setValue('prc' . $index_p, $valor_unitario);
+                $template->setValue('v' . $index_p, $valor_venta);
+            }
+        }
+
+        $template->saveAs(sys_get_temp_dir() . '/remision_temp.docx');
+        header("Content-Disposition: attachment; filename='remision.docx'");
+        readfile(sys_get_temp_dir() . '/remision_temp.docx'); // or echo file_get_contents($temp_file);
+        unlink(sys_get_temp_dir() . '/remision_temp.docx');
+    }
+
+    function rtfRemisionFactura($id)
+    {
+
+        $remision = $this->db->select('
+            cc.fecha_creacion AS fecha_emision,
+            cc.fecha AS fecha_traslado,
+            c.camiones_placa AS placa,
+            u.nombre AS transportista
+        ')->from('consolidado_carga AS cc')
+            ->join('camiones AS c', 'c.camiones_id = cc.camion')
+            ->join('usuario AS u', 'u.nUsuCodigo = c.id_trabajadores')
+            ->where('cc.consolidado_id', $id)
+            ->get()->row();
+
+        $facturas = $this->db->select('
+            cd.pedido_id AS venta_id,
+            c.razon_social AS razon_social,
+            c.ruc_cliente AS ruc,
+            c.id_cliente AS cliente_id
+        ')->from('consolidado_detalle AS cd')
+            ->join('venta AS v', 'v.venta_id = cd.pedido_id')
+            ->join('cliente AS c', 'c.id_cliente = v.id_cliente')
+            ->where('cd.consolidado_id', $id)
+            ->where('v.tipo_doc_fiscal', 'FACTURA')
+            ->get()->result();
+
+        $cantidad_paginas = count($facturas);
+
+        $template_name = 'remision' . $cantidad_paginas . '.docx';
+        $word = new \PhpOffice\PhpWord\PhpWord();
+        $template = new \PhpOffice\PhpWord\TemplateProcessor(base_url('recursos/formatos/remision/' . $template_name));
+
+        for ($n = 0; $n < $cantidad_paginas; $n++) {
+
+            $index = $n + 1;
+            $template->setValue('fecha_e' . $index, date('d/m/Y', strtotime($remision->fecha_emision)));
+            $template->setValue('fecha_t' . $index, date('d/m/Y', strtotime($remision->fecha_traslado)));
+            $template->setValue('placa' . $index, $remision->placa);
+            $template->setValue('transportista' . $index, $remision->transportista);
+
+            $dato = $this->db->get_where('cliente_datos', array(
+                'cliente_id' => $facturas[$n]->cliente_id,
+                'principal' => 1,
+                'tipo' => 1
+            ))->row();
+
+            $template->setValue('cliente' . $index, $facturas[$n]->razon_social);
+            $template->setValue('ruc' . $index, $facturas[$n]->ruc);
+            $template->setValue('direccion' . $index, $dato->valor);
+            $template->setValue('llegada' . $index, $dato->valor);
+
+            $consolidado_detalles = $this->db->select('
+            dv.id_producto AS producto_id,
+            dv.cantidad AS cantidad,
+            dv.precio AS precio,
+            dv.detalle_importe AS importe,
+            dv.bono AS bono,
+            um.abreviatura AS um,
+            p.producto_nombre AS producto_nombre
+        ')->from('detalle_venta AS dv')
+                ->join('venta AS v', 'v.venta_id = dv.id_venta')
+                ->join('consolidado_detalle AS cd', 'cd.pedido_id = dv.id_venta')
+                ->join('unidades AS um', 'um.id_unidad = dv.unidad_medida')
+                ->join('producto AS p', 'p.producto_id = dv.id_producto')
+                ->where('v.venta_id', $facturas[$n]->venta_id)
+                ->get()->result();
+
+            for ($i = 0; $i < 38; $i++) {
+                $id = '';
+                $nombre = '';
+                $um = '';
+                $cantidad = '';
+                $valor_unitario = '';
+                $valor_venta = '';
+
+                if (isset($consolidado_detalles[$i])) {
+                    $id = sumCod($consolidado_detalles[$i]->producto_id, 4);
+                    $nombre = $consolidado_detalles[$i]->bono == 1 ? 'BONIF -- ' . $consolidado_detalles[$i]->producto_nombre : $consolidado_detalles[$i]->producto_nombre;
+                    $um = $consolidado_detalles[$i]->um;
+                    $cantidad = intval($consolidado_detalles[$i]->cantidad);
+                    $valor_unitario = $consolidado_detalles[$i]->precio;
+                    $valor_venta = $consolidado_detalles[$i]->importe;
+                }
+
+                $index_p = $index . '-' . ($i + 1);
+                $template->setValue($index_p, $id);
+                $template->setValue('c' . $index_p, $cantidad);
+                $template->setValue('u' . $index_p, $um);
+                $template->setValue('producto' . $index_p, $nombre);
+                $template->setValue('prc' . $index_p, $valor_unitario);
+                $template->setValue('v' . $index_p, $valor_venta);
+            }
+        }
+
+        $template->saveAs(sys_get_temp_dir() . '/remision_temp.docx');
+        header("Content-Disposition: attachment; filename='remision.docx'");
+        readfile(sys_get_temp_dir() . '/remision_temp.docx'); // or echo file_get_contents($temp_file);
+        unlink(sys_get_temp_dir() . '/remision_temp.docx');
+    }
+
 
     function pdf($id)
     {
