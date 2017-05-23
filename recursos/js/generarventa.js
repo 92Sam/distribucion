@@ -542,6 +542,7 @@ function alertModal(message, type, disabled) {
 }
 
 function hacerventa(imprimir, flag) {
+
     if ($('#tipo_documento').val() == 'FACTURA') {
         if ($('#razon_social').val() == '') {
             $.bootstrapGrowl('<h4>Debe ingresar razon social</h4>', {
@@ -566,44 +567,40 @@ function hacerventa(imprimir, flag) {
         }
     }
 
-    $("#realizarventa").addClass('disabled');
-    $("#btnRealizarVentaAndView").addClass('disabled');
+
 
     if ($("#id_cliente").val() == '') {
         alertModal('<h4>Datos incompletos</h4> <p>Debe seleccionar el cliente</p>', 'warning', true);
-        $("#realizarventa").removeClass('disabled');
-        $("#btnRealizarVentaAndView").removeClass('disabled');
         return false;
     }
 
     if ($("#tipo_documento").val() == '') {
         alertModal('<h4>Datos incompletos</h4> <p>Debe seleccionar el tipo de documento</p>', 'warning', true);
-        $("#realizarventa").removeClass('disabled');
-        $("#btnRealizarVentaAndView").removeClass('disabled');
         return false;
     }
 
     if ($("#cboModPag").val() == '') {
         alertModal('<h4>Datos incompletos</h4> <p>Debe seleccionar el modo de pago</p>', 'warning', true);
-        $("#realizarventa").removeClass('disabled');
-        $("#btnRealizarVentaAndView").removeClass('disabled');
         return false;
     }
 
     if ($("#venta_status").val() == '') {
         alertModal('<h4>Datos incompletos</h4> <p>Debe seleccionar el status de la venta</p>', 'warning', true);
-        $("#realizarventa").removeClass('disabled');
-        $("#btnRealizarVentaAndView").removeClass('disabled');
         return false;
     }
 
     if ($("#tbodyproductos tr[id^='producto']").length == 0) {
         alertModal('<h4>Datos incompletos</h4> <p>Debe seleccionar al menos un producto</p>', 'warning', true);
-        $("#realizarventa").removeClass('disabled');
-        $("#btnRealizarVentaAndView").removeClass('disabled');
         return false;
     }
 
+    if($('#tipo_documento').val() == 'FACTURA' && $('#id_cliente option:selected').attr('data-iden') != 1){
+        alertModal('<h4>Error.</h4> <p>El cliente debe tener ruc para realizar un pedido con factura</p>', 'warning', true);
+        return false;
+    }
+
+    $("#realizarventa").addClass('disabled');
+    $("#btnRealizarVentaAndView").addClass('disabled');
 
     var dias = $('#diascondicionpagoinput').val();
     var importe = parseFloat($('#importe').val());
@@ -1545,6 +1542,8 @@ function calculatotales(producto_id, producto_nombre, unidad_nombre, cantidad, p
         "<td>";
     if (precio_sugerido > 0 && $("#edit_pedido").val() == 1) {
         tr += "<a href='#' data-toggle='tooltip' tittle='Aceptar Precio Sugerido' data-original-title='Aceptar Precio Sugerido' onclick='aplicarPrecioSugerido(" + count + ", " + cantidad + ", " + porcentaje_impuesto + ",  \"" + cualidad + "\", " + precio_sugerido + ", " + producto_id + " )' class='btn btn-default'><i class='fa fa-check-circle'></i> </a>";
+        tr += "<span style='margin-left: 10px;'></span>"
+        tr += "<a href='#' data-toggle='tooltip' tittle='Cancelar Precio Sugerigo' data-original-title='Cancelar Precio Sugerido' onclick='aplicarPrecioSugerido(" + count + ", " + cantidad + ", " + porcentaje_impuesto + ",  \"" + cualidad + "\", " + precio + ", " + producto_id + " )' class='btn btn-warning'><i class='fa fa-remove'></i> </a>";
     }
     tr += "</td><td>";
     if (bono === 'false') {
@@ -1857,12 +1856,9 @@ function aplicarPrecioSugerido(count, cantidad, porcentaje_impuesto, cualidad, p
         //console.log(count);
         if (value["count"] == count) {
 
-
             var subtotal = preciosugerido * cantidad;
-
             calculatotales(value.id_producto, value.nombre, value.unidad_nombre, cantidad, preciosugerido, subtotal, porcentaje_impuesto, countproducto, value.unidades, cualidad, value.unidad_medida, 0.00, value.bono);
             addProductoToArray(value.id_producto, value.nombre, value.unidad_medida, value.unidad_nombre, value.cantidad, preciosugerido, 0.00, subtotal, value.unidades, cualidad, porcentaje_impuesto, value.bono, value.venta_sin_stock);
-
         } else {
 
             calculatotales(value.id_producto, value.nombre, value.unidad_nombre, value.cantidad, value.precio, value.detalle_importe, porcentaje_impuesto, countproducto, value.unidades, cualidad, value.unidad_medida, value.precio_sugerido, value.bono);

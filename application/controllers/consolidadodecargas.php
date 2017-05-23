@@ -682,7 +682,7 @@ class consolidadodecargas extends MY_Controller
             ->where('cc.consolidado_id', $id)
             ->get()->row();
 
-        $consolidado_detalles = $this->db->select('
+        $consolidado_detalles_temp = $this->db->select('
             dv.id_producto AS producto_id,
             dv.cantidad AS cantidad,
             dv.precio AS precio,
@@ -700,6 +700,30 @@ class consolidadodecargas extends MY_Controller
             ->where('cd.consolidado_id', $id)
             ->where('v.tipo_doc_fiscal', 'BOLETA DE VENTA')
             ->get()->result();
+
+        $consolidado_detalles = array();
+        $temp_cantidad = array();
+        foreach ($consolidado_detalles_temp as $detalles){
+            if(isset($temp_cantidad[$detalles->producto_id.$detalles->um])){
+                $temp_cantidad[$detalles->producto_id.$detalles->um]->cantidad += $detalles->cantidad;
+            }
+            else{
+                $temp = new stdClass();
+                $temp->producto_id = $detalles->producto_id;
+                $temp->cantidad = $detalles->cantidad;
+                $temp->precio = $detalles->precio;
+                $temp->importe = $detalles->importe;
+                $temp->um = $detalles->um;
+                $temp->producto_nombre = $detalles->producto_nombre;
+                $temp->zona_id = $detalles->zona_id;
+
+                $temp_cantidad[$detalles->producto_id.$detalles->um] = $temp;
+            }
+        }
+
+        foreach ($temp_cantidad as $temp){
+            $consolidado_detalles[] = $temp;
+        }
 
         $distrito = $this->db->select(
             'ciu.ciudad_nombre AS distrito'
@@ -740,7 +764,7 @@ class consolidadodecargas extends MY_Controller
 
                 if (isset($consolidado_detalles[$detalle_index])) {
                     $id = sumCod($consolidado_detalles[$detalle_index]->producto_id, 4);
-                    $nombre = $consolidado_detalles[$detalle_index]->bono == 1 ? 'BONIF -- ' . $consolidado_detalles[$detalle_index]->producto_nombre : $consolidado_detalles[$detalle_index]->producto_nombre;
+                    $nombre = $consolidado_detalles[$detalle_index]->producto_nombre;
                     $um = $consolidado_detalles[$detalle_index]->um;
                     $cantidad = intval($consolidado_detalles[$detalle_index]->cantidad);
                     $valor_unitario = $consolidado_detalles[$detalle_index]->precio;
@@ -816,7 +840,7 @@ class consolidadodecargas extends MY_Controller
             $template->setValue('direccion' . $index, $dato->valor);
             $template->setValue('llegada' . $index, $dato->valor);
 
-            $consolidado_detalles = $this->db->select('
+            $consolidado_detalles_temp = $this->db->select('
             dv.id_producto AS producto_id,
             dv.cantidad AS cantidad,
             dv.precio AS precio,
@@ -832,6 +856,29 @@ class consolidadodecargas extends MY_Controller
                 ->where('v.venta_id', $facturas[$n]->venta_id)
                 ->get()->result();
 
+            $consolidado_detalles = array();
+            $temp_cantidad = array();
+            foreach ($consolidado_detalles_temp as $detalles){
+                if(isset($temp_cantidad[$detalles->producto_id.$detalles->um])){
+                    $temp_cantidad[$detalles->producto_id.$detalles->um]->cantidad += $detalles->cantidad;
+                }
+                else{
+                    $temp = new stdClass();
+                    $temp->producto_id = $detalles->producto_id;
+                    $temp->cantidad = $detalles->cantidad;
+                    $temp->precio = $detalles->precio;
+                    $temp->importe = $detalles->importe;
+                    $temp->um = $detalles->um;
+                    $temp->producto_nombre = $detalles->producto_nombre;
+
+                    $temp_cantidad[$detalles->producto_id.$detalles->um] = $temp;
+                }
+            }
+
+            foreach ($temp_cantidad as $temp){
+                $consolidado_detalles[] = $temp;
+            }
+
             for ($i = 0; $i < 38; $i++) {
                 $id = '';
                 $nombre = '';
@@ -842,7 +889,7 @@ class consolidadodecargas extends MY_Controller
 
                 if (isset($consolidado_detalles[$i])) {
                     $id = sumCod($consolidado_detalles[$i]->producto_id, 4);
-                    $nombre = $consolidado_detalles[$i]->bono == 1 ? 'BONIF -- ' . $consolidado_detalles[$i]->producto_nombre : $consolidado_detalles[$i]->producto_nombre;
+                    $nombre = $consolidado_detalles[$i]->producto_nombre;
                     $um = $consolidado_detalles[$i]->um;
                     $cantidad = intval($consolidado_detalles[$i]->cantidad);
                     $valor_unitario = $consolidado_detalles[$i]->precio;

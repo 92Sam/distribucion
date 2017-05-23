@@ -193,7 +193,37 @@ class consolidado_model extends CI_Model
 
         $this->db->group_by('consolidado_id');
         $query = $this->db->get();
-        return $query->result_array();
+        $result = $query->result_array();
+
+        for ($i=0;$i<count($result);$i++){
+            $total = $this->db->get_where('consolidado_detalle', array('consolidado_id'=>$result[$i]['consolidado_id']))->result();
+
+            $result[$i]['total_pedidos'] = count($total);
+
+            foreach ($total as $t){
+                $pedidos = $this->db->select('z.zona_nombre as zona')
+                    ->from('venta AS v')
+                    ->join('cliente AS c', 'c.id_cliente = v.id_cliente')
+                    ->join('zonas AS z', 'z.zona_id = c.id_zona')
+                    ->where('v.venta_id', $result[$i]['consolidado_id'])
+                    ->group_by('z.zona_id')
+                    ->get()->result();
+
+                $index = 0;
+                $zonas = '';
+                foreach($pedidos as $p){
+                    $zonas .= $p->zona;
+
+                    if($index < count($pedidos) - 1)
+                        $zonas .= ', ';
+
+                    $index++;
+                }
+                $result[$i]['zonas'] = $zonas;
+            }
+        }
+
+        return $result;
 
     }
 

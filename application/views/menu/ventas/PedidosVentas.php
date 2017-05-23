@@ -125,7 +125,7 @@
                     <div class="col-md-12 fieldset">
                         <span class="legend">Datos Claves</span>
                         <span
-                            class="legend-right"><?= get_day_week(date('N')) . ' - ' . date('d/m/Y') . ' ' . $this->session->userdata('nombre') ?></span>
+                                class="legend-right"><?= get_day_week(date('N')) . ' - ' . date('d/m/Y') . ' ' . $this->session->userdata('nombre') ?></span>
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="form-group">
@@ -182,7 +182,8 @@
                                     <option value="">Seleccione</option>
                                     <?php foreach ($clientes as $cl): ?>
                                         <option
-                                            value="<?= $cl['id_cliente']; ?>"><?= $cl['razon_social'] ?></option>
+                                                data-iden="<?= $cl['identificacion'] ?>"
+                                                value="<?= $cl['id_cliente']; ?>"><?= $cl['razon_social'] ?></option>
                                     <?php endforeach; ?>
                                 </select>
                                 <input type="hidden" id="current_cliente_id" value="">
@@ -212,7 +213,7 @@
                                 <label for="deuda_actual" class="control-label panel-admin-text">Deuda Actual</label>
                                 <div class="input-group">
                                     <div
-                                        class="input-group-addon"><?= MONEDA ?></div>
+                                            class="input-group-addon"><?= MONEDA ?></div>
                                     <input type="number" id="deuda_actual"
                                            name="deuda_actual" readonly="readonly"
                                            class="form-control" value="0.00">
@@ -229,8 +230,8 @@
                         <div class="row div_documento" style="display: none;">
                             <div class="col-md-4">
                                 <label
-                                    for="direccion_entrega_np"
-                                    class="control-label panel-admin-text">
+                                        for="direccion_entrega_np"
+                                        class="control-label panel-admin-text">
                                     Direccion Principal</label>
                             </div>
                             <div class="col-md-8">
@@ -242,8 +243,8 @@
                         <div class="row">
                             <div class="col-md-4">
                                 <label
-                                    for="direccion_entrega_np"
-                                    class="control-label panel-admin-text">
+                                        for="direccion_entrega_np"
+                                        class="control-label panel-admin-text">
                                     Direccion Entrega</label>
                             </div>
                             <div class="col-md-8">
@@ -444,7 +445,8 @@
                                         <label for="cboTipDoc" class="control-label panel-admin-text">Documento:</label>
                                     </div>
                                     <div class="col-md-8">
-                                        <input type="text" class="form-control" readonly id="tipoDocumento" name="tipoDocumento" style="text-align: right;">
+                                        <input type="text" class="form-control" readonly id="tipoDocumento"
+                                               name="tipoDocumento" style="text-align: right;">
                                     </div>
                                 </div>
                             </div>
@@ -504,12 +506,12 @@
                                         <div class="input-prepend input-append input-group">
                                             <span class="input-group-addon"><?= MONEDA; ?></span>
                                             <input
-                                                style="font-size: 14px; font-weight: bolder; background: #FFEB9C;"
-                                                type="text"
-                                                class='input-square input-small form-control'
-                                                name="totApagar"
-                                                id="totApagar"
-                                                readonly value="0.00">
+                                                    style="font-size: 14px; font-weight: bolder; background: #FFEB9C;"
+                                                    type="text"
+                                                    class='input-square input-small form-control'
+                                                    name="totApagar"
+                                                    id="totApagar"
+                                                    readonly value="0.00">
                                         </div>
                                     </div>
                                 </div>
@@ -648,7 +650,7 @@
                     <h4 class="modal-title">Existencia del producto</h4> <h5 id="nombreproduto"></h5>
                 </div>
                 <div class="modal-body" id="modalbodyproducto">
-                    <div class="row" >
+                    <div class="row">
                         <div class="form-group">
                             <div class="col-md-1" style="display: none">Precio:</div>
                             <div class="col-md-5" style="display: none">
@@ -656,7 +658,7 @@
                                         onchange="cambiarnombreprecio()" style="width:250px">
                                     <?php foreach ($precios as $precio) { ?>
                                         <option
-                                            value="<?= $precio['id_precio']; ?>" <?php if ($precio['nombre_precio'] == 'Precio Venta') echo 'selected'; ?>><?= $precio['nombre_precio']; ?></option>
+                                                value="<?= $precio['id_precio']; ?>" <?php if ($precio['nombre_precio'] == 'Precio Venta') echo 'selected'; ?>><?= $precio['nombre_precio']; ?></option>
                                     <?php } ?>
                                 </select>
                             </div>
@@ -682,7 +684,8 @@
                         <div class="form-group">
                             <div class="col-md-2"><h4>Cantidad:</h4></div>
                             <div class="col-md-2">
-                                <input readonly id="cantidad" class="form-control" Onkeypress = 'return justNumbers(event);'>
+                                <input readonly id="cantidad" class="form-control"
+                                       Onkeypress='return justNumbers(event);'>
                             </div>
                             <div class="col-md-3">
                                 <h4>Precio Sugerido:</h4>
@@ -755,10 +758,9 @@
         var grupo_id = "";
         var grupo_name = "";
 
-        function justNumbers(e)
-        {
-           var keynum = window.event ? window.event.keyCode : e.which;
-           if ((keynum == 8) || (keynum == 46))
+        function justNumbers(e) {
+            var keynum = window.event ? window.event.keyCode : e.which;
+            if ((keynum == 8) || (keynum == 46))
                 return true;
             return /\d/.test(String.fromCharCode(keynum));
         }
@@ -770,6 +772,7 @@
             'grupo_name': '<?=$clie['nombre_grupos_cliente']?>',
             'vendedor_id': '<?=$clie['vendedor_a']?>',
             'zona_id': '<?=$clie['id_zona']?>',
+            'identificacion': '<?=$clie['identificacion']?>'
         });
         <?php endforeach; ?>
 
@@ -1141,8 +1144,8 @@
                         if (data != '') {
                             $('#id_cliente option').remove();
                             $('#id_cliente').append('<option value="">Seleccione</option>');
-                            for (i = 0; i < data.length; i++) {
-                                $('#id_cliente').append('<option value=' + data[i].id_cliente + '>' + data[i].razon_social + '</option>')
+                            for (var i = 0; i < data.length; i++) {
+                                $('#id_cliente').append('<option data-iden="' + data[i].identificacion + '" value=' + data[i].id_cliente + '>' + data[i].razon_social + '</option>')
                             }
                             $("#id_cliente").trigger('change');
                             $("#id_cliente").trigger('chosen:updated');
@@ -1180,7 +1183,7 @@
                             });
 
 
-                            $('#id_cliente').append('<option value=' + data[i].id_cliente + '>' + data[i].razon_social + '</option>')
+                            $('#id_cliente').append('<option data-iden="' + data[i].identificacion + '" value=' + data[i].id_cliente + '>' + data[i].razon_social + '</option>')
                         }
                     }
                     else {
@@ -1210,7 +1213,7 @@
 
         $(document).ready(function () {
 
-            $("#tipoDocumento").val($("#tipo_documento").val()) ;
+            $("#tipoDocumento").val($("#tipo_documento").val());
 
             tipoDoc();
 
@@ -1226,7 +1229,7 @@
 
             $('#tipo_documento').change(function () {
                 tipoDoc();
-                $("#tipoDocumento").val($("#tipo_documento").val()) ;
+                $("#tipoDocumento").val($("#tipo_documento").val());
             });
 
             // Evento Zonas N
