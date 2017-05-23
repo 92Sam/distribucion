@@ -89,7 +89,7 @@
             $("#tabla").html('');
         });
 
-        $('#pedido, #consolidado').bind('keyup change click mouseleave', function(){
+        $('#pedido, #consolidado').bind('keyup change click', function(){
             $("#tabla").html('');
         });
 
