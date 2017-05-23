@@ -650,6 +650,12 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
 
         $count_importe = $max_boleta_importe;
         $fiscal_id = $this->updateFiscal($pedido);
+        $df = $this->db->get_where('documento_fiscal', array('documento_fiscal_id' => $fiscal_id))->row();
+        if ($df->documento_tipo == 'FACTURA') {
+            $tipo_letra = 'FA';
+        } else {
+            $tipo_letra = 'BO';
+        }
         $count_items = 1;
 
         $cliente = $this->db->get_where('cliente', array('id_cliente' => $pedido->id_cliente))->row();
@@ -710,6 +716,7 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
                 $serie = $fiscal->documento_serie;
                 $numero = $fiscal->documento_numero;
                 $tipo_oper = 1;
+                $referencia = '';
 
                 if ($detalle->bono == 1) {
                     $tipo_doc = 7;
@@ -723,6 +730,8 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
                     $serie = '0001';
                     $numero = sumCod($nota_correlativo, 5);
                     $tipo_oper = 7;
+
+                    $referencia = $tipo_letra . " " . $df->documento_serie . "-" . $df->documento_numero;
                 }
 
                 $this->kardex_model->insert_kardex(array(
@@ -735,8 +744,8 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
                     'tipo_operacion' => 1,
                     'cantidad' => $cantidad,
                     'IO' => 2,
-                    'ref_id' => $pedido->venta_id,
-                    'referencia' => $fiscal_id,
+                    'ref_id' => $fiscal_id,
+                    'referencia' => $referencia
                 ));
 
                 if ($end_flag) {
@@ -847,8 +856,8 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
                     'tipo_operacion' => 1,
                     'cantidad' => $cantidad,
                     'IO' => 2,
-                    'ref_id' => $pedido->venta_id,
-                    'referencia' => $fiscal_id,
+                    'ref_id' => $fiscal_id,
+                    'referencia' => '',
                 ));
 
                 if ($end_flag) {
@@ -876,6 +885,11 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
                 foreach (divide_in($bono->cantidad, $val) as $split) {
                     if ($split > 0) {
                         $doc_fiscal = $documentos[$index++];
+                        if ($doc_fiscal->documento_tipo == 'FACTURA') {
+                            $tipo_letra = 'FA';
+                        } else {
+                            $tipo_letra = 'BO';
+                        }
                         $this->db->insert('documento_detalle', array(
                             'documento_fiscal_id' => $doc_fiscal->documento_fiscal_id,
                             'id_venta' => $pedido->venta_id,
@@ -907,8 +921,8 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
                             'tipo_operacion' => 1,
                             'cantidad' => $split,
                             'IO' => 2,
-                            'ref_id' => $pedido->venta_id,
-                            'referencia' => $doc_fiscal->documento_fiscal_id,
+                            'ref_id' => $doc_fiscal->documento_fiscal_id,
+                            'referencia' => $tipo_letra . " " . $doc_fiscal->documento_serie . "-" . $doc_fiscal->documento_numero,
                         ));
                     }
                 }

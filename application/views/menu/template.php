@@ -178,6 +178,13 @@ $primary_nav = array(
             ),
 
             array(
+                'name' => 'Documentos',
+                'url' => $ruta . 'venta/documentos',
+                'icon' => 'fa fa-history',
+                'slug' => 'historialventas'
+            ),
+
+            array(
                 'name' => 'Anular Venta',
                 'url' => $ruta . 'venta/cancelar',
                 'icon' => 'gi gi-remove_2',
