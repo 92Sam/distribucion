@@ -203,9 +203,10 @@ class consolidado_model extends CI_Model
             foreach ($total as $t){
                 $pedidos = $this->db->select('z.zona_nombre as zona')
                     ->from('venta AS v')
-                    ->join('cliente AS c', 'c.id_cliente = v.id_cliente')
-                    ->join('zonas AS z', 'z.zona_id = c.id_zona')
-                    ->where('v.venta_id', $result[$i]['consolidado_id'])
+                    ->join('consolidado_detalle AS cd', 'cd.pedido_id = v.venta_id')
+                    ->join('usuario_has_zona AS uz', 'uz.id_usuario = v.id_vendedor')
+                    ->join('zonas AS z', 'z.zona_id = uz.id_zona')
+                    ->where('cd.consolidado_id', $result[$i]['consolidado_id'])
                     ->group_by('z.zona_id')
                     ->get()->result();
 
