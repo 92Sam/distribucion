@@ -127,118 +127,90 @@ class ingreso_model extends CI_Model
                     'total_detalle' => (!isset($row->Importe) || $cab_pie['status'] == INGRESO_PENDIENTE) ? 0 : $row->Importe
                 );
 
-                if($status == 'COMPLETADO'){
+                if($status == 'COMPLETADO') {
                     $tipo_doc = 0;
-                    if($compra['tipo_documento'] == 'FACTURA')
+                    if ($compra['tipo_documento'] == 'FACTURA')
                         $tipo_doc = 1;
-                    elseif($compra['tipo_documento'] == 'BOLETA DE VENTA')
+                    elseif ($compra['tipo_documento'] == 'BOLETA DE VENTA')
                         $tipo_doc = 3;
 
                     $this->kardex_model->insert_kardex(array(
-                        'local_id'=>$compra['local_id'],
-                        'producto_id'=>$row->Codigo,
-                        'unidad_id'=>$row->unidad,
-                        'serie'=>$compra['documento_serie'],
-                        'numero'=>$compra['documento_numero'],
-                        'tipo_doc'=>$tipo_doc,
-                        'tipo_operacion'=>$compra['tipo_ingreso'] == 'COMPRA' ? 2 : 9,
-                        'cantidad'=>$row->Cantidad,
-                        'costo_unitario'=>$row->PrecUnt,
-                        'IO'=>1,
-                        'ref_id'=>$insert_id,
-                        'total'=>$list_p['total_detalle'],
+                        'local_id' => $compra['local_id'],
+                        'producto_id' => $row->Codigo,
+                        'unidad_id' => $row->unidad,
+                        'serie' => $compra['documento_serie'],
+                        'numero' => $compra['documento_numero'],
+                        'tipo_doc' => $tipo_doc,
+                        'tipo_operacion' => $compra['tipo_ingreso'] == 'COMPRA' ? 2 : 9,
+                        'cantidad' => $row->Cantidad,
+                        'costo_unitario' => $row->PrecUnt,
+                        'IO' => 1,
+                        'ref_id' => $insert_id,
+                        'total' => $list_p['total_detalle'],
                     ));
-                }
 
 
-                $query = $this->db->query('SELECT id_inventario, cantidad, fraccion
+                    $query = $this->db->query('SELECT id_inventario, cantidad, fraccion
             FROM inventario where id_producto=' . $row->Codigo . ' and id_local=' . $local_id);
-                $inventario_existente = $query->row_array();
+                    $inventario_existente = $query->row_array();
 
-                if (count($inventario_existente) > 0) {
-                    $cantidad_vieja = $inventario_existente['cantidad'];
-                    $fraccion_vieja = $inventario_existente['fraccion'];
-                } else {
-                    $cantidad_vieja = 0;
-                    $fraccion_vieja = 0;
-                }
-                $cantidad_compra = $row->Cantidad;
-
-
-                //  CALCLOS DE UNDIAD DE MEDIDA
-
-                $query = $this->db->query("SELECT * FROM unidades_has_producto WHERE producto_id='$id_producto' order BY orden ASC");
-
-                $unidades_producto = $query->result_array();
-
-                // var_dump($unidades_producto);
-
-                $unidad_maxima = $unidades_producto[0];
-                $unidad_minima = $unidades_producto[0];
-                if (count($unidades_producto) > 1) {
-                    $unidad_minima = $unidades_producto[count($unidades_producto) - 1];
-                }
-
-                if ($unidad_maxima['id_unidad'] == $row->unidad) {
-
-                    $arreglo = array(
-                        'costo_unitario' => $list_p['precio']
-                    );
-
-                } else {
-
-                    $query = $this->db->query("SELECT * FROM unidades_has_producto WHERE producto_id='$id_producto' and id_unidad='" . $list_p['unidad_medida'] . "' ");
-                    $unidades_de_unidad = $query->row_array();
-                    $arreglo = array(
-                        'costo_unitario' => ($list_p['precio'] / $unidades_de_unidad['unidades']) * $unidad_maxima['unidades']
-                    );
-                }
-
-                $where = array(
-                    'producto_id' => $id_producto
-                );
-                if ($list_p['precio'] > 0) {
-                    $this->db->where($where);
-                    $this->db->update('producto', $arreglo);
-                }
-
-
-                foreach ($unidades_producto as $up) {
-                    if ($up['id_unidad'] == $unidad) {
-                        $unidad_form = $up;
+                    if (count($inventario_existente) > 0) {
+                        $cantidad_vieja = $inventario_existente['cantidad'];
+                        $fraccion_vieja = $inventario_existente['fraccion'];
+                    } else {
+                        $cantidad_vieja = 0;
+                        $fraccion_vieja = 0;
                     }
-                }
+                    $cantidad_compra = $row->Cantidad;
 
-                $total_unidades_minimas = $unidad_form['unidades'] * $cantidad;
-                $suma_cantidades = $fraccion_vieja + $total_unidades_minimas;
 
-                if ($suma_cantidades >= $unidad_maxima['unidades']) {
+                    //  CALCLOS DE UNDIAD DE MEDIDA
 
-                    $resultado_division = $suma_cantidades / $unidad_maxima['unidades'];
-                    $cantidad_nueva = intval($resultado_division) + $cantidad_vieja;
-                    $resto_division = fmod($suma_cantidades, $unidad_maxima['unidades']);
-                    $fraccion_nueva = $resto_division;
-                } else {
-                    $cantidad_nueva = $cantidad_vieja;
-                    $fraccion_nueva = $suma_cantidades;
+                    $query = $this->db->query("SELECT * FROM unidades_has_producto WHERE producto_id='$id_producto' order BY orden ASC");
 
-                }
-                // var_dump($unidad);
-                //  var_dump($unidad_maxima['id_unidad']);
+                    $unidades_producto = $query->result_array();
 
-                if ($unidad == $unidad_maxima['id_unidad']) {
-                    $cantidad_nueva = $cantidad_vieja + $cantidad_compra;
-                    $fraccion_nueva = $fraccion_vieja;
-                }
-                if (isset($unidad_minima) and $unidad == $unidad_minima['id_unidad']) {
-                    // var_dump($unidad_minima['id_unidad']);
-                    /* var_dump($unidad_minima['id_unidad']);
-                     var_dump($unidad);*/
+                    // var_dump($unidades_producto);
 
-                    $suma_cantidades = $fraccion_vieja + $cantidad;
-                    /*  var_dump($fraccion_vieja);
-                      var_dump($cantidad);
-                      var_dump($unidad_maxima['unidades']);*/
+                    $unidad_maxima = $unidades_producto[0];
+                    $unidad_minima = $unidades_producto[0];
+                    if (count($unidades_producto) > 1) {
+                        $unidad_minima = $unidades_producto[count($unidades_producto) - 1];
+                    }
+
+                    if ($unidad_maxima['id_unidad'] == $row->unidad) {
+
+                        $arreglo = array(
+                            'costo_unitario' => $list_p['precio']
+                        );
+
+                    } else {
+
+                        $query = $this->db->query("SELECT * FROM unidades_has_producto WHERE producto_id='$id_producto' and id_unidad='" . $list_p['unidad_medida'] . "' ");
+                        $unidades_de_unidad = $query->row_array();
+                        $arreglo = array(
+                            'costo_unitario' => ($list_p['precio'] / $unidades_de_unidad['unidades']) * $unidad_maxima['unidades']
+                        );
+                    }
+
+                    $where = array(
+                        'producto_id' => $id_producto
+                    );
+                    if ($list_p['precio'] > 0) {
+                        $this->db->where($where);
+                        $this->db->update('producto', $arreglo);
+                    }
+
+
+                    foreach ($unidades_producto as $up) {
+                        if ($up['id_unidad'] == $unidad) {
+                            $unidad_form = $up;
+                        }
+                    }
+
+                    $total_unidades_minimas = $unidad_form['unidades'] * $cantidad;
+                    $suma_cantidades = $fraccion_vieja + $total_unidades_minimas;
+
                     if ($suma_cantidades >= $unidad_maxima['unidades']) {
 
                         $resultado_division = $suma_cantidades / $unidad_maxima['unidades'];
@@ -246,58 +218,86 @@ class ingreso_model extends CI_Model
                         $resto_division = fmod($suma_cantidades, $unidad_maxima['unidades']);
                         $fraccion_nueva = $resto_division;
                     } else {
-                        // var_dump($cantidad_vieja);
-                        if ($cantidad_vieja > 0) {
-                            $cantidad_nueva = $cantidad_vieja;
-                            $fraccion_nueva = $suma_cantidades;
-                        } else {
+                        $cantidad_nueva = $cantidad_vieja;
+                        $fraccion_nueva = $suma_cantidades;
 
-                            if (count($unidades_producto) > 1) {
-                                $cantidad_nueva = 0;
+                    }
+                    // var_dump($unidad);
+                    //  var_dump($unidad_maxima['id_unidad']);
+
+                    if ($unidad == $unidad_maxima['id_unidad']) {
+                        $cantidad_nueva = $cantidad_vieja + $cantidad_compra;
+                        $fraccion_nueva = $fraccion_vieja;
+                    }
+                    if (isset($unidad_minima) and $unidad == $unidad_minima['id_unidad']) {
+                        // var_dump($unidad_minima['id_unidad']);
+                        /* var_dump($unidad_minima['id_unidad']);
+                         var_dump($unidad);*/
+
+                        $suma_cantidades = $fraccion_vieja + $cantidad;
+                        /*  var_dump($fraccion_vieja);
+                          var_dump($cantidad);
+                          var_dump($unidad_maxima['unidades']);*/
+                        if ($suma_cantidades >= $unidad_maxima['unidades']) {
+
+                            $resultado_division = $suma_cantidades / $unidad_maxima['unidades'];
+                            $cantidad_nueva = intval($resultado_division) + $cantidad_vieja;
+                            $resto_division = fmod($suma_cantidades, $unidad_maxima['unidades']);
+                            $fraccion_nueva = $resto_division;
+                        } else {
+                            // var_dump($cantidad_vieja);
+                            if ($cantidad_vieja > 0) {
+                                $cantidad_nueva = $cantidad_vieja;
                                 $fraccion_nueva = $suma_cantidades;
                             } else {
 
-                                $cantidad_nueva = $cantidad;
-                                $fraccion_nueva = 0;
+                                if (count($unidades_producto) > 1) {
+                                    $cantidad_nueva = 0;
+                                    $fraccion_nueva = $suma_cantidades;
+                                } else {
+
+                                    $cantidad_nueva = $cantidad;
+                                    $fraccion_nueva = 0;
+                                }
                             }
+
+
                         }
 
+                    }
+                    //var_dump($inventario_existente);
+                    $inventario_nuevo_in = array();
+                    $inventario_nuevo_ac = array();
+                    if (count($inventario_existente) > 0) {
+
+                        $where = array('id_inventario' => $inventario_existente['id_inventario']);
+                        $inventario_nuevo_ac = array(
+                            'cantidad' => $cantidad_nueva,
+                            'fraccion' => $fraccion_nueva
+                        );
+
+                    } else {
+                        $inventario_nuevo_in = array(
+                            'id_producto' => $id_producto,
+                            'cantidad' => $cantidad_nueva,
+                            'fraccion' => $fraccion_nueva,
+                            'id_local' => $this->session->userdata('id_local')
+                        );
 
                     }
 
-                }
-                //var_dump($inventario_existente);
-                $inventario_nuevo_in = array();
-                $inventario_nuevo_ac = array();
-                if (count($inventario_existente) > 0) {
 
-                    $where = array('id_inventario' => $inventario_existente['id_inventario']);
-                    $inventario_nuevo_ac = array(
-                        'cantidad' => $cantidad_nueva,
-                        'fraccion' => $fraccion_nueva
-                    );
+                    //var_dump($inventario_nuevo_ac);
+                    if (isset($inventario_nuevo_ac) && count($inventario_nuevo_ac) > 0) {
+                        $this->update_inventario($inventario_nuevo_ac, $where);
+                    } else {
 
-                } else {
-                    $inventario_nuevo_in = array(
-                        'id_producto' => $id_producto,
-                        'cantidad' => $cantidad_nueva,
-                        'fraccion' => $fraccion_nueva,
-                        'id_local' => $this->session->userdata('id_local')
-                    );
+                        $this->db->insert('inventario', $inventario_nuevo_in);
+                    }
 
                 }
 
                 array_push($data, $list_p);
-                //var_dump($inventario_nuevo_ac);
-                if (isset($inventario_nuevo_ac) && count($inventario_nuevo_ac) > 0) {
-                    $this->update_inventario($inventario_nuevo_ac, $where);
-                } else {
-
-                    $this->db->insert('inventario', $inventario_nuevo_in);
-                }
-
-
-
 
             }
         }
@@ -373,115 +373,6 @@ WHERE detalleingreso.id_ingreso='$compra_id'");
         $countQuery = count($query_detalle_ingreso);
         $cab_pie['local']=$query_detalle_ingreso[0]['local_id'];
         $cab_pie['cboProveedor']=$query_detalle_ingreso[0]['int_Proveedor_id'];
-
-        // Detalle de la Venta
-        foreach ($query_detalle_ingreso as $row) {
-
-
-            $cantidad_venta = $row['cantidad'];
-            $unidad_medida_venta = $row['unidad_medida'];
-            $id_producto = $row['id_producto'];
-            $precio = $row['precio'];
-            $importe = $row['total_detalle'];
-
-            $query = $this->db->query('SELECT id_inventario, cantidad, fraccion
-				FROM inventario where id_producto=' . $id_producto . ' and id_local=' . $local_id);
-            $inventario_existente = $query->row_array();
-            $cantidad_vieja = 0;
-            $fraccion_vieja = 0;
-
-            if (isset($inventario_existente['cantidad'])) {
-                $cantidad_vieja = $inventario_existente['cantidad'];
-            }
-            if (isset($inventario_existente['fraccion'])) {
-                $fraccion_vieja = $inventario_existente['fraccion'];
-            }
-
-            // CALCULOS DE UNDIAD DE MEDIDA
-            $query = $this->db->query("SELECT * FROM unidades_has_producto WHERE producto_id='$id_producto' order by orden asc");
-
-            $unidades_producto = $query->result_array();
-
-            $unidad_maxima = $unidades_producto[0];
-            $unidad_minima = $unidades_producto[count($unidades_producto) - 1];
-            $unidad_form = 0;
-            foreach ($unidades_producto as $up) {
-                if ($up['id_unidad'] == $unidad_medida_venta) {
-                    $unidad_form = $up;
-                }
-            }
-
-            $total_unidades_minimas = $unidad_form['unidades'] * $cantidad_venta;
-            $total_unidades_minimas_viejas = ($unidad_maxima['unidades'] * $cantidad_vieja) + $fraccion_vieja;
-
-            $suma_cantidades = $total_unidades_minimas_viejas - $total_unidades_minimas;
-
-            if ($suma_cantidades >= $unidad_maxima['unidades']) {
-                $resultado_division = $suma_cantidades / $unidad_maxima['unidades'];
-                $cantidad_nueva = intval($resultado_division);
-                $resto_division = fmod($suma_cantidades, $unidad_maxima['unidades']);
-                $fraccion_nueva = $resto_division;
-            } else {
-                if ($suma_cantidades < $unidad_maxima['unidades']) {
-                    $cantidad_nueva = 0;
-                    $fraccion_nueva = +$suma_cantidades;
-                } else {
-                    $cantidad_nueva = $cantidad_vieja;
-                    $fraccion_nueva = +$suma_cantidades;
-                }
-            }
-
-            if ($unidad_medida_venta == $unidad_maxima['id_unidad']) {
-                $cantidad_nueva = $cantidad_vieja - $cantidad_venta;
-                $fraccion_nueva = $fraccion_vieja;
-            }
-
-            if ($unidad_medida_venta == $unidad_minima['id_unidad']) {
-                if ($suma_cantidades >= $unidad_maxima['unidades']) {
-                    $resultado_division = $suma_cantidades / $unidad_maxima['unidades'];
-                    $cantidad_nueva = intval($resultado_division);
-                    $resto_division = fmod($suma_cantidades, $unidad_maxima['unidades']);
-                    $fraccion_nueva = $resto_division;
-                } else {
-                    if ($suma_cantidades < $unidad_maxima['unidades']) {
-                        $cantidad_nueva = 0;
-                        $fraccion_nueva = +$suma_cantidades;
-                    } else {
-                        if ($cantidad_vieja > 0) {
-                            $cantidad_nueva = $cantidad_vieja;
-                            $fraccion_nueva = $suma_cantidades;
-                        } else {
-                            if (count($unidades_producto) > 1) {
-                                $cantidad_nueva = 0;
-                                $fraccion_nueva = $cantidad_venta;
-                            } else {
-                                $cantidad_nueva = $cantidad_venta;
-                                $fraccion_nueva = 0;
-                            }
-                        }
-                    }
-                }
-            }
-
-
-            if (count($inventario_existente) > 0) {
-                $inventario_nuevo = array(
-                    'cantidad' => $cantidad_nueva,
-                    'fraccion' => $fraccion_nueva
-                );
-                $this->update_inventario($inventario_nuevo, array('id_inventario' => $inventario_existente['id_inventario']));
-            } else {
-                $inventario_nuevo = array(
-                    'cantidad' => $cantidad_nueva,
-                    'fraccion' => $fraccion_nueva
-                );
-                $this->db->insert('inventario', $inventario_nuevo);
-            }
-        }
-
-        /***********TERMINO DE DEVOLVER EL INVENTARIO********/
-
-
 
         if ($detalle != null) {
 
