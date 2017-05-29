@@ -40,8 +40,8 @@
             <td><?= getMes($vc->mes) ?></td>
             <td><?= $vc->cantidad_venta ?></td>
             <td><?= MONEDA . '' . number_format($vc->importe_venta, 2) ?></td>
-            <td><?= MONEDA . '' . number_format($vc->pagado_venta, 2) ?></td>
             <td><?= MONEDA . '' . number_format($vc->saldo_venta, 2) ?></td>
+            <td><?= MONEDA . '' . number_format($vc->pagado_venta, 2) ?></td>
             <td><?= $vc->cantidad_compra ?></td>
             <td><?= MONEDA . '' . number_format($vc->importe_compra, 2) ?></td>
             <td><?= MONEDA . '' . number_format($vc->pagado_compra, 2) ?></td>
