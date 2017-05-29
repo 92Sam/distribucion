@@ -570,7 +570,7 @@ function llenar_tabla() {
                 if (lst_producto[i].count == index) {
                     lst_producto[i].Cantidad = cantidad;
                     lst_producto[i].Importe = importe;
-                    lst_producto[i].ValorUnitario = precio_unitario;
+                    lst_producto[i].ValorUnitario = valor_unitario;
                     lst_producto[i].PrecUnt = precio_unitario;
                     }
 

@@ -37,32 +37,32 @@ class kardex_model extends CI_Model
         }
 
         //Calculo los saldos
-        if ($data['IO'] == 2) {
-            if ($last_record != NULL) {
-                $data['costo_unitario'] = $last_record->costo_unitario_final;
-            } else {
-                if (isset($data['total']))
-                    $data['costo_unitario'] = $data['total'] / $data['cantidad'];
-                else
-                    $data['costo_unitario'] = 0;
-            }
-        }
+//        if ($data['IO'] == 2) {
+//            if ($last_record != NULL) {
+//                $data['costo_unitario'] = $last_record->costo_unitario_final;
+//            } else {
+//                if (isset($data['total']))
+//                    $data['costo_unitario'] = $data['total'] / $data['cantidad'];
+//                else
+//                    $data['costo_unitario'] = 0;
+//            }
+//        }
 
         if (!isset($data['total']))
             $data['total'] = $data['cantidad'] * $data['costo_unitario'];
 
-        if (($data['tipo_operacion'] == 2 || $data['tipo_operacion'] == 6 || $data['tipo_operacion'] == 9) && $data['IO'] == 1)
-            $data['total'] = $data['total'] * 1.18;
+//        if (($data['tipo_operacion'] == 2 || $data['tipo_operacion'] == 6 || $data['tipo_operacion'] == 9) && $data['IO'] == 1)
+//            $data['total'] = $data['total'] * 1.18;
 
         //Calculo los saldos finales
         if ($last_record != NULL) {
             $data['cantidad_final'] = $data['IO'] == 2 ? $last_record->cantidad_final - $data['cantidad'] : $last_record->cantidad_final + $data['cantidad'];
-            $data['total_final'] = $data['IO'] == 2 ? $last_record->total_final - $data['total'] : $last_record->total_final + $data['total'];
+            $data['costo_unitario_final'] = $data['IO'] == 2 ? $last_record->costo_unitario_final : ($last_record->total_final + $data['total']) / $data['cantidad_final'];
         } else {
+            $data['costo_unitario_final'] = $data['IO'] == 2 ? 0 : $data['costo_unitario'];
             $data['cantidad_final'] = $data['cantidad'];
-            $data['total_final'] = $data['total'];
         }
-        $data['costo_unitario_final'] = $data['cantidad_final'] != 0 ? $data['total_final'] / $data['cantidad_final'] : 0;
+        $data['total_final'] = $data['cantidad_final'] * $data['costo_unitario_final'];
 
         $this->db->insert('kardex', $data);
         return $this->db->insert_id();
