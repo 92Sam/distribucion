@@ -717,21 +717,25 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
                 $numero = $fiscal->documento_numero;
                 $tipo_oper = 1;
                 $referencia = '';
+                $precio_venta = $detalle_precio / 1.18;
 
                 if ($detalle->bono == 1) {
-                    $tipo_doc = 7;
-                    $nota_correlativo = $this->db->select_max('numero')
-                        ->from('kardex')
-                        ->where('IO', 2)
-                        ->where('tipo_doc', 7)->get()->row();
+//                    $tipo_doc = 7;
+//                    $nota_correlativo = $this->db->select_max('numero')
+//                        ->from('kardex')
+//                        ->where('IO', 2)
+//                        ->where('tipo_doc', 7)->get()->row();
+//
+//                    $nota_correlativo = $nota_correlativo->numero != null ? ($nota_correlativo->numero + 1) : 1;
+//
+//                    $serie = '0001';
+//                    $numero = sumCod($nota_correlativo, 5);
+//                    $tipo_oper = 7;
+//
+//                    $referencia = $tipo_letra . " " . $df->documento_serie . "-" . $df->documento_numero;
 
-                    $nota_correlativo = $nota_correlativo->numero != null ? ($nota_correlativo->numero + 1) : 1;
-
-                    $serie = '0001';
-                    $numero = sumCod($nota_correlativo, 5);
-                    $tipo_oper = 7;
-
-                    $referencia = $tipo_letra . " " . $df->documento_serie . "-" . $df->documento_numero;
+                    $referencia = 'BONO';
+                    $precio_venta = 0.00;
                 }
 
                 $this->kardex_model->insert_kardex(array(
@@ -743,7 +747,7 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
                     'tipo_doc' => $tipo_doc,
                     'tipo_operacion' => 1,
                     'cantidad' => $cantidad,
-                    'costo_unitario' => $detalle_precio / 1.18,
+                    'costo_unitario' => $precio_venta,
                     'IO' => 2,
                     'ref_id' => $fiscal_id,
                     'referencia' => $referencia
@@ -902,16 +906,22 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
                             'detalle_importe' => 0.00,
                         ));
 
-                        $tipo_doc = 7;
-                        $nota_correlativo = $this->db->select_max('numero')
-                            ->from('kardex')
-                            ->where('IO', 2)
-                            ->where('tipo_doc', 7)->get()->row();
+//                        $tipo_doc = 7;
+//                        $nota_correlativo = $this->db->select_max('numero')
+//                            ->from('kardex')
+//                            ->where('IO', 2)
+//                            ->where('tipo_doc', 7)->get()->row();
+//
+//                        $nota_correlativo = $nota_correlativo->numero != null ? ($nota_correlativo->numero + 1) : 1;
 
-                        $nota_correlativo = $nota_correlativo->numero != null ? ($nota_correlativo->numero + 1) : 1;
+                        $tipo_doc = 0;
+                        if ($doc_fiscal->documento_tipo == 'FACTURA')
+                            $tipo_doc = 1;
+                        elseif ($doc_fiscal->documento_tipo == 'BOLETA DE VENTA')
+                            $tipo_doc = 3;
 
-                        $serie = '0001';
-                        $numero = sumCod($nota_correlativo, 5);
+                        $serie = $doc_fiscal->documento_serie;
+                        $numero = $doc_fiscal->documento_numero;
 
                         $this->kardex_model->insert_kardex(array(
                             'local_id' => $pedido->local_id,
@@ -925,7 +935,7 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
                             'costo_unitario' => 0.00,
                             'IO' => 2,
                             'ref_id' => $doc_fiscal->documento_fiscal_id,
-                            'referencia' => $tipo_letra . " " . $doc_fiscal->documento_serie . "-" . $doc_fiscal->documento_numero,
+                            'referencia' => 'BONO',
                         ));
                     }
                 }
