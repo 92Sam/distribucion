@@ -43,12 +43,13 @@ class descuentos extends MY_Controller
 
         if ($this->input->is_ajax_request()) {
             echo $dataCuerpo['cuerpo'];
-        }else{
+        } else {
             $this->load->view('menu/template', $dataCuerpo);
         }
     }
 
-	function lst_descuentos() {
+    function lst_descuentos()
+    {
 
         if ($this->input->is_ajax_request()) {
 
@@ -56,21 +57,20 @@ class descuentos extends MY_Controller
 
             $data["grupo_id"] = $id;
 
-            if($id == 0){
+            if ($id == 0) {
                 $data["descuentos"] = $this->descuentos_model->get_by_groupclie('');
-            }
-            else{
+            } else {
                 $data["descuentos"] = $this->descuentos_model->get_by_groupclie($id);
             }
 
             $this->load->view('menu/descuentos/tbl_descuentos', $data);
-        }
-        else {
+        } else {
             redirect(base_url() . 'descuentos/', 'refresh');
         }
     }
 
-    function verReglaDescuento($id){
+    function verReglaDescuento($id)
+    {
 
         $data['escalas'] = $this->descuentos_model->get_escalas_descuento($id);
         $data['escalas_h'] = $this->descuentos_model->get_escalas_descuento_head($id);
@@ -78,9 +78,73 @@ class descuentos extends MY_Controller
             ->where('producto_estatus', 1)->get()->row();
 
         $data['id_desc'] = $id;
-        $this->load->view('menu/descuentos/reglaDescuento',$data);
+        $this->load->view('menu/descuentos/reglaDescuento', $data);
 
     }
+
+    function save_precio()
+    {
+        $escala = $this->input->post('escala');
+        $producto = $this->input->post('producto');
+        $unidad = $this->input->post('unidad');
+        $precio = $this->input->post('precio');
+
+        $this->db->where('escala', $escala);
+        $this->db->where('producto', $producto);
+        $this->db->where('unidad', $unidad);
+        $this->db->update('escala_producto', array('precio' => $precio));
+
+        $data['old_precio'] = $this->db->get_where('escala_producto', array(
+            'escala' => $escala,
+            'producto' => $producto,
+            'unidad' => $unidad
+        ))->row();
+
+        header('Content-Type: application/json');
+        echo json_encode($data);
+    }
+
+    function importar_precio()
+    {
+
+        //upload file
+        $config['upload_path'] = './recursos/uploads/';
+        $config['allowed_types'] = '*';
+        $config['max_filename'] = '255';
+        $config['file_name'] = 'precios.json';
+        $config['encrypt_name'] = false;
+        $config['max_size'] = '30720'; //1 MB
+
+        $path_file = $config['upload_path'] . $config['file_name'];
+
+        if (isset($_FILES['file']['name'])) {
+            if (0 < $_FILES['file']['error']) {
+                echo 'Error. ' . $_FILES['file']['error'];
+            } else {
+                if (file_exists($path_file)) {
+                    unlink($path_file);
+                }
+                $this->load->library('upload', $config);
+                if (!$this->upload->do_upload('file')) {
+                    echo $this->upload->display_errors();
+                } else {
+                    $precios = json_decode(file_get_contents($path_file));
+                    foreach ($precios as $precio) {
+                        $this->db->where('escala', $precio->escala);
+                        $this->db->where('producto', $precio->producto);
+                        $this->db->where('unidad', $precio->unidad);
+                        $this->db->update('escala_producto', array('precio' => $precio->precio));
+                    }
+
+                    unlink($path_file);
+                    echo 'OK';
+                }
+            }
+        } else {
+            echo 'Selecciona un archivo.';
+        }
+    }
+
     function form($id = FALSE, $grupoid)
     {
 
@@ -99,16 +163,16 @@ class descuentos extends MY_Controller
 
             $datax['descuentos'] = $this->descuentos_model->get_by('descuento_id', $id);
 
-			$datax['escalas'] = $this->descuentos_model->get_escalas_by_descuento($id);
+            $datax['escalas'] = $this->descuentos_model->get_escalas_by_descuento($id);
 
-			$where = " where  descuentos.descuento_id='" . $id . "'";
+            $where = " where  descuentos.descuento_id='" . $id . "'";
 
-			$datax['productosnoagrupados'] = $this->descuentos_model->edit_descuentos($where, false);
+            $datax['productosnoagrupados'] = $this->descuentos_model->edit_descuentos($where, false);
 
 
-			$datax['sizenoagrupados'] = sizeof($datax['productosnoagrupados']);
+            $datax['sizenoagrupados'] = sizeof($datax['productosnoagrupados']);
 
-			$datax['sizeescalas'] = sizeof($datax['escalas']);
+            $datax['sizeescalas'] = sizeof($datax['escalas']);
 
             $datax['prod_precios'] = $this->descuentos_model->get_prod_precioventa();
 
@@ -136,7 +200,8 @@ class descuentos extends MY_Controller
         echo json_encode($da);
     }
 
-    function lista_descuento(){
+    function lista_descuento()
+    {
 
         $id = $this->input->post('desID');
         $condicion = false;
@@ -146,11 +211,12 @@ class descuentos extends MY_Controller
         if ($this->input->post('nombre_des') != "") {
             $condicion['producto_nombre'] = $this->input->post('nombre_des');
         }
-        $data['escalas_h'] = $this->descuentos_model->get_escalas_descuento_head_list($id,$condicion);
-        $data['escalas'] = $this->descuentos_model->get_escalas_descuento_list($id,$condicion);
+        $data['escalas_h'] = $this->descuentos_model->get_escalas_descuento_head_list($id, $condicion);
+        $data['escalas'] = $this->descuentos_model->get_escalas_descuento_list($id, $condicion);
 
         $this->load->view('menu/descuentos/lista_descuento', $data);
     }
+
     function guardar()
     {
 
@@ -169,7 +235,7 @@ class descuentos extends MY_Controller
         }
 
         if ($resultado == TRUE) {
-            $json['success']= 'Solicitud Procesada con exito';
+            $json['success'] = 'Solicitud Procesada con exito';
         } else {
             $json['error'] = 'Ha ocurrido un error al procesar la solicitud';
         }
@@ -193,12 +259,12 @@ class descuentos extends MY_Controller
 
         if ($data['resultado'] != FALSE) {
 
-            $json['success'] ='Se ha eliminado exitosamente';
+            $json['success'] = 'Se ha eliminado exitosamente';
 
 
         } else {
 
-            $json['error']= 'Ha ocurrido un error al eliminar el descuento';
+            $json['error'] = 'Ha ocurrido un error al eliminar el descuento';
         }
 
         echo json_encode($json);
@@ -217,12 +283,13 @@ class descuentos extends MY_Controller
         }
     }
 
-    function get_unidades_has_producto(){
+    function get_unidades_has_producto()
+    {
 
-        $id_producto=$this->input->post('id_producto');
-        $data['unidades']=$this->unidades_model->get_by_producto($id_producto);
+        $id_producto = $this->input->post('id_producto');
+        $data['unidades'] = $this->unidades_model->get_by_producto($id_producto);
         header('Content-Type: application/json');
-        echo json_encode( $data );
+        echo json_encode($data);
     }
 
     function registrar_descuento()
@@ -245,7 +312,7 @@ class descuentos extends MY_Controller
                     $rs = $this->descuentos_model->insertar_descuento($comp_cab_pie,
                         json_decode($this->input->post('lst_escalas', true)),
                         json_decode($this->input->post('lst_producto', true)),
-                        $this->input->post('precio'),$id_grupo);
+                        $this->input->post('precio'), $id_grupo);
 
                 } else {
 
@@ -255,13 +322,13 @@ class descuentos extends MY_Controller
                         json_decode($this->input->post('lst_producto', true)),
                         $this->input->post('precio'));
                 }
-                    if ($rs != false) {
-                        $json['success'] = 'Solicitud Procesada con exito';
-                        $json['id'] = $rs;
+                if ($rs != false) {
+                    $json['success'] = 'Solicitud Procesada con exito';
+                    $json['id'] = $rs;
 
-                    } else {
-                        $json['error'] = 'Ha ocurrido un error al procesar la solicitud';
-                    }
+                } else {
+                    $json['error'] = 'Ha ocurrido un error al procesar la solicitud';
+                }
             }
         } else {
 
@@ -271,7 +338,8 @@ class descuentos extends MY_Controller
         echo json_encode($json);
     }
 
-    function pdfExport($id) {
+    function pdfExport($id)
+    {
 
         $desc_row = $this->descuentos_model->get_by('descuento_id', $id);
         $grupo_id = $desc_row['id_grupos_cliente'];
@@ -316,7 +384,7 @@ class descuentos extends MY_Controller
                         <th>C&oacute;digo</th>
                         <th>Producto</th>";
 
-        foreach($escalas_h as $escala){
+        foreach ($escalas_h as $escala) {
             $html .= "<th>" . $escala['cantidad_minima'] . "--" . $escala['cantidad_maxima'] . "</th>";
         }
 
@@ -325,11 +393,11 @@ class descuentos extends MY_Controller
         $array_destino = array();
         $valor = array();
 
-        foreach($escalas as $escala) {
+        foreach ($escalas as $escala) {
 
             $valor['nombre'] = $escala['producto_nombre'];
             $valor['id'] = $escala['producto_id'];
-            if (!in_array($valor,$array_destino)){
+            if (!in_array($valor, $array_destino)) {
                 $array_destino[] = $valor;
             }
         }
@@ -340,12 +408,12 @@ class descuentos extends MY_Controller
 
             $html .= "<td>" . $valor['nombre'] . "</td>";
 
-                foreach($escalas as $escala) {
-                    if ($valor['nombre'] == $escala['producto_nombre']) {
-                        $html .= "<td>" . $escala['precio'] . "</td>";
+            foreach ($escalas as $escala) {
+                if ($valor['nombre'] == $escala['producto_nombre']) {
+                    $html .= "<td>" . $escala['precio'] . "</td>";
 
-                    }
                 }
+            }
 
             $html .= "</tr>";
         }
@@ -358,7 +426,8 @@ class descuentos extends MY_Controller
     }
 
 
-    function excelExport($id) {
+    function excelExport($id)
+    {
 
         $escalas = $this->descuentos_model->get_escalas_descuento($id);
 
@@ -376,7 +445,7 @@ class descuentos extends MY_Controller
 
         $c = 2;
 
-        foreach($escalas_h as $escala){
+        foreach ($escalas_h as $escala) {
             $columna[$c] = $escala['cantidad_minima'] . "--" . $escala['cantidad_maxima'];
             $c++;
         }
@@ -391,11 +460,11 @@ class descuentos extends MY_Controller
         $array_destino = array();
         $valor = array();
 
-        foreach($escalas as $escala) {
+        foreach ($escalas as $escala) {
 
             $valor['nombre'] = $escala['producto_nombre'];
             $valor['id'] = $escala['producto_id'];
-            if (!in_array($valor,$array_destino)){
+            if (!in_array($valor, $array_destino)) {
                 $array_destino[] = $valor;
             }
         }
@@ -411,7 +480,7 @@ class descuentos extends MY_Controller
             $this->phpexcel->setActiveSheetIndex(0)
                 ->setCellValueByColumnAndRow($col++, $row, $valor['nombre']);
 
-            foreach($escalas as $escala) {
+            foreach ($escalas as $escala) {
                 if ($valor['nombre'] == $escala['producto_nombre']) {
                     $this->phpexcel->setActiveSheetIndex(0)
                         ->setCellValueByColumnAndRow($col++, $row, $escala['precio']);
