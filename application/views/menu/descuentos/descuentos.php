@@ -208,8 +208,9 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable">', "</
     }
 
     function verModal(id) {
-
+        $('#barloadermodal').modal('show');
         $("#verModal").load('<?= $ruta ?>descuentos/verReglaDescuento/' + id, function(){
+            $('#barloadermodal').modal('hide');
             $('#verModal').modal('show');
         });
 

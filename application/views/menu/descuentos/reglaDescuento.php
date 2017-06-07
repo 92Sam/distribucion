@@ -125,6 +125,8 @@
                                                 <td style="text-align: center;">
                                                     <input type="text" class="edit-precio"
                                                            value="<?= $escala['precio'] ?>"
+                                                           data-id="<?= sumCod($valor['id']) ?>"
+                                                           data-nombre="<?= $valor['nombre'] ?>"
                                                            data-unidad="<?= $escala['unidad'] ?>"
                                                            data-escala="<?= $escala['escala'] ?>"
                                                            data-producto="<?= $escala['producto'] ?>">
@@ -171,28 +173,33 @@
                 $('#barloadermodal').modal('show');
                 $.ajax({
                     url: '<?=$ruta?>descuentos/importar_precio',
-                    dataType: 'text',
+                    headers: {
+                        Accept: 'application/json'
+                    },
                     cache: false,
                     contentType: false,
                     processData: false,
                     data: form_data,
                     type: 'post',
                     success: function (response) {
-                        var type = 'warning';
-                        if (response == 'OK') {
-                            response = 'Importacion realizada con exito.';
-                            type = 'success';
+                        if (response.type == 'success') {
 
                             $("#verModal").load('<?= $ruta ?>descuentos/verReglaDescuento/' + <?=$id_desc?>, function () {
 
                                 $('#barloadermodal').modal('hide');
-                                $.bootstrapGrowl(response, {type: type, delay: 2500, allow_dismiss: true});
+                                $.bootstrapGrowl(response.msg, {type: response.type, delay: 2500, allow_dismiss: true});
+                                if (response.affected != '')
+                                    $.bootstrapGrowl('PRODUCTOS NO AFECTADOS: <br>' + response.affected, {
+                                        type: 'warning',
+                                        delay: 5000,
+                                        allow_dismiss: true
+                                    });
 
                             });
                         }
-                        else{
+                        else {
                             $('#barloadermodal').modal('hide');
-                            $.bootstrapGrowl(response, {type: type, delay: 2500, allow_dismiss: true});
+                            $.bootstrapGrowl(response.msg, {type: response.type, delay: 2500, allow_dismiss: true});
                         }
 
                     },
@@ -241,6 +248,8 @@
                         return false;
 
                     precios.push({
+                        id: self.attr('data-id'),
+                        nombre: self.attr('data-nombre'),
                         escala: self.attr('data-escala'),
                         producto: self.attr('data-producto'),
                         unidad: self.attr('data-unidad'),

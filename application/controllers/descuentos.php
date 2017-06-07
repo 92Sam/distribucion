@@ -106,7 +106,7 @@ class descuentos extends MY_Controller
 
     function importar_precio()
     {
-
+        header('Content-Type: application/json');
         //upload file
         $config['upload_path'] = './recursos/uploads/';
         $config['allowed_types'] = '*';
@@ -126,22 +126,34 @@ class descuentos extends MY_Controller
                 }
                 $this->load->library('upload', $config);
                 if (!$this->upload->do_upload('file')) {
-                    echo $this->upload->display_errors();
+                    echo json_encode(array('type' => 'warning', 'msg' => $this->upload->display_errors()));
                 } else {
+                    $not_affected = '';
                     $precios = json_decode(file_get_contents($path_file));
                     foreach ($precios as $precio) {
                         $this->db->where('escala', $precio->escala);
                         $this->db->where('producto', $precio->producto);
                         $this->db->where('unidad', $precio->unidad);
                         $this->db->update('escala_producto', array('precio' => $precio->precio));
+
+                        $this->db->where('escala', $precio->escala);
+                        $this->db->where('producto', $precio->producto);
+                        $this->db->where('unidad', $precio->unidad);
+                        $this->db->from('escala_producto');
+                        if ($this->db->count_all_results() == 0)
+                            $not_affected .= $precio->id . ' - ' . $precio->nombre . '<br/>';
+
                     }
 
                     unlink($path_file);
-                    echo 'OK';
+                    echo json_encode(array(
+                        'type' => 'success',
+                        'msg' => 'Importacion realizada con exito',
+                        'affected' => $not_affected));
                 }
             }
         } else {
-            echo 'Selecciona un archivo.';
+            echo json_encode(array('type' => 'warning', 'msg' => 'Seleccione un archivo'));
         }
     }
 
