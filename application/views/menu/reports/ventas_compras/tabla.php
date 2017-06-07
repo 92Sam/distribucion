@@ -23,7 +23,7 @@
         <th rowspan="2" style="vertical-align: middle;">Mes</th>
         <th colspan="4" style="text-align: center;">Resumen de Ventas</th>
         <th colspan="4" style="text-align: center;">Resumen de Compras</th>
-        <th rowspan="2" style="vertical-align: middle;">Ventas - Compras</th>
+        <th rowspan="2" style="vertical-align: middle;">Importes<br>Ventas - Compras</th>
     </tr>
     <tr>
         <th>Cantidad</th>
