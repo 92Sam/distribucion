@@ -322,4 +322,47 @@ class reporte extends MY_Controller
         }
     }
 
+    function historial_cobranzas($action = '')
+    {
+        $data['reporte_nombre'] = 'Reporte de Historial de Cobranzas';
+
+        switch ($action) {
+            case 'filter': {
+                $data['ventas'] = $this->rventas_model->get_historial_cobranzas(array(
+                    'fecha_ini' => date('Y-m-d', strtotime($this->input->post('fecha_ini'))),
+                    'fecha_fin' => date('Y-m-d', strtotime($this->input->post('fecha_fin'))),
+                    'fecha_flag' => $this->input->post('fecha_flag'),
+                    'vendedor_id' => $this->input->post('vendedor_id'),
+                    'cliente_id' => $this->input->post('cliente_id'),
+                    'zonas_id' => json_decode($this->input->post('zonas_id'))
+                ));
+
+                echo $this->load->view('menu/reports/historial_cobranza/tabla', $data, true);
+                break;
+            }
+            default: {
+
+                $data['ventas'] = $this->rventas_model->get_historial_cobranzas(array(
+                    'fecha_ini' => date('Y-m-d'),
+                    'fecha_fin' => date('Y-m-d'),
+                    'fecha_flag' => 1
+                ));
+
+                $data['reporte_filtro'] = $this->load->view('menu/reports/historial_cobranza/filtros', array(
+                    'vendedores' => $this->usuario_model->select_all_by_roll('Vendedor'),
+                    'vendedor_zonas' => $this->db->get('usuario_has_zona')->result(),
+                    'zonas' => $this->zona_model->get_all(),
+                    'clientes' => $this->cliente_model->get_all(),
+                ), true);
+                $data['reporte_tabla'] = $this->load->view('menu/reports/historial_cobranza/tabla', $data, true);
+                $dataCuerpo['cuerpo'] = $this->load->view('menu/reports/report_template', $data, true);
+                if ($this->input->is_ajax_request()) {
+                    echo $dataCuerpo['cuerpo'];
+                } else {
+                    $this->load->view('menu/template', $dataCuerpo);
+                }
+            }
+        }
+    }
+
 }

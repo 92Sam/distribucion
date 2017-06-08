@@ -476,6 +476,12 @@ $primary_nav = array(
                         'slug' => 'reporteutilidades'
                     ),
                     array(
+                        'name' => 'Historial de Cobranzas',
+                        'url' => $ruta . 'reporte/historial_cobranzas',
+                        'icon' => 'fa fa-bar-chart',
+                        'slug' => 'reporteutilidades'
+                    ),
+                    array(
                         'name' => 'Notas de Entrega',
                         'url' => $ruta . 'reporte/nota_entrega',
                         'icon' => 'fa fa-bar-chart',

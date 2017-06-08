@@ -252,11 +252,11 @@ class rventas_model extends CI_Model
 
         ";
 
-        if(isset($data['cliente_id']) && $data['cliente_id'] != 0)
-            $query .= " AND v.id_cliente = ".$data['cliente_id'];
+        if (isset($data['cliente_id']) && $data['cliente_id'] != 0)
+            $query .= " AND v.id_cliente = " . $data['cliente_id'];
 
-        if(isset($data['estado']) && $data['estado'] != 0){
-            if($data['estado'] == 1){
+        if (isset($data['estado']) && $data['estado'] != 0) {
+            if ($data['estado'] == 1) {
                 $query .= " AND (SELECT
                             var_credito_estado
                         FROM
@@ -266,7 +266,7 @@ class rventas_model extends CI_Model
                         LIMIT 1) = 'CANCELADA'";
             }
 
-            if($data['estado'] == 2){
+            if ($data['estado'] == 2) {
                 $query .= " AND (SELECT
                             var_credito_estado
                         FROM
@@ -283,8 +283,8 @@ class rventas_model extends CI_Model
             if ($last_day > $data['dia_max'])
                 $last_day = $data['dia_max'];
 
-            $query .= " AND hp.created_at >= '".$data['year'] . '-' . sumCod($data['mes'], 2) . '-' . $data['dia_min'] . " 00:00:00'";
-            $query .= " AND hp.created_at <= '".$data['year'] . '-' . sumCod($data['mes'], 2) . '-' . $last_day . " 23:59:59'";
+            $query .= " AND hp.created_at >= '" . $data['year'] . '-' . sumCod($data['mes'], 2) . '-' . $data['dia_min'] . " 00:00:00'";
+            $query .= " AND hp.created_at <= '" . $data['year'] . '-' . sumCod($data['mes'], 2) . '-' . $last_day . " 23:59:59'";
         }
 
 
@@ -374,11 +374,11 @@ class rventas_model extends CI_Model
 
         ";
 
-        if(isset($data['cliente_id']) && $data['cliente_id'] != 0)
-            $query .= " AND v.id_cliente = ".$data['cliente_id'];
+        if (isset($data['cliente_id']) && $data['cliente_id'] != 0)
+            $query .= " AND v.id_cliente = " . $data['cliente_id'];
 
-        if(isset($data['estado']) && $data['estado'] != 0){
-            if($data['estado'] == 1){
+        if (isset($data['estado']) && $data['estado'] != 0) {
+            if ($data['estado'] == 1) {
                 $query .= " AND (SELECT
                             var_credito_estado
                         FROM
@@ -388,7 +388,7 @@ class rventas_model extends CI_Model
                         LIMIT 1) = 'CANCELADA'";
             }
 
-            if($data['estado'] == 2){
+            if ($data['estado'] == 2) {
                 $query .= " AND (SELECT
                             var_credito_estado
                         FROM
@@ -405,11 +405,75 @@ class rventas_model extends CI_Model
             if ($last_day > $data['dia_max'])
                 $last_day = $data['dia_max'];
 
-            $query .= " AND hp.created_at >= '".$data['year'] . '-' . sumCod($data['mes'], 2) . '-' . $data['dia_min'] . " 00:00:00'";
-            $query .= " AND hp.created_at <= '".$data['year'] . '-' . sumCod($data['mes'], 2) . '-' . $last_day . " 23:59:59'";
+            $query .= " AND hp.created_at >= '" . $data['year'] . '-' . sumCod($data['mes'], 2) . '-' . $data['dia_min'] . " 00:00:00'";
+            $query .= " AND hp.created_at <= '" . $data['year'] . '-' . sumCod($data['mes'], 2) . '-' . $last_day . " 23:59:59'";
         }
 
         $query .= "  GROUP BY df.documento_fiscal_id";
+
+
+        return $this->db->query($query)->result();
+    }
+
+    function get_historial_cobranzas($params)
+    {
+        $query = "SELECT 
+                    hpc.historial_id AS historial_id,
+                    hpc.historial_fecha AS fecha,
+                    hpc.historial_monto AS monto,
+                    mp.nombre_metodo AS tipo_pago,
+                    CONCAT('NE ',
+                            dv.documento_Serie,
+                            '-',
+                            dv.documento_Numero) AS venta,
+                    v.fecha AS fecha_venta,
+                    u.nombre AS vendedor,
+                    c.razon_social AS cliente,
+                    z.zona_nombre AS zona,
+                    b.banco_nombre AS banco,
+                    hpc.pago_data AS operacion
+                FROM
+                    historial_pagos_clientes AS hpc
+                        JOIN
+                    metodos_pago AS mp ON mp.id_metodo = hpc.historial_tipopago
+                        JOIN
+                    venta AS v ON v.venta_id = hpc.credito_id
+                        JOIN
+                    documento_venta AS dv ON dv.id_tipo_documento = v.venta_id
+                        JOIN
+                    usuario AS u ON u.nUsuCodigo = v.id_vendedor
+                        JOIN
+                    cliente AS c ON c.id_cliente = v.id_cliente
+                        JOIN
+                    zonas AS z ON z.zona_id = c.id_zona
+                        LEFT JOIN
+                    banco AS b ON b.banco_id = hpc.historial_banco_id
+                WHERE
+                    hpc.historial_estatus = 'CONFIRMADO'";
+
+        if (isset($params['fecha_ini']) && isset($params['fecha_fin']) && $params['fecha_flag'] == 1) {
+            $query .= " AND hpc.historial_fecha >= '" . $params['fecha_ini'] . " 00:00:00'";
+            $query .= " AND hpc.historial_fecha <= '" . $params['fecha_fin'] . " 23:59:59'";
+        }
+
+        if (isset($params['vendedor_id']) && $params['vendedor_id'] != 0)
+            $query .= " AND u.nUsuCodigo = " . $params['vendedor_id'];
+
+        if (isset($params['cliente_id']) && $params['cliente_id'] != 0)
+            $query .= " AND c.id_cliente = " . $params['cliente_id'];
+
+        if (isset($params['zonas_id']) && count($params['zonas_id'])) {
+            $zonas = '';
+            for ($i = 0; $i < count($params['zonas_id']); $i++) {
+                $zonas .= $params['zonas_id'][$i];
+
+                if ($i < count($params['zonas_id']) - 1)
+                    $zonas .= ',';
+            }
+            $query .= " AND c.id_zona IN (" . $zonas . ")";
+        }
+
+        $query .= " ORDER BY hpc.credito_id , hpc.historial_fecha ";
 
 
         return $this->db->query($query)->result();
