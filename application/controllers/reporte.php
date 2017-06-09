@@ -38,6 +38,32 @@ class reporte extends MY_Controller
                 echo $this->load->view('menu/reports/cobranzas/tabla', $data, true);
                 break;
             }
+            case 'pdf': {
+                $params = json_decode($this->input->get('data'));
+                $data['cobranzas'] = $this->rcobranza_model->get_cobranzas(array(
+                    'fecha_ini' => date('Y-m-d', strtotime($params->fecha_ini)),
+                    'fecha_fin' => date('Y-m-d', strtotime($params->fecha_fin)),
+                    'fecha_flag' => $params->fecha_flag,
+                    'vendedor_id' => $params->vendedor_id,
+                    'cliente_id' => $params->cliente_id,
+                    'zonas_id' => json_decode($params->zonas_id),
+                    'atraso' => $params->atraso,
+                    'dif_deuda' => $params->dif_deuda,
+                    'dif_deuda_value' => $params->dif_deuda_value
+                ));
+
+                $data['fecha_ini'] = $params->fecha_ini;
+                $data['fecha_fin'] = $params->fecha_fin;
+                $data['fecha_flag'] = $params->fecha_flag;
+
+                $this->load->library('mpdf53/mpdf');
+                $mpdf = new mPDF('utf-8', 'A4-L');
+                $html = $this->load->view('menu/reports/cobranzas/tabla_pdf', $data, true);
+                $mpdf->WriteHTML($html);
+                $mpdf->Output();
+                break;
+
+            }
             default: {
 
                 $data['cobranzas'] = $this->rcobranza_model->get_cobranzas(array(
@@ -227,12 +253,12 @@ class reporte extends MY_Controller
         switch ($action) {
             case 'filter': {
                 $data['ventas'] = $this->rventas_model->get_nota_entrega(array(
-                    'cliente_id'=>$this->input->post('cliente_id'),
-                    'estado'=>$this->input->post('estado'),
-                    'year'=>$this->input->post('year'),
-                    'mes'=>$this->input->post('mes'),
-                    'dia_min'=>$this->input->post('dia_min'),
-                    'dia_max'=>$this->input->post('dia_max')
+                    'cliente_id' => $this->input->post('cliente_id'),
+                    'estado' => $this->input->post('estado'),
+                    'year' => $this->input->post('year'),
+                    'mes' => $this->input->post('mes'),
+                    'dia_min' => $this->input->post('dia_min'),
+                    'dia_max' => $this->input->post('dia_max')
                 ));
 
                 echo $this->load->view('menu/reports/nota_entrega/tabla', $data, true);
@@ -240,10 +266,10 @@ class reporte extends MY_Controller
             }
             default: {
                 $data['ventas'] = $this->rventas_model->get_nota_entrega(array(
-                    'year'=>date('Y'),
-                    'mes'=>date('m'),
-                    'dia_min'=>date('d'),
-                    'dia_max'=>date('d')
+                    'year' => date('Y'),
+                    'mes' => date('m'),
+                    'dia_min' => date('d'),
+                    'dia_max' => date('d')
                 ));
 
 
@@ -260,8 +286,9 @@ class reporte extends MY_Controller
             }
         }
     }
-    
-    function nota_entrega_form($venta_id){
+
+    function nota_entrega_form($venta_id)
+    {
         $data['venta'] = $this->db->select("
             v.fecha AS fecha,
             dv.documento_Serie as serie,
@@ -288,12 +315,12 @@ class reporte extends MY_Controller
         switch ($action) {
             case 'filter': {
                 $data['ventas'] = $this->rventas_model->get_documentos(array(
-                    'cliente_id'=>$this->input->post('cliente_id'),
-                    'estado'=>$this->input->post('estado'),
-                    'year'=>$this->input->post('year'),
-                    'mes'=>$this->input->post('mes'),
-                    'dia_min'=>$this->input->post('dia_min'),
-                    'dia_max'=>$this->input->post('dia_max')
+                    'cliente_id' => $this->input->post('cliente_id'),
+                    'estado' => $this->input->post('estado'),
+                    'year' => $this->input->post('year'),
+                    'mes' => $this->input->post('mes'),
+                    'dia_min' => $this->input->post('dia_min'),
+                    'dia_max' => $this->input->post('dia_max')
                 ));
 
                 echo $this->load->view('menu/reports/documentos/tabla', $data, true);
@@ -302,10 +329,10 @@ class reporte extends MY_Controller
             default: {
 
                 $data['ventas'] = $this->rventas_model->get_documentos(array(
-                    'year'=>date('Y'),
-                    'mes'=>date('m'),
-                    'dia_min'=>date('d'),
-                    'dia_max'=>date('d')
+                    'year' => date('Y'),
+                    'mes' => date('m'),
+                    'dia_min' => date('d'),
+                    'dia_max' => date('d')
                 ));
 
                 $data['reporte_filtro'] = $this->load->view('menu/reports/documentos/filtros', array(
