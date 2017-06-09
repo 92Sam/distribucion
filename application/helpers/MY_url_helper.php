@@ -227,6 +227,9 @@ function get_tipo_operacion($cod)
         case 11: {
             return array('code' => $cod, 'value' => 'TRANSFERENCIA ENTRE ALMACENES');
         }
+        case 12: {
+            return array('code' => $cod, 'value' => 'INVENTARIO INICIAL');
+        }
         default: {
             return array('code' => 0, 'value' => 'Otros');
         }

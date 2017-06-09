@@ -6,12 +6,12 @@ $ruta = base_url();
 
 /* Template variables */
 $template = array(
-    'name' => 'Distribución',
+    'name' => 'CD ARKAD',
     'version' => '2.0',
     'author' => 'Te Ayudo',
     'robots' => 'noindex, nofollow',
-    'title' => 'Distribución',
-    'description' => 'Sistema de Distribución',
+    'title' => 'CD ARKAD',
+    'description' => 'Software de inventario, ventas y distribución',
     // true                     enable page preloader
     // false                    disable page preloader
     'page_preloader' => false,
@@ -76,13 +76,6 @@ $primary_nav = array(
                 'slug' => 'productos'
             ),
             array(
-                'name' => 'Stock Productos',
-                'url' => $ruta . 'producto/stock',
-                'icon' => 'fa fa-table',
-                'slug' => 'stock'
-            ),
-
-            array(
                 'name' => 'Categorias',
                 'slug' => 'categorias',
                 'icon' => 'fa fa-list',
@@ -103,7 +96,7 @@ $primary_nav = array(
                         'name' => 'Linea',
                         'url' => $ruta . 'subgrupo',
                         'icon' => 'fa fa-cubes',
-                        'slug' => 'subgruposproductos'
+                        'slug' => 'linea'
                     ),
 
 
@@ -111,169 +104,62 @@ $primary_nav = array(
                         'name' => 'Sub-Linea',
                         'url' => $ruta . 'familia',
                         'icon' => 'fa fa-laptop',
-                        'slug' => 'familias'
+                        'slug' => 'sublinea'
                     ),
                     array(
-                        'name' => 'Subfamilias',
+                        'name' => 'Familias',
                         'url' => $ruta . 'subfamilia',
                         'icon' => 'fa fa-laptop',
-                        'slug' => 'subfamilias'
+                        'slug' => 'familia'
                     ),
 
                     array(
                         'name' => 'Talla',
                         'url' => $ruta . 'linea',
                         'icon' => 'fa fa-th-large',
-                        'slug' => 'lineas'
+                        'slug' => 'talla'
                     ),
 
 
                 )
             ),
-            array(
-                'name' => 'Lista de Precios',
-                'url' => $ruta . 'producto/listaprecios',
-                'icon' => 'fa fa-money',
-                'slug' => 'listaprecios'
-            ),
-            array(
-                'name' => 'Ajustar Inventario',
-                'url' => $ruta . 'inventario/ajuste',
-                'icon' => 'fa fa-exchange',
-                'slug' => 'ajusteinventario'
-            ),
-            array(
-                'name' => 'Kardex',
-                'url' => $ruta . 'inventario/movimiento',
-                'icon' => 'fa fa-calculator',
-                'slug' => 'movimientoinventario'
-            ),
-            array(
-                'name' => 'Existencia minima',
-                'url' => $ruta . 'inventario/existencia_minima',
-                'icon' => 'fa fa-minus-square-o',
-                'slug' => 'exitenciaminima'
-            )
 
         ),
     ),
 
-    // Ventas
+    // Compras
     array(
-        'name' => 'VENTAS',
-        'slug' => 'ventas',
+        'name' => 'COMPRAS',
+        'slug' => 'compras',
         'sub' => array(
             array(
-                'name' => 'Generar Venta',
-                'url' => $ruta . 'venta',
-                'icon' => 'fa fa-share',
-                'slug' => 'generarventa'
-            ),
-
-            array(
-                'name' => 'Historial de Ventas',
-                'url' => $ruta . 'venta/consultar',
-                'icon' => 'fa fa-history',
-                'slug' => 'historialventas'
-            ),
-
-            array(
-                'name' => 'Documentos',
-                'url' => $ruta . 'venta/documentos',
-                'icon' => 'fa fa-history',
-                'slug' => 'historialventas'
-            ),
-
-            array(
-                'name' => 'Anular Venta',
-                'url' => $ruta . 'venta/cancelar',
-                'icon' => 'gi gi-remove_2',
-                'slug' => 'anularventa'
+                'name' => 'Registro de Compras',
+                'url' => $ruta . 'ingresos?costos=true',
+                'icon' => 'gi gi-cart_in',
+                'slug' => 'registrarcompras'
             ),
             array(
-                'name' => 'Devoluci&oacute;n de Ventas',
-                'url' => $ruta . 'venta/devolver',
-                'icon' => 'fa fa-share',
-                'slug' => 'devolucionventa'
+                'name' => 'Registro de Existencia',
+                'slug' => 'ingresoexistencia',
+                'icon' => 'gi gi-cart_in',
+                'url' => $ruta . 'ingresos?costos=false',
             ),
             array(
-                'name' => 'Ventas por Cliente',
-                'url' => $ruta . 'venta/ventas_by_cliente',
-                'icon' => 'fa fa-bar-chart',
-                'slug' => 'ventasporcliente'
+                'name' => 'Consultar Compras',
+                'url' => $ruta . 'ingresos/consultar',
+                'icon' => 'gi gi-history',
+                'slug' => 'consultarcompras'
             ),
             array(
-                'name' => 'Gastos',
-                'icon' => 'fa fa-calculator',
-                'sub' => array(
-                    array(
-                        'name' => 'Gastos',
-                        'url' => $ruta . 'gastos',
-                        'icon' => 'gi gi-parents',
-                        'slug' => 'gastos'
-                    ),
-                    array(
-                        'name' => 'Tipos de gasto',
-                        'url' => $ruta . 'tiposdegasto',
-                        'icon' => 'gi gi-parents',
-                        'slug' => 'tiposgasto'
-                    ),
-                ),
-                'slug' => 'gastospadre'
+                'name' => 'Devolucion de Compras',
+                'url' => $ruta . 'ingresos/devolucion',
+                'icon' => 'gi gi-cart_out',
+                'slug' => 'devolucioncompras'
             ),
-
-
-            array(
-                'name' => 'Promociones',
-                'icon' => 'fa fa-gift',
-                'sub' => array(
-                    array(
-                        'name' => 'Grupos',
-                        'url' => $ruta . 'clientesgrupos',
-                        'icon' => 'fa fa-group',
-                        'slug' => 'gruposcliente'
-                    ),
-                    array(
-                        'name' => 'Bonificaciones',
-                        'url' => $ruta . 'bonificaciones',
-                        'icon' => 'gi gi-parents',
-                        'slug' => 'bonificaciones'
-                    ),
-                    array(
-                        'name' => 'Descuentos',
-                        'url' => $ruta . 'descuentos',
-                        'icon' => 'gi gi-parents',
-                        'slug' => 'descuentos'
-                    ),
-                ),
-                'slug' => 'promociones'
-            )
-        )
+        ),
     ),
 
-    /* SE QUITA POR QUE AUN NO SE TIENE CLARO EL USO QUE LE DARA EN ESTA VERSION
-    array(
-        'name' => 'PEDIDOS',
-        'slug' => 'ventas', //generarpedidos
-        'sub' => array(
-
-
-            array(
-                'name' => 'Clientes por atender',
-                'url' => $ruta . 'mapaVentas',
-                'icon' => 'fa fa-users',
-                'slug' => 'clienterporatender'
-            ),
-            array(
-                'name' => 'Puntos de reparticion',
-                'url' => $ruta . 'puntosReparticion',
-                'icon' => 'fa  fa-map-marker',
-                'slug' => 'puntosReparticion'
-            ),
-
-        )
-    ),
-    */
+    //Flujo de trabajo
     array(
         'name' => 'FLUJO DE TRABAJO',
         'slug' => 'flujodetrabajo',
@@ -305,30 +191,14 @@ $primary_nav = array(
             ),
         )
     ),
-    // Clientes
-    array(
-        'name' => 'CLIENTES',
-        'slug' => 'clientespadre',
-        'sub' => array(
-            array(
-                'name' => 'Clientes',
-                'url' => $ruta . 'cliente',
-                'icon' => 'gi gi-parents',
-                'slug' => 'clientes'
-            )
 
-
-        )
-    ),
-
-
-    // Clientes
+    // Cobranza
     array(
         'name' => 'COBRANZAS',
         'slug' => 'cobranzas',
         'sub' => array(
             array(
-                'name' => 'Pagos Pendientes',
+                'name' => 'Cuentas por Cobrar',
                 'url' => $ruta . 'pago_pendiente/pagos',
                 'icon' => 'gi gi-wallet',
                 'slug' => 'pagospendientescobranzas'
@@ -342,57 +212,50 @@ $primary_nav = array(
         )
     ),
 
-    //lo q estaba en el menu de cobranzas
-    /*
-     *     array(
-                'name' => 'Liquidar Cobranzas',
-                'url' => $ruta . 'venta/liquidacion',
-                'icon' => 'gi gi-ok',
-                'slug' => 'liquidarcobranzas'
-            ),
-            array(
-                'name' => 'Reporte Liquidaciones',
-                'url' => $ruta . 'venta/historial_liquidacion',
-                'icon' => 'gi gi-history',
-                'slug' => 'liquidacionescobranzas'
-            ),
-            array(
-                'name' => 'Pagos adelantados',
-                'url' => $ruta . 'venta/pagosadelantados',
-                'icon' => 'gi gi-history',
-                'slug' => 'pagosadelantados'
-            ),*/
-
-    // Ingresos
+    // Caja y Bancos
     array(
-        'name' => 'COMPRAS',
-        'slug' => 'ingresos',
+        'name' => 'CAJA & BANCOS',
+        'slug' => 'caja_bancos',
         'sub' => array(
             array(
-                'name' => 'Registro de Compras',
-                'url' => $ruta . 'ingresos?costos=true',
-                'icon' => 'gi gi-cart_in',
-                'slug' => 'registraringreo'
+                'name' => 'Caja',
+                'url' => $ruta . 'cajas',
+                'icon' => 'gi gi-nameplate',
+                'slug' => 'cajas'
             ),
             array(
-                'name' => 'Registro de Existencia',
-                'slug' => 'ingresoexistencia',
-                'icon' => 'gi gi-cart_in',
-                'url' => $ruta . 'ingresos?costos=false',
+                'name' => 'Gastos',
+                'url' => $ruta . 'gastos',
+                'icon' => 'gi gi-parents',
+                'slug' => 'gastos'
             ),
             array(
-                'name' => 'Consultar Compras',
-                'url' => $ruta . 'ingresos/consultar',
-                'icon' => 'gi gi-history',
-                'slug' => 'consultaringresos'
+                'name' => 'Bancos',
+                'url' => $ruta . 'banco',
+                'icon' => 'gi gi-kiosk',
+                'slug' => 'bancos'
+            )
+        )
+    ),
+
+    // Clientes
+    array(
+        'name' => 'CLIENTES',
+        'slug' => 'clientespadre',
+        'sub' => array(
+            array(
+                'name' => 'Gestión de Clientes',
+                'url' => $ruta . 'cliente',
+                'icon' => 'gi gi-parents',
+                'slug' => 'clientes'
             ),
             array(
-                'name' => 'Devolucion de Compras',
-                'url' => $ruta . 'ingresos/devolucion',
-                'icon' => 'gi gi-cart_out',
-                'slug' => 'devolucioningreso'
-            ),
-        ),
+                'name' => 'Grupos de Clientes',
+                'url' => $ruta . 'clientesgrupos',
+                'icon' => 'fa fa-group',
+                'slug' => 'gruposcliente'
+            )
+        )
     ),
 
     // Proveedores
@@ -401,7 +264,7 @@ $primary_nav = array(
         'slug' => 'proveedores',
         'sub' => array(
             array(
-                'name' => 'Proveedor',
+                'name' => 'Gestión de Proveedores',
                 'url' => $ruta . 'proveedor',
                 'icon' => 'gi gi-vcard',
                 'slug' => 'proveedor'
@@ -410,8 +273,71 @@ $primary_nav = array(
                 'name' => 'Cuentas por Pagar',
                 'url' => $ruta . 'proveedor/cuentas_por_pagar',
                 'icon' => 'gi gi-wallet',
-                'slug' => 'proveedor'
+                'slug' => 'cuentasporpagar'
             ),
+        )
+    ),
+
+    // Ventas
+    array(
+        'name' => 'VENTAS',
+        'slug' => 'ventas',
+        'sub' => array(
+            array(
+                'name' => 'Realizar Venta',
+                'url' => $ruta . 'venta',
+                'icon' => 'fa fa-share',
+                'slug' => 'generarventa'
+            ),
+
+            array(
+                'name' => 'Historial de Ventas',
+                'url' => $ruta . 'venta/consultar',
+                'icon' => 'fa fa-history',
+                'slug' => 'historialventas'
+            ),
+
+            array(
+                'name' => 'Anular Venta',
+                'url' => $ruta . 'venta/cancelar',
+                'icon' => 'gi gi-remove_2',
+                'slug' => 'anularventa'
+            ),
+
+            array(
+                'name' => 'Devoluci&oacute;n de Ventas',
+                'url' => $ruta . 'venta/devolver',
+                'icon' => 'fa fa-share',
+                'slug' => 'devolucionventa'
+            ),
+
+            array(
+                'name' => 'Reimprimir documentos',
+                'url' => $ruta . 'venta/documentos',
+                'icon' => 'fa fa-history',
+                'slug' => 'reimprimir_documento'
+            ),
+
+            array(
+                'name' => 'Promociones',
+                'icon' => 'fa fa-gift',
+                'sub' => array(
+
+                    array(
+                        'name' => 'Bonificaciones',
+                        'url' => $ruta . 'bonificaciones',
+                        'icon' => 'gi gi-parents',
+                        'slug' => 'bonificaciones'
+                    ),
+                    array(
+                        'name' => 'Descuentos',
+                        'url' => $ruta . 'descuentos',
+                        'icon' => 'gi gi-parents',
+                        'slug' => 'descuentos'
+                    ),
+                ),
+                'slug' => 'promociones'
+            )
         )
     ),
 
@@ -421,169 +347,149 @@ $primary_nav = array(
         'slug' => 'reportes',
         'sub' => array(
             array(
-                'name' => 'Generales',
+                'name' => 'Rep de Ventas',
                 'icon' => 'fa fa-bar-chart',
-                'slug' => 'reporteutilidades',
-                'sub' => array(
-                    array(
-                        'name' => 'Cuadre de Caja',
-                        'icon' => 'fa fa-bar-chart',
-                        'url' => $ruta . 'reporte/cobranzas',
-                        'slug' => 'reporteutilidades'
-                    ),
-                    array(
-                        'name' => 'Utilidades',
-                        'url' => $ruta . 'reporte/cobranzas',
-                        'icon' => 'fa fa-bar-chart',
-                        'slug' => 'reporteutilidades'
-                    ),
-                    array(
-                        'name' => 'Venta vs Compra',
-                        'url' => $ruta . 'reporte_general/ventas_compras',
-                        'icon' => 'fa fa-bar-chart',
-                        'slug' => 'reporteutilidades'
-                    ),
-                    array(
-                        'name' => 'VC por Producto',
-                        'url' => $ruta . 'reporte/cliente_estado',
-                        'icon' => 'fa fa-bar-chart',
-                        'slug' => 'reporteutilidades'
-                    )
-                ),
-            ),
-
-            array(
-                'name' => 'Ventas',
-                'icon' => 'fa fa-bar-chart',
-                'slug' => 'reporteutilidades',
+                'slug' => 'reporteventas',
                 'sub' => array(
                     array(
                         'name' => 'Resumen',
                         'icon' => 'fa fa-bar-chart',
                         'url' => $ruta . 'reporte/ventas',
-                        'slug' => 'reporteutilidades'
+                        'slug' => 'reporteventas'
                     ),
                     array(
-                        'name' => 'Cobranzas',
+                        'name' => 'Avance de Cobranzas',
                         'url' => $ruta . 'reporte/cobranzas',
                         'icon' => 'fa fa-bar-chart',
-                        'slug' => 'reporteutilidades'
+                        'slug' => 'reporteventas'
                     ),
                     array(
                         'name' => 'Estado de Cuenta',
                         'url' => $ruta . 'reporte/cliente_estado',
                         'icon' => 'fa fa-bar-chart',
-                        'slug' => 'reporteutilidades'
+                        'slug' => 'reporteventas'
                     ),
                     array(
                         'name' => 'Historial de Cobranzas',
                         'url' => $ruta . 'reporte/historial_cobranzas',
                         'icon' => 'fa fa-bar-chart',
-                        'slug' => 'reporteutilidades'
+                        'slug' => 'reporteventas'
                     ),
                     array(
-                        'name' => 'Notas de Entrega',
+                        'name' => 'Avance de Ventas',
                         'url' => $ruta . 'reporte/nota_entrega',
                         'icon' => 'fa fa-bar-chart',
-                        'slug' => 'reporteutilidades'
+                        'slug' => 'reporteventas'
                     ),
                     array(
                         'name' => 'Documentos',
                         'url' => $ruta . 'reporte/documentos',
                         'icon' => 'fa fa-bar-chart',
-                        'slug' => 'reporteutilidades'
-                    )
+                        'slug' => 'reporteventas'
+                    ),
+                    array(
+                        'name' => 'Clientes por atender',
+                        'url' => $ruta . 'mapaVentas',
+                        'icon' => 'fa fa-users',
+                        'slug' => 'reporteventas'
+                    ),
+                    array(
+                        'name' => 'Puntos de reparticion',
+                        'url' => $ruta . 'puntosReparticion',
+                        'icon' => 'fa  fa-map-marker',
+                        'slug' => 'reporteventas'
+                    ),
                 ),
             ),
 
             array(
-                'name' => 'Compras',
+                'name' => 'Rep de Compras',
                 'icon' => 'fa fa-bar-chart',
-                'slug' => 'reporteutilidades',
+                'slug' => 'reportecompras',
                 'sub' => array(
                     array(
                         'name' => 'Resumen',
                         'icon' => 'fa fa-bar-chart',
                         'url' => $ruta . 'reporte_compra/compras',
-                        'slug' => 'reporteutilidades'
+                        'slug' => 'reportecompras'
                     ),
                     array(
                         'name' => 'Cuentas por Pagar',
                         'url' => $ruta . 'reporte_compra/cuentas',
                         'icon' => 'fa fa-bar-chart',
-                        'slug' => 'reporteutilidades'
+                        'slug' => 'reportecompras'
                     ),
                     array(
-                        'name' => 'Estado de Pago',
+                        'name' => 'Avance de Pagos',
                         'url' => $ruta . 'reporte_compra/proveedor_estado',
                         'icon' => 'fa fa-bar-chart',
-                        'slug' => 'reporteutilidades'
+                        'slug' => 'reportecompras'
                     )
                 ),
             ),
 
             array(
-                'name' => 'Stock',
+                'name' => 'Rep de Inventario',
                 'icon' => 'fa fa-bar-chart',
-                'slug' => 'reporteutilidades',
+                'slug' => 'reporteinventario',
                 'sub' => array(
                     array(
                         'name' => 'Stock de Producto',
                         'url' => $ruta . 'producto/stock',
                         'icon' => 'fa fa-bar-chart',
-                        'slug' => 'reporteutilidades'
+                        'slug' => 'reporteinventario'
                     ),
                     array(
                         'name' => 'Stock Comprometido',
                         'icon' => 'fa fa-bar-chart',
                         'url' => $ruta . 'reporte/stock_transito',
-                        'slug' => 'reporteutilidades'
+                        'slug' => 'reporteinventario'
+                    ),
+                    array(
+                        'name' => 'Kardex',
+                        'url' => $ruta . 'inventario/movimiento',
+                        'icon' => 'fa fa-bar-chart',
+                        'slug' => 'reporteinventario'
                     ),
                     array(
                         'name' => 'Estado del Producto',
                         'url' => $ruta . 'producto/reporteEstado',
                         'icon' => 'fa fa-bar-chart',
-                        'slug' => 'reporteutilidades'
-                    ),
-                    array(
-                        'name' => 'Venta por Producto',
-                        'url' => $ruta . 'reporte_compra/cliente_estado',
-                        'icon' => 'fa fa-bar-chart',
-                        'slug' => 'reporteutilidades'
-                    ),
-                    array(
-                        'name' => 'Compra por Producto',
-                        'url' => $ruta . 'reporte_compra/cliente_estado',
-                        'icon' => 'fa fa-bar-chart',
-                        'slug' => 'reporteutilidades'
+                        'slug' => 'reporteinventario'
                     )
                 ),
             ),
 
-            array(
-                'name' => 'Ganancias y Perdidas',
-                'url' => $ruta . 'venta/reporteUtilidades',
-                'icon' => 'fa fa-bar-chart',
-                'slug' => 'reporteutilidades'
-            ),
-
-
+            /*Trabajar en este reporte con bencho
             array(
                 'name' => 'Estado del Producto',
                 'url' => $ruta . 'producto/reporteEstado',
                 'icon' => 'fa fa-history',
                 'slug' => 'reporteestado'
+            ),*/
+            array(
+                'name' => 'Venta vs Compra',
+                'url' => $ruta . 'reporte_general/ventas_compras',
+                'icon' => 'fa fa-bar-chart',
+                'slug' => 'ventas_v_compras'
             ),
             array(
                 'name' => 'Rotación de Productos',
                 'url' => $ruta . 'venta/reporteRotacionZona',
                 'icon' => 'gi gi-heat',
-                'slug' => 'productoszona'
+                'slug' => 'rotacion_productos'
+            ),
+            array(
+                'name' => 'Utilidad por Producto',
+                'url' => $ruta . 'venta/reporteUtilidades',
+                'icon' => 'fa fa-bar-chart',
+                'slug' => 'utilidad_por_producto'
             )
         )
 
     ),
 
+    //Configuraciones
     array(
         'name' => 'CONFIGURACIONES',
         'slug' => 'configuraciones',
@@ -620,18 +526,7 @@ $primary_nav = array(
                 'icon' => 'fa  fa-truck',
                 'slug' => 'camiones'
             ),
-            array(
-                'name' => 'Caja',
-                'url' => $ruta . 'cajas',
-                'icon' => 'gi gi-nameplate',
-                'slug' => 'cajas'
-            ),
-            array(
-                'name' => 'Bancos',
-                'url' => $ruta . 'banco',
-                'icon' => 'gi gi-kiosk',
-                'slug' => 'bancos'
-            ),
+
             array(
                 'name' => 'Unidades de Medida',
                 'url' => $ruta . 'unidades',
@@ -640,40 +535,46 @@ $primary_nav = array(
             ),
 
             array(
-                'name' => 'Region',
+                'name' => 'Ubigeo',
                 'icon' => 'fa fa-globe',
                 'sub' => array(
                     array(
-                        'name' => 'Paises',
+                        'name' => 'Pais',
                         'url' => $ruta . 'pais',
                         'icon' => 'fa fa-users',
                         'slug' => 'pais'
                     ),
                     array(
-                        'name' => 'Ciudades',
+                        'name' => 'Ciudad',
                         'url' => $ruta . 'estados',
                         'icon' => 'gi gi-shop_window',
                         'slug' => 'estado'
                     ),
                     array(
-                        'name' => 'Distritos',
+                        'name' => 'Distrito',
                         'url' => $ruta . 'ciudad',
                         'icon' => 'gi gi-shop_window',
                         'slug' => 'ciudad'
                     ),
                     array(
-                        'name' => 'Zonas de reparto',
+                        'name' => 'Zonas de Reparto',
                         'url' => $ruta . 'zona',
                         'icon' => 'gi gi-globe',
                         'slug' => 'zona'
                     )
                 ),
-                'slug' => 'region'
+                'slug' => 'ubigeo'
 
-            )
+            ),
+
+            array(
+                'name' => 'Tipos de Gasto',
+                'url' => $ruta . 'tiposdegasto',
+                'icon' => 'fa fa-list-ol',
+                'slug' => 'tiposgasto'
+            ),
 
         )
-
 
     ),
 
@@ -715,7 +616,6 @@ $primary_nav = array(
             ),
         )
 
-
     ),
 
 );
@@ -726,7 +626,7 @@ $primary_nav = array(
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>SISTEMA DISTRIBUCION</title>
+    <title>SOFTWARE DE INVENTARIO, VENTAS Y DISTRIBUCIÓN</title>
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width">
     <meta name="x-api-key" content="<?= $this->session->userdata('api_key'); ?>"/>
@@ -946,9 +846,10 @@ $primary_nav = array(
             <div class="sidebar-scroll">
                 <!-- Sidebar Content -->
                 <div class="sidebar-content">
+
                     <!-- Brand -->
                     <a href="<?= $ruta ?>principal" class="sidebar-brand">
-                        <i class="gi gi-cart_out"></i><strong>Distribuci&oacute;n</strong>
+                        <i class="gi gi-cart_out"></i><strong>CD ARKAD  <spam style="font-size: 10px"> V.01 </spam></strong>
                     </a>
                     <!-- END Brand -->
 
@@ -1258,27 +1159,38 @@ $primary_nav = array(
                     <!-- Horizontal Menu + Search -->
                     <div id="horizontal-menu-collapse" class="collapse navbar-collapse">
                         <ul class="nav navbar-nav">
-                            <?php if ($this->usuarios_grupos_model->user_has_perm($this->session->userdata('nUsuCodigo'), 'stock')) { ?>
+                            <?php if ($this->usuarios_grupos_model->user_has_perm($this->session->userdata('nUsuCodigo'), 'ad_stock')) { ?>
 
                                 <li>
-                                    <a class="menulink" href="<?= $ruta ?>producto/stock">Stock Producto(F2)</a>
+                                    <a class="menulink" href="<?= $ruta ?>producto/stock">Stock Producto (F2)</a>
                                 </li>
                             <?php } ?>
-                            <?php if ($this->usuarios_grupos_model->user_has_perm($this->session->userdata('nUsuCodigo'), 'pagospendiente')) { ?>
+
+                            <?php if ($this->usuarios_grupos_model->user_has_perm($this->session->userdata('nUsuCodigo'), 'ad_avanceventas')) { ?>
                                 <li>
-                                <a class="menulink" href="<?= $ruta ?>pago_pendiente/pagos">Pagos Pendientes</a>
+                                <a class="menulink" href="<?= $ruta ?>reporte/nota_entrega">Avance de Ventas</a>
                                 </li><?php } ?>
-                            <?php if ($this->usuarios_grupos_model->user_has_perm($this->session->userdata('nUsuCodigo'), 'estadodecuenta')) { ?>
 
+                            <?php if ($this->usuarios_grupos_model->user_has_perm($this->session->userdata('nUsuCodigo'), 'ad_avancecobranzas')) { ?>
                                 <li>
+                                <a class="menulink" href="<?= $ruta ?>reporte/cobranzas">Avance de Cobranzas</a>
+                                </li><?php } ?>
 
-                                    <a class="menulink" href="<?= $ruta ?>reporte/cliente_estado">Estado de cuentas</a>
+                            <?php if ($this->usuarios_grupos_model->user_has_perm($this->session->userdata('nUsuCodigo'), 'ad_estadodecuenta')) { ?>
+                                <li>
+                                    <a class="menulink" href="<?= $ruta ?>reporte/cliente_estado">Estado de Cuentas Clientes</a>
                                 </li>
                             <?php } ?>
-                            <?php if ($this->usuarios_grupos_model->user_has_perm($this->session->userdata('nUsuCodigo'), 'cuadrecaja')) { ?>
 
+                            <?php if ($this->usuarios_grupos_model->user_has_perm($this->session->userdata('nUsuCodigo'), 'ad_reporteventas')) { ?>
                                 <li>
-                                    <a class="menulink" href="<?= $ruta ?>cajas">Cuadre caja</a>
+                                    <a class="menulink" href="<?= $ruta?>reporte/historial_cobranzas">Historial de Cobranza</a>
+                                </li>
+                            <?php } ?>
+
+                            <?php if ($this->usuarios_grupos_model->user_has_perm($this->session->userdata('nUsuCodigo'), 'ad_resumencompras')) { ?>
+                                <li>
+                                    <a class="menulink" href="<?= $ruta?>reporte_compra/compras">Resumen de Compras</a>
                                 </li>
                             <?php } ?>
                         </ul>
