@@ -176,7 +176,7 @@
 
     </div>
 
-    <a href="<?= $ruta ?>producto/pdfStock" class="btn  btn-danger btn-lg" data-toggle="tooltip" title="Exportar a PDF"
+    <a href="#" id="exportar_pdf" class="btn  btn-danger btn-lg" data-toggle="tooltip" title="Exportar a PDF"
        data-original-title="fa fa-file-pdf-o"><i class="fa fa-file-pdf-o fa-fw"></i></a>
 
     <a href="<?= $ruta ?>producto/excelStock" class="btn btn-default btn-lg" data-toggle="tooltip"
@@ -232,6 +232,21 @@
         });
     }
 
+    function exportar_pdf() {
+        var data = {
+            'local_id': $("#local_id").val(),
+            'marca_id': $("#marca_id").val(),
+            'grupo_id': $("#grupo_id").val(),
+            'linea_id': $("#linea_id").val(),
+            'familia_id': $("#familia_id").val(),
+            'subfamilia_id': $("#subfamilia_id").val(),
+            'talla_id': $("#talla_id").val(),
+        };
+
+        var win = window.open('<?= base_url()?>producto/stock/pdf?data=' + JSON.stringify(data), '_blank');
+        win.focus();
+    }
+
 
 
 </script>
@@ -264,7 +279,10 @@ filter_cobranzas();
         filter_cobranzas();
     });
 
-        //TablesDatatablesJsonProdcutos.init('<?php echo base_url()?>producto/get_by_json_stock',0,false,true);
+
+        $("#exportar_pdf").on('click', function () {
+            exportar_pdf();
+        });
 
 
 

@@ -35,9 +35,11 @@ class banco extends MY_Controller
         $data = array();
         if ($id != FALSE) {
             $data['banco'] = $this->banco_model->get_by('banco_id', $id);
-        }
-
-        $data['caja_actual'] = $this->db->get_where('caja', array('moneda_id' => '1', 'local_id' => $this->session->userdata('int_local_id')))->row();
+            $data['caja_actual'] = $this->db->select('caja.*')->from('caja')
+                ->join('caja_desglose', 'caja_desglose.caja_id = caja.id')
+                ->where('caja_desglose.id', $data['banco']['cuenta_id'])->get()->row();
+        } else
+            $data['caja_actual'] = $this->db->get_where('caja', array('moneda_id' => '1', 'local_id' => $this->session->userdata('int_local_id')))->row();
 
         $data['cajas'] = $this->db->get_where('caja', array('estado' => 1))->result();
         $data['caja_cuentas'] = $this->db->get_where('caja_desglose', array('estado' => 1))->result();

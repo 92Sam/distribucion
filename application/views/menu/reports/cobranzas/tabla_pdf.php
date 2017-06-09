@@ -12,7 +12,7 @@
         font-size: 11px;
     }
 
-    h3{
+    h3 {
         margin: 2px;
     }
 </style>
@@ -28,21 +28,27 @@ $total_saldo = 0; ?>
     <?php $total_saldo += $cobranza->saldo; ?>
 <?php endforeach; ?>
 
-<h3>NOMBRE DE LA EMPRESA: <?=valueOption('EMPRESA_NOMBRE', '')?></h3>
-<h3>NOMBRE DEL REPORTE: Cobranzas
-    <?php if($fecha_flag != 1):?>
-    (TODAS)
-    <?php else:?>
-    (<?=date('d/m/Y', strtotime($fecha_ini))?> a <?=date('d/m/Y', strtotime($fecha_fin))?>)</h3>
-    <?php endif;?>
-<h3>FECHA DE CREADO: <?=date('d/m/Y H:i:s')?></h3>
+<h3>NOMBRE DE LA EMPRESA: <?= valueOption('EMPRESA_NOMBRE', '') ?></h3>
+<h3>
+    NOMBRE DEL REPORTE: Cobranzas
+    <?php if ($fecha_flag != 1): ?>
+        (TODAS)
+    <?php else: ?>
+        (<?= date('d/m/Y', strtotime($fecha_ini)) ?> a <?= date('d/m/Y', strtotime($fecha_fin)) ?>)
+    <?php endif; ?>
+</h3>
+
+<h3>FECHA DE CREADO: <?= date('d/m/Y H:i:s') ?></h3>
 <br>
 <table border="0">
     <tr>
         <td style="font-size: 12px; border: 0px; width: 80% !important;"></td>
-        <td style="font-size: 12px; border: 0px; text-align: right;">Total Vendido: <?= MONEDA ?> <?= number_format($total_venta, 2) ?></td>
-        <td style="font-size: 12px; border: 0px; text-align: right;">Total Pagado: <?= MONEDA ?> <?= number_format($total_pago, 2) ?></td>
-        <td style="font-size: 12px; border: 0px; text-align: right;">Total Saldo: <?= MONEDA ?> <?= number_format($total_saldo, 2) ?></td>
+        <td style="font-size: 12px; border: 0px; text-align: right;">Total
+            Vendido: <?= MONEDA ?> <?= number_format($total_venta, 2) ?></td>
+        <td style="font-size: 12px; border: 0px; text-align: right;">Total
+            Pagado: <?= MONEDA ?> <?= number_format($total_pago, 2) ?></td>
+        <td style="font-size: 12px; border: 0px; text-align: right;">Total
+            Saldo: <?= MONEDA ?> <?= number_format($total_saldo, 2) ?></td>
     </tr>
 </table>
 <table cellpadding="3" cellspacing="0">
@@ -89,8 +95,11 @@ $total_saldo = 0; ?>
 <table border="0">
     <tr>
         <td style="font-size: 12px; border: 0px; width: 80% !important;"></td>
-        <td style="font-size: 12px; border: 0px; text-align: right;">Total Vendido: <?= MONEDA ?> <?= number_format($total_venta, 2) ?></td>
-        <td style="font-size: 12px; border: 0px; text-align: right;">Total Pagado: <?= MONEDA ?> <?= number_format($total_pago, 2) ?></td>
-        <td style="font-size: 12px; border: 0px; text-align: right;">Total Saldo: <?= MONEDA ?> <?= number_format($total_saldo, 2) ?></td>
+        <td style="font-size: 12px; border: 0px; text-align: right;">Total
+            Vendido: <?= MONEDA ?> <?= number_format($total_venta, 2) ?></td>
+        <td style="font-size: 12px; border: 0px; text-align: right;">Total
+            Pagado: <?= MONEDA ?> <?= number_format($total_pago, 2) ?></td>
+        <td style="font-size: 12px; border: 0px; text-align: right;">Total
+            Saldo: <?= MONEDA ?> <?= number_format($total_saldo, 2) ?></td>
     </tr>
 </table>

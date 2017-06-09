@@ -117,7 +117,7 @@ class producto extends MY_Controller
             case 'filter': {
 
                 echo $this->load->view('menu/producto/stock_table', array(
-                    'lstProducto'=>$this->producto_model->get_all_by_local($this->input->post('local_id'), true, false, array(
+                    'lstProducto' => $this->producto_model->get_all_by_local($this->input->post('local_id'), true, false, array(
                         'marca_id' => $this->input->post('marca_id'),
                         'grupo_id' => $this->input->post('grupo_id'),
                         'linea_id' => $this->input->post('linea_id'),
@@ -125,25 +125,47 @@ class producto extends MY_Controller
                         'subfamilia_id' => $this->input->post('subfamilia_id'),
                         'talla_id' => $this->input->post('talla_id')
                     )),
-                    'columnas'=>$this->columnas
+                    'columnas' => $this->columnas
 
                 ), true);
+                break;
+            }
+            case 'pdf': {
+                $params = json_decode($this->input->get('data'));
+
+                $html = $this->load->view('menu/producto/stock_table_pdf', array(
+                    'lstProducto' => $this->producto_model->get_all_by_local($params->local_id, true, false, array(
+                        'marca_id' => $params->marca_id,
+                        'grupo_id' => $params->grupo_id,
+                        'linea_id' => $params->linea_id,
+                        'familia_id' => $params->familia_id,
+                        'subfamilia_id' => $params->subfamilia_id,
+                        'talla_id' => $params->talla_id
+                    )),
+                    'columnas' => $this->columnas
+                ), true);
+
+//                echo $html;
+                $this->load->library('mpdf53/mpdf');
+                $mpdf = new mPDF('utf-8', 'A4-L');
+                $mpdf->WriteHTML($html);
+                $mpdf->Output();
                 break;
             }
             default: {
 
                 $data['locales'] = $this->local_model->get_all();
-                $data['marcas'] = $this->db->get_where('marcas', array('estatus_marca'=>1))->result();
-                $data['grupos'] = $this->db->get_where('grupos', array('estatus_grupo'=>1))->result();
-                $data['lineas'] = $this->db->get_where('subgrupo', array('estatus_subgrupo'=>1))->result();
-                $data['familias'] = $this->db->get_where('familia', array('estatus_familia'=>1))->result();
-                $data['subfamilias'] = $this->db->get_where('subfamilia', array('estatus_subfamilia'=>1))->result();
-                $data['tallas'] = $this->db->get_where('lineas', array('estatus_linea'=>1))->result();
+                $data['marcas'] = $this->db->get_where('marcas', array('estatus_marca' => 1))->result();
+                $data['grupos'] = $this->db->get_where('grupos', array('estatus_grupo' => 1))->result();
+                $data['lineas'] = $this->db->get_where('subgrupo', array('estatus_subgrupo' => 1))->result();
+                $data['familias'] = $this->db->get_where('familia', array('estatus_familia' => 1))->result();
+                $data['subfamilias'] = $this->db->get_where('subfamilia', array('estatus_subfamilia' => 1))->result();
+                $data['tallas'] = $this->db->get_where('lineas', array('estatus_linea' => 1))->result();
                 $data['columnas'] = $this->columnas;
 
                 $data['reporte_tabla'] = $this->load->view('menu/producto/stock_table', array(
-                    'lstProducto'=>$this->producto_model->get_all_by_local($data["locales"][0]["int_local_id"], true),
-                    'columnas'=>$this->columnas
+                    'lstProducto' => $this->producto_model->get_all_by_local($data["locales"][0]["int_local_id"], true),
+                    'columnas' => $this->columnas
 
                 ), true);
 
