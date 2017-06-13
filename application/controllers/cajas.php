@@ -169,6 +169,7 @@ class cajas extends MY_Controller
     function caja_detalle_form($id)
     {
         $data['cuenta'] = $this->cajas_model->get_cuenta($id);
+        $data['caja'] = $this->cajas_model->get($data['cuenta']->caja_id);
 
         $params = array(
             'fecha_ini'=>date('Y-m-d H:i:s', strtotime($this->input->post('fecha_ini'). "00:00:00")),
@@ -178,6 +179,30 @@ class cajas extends MY_Controller
         $data['cuenta_movimientos'] = $this->cajas_mov_model->get_movimientos_today($id, $params);
 
         $this->load->view('menu/cajas/form_detalle', $data);
+    }
+
+    function caja_detalle_pdf($id)
+    {
+        $prm = json_decode($this->input->get('data'));
+        $data['cuenta'] = $this->cajas_model->get_cuenta($id);
+        $data['caja'] = $this->cajas_model->get($data['cuenta']->caja_id);
+
+        $params = array(
+            'fecha_ini'=>date('Y-m-d H:i:s', strtotime($prm->fecha_ini. " 00:00:00")),
+            'fecha_fin'=>date('Y-m-d H:i:s', strtotime($prm->fecha_fin. " 23:59:59")),
+        );
+
+        $data['fecha_ini'] = $prm->fecha_ini;
+        $data['fecha_fin'] = $prm->fecha_fin;
+
+        $data['cuenta_movimientos'] = $this->cajas_mov_model->get_movimientos_today($id, $params);
+
+        $html = $this->load->view('menu/cajas/form_detalle_pdf', $data, true);
+        $this->load->library('mpdf53/mpdf');
+        $mpdf = new mPDF('utf-8', 'A4-L');
+        $mpdf->WriteHTML($html);
+        $mpdf->Output();
+
     }
 
     function caja_pendiente_form($id)

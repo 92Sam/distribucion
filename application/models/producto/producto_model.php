@@ -362,7 +362,7 @@ class producto_model extends CI_Model
 
     function select_all_producto()
     {
-        $this->db->select($this->tabla . '.* ,lineas.nombre_linea,
+        $this->db->select($this->tabla . '.* ,lineas.nombre_linea, unidades.nombre_unidad as unidad_nombre, unidades.id_unidad as unidad_id,
 		 marcas.nombre_marca, familia.nombre_familia, grupos.nombre_grupo, proveedor.proveedor_nombre, impuestos.nombre_impuesto, impuestos.porcentaje_impuesto');
         $this->db->from($this->tabla);
         $this->db->join('lineas', 'lineas.id_linea=producto.' . $this->linea, 'left');
@@ -372,8 +372,8 @@ class producto_model extends CI_Model
         $this->db->join('proveedor', 'proveedor.id_proveedor=producto.' . $this->proveedor, 'left');
         $this->db->join('impuestos', 'impuestos.id_impuesto=producto.' . $this->impuesto, 'left');
         $this->db->join('unidades_has_producto', 'unidades_has_producto.producto_id=producto.' . $this->id . ' and unidades_has_producto.orden=1', 'left');
+        $this->db->join('unidades', 'unidades.id_unidad = unidades_has_producto.id_unidad', 'left');
         $this->db->where($this->status . ' !=', '0');
-        //$this->db->where($this->producto_activo . ' !=', '0');
         $this->db->order_by($this->nombre, 'asc');
         $query = $this->db->get();
         return $query->result_array();

@@ -367,6 +367,29 @@ class reporte extends MY_Controller
                 echo $this->load->view('menu/reports/historial_cobranza/tabla', $data, true);
                 break;
             }
+            case 'pdf': {
+                $params = json_decode($this->input->get('data'));
+                $data['ventas'] = $this->rventas_model->get_historial_cobranzas(array(
+                    'fecha_ini' => date('Y-m-d', strtotime($params->fecha_ini)),
+                    'fecha_fin' => date('Y-m-d', strtotime($params->fecha_fin)),
+                    'fecha_flag' => $params->fecha_flag,
+                    'vendedor_id' => $params->vendedor_id,
+                    'cliente_id' => $params->cliente_id,
+                    'zonas_id' => json_decode($params->zonas_id),
+                ));
+
+                $data['fecha_ini'] = $params->fecha_ini;
+                $data['fecha_fin'] = $params->fecha_fin;
+                $data['fecha_flag'] = $params->fecha_flag;
+
+                $this->load->library('mpdf53/mpdf');
+                $mpdf = new mPDF('utf-8', 'A4-L');
+                $html = $this->load->view('menu/reports/historial_cobranza/tabla_pdf', $data, true);
+                $mpdf->WriteHTML($html);
+                $mpdf->Output();
+                break;
+
+            }
             default: {
 
                 $data['ventas'] = $this->rventas_model->get_historial_cobranzas(array(

@@ -54,7 +54,7 @@ class descuentos_model extends CI_Model
         $this->db->join('escala_producto', 'escala_producto.escala = escalas.escala_id', 'left');
         $this->db->join('producto', 'producto.producto_id = escala_producto.producto', 'left');
         $this->db->where('descuento_id', $id);
-        $this->db->order_by('cantidad_minima','asc');
+        $this->db->order_by('producto.producto_id','asc');
         //$this->db->group_by();
 
 

@@ -31,8 +31,8 @@
 
                             <select name="grupos" id="grupos" class='cho form-control filter-input'>
                                 <option
-                                    value="<?php echo $grupo_clie_id; ?>"
-                                    id="<?php echo $grupo_clie; ?>">
+                                        value="<?php echo $grupo_clie_id; ?>"
+                                        id="<?php echo $grupo_clie; ?>">
                                     <?php echo $grupo_clie; ?></option>
                             </select>
                         </div>
@@ -97,6 +97,9 @@
                                 <select name="cboProducto" id="cboProducto" class='cho form-control'
                                         required="true">
                                     <option value="">Seleccione</option>
+                                    <?php if (!isset($descuentos['descuento_id'])): ?>
+                                        <option value="TODOS">TODOS LOS PRODUCTOS</option>
+                                    <?php endif; ?>
                                     <?php
 
                                     if (count($lstProducto) > 0): ?>
@@ -113,16 +116,18 @@
                                                 }
                                                 if ($paso == false) { ?>
 
-                                                    <option
-                                                        value="<?php echo $pd['producto_id']; ?>">
+                                                    <option data-um_id="<?= $pd['unidad_id'] ?>"
+                                                            data-um_nombre="<?= $pd['unidad_nombre'] ?>"
+                                                            value="<?php echo $pd['producto_id']; ?>">
                                                         <?php echo sumCod($pd['producto_id']) . " - " . $pd['producto_nombre']; ?></option>
 
                                                     <?php
                                                 }
 
                                             } else { ?>
-                                                <option
-                                                    value="<?php echo $pd['producto_id']; ?>"><?php echo sumCod($pd['producto_id']) . " - " . $pd['producto_nombre']; ?></option>
+                                                <option data-um_id="<?= $pd['unidad_id'] ?>"
+                                                        data-um_nombre="<?= $pd['unidad_nombre'] ?>"
+                                                        value="<?php echo $pd['producto_id']; ?>"><?php echo sumCod($pd['producto_id']) . " - " . $pd['producto_nombre']; ?></option>
 
 
                                             <?php }
@@ -177,14 +182,15 @@
                                                 hasta <?php echo $escala['cantidad_maxima']; ?>
 
                                                 <div class="btn-group">
-                                                    <a class="btn btn-default btn-mini btn-default" data-toggle="tooltip"
+                                                    <a class="btn btn-default btn-mini btn-default"
+                                                       data-toggle="tooltip"
                                                        title="Eliminar"
                                                        data-original-title="Eliminar"
                                                        onclick="quitarEscala(<?php echo $contador_escala; ?>)">
                                                         <i class="fa fa-trash-o"></i></a></div>
 
                                                 <div class="lstTabla" id="lstTabla<?php echo $contador_escala; ?>">
-                                            </div>
+                                                </div>
 
                                                 <table id="productos<?php echo $contador_escala; ?>" class="copiar table table-striped dataTable table-condensed
             table-bordered dataTable-noheader table-has-pover dataTable-nosort" data-nosort="0">
@@ -220,9 +226,10 @@
                                                                 </td>
                                                                 <?php foreach ($prod_precios as $pp) {
                                                                     if ($pp['producto_id'] == $productosnoagrupados[$p]["producto_id"] && $pp['id_unidad'] == $productosnoagrupados[$p]['id_unidad']) { ?>
-                                                                      <td width="15%"><?= $pp['precio'] ?></td>
-                                                                    <?}
-                                                                }?>
+                                                                        <td width="15%"><?= $pp['precio'] ?></td>
+                                                                        <?
+                                                                    }
+                                                                } ?>
                                                                 <td><input type="number" name="precio[]" min="0"
                                                                            id="precio<?= $contador_escala ?><?= sumCod($productosnoagrupados[$p]["producto_id"]) ?>"
                                                                            value="<?= $productosnoagrupados[$p]["precio"] ?>"
@@ -230,11 +237,11 @@
                                                                 </td>
                                                                 <td class="actions">
                                                                     <div class="btn-group"><a
-                                                                            class="btn btn-default btn-default btn-default"
-                                                                            data-toggle="tooltip"
-                                                                            title="Eliminar"
-                                                                            data-original-title="Eliminar"
-                                                                            onclick="del_listaProducto(<?= $contador_precios ?>,<?= $productosnoagrupados[$p]["producto_id"] ?>)">
+                                                                                class="btn btn-default btn-default btn-default"
+                                                                                data-toggle="tooltip"
+                                                                                title="Eliminar"
+                                                                                data-original-title="Eliminar"
+                                                                                onclick="del_listaProducto(<?= $contador_precios ?>,<?= $productosnoagrupados[$p]["producto_id"] ?>)">
                                                                             <i class="fa fa-trash-o"></i></a>
                                                                     </div>
                                                                 </td>
@@ -373,38 +380,41 @@
 
         $('#cboProducto').on("change", function () {
 
-            $.ajax({
-                url: '<?=$ruta?>descuentos/get_unidades_has_producto',
-                type: 'POST',
-                headers: {
-                    Accept: 'application/json'
-                },
-                data: {'id_producto': $(this).val()},
-                success: function (data) {
+            if ($(this).val() != 'TODOS') {
+                $.ajax({
+                    url: '<?=$ruta?>descuentos/get_unidades_has_producto',
+                    type: 'POST',
+                    headers: {
+                        Accept: 'application/json'
+                    },
+                    data: {'id_producto': $(this).val()},
+                    success: function (data) {
 
-                    var options = '';
-                    for (var i = 0; i < data.unidades.length; i++) {
-                        options += '<option  value="'
-                            + data.unidades[i].id_unidad
-                            + '">'
-                            + data.unidades[i].nombre_unidad
-                            + '</option>';
+                        var options = '';
+                        for (var i = 0; i < data.unidades.length; i++) {
+                            options += '<option  value="'
+                                + data.unidades[i].id_unidad
+                                + '">'
+                                + data.unidades[i].nombre_unidad
+                                + '</option>';
 
-                        // console.info(data.unidades[i]);
+                            // console.info(data.unidades[i]);
+                        }
+
+                        $("#unidades")
+                            .html(
+                                '<option value="">Seleccione</option>');
+
+                        $("#unidades")
+                            .append(options);
+
+                        $("#unidades").trigger("chosen:updated");
+
+
                     }
+                });
 
-                    $("#unidades")
-                        .html(
-                            '<option value="">Seleccione</option>');
-
-                    $("#unidades")
-                        .append(options);
-
-                    $("#unidades").trigger("chosen:updated");
-
-
-                }
-            })
+            }
         });
 
 
@@ -439,46 +449,46 @@
 
         <?php
 
-        if(isset($descuentos) and count($descuentos)>0)
+        if(isset($descuentos) and count($descuentos) > 0)
         {
 
-            $contador_precios=0;
+        $contador_precios = 0;
 
 
 
-            for($i=0;$i<$sizeescalas;$i++)
-            {
-                ?>
+        for($i = 0;$i < $sizeescalas;$i++)
+        {
+        ?>
 
 
         var escala = {};
-        escala.id = '<?php echo  $escalas[$i]['escala_id']; ?>';
-        escala.desde = '<?php echo  $escalas[$i]['cantidad_minima']; ?>';
-        escala.hasta = '<?php echo  $escalas[$i]['cantidad_maxima']; ?>';
-        escala.contador = '<?php echo $i+1; ?>';
+        escala.id = '<?php echo $escalas[$i]['escala_id']; ?>';
+        escala.desde = '<?php echo $escalas[$i]['cantidad_minima']; ?>';
+        escala.hasta = '<?php echo $escalas[$i]['cantidad_maxima']; ?>';
+        escala.contador = '<?php echo $i + 1; ?>';
         countescalas++;
 
         <?php
 
 
 
-            for($p=0;$p<$sizenoagrupados;$p++)
-            {
+        for($p = 0;$p < $sizenoagrupados;$p++)
+        {
 
 
 
 
-                if($productosnoagrupados[$p]["escala"]==$escalas[$i]["escala_id"])
-                {
+        if($productosnoagrupados[$p]["escala"] == $escalas[$i]["escala_id"])
+        {
 
-                   if($i==0){
-                    ?>
+        if($i == 0){
+        ?>
         var producto = {};
         producto.Codigo = '<?php echo sumCod($productosnoagrupados[$p]['producto_id']); ?>';
         producto.unidad = '<?php echo $productosnoagrupados[$p]['unidad']; ?>';
-        producto.Productor = '<?php echo  $productosnoagrupados[$p]['producto_nombre']; ?>';
-        producto.unidad_nombre = '<?php echo  $productosnoagrupados[$p]['nombre_unidad']; ?>';
-        producto.contador = '<?php echo $p+1; ?>';
+        producto.Productor = '<?php echo $productosnoagrupados[$p]['producto_nombre']; ?>';
+        producto.unidad_nombre = '<?php echo $productosnoagrupados[$p]['nombre_unidad']; ?>';
+        producto.contador = '<?php echo $p + 1; ?>';
         countproductos++;
         lst_producto.push(producto);
         <?php
@@ -489,24 +499,24 @@
 
         producto_con_precio.Codigo = '<?php echo sumCod($productosnoagrupados[$p]['producto_id']); ?>';
         producto_con_precio.escala_id = '<?php echo $escalas[$i]['escala_id']; ?>';
-        producto_con_precio.precio = '<?php echo  $productosnoagrupados[$p]['precio']; ?>';
-        producto_con_precio.id_escala_html = '<?php echo $i+1; ?>';
+        producto_con_precio.precio = '<?php echo $productosnoagrupados[$p]['precio']; ?>';
+        producto_con_precio.id_escala_html = '<?php echo $i + 1; ?>';
         lst_producto_con_precio.push(producto_con_precio);
 
 
         <?php
 
-  }
+        }
 
-}
+        }
 
-?>
+        ?>
         lst_escalas.push(escala);
         <?php
         }
-    }
+        }
 
-    ?>
+        ?>
 
 
     });

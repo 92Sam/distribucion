@@ -129,6 +129,12 @@
                 <i class="fa fa-plus"></i>
             </button>
         </div>
+        <div class="col-md-1">
+            <br>
+            <button type="button" id="exportar_pdf" title="Exportar PDF" style="background-color: #CECECE; color: #1493D1;" class="btn form-control">
+                <i class="fa fa-file-pdf-o fa-fw"></i>
+            </button>
+        </div>
     </div>
 </form>
 <script src="<?= base_url('recursos/js/tcharm.js') ?>"></script>
@@ -247,6 +253,10 @@
 
             $("#cliente_id").val('0').trigger('chosen:updated');
         });
+
+        $("#exportar_pdf").on('click', function () {
+            exportar_pdf();
+        });
     });
 
     function filter_cobranzas() {
@@ -280,6 +290,32 @@
                 $("#reporte_tabla").html(data);
             }
         });
+    }
+
+    function exportar_pdf() {
+        var data = {
+            'fecha_ini': $("#fecha_ini").val(),
+            'fecha_fin': $("#fecha_fin").val(),
+            'vendedor_id': $("#vendedor_id").val(),
+            'cliente_id': $("#cliente_id").val(),
+        };
+
+        if ($("#incluir_fecha").prop('checked'))
+            data.fecha_flag = 1;
+        else
+            data.fecha_flag = 0;
+
+        data.zonas_id = [];
+        $('.zona_check').each(function () {
+            if ($(this).prop('checked')) {
+                data.zonas_id.push($(this).val());
+            }
+        });
+
+        data.zonas_id = JSON.stringify(data.zonas_id);
+
+        var win = window.open('<?= base_url()?>reporte/historial_cobranzas/pdf?data=' + JSON.stringify(data), '_blank');
+        win.focus();
     }
 
     function add_checkbox_events() {
