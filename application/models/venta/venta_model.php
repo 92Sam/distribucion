@@ -1162,8 +1162,8 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
                     'producto_id' => $historia->producto_id,
                     'unidad_id' => $historia->unidad_id,
                     'stock' => $detalle->devolver,
-                    'costo_unitario' => 0,
-                    'precio_unitario' => 0,
+                    'costo_unitario' => $historia->costo_unitario,
+                    'precio_unitario' => $historia->precio_unitario / 1.18,
                     'bonificacion' => $historia->bonificacion
                 ));
             }
@@ -1422,7 +1422,14 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
 
             $referencia = array();
             foreach ($detalle_fiscal as $detalle) {
-                $referencia[] = $detalle->documento_fiscal_id;
+                $doc_fiscal = $this->db->get_where('documento_fiscal', array('documento_fiscal_id' => $detalle->documento_fiscal_id))->row();
+                $ref = '';
+                if ($doc_fiscal->documento_tipo == 'BOLETA DE VENTA')
+                    $ref .= 'BO ';
+                else if ($doc_fiscal->documento_tipo == 'FACTURA')
+                    $ref .= 'FA ';
+
+                $referencia[] = $ref . $doc_fiscal->documento_serie . '-' . $doc_fiscal->documento_numero;
             }
 
             $nota_correlativo = $this->db->select_max('numero')
@@ -1440,7 +1447,7 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
                 'tipo_doc' => 7,
                 'tipo_operacion' => 5,
                 'cantidad' => ($historial->stock * -1),
-                'costo_unitario' => $historial->precio_unitario / 1.18,
+                'costo_unitario' => $historial->precio_unitario,
                 'IO' => 2,
                 'ref_id' => $venta_id,
                 'referencia' => implode("|", $referencia)
@@ -1510,8 +1517,27 @@ WHERE detalle_venta.id_venta='$id' group by detalle_venta.id_detalle");
 
         $query_detalle_venta = $sql_detalle_venta->result_array();
 
+
         /*************COMIENZO A DEVOLVER EL STOCK**********/
         for ($i = 0; $i < count($query_detalle_venta); $i++) {
+
+            $detalle_fiscal = $this->db->get_where('documento_detalle', array(
+                'id_venta' => $id,
+                'id_producto' => $query_detalle_venta[$i]['producto_id'],
+                'id_unidad' => $query_detalle_venta[$i]['unidad_medida']
+            ))->result();
+
+            $referencia = array();
+            foreach ($detalle_fiscal as $detalle) {
+                $doc_fiscal = $this->db->get_where('documento_fiscal', array('documento_fiscal_id' => $detalle->documento_fiscal_id))->row();
+                $ref = '';
+                if ($doc_fiscal->documento_tipo == 'BOLETA DE VENTA')
+                    $ref .= 'BO ';
+                else if ($doc_fiscal->documento_tipo == 'FACTURA')
+                    $ref .= 'FA ';
+
+                $referencia[] = $ref . $doc_fiscal->documento_serie . '-' . $doc_fiscal->documento_numero;
+            }
 
             $nota_correlativo = $this->db->select_max('numero')
                 ->from('kardex')
@@ -1531,7 +1557,7 @@ WHERE detalle_venta.id_venta='$id' group by detalle_venta.id_detalle");
                 'costo_unitario' => $query_detalle_venta[$i]['precio'] / 1.18,
                 'IO' => 2,
                 'ref_id' => $id,
-                'referencia' => $id,
+                'referencia' => implode("|", $referencia),
             ));
 
 

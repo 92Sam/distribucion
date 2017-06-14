@@ -145,7 +145,7 @@ class kardex_model extends CI_Model
             ->group_by('documento_fiscal.venta_id, tipo_doc, tipo_operacion')
             ->order_by('id');
 
-        $this->db->where('cantidad >', 0);
+        $this->db->where('cantidad !=', 0);
         $this->db->where('producto_id', $producto_id);
         if ($local_id != false)
             $this->db->where('local_id', $local_id);

@@ -933,7 +933,6 @@ class consolidadodecargas extends MY_Controller
         $where = array('consolidado_id' => $id);
         $data['consolidado'] = $this->consolidado_model->get_consolidado_by($where);
 
-
         foreach ($data['consolidado'] as $campoCarga) {
             if ($campoCarga['status'] == 'ABIERTO') {
                 $status = array(
@@ -990,9 +989,9 @@ class consolidadodecargas extends MY_Controller
 
 
         $cell = $table->addRow()->addCell(3000, array('valign ' => 'center', 'align' => 'center'));
-        $cell->addText('Almacen: ' . $campo['local_nombre'], 'rBasicos', 'pStyle');
-        $table->addCell(3000)->addText('Zona: ' . $data['detalleProducto'][0]['zona_nombre'], 'rBasicos', 'pStyle');
-        $table->addCell(3000)->addText('Chofer: ' . $campo['chofernombre'], 'rBasicos', 'pStyle');
+        $cell->addText('Almacen: ' . htmlentities($campo['local_nombre']), 'rBasicos', 'pStyle');
+        $table->addCell(3000)->addText('Zona: ' . htmlentities($data['detalleProducto'][0]['zona_nombre']), 'rBasicos', 'pStyle');
+        $table->addCell(3000)->addText('Chofer: ' . htmlentities($campo['chofernombre']), 'rBasicos', 'pStyle');
 
         $pdid = $data['detalleProducto'][0]['id_grupo'];
         $gruponombre = $data['detalleProducto'][0]['nombre_grupo'];
@@ -1130,7 +1129,7 @@ class consolidadodecargas extends MY_Controller
         $table1->addCell($w2);
         $table1->addCell($w3);
         $table1->addCell($w4);
-        $table1->addCell($w5)->addText('TOTAL ALMACEN ' . strtoupper($campo['local_nombre']), 'rBasicos');
+        $table1->addCell($w5)->addText('TOTAL ALMACEN ' . htmlentities(strtoupper($campo['local_nombre'])), 'rBasicos');
         $table1->addCell($w6)->addText(number_format($cantidad_total, 2), 'rBasicos', 'totales');
 
         $table1->addRow(200, array('exactHeight' => true));
@@ -1155,12 +1154,12 @@ class consolidadodecargas extends MY_Controller
             ->addText('_____________________________________________________________________________________________________________');
         $table1->addRow(380, array('exactHeight' => true));
         $c = 0;
-        foreach ($data['notasdeentrega'] as $campoProducto) {
+        foreach ($data['notasdeentrega'] as $ne) {
             if ($c >= 1) {
                 $table1->addRow(380, array('exactHeight' => true));
             }
-            $table1->addCell(4000)->addText($campoProducto['documento_Serie'] . $campoProducto['documento_Numero'], 'rBasicos');
-            $table1->addCell(5000)->addText($campoProducto['venta_status'], 'rBasicos', 'pStyle');
+            $table1->addCell(4000)->addText($ne['documento_Serie'] . $ne['documento_Numero'], 'rBasicos');
+            $table1->addCell(5000)->addText($ne['venta_status'], 'rBasicos', 'pStyle');
             $table1->addCell($w3)->addText('', 'rBasicos', 'pStyle');
 
             $c++;
