@@ -97,6 +97,15 @@ class inventario extends MY_Controller
         if($local == 'TODOS')
             $local = false;
 
+        $data['producto'] = $this->db->select('producto.producto_nombre as nombre, unidades.nombre_unidad as um_nombre')
+            ->from('producto')
+            ->join('unidades_has_producto', 'unidades_has_producto.producto_id = producto.producto_id AND unidades_has_producto.orden = 1')
+            ->join('unidades', 'unidades.id_unidad = unidades_has_producto.id_unidad')
+            ->where('producto.producto_id', $id)
+            ->get()->row();
+
+        $data['periodo'] = getMes($mes).' '.$year;
+
         $data['kardex'] = $this->kardex_model->get_kardex($id, $local, $mes, $year);
 
         $this->load->view('menu/inventario/formMovimiento', $data);
@@ -107,6 +116,14 @@ class inventario extends MY_Controller
         if($local == 'TODOS')
             $local = false;
 
+        $data['producto'] = $this->db->select('producto.producto_nombre as nombre, unidades.nombre_unidad as um_nombre')
+            ->from('producto')
+            ->join('unidades_has_producto', 'unidades_has_producto.producto_id = producto.producto_id AND unidades_has_producto.orden = 1')
+            ->join('unidades', 'unidades.id_unidad = unidades_has_producto.id_unidad')
+            ->where('producto.producto_id', $id)
+            ->get()->row();
+
+        $data['periodo'] = getMes($mes).' '.$year;
         $data['kardex'] = $this->kardex_model->get_kardex_interno($id, $local, $mes, $year);
 
         $this->load->view('menu/inventario/formMovimiento', $data);

@@ -2049,7 +2049,7 @@ class venta extends MY_Controller
         $this->db->select('
             df.documento_fiscal_id AS fiscal_id,
             df.documento_tipo AS documento_tipo,
-            hpp.fecha_plan AS fecha,
+            hpp.created_at AS fecha,
             cd.consolidado_id AS consolidado_id,
             df.venta_id AS pedido_id,
             gc.nombre_grupos_cliente AS tipo_cliente,
@@ -2169,7 +2169,7 @@ class venta extends MY_Controller
         $this->db->select('
             df.documento_fiscal_id AS fiscal_id,
             df.documento_tipo AS documento_tipo,
-            hpp.fecha_plan AS fecha,
+            hpp.created_at AS fecha,
             v.fecha AS fecha_vencimiento,
             cd.consolidado_id AS consolidado_id,
             df.venta_id AS pedido_id,
@@ -3018,7 +3018,7 @@ class venta extends MY_Controller
 
         $this->db->select('
             df.documento_fiscal_id AS fiscal_id,
-            hpp.fecha_plan AS fecha,
+            hpp.created_at AS fecha,
             cd.consolidado_id AS consolidado_id,
             df.venta_id AS pedido_id,
             gc.nombre_grupos_cliente AS tipo_cliente,
@@ -3124,7 +3124,7 @@ class venta extends MY_Controller
 
         $this->db->select('
             df.documento_fiscal_id AS fiscal_id,
-            hpp.fecha_plan AS fecha,
+            hpp.created_at AS fecha,
             v.fecha AS fecha_vencimiento,
             cd.consolidado_id AS consolidado_id,
             df.venta_id AS pedido_id,

@@ -23,6 +23,11 @@
                 </h4>
             </div>
             <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-4"><label class="control-label">Descripcion:</label> <?=$producto->nombre?></div>
+                    <div class="col-md-4"><label class="control-label">Unidad de Medida:</label> <?=$producto->um_nombre?></div>
+                    <div class="col-md-4"><label class="control-label">Periodo:</label> <?=$periodo?></div>
+                </div>
                 <div class="table-responsive">
                     <table class="table table-striped table-bordered table-condensed" id="tblresult">
                         <thead>
