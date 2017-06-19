@@ -8,7 +8,7 @@
 <div class="block">
     <!-- Progress Bars Wizard Title -->
     <div class="form-group row">
-        <div class="col-md-2">
+        <div class="col-md-1">
             Ubicaci&oacute;n
         </div>
         <div class="col-md-4">
@@ -26,10 +26,13 @@
 
         </div>
 
-        <div class="col-md-2">
-            Status
+        <div class="col-md-1">
         </div>
-        <div class="col-md-4">
+
+        <div class="col-md-2">
+            Estado
+        </div>
+        <div class="col-md-2">
             <select id="status" class="form-control campos" name="status">
                 <option value="seleccione">TODOS</option>
                 <option value="<?= INGRESO_PENDIENTE ?>"><?= INGRESO_PENDIENTE ?></option>
@@ -43,6 +46,10 @@
     <div class="form-group row">
         <div class="col-md-1">
             <label class="control-label panel-admin-text">Periodo:</label>
+        </div>
+
+        <div class="col-md-2">
+            <input type="number" id="year" name="year" value="<?= date('Y') ?>" class="form-control">
         </div>
 
         <div class="col-md-2">
@@ -64,14 +71,9 @@
             </select>
         </div>
 
-        <div class="col-md-2">
-            <input type="number" id="year" name="year" value="<?= date('Y') ?>" class="form-control">
-        </div>
-
         <div class="col-md-1">
 
         </div>
-
 
         <div class="col-md-2">
             <label class="control-label panel-admin-text">Rango de Dias</label>
@@ -84,7 +86,7 @@
             <input type="number" min="1" id="dia_max" name="dia_max" value="31" class="form-control">
         </div>
 
-        <div class="col-md-2" style="text-align: right;">
+        <div class="col-md-1" style="text-align: right;">
             <button id="btn_buscar" class="btn btn-default" style="padding: 5px 14px !important;">
                 <i class="fa fa-search"></i>
             </button>

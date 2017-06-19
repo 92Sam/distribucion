@@ -3,7 +3,7 @@
 
 <ul class="breadcrumb breadcrumb-top">
     <li>Ingresos</li>
-    <li><a href="">Reporte de Ingreso</a></li>
+    <li><a href="">Devolución de Compras</a></li>
 </ul>
 <div class="block">
     <div class="row">
@@ -31,10 +31,10 @@
     ?>
     <!-- Progress Bars Wizard Title -->
     <div class="form-group row">
-        <div class="col-md-2">
-            Ubicaci&oacute;n
+        <div class="col-md-1">
+            <label class="control-label panel-admin-text">Ubicación</label>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-4">
             <select id="locales" class="form-control campos" name="locales">
                 <option value="seleccione"> Seleccione</option>
                 <?php if(isset($locales)) {
@@ -46,25 +46,31 @@
                 } ?>
 
             </select>
+        </div>
+
+        <div class="col-md-1">
 
         </div>
+
+        <div class="col-md-1">
+            <label class="control-label panel-admin-text">Desde</label>
+        </div>
+        <div class="col-md-2">
+            <input type="text" name="fecha_desde" id="fecha_desde" required="true" class="form-control fecha campos" readonly="readonly">
+        </div>
+
+        <div class="col-md-2">
+            <input type="text" name="fecha_hasta" id="fecha_hasta" required="true" class="form-control fecha campos" readonly="readonly">
+        </div>
+
     </div>
 
     <div class="form-group row">
-        <div class="col-md-2">
-            Desde
-        </div>
-        <div class="col-md-4">
-            <input type="text" name="fecha_desde" id="fecha_desde" required="true" class="form-control fecha campos">
-        </div>
-        <div class="col-md-2">
-            Hasta
-        </div>
-        <div class="col-md-4">
-            <input type="text" name="fecha_hasta" id="fecha_hasta" required="true" class="form-control fecha campos">
-        </div>
+
 
     </div>
+
+
 
 
     <input type="hidden" name="anular" id="anular" value=1>
