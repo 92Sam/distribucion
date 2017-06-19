@@ -21,6 +21,9 @@
             <th>Total</th>
         </tr>
         <?php $total = 0; ?>
+        <?php $total_descuento = 0; ?>
+        <?php $venta_total = 0; ?>
+        <?php $flag = null; ?>
         <?php foreach ($ventas as $venta): ?>
             <tr>
                 <td><?= date('d/m/Y', strtotime($venta->fecha)) ?></td>
@@ -30,6 +33,12 @@
                     $doc = "BO";
                 if ($venta->documento == "FACTURA")
                     $doc = "FA";
+
+                if($flag != $venta->venta_id){
+                    $flag = $venta->venta_id;
+                    $total_descuento += $venta->venta_total_descuento;
+                    $venta_total += $venta->venta_total;
+                }
                 ?>
                 <td><?= $doc ?> <?= $venta->documento_numero ?></td>
                 <td><?= $venta->ruc_dni ?></td>
@@ -48,8 +57,14 @@
     </table>
 </div>
 <div class="row">
-    <div class="col-md-12" style="text-align: right">
-        <h4>Total: <?= MONEDA ?> <?= number_format($total, 2) ?></h4>
+    <div class="col-md-4" style="text-align: right">
+        <h4>Total Descuentos: <?= MONEDA ?> <?= number_format($total_descuento - $total, 2) ?></h4>
+    </div>
+    <div class="col-md-4" style="text-align: right">
+        <h4>Total Boletas: <?= MONEDA ?> <?= number_format($total, 2) ?></h4>
+    </div>
+    <div class="col-md-4" style="text-align: right">
+        <h4>Total NE (B+D): <?= MONEDA ?> <?= number_format($total_descuento - $total + $venta_total, 2) ?></h4>
     </div>
 </div>
 

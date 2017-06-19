@@ -339,9 +339,26 @@ class rventas_model extends CI_Model
                         FROM
                             documento_detalle
                         WHERE
-                            id_venta = v.venta_id) = v.total,
+                            id_venta = v.venta_id) = (v.total + IFNULL((SELECT 
+                            SUM(hpd.stock * dd.precio)
+                        FROM
+                            historial_pedido_detalle AS hpd
+                                JOIN
+                            historial_pedido_proceso AS hist_p ON hist_p.id = hpd.historial_pedido_proceso_id
+                        WHERE
+                            hist_p.pedido_id = v.venta_id AND hist_p.proceso_id = 6), 0)),
                     'S',
                     'D') AS criterio,
+                    ROUND((v.total + IFNULL((SELECT 
+                            SUM(hpd.stock * hpd.precio_unitario * 1.18)
+                        FROM
+                            historial_pedido_detalle AS hpd
+                                JOIN
+                            historial_pedido_proceso AS hist_p ON hist_p.id = hpd.historial_pedido_proceso_id
+                        WHERE
+                            hist_p.pedido_id = v.venta_id AND hist_p.proceso_id = 6),
+                    0)), 2) AS venta_total_descuento,
+                v.total AS venta_total,
                 IF((SELECT
                             var_credito_estado
                         FROM
