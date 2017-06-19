@@ -1,6 +1,6 @@
 <?php
 header("Content-type: application/octet-stream");
-header("Content-Disposition: attachment; filename=kardex.xls");
+header("Content-Disposition: attachment; filename=kardex (" . $tipo_kardex . ").xls");
 header("Pragma: no-cache");
 header("Expires: 0");
 ?>
@@ -62,6 +62,7 @@ header("Expires: 0");
             <tr>
                 <td><?= date('d/m/Y', strtotime($detalle->fecha)) ?></td>
                 <?php $tipo_doc = get_tipo_doc($detalle->tipo_doc) ?>
+                <?php if (($detalle->tipo_doc == 3 || $detalle->tipo_doc == 1) && $tipo_kardex == 'INTERNO') $tipo_doc['value'] = 'Nota de Entrega'; ?>
                 <td><?= $tipo_doc['value'] ?></td>
                 <td><?= $detalle->serie ?></td>
                 <td><?= $detalle->numero ?></td>

@@ -65,6 +65,7 @@
         <tr>
             <td><?= date('d/m/Y', strtotime($detalle->fecha)) ?></td>
             <?php $tipo_doc = get_tipo_doc($detalle->tipo_doc) ?>
+            <?php if (($detalle->tipo_doc == 3 || $detalle->tipo_doc == 1) && $tipo_kardex == 'INTERNO') $tipo_doc['value'] = 'Nota de Entrega'; ?>
             <td><?= $tipo_doc['value'] ?></td>
             <td><?= $detalle->serie ?></td>
             <td><?= $detalle->numero ?></td>

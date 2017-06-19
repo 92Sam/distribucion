@@ -127,6 +127,7 @@ class inventario extends MY_Controller
 
         $data['periodo'] = getMes($mes).' '.$year;
         $data['kardex'] = $this->kardex_model->get_kardex_interno($id, $local, $mes, $year);
+        $data['tipo_kardex'] = 'INTERNO';
         $html = $this->load->view('menu/inventario/kardex_pdf', $data, true);
 
 //        echo $html;
@@ -150,6 +151,7 @@ class inventario extends MY_Controller
 
         $data['periodo'] = getMes($mes).' '.$year;
         $data['kardex'] = $this->kardex_model->get_kardex($id, $local, $mes, $year);
+        $data['tipo_kardex'] = 'FISCAL';
         $this->load->view('menu/inventario/kardex_excel', $data);
     }
 
@@ -186,6 +188,7 @@ class inventario extends MY_Controller
 
         $data['periodo'] = getMes($mes).' '.$year;
         $data['kardex'] = $this->kardex_model->get_kardex_interno($id, $local, $mes, $year);
+        $data['tipo_kardex'] = 'INTERNO';
         $this->load->view('menu/inventario/kardex_excel', $data);
     }
 
