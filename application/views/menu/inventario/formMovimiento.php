@@ -24,9 +24,11 @@
             </div>
             <div class="modal-body">
                 <div class="row">
-                    <div class="col-md-4"><label class="control-label">Descripcion:</label> <?=$producto->nombre?></div>
-                    <div class="col-md-4"><label class="control-label">Unidad de Medida:</label> <?=$producto->um_nombre?></div>
-                    <div class="col-md-4"><label class="control-label">Periodo:</label> <?=$periodo?></div>
+                    <div class="col-md-4"><label class="control-label">Descripcion:</label> <?= $producto->nombre ?>
+                    </div>
+                    <div class="col-md-4"><label class="control-label">Unidad de
+                            Medida:</label> <?= $producto->um_nombre ?></div>
+                    <div class="col-md-4"><label class="control-label">Periodo:</label> <?= $periodo ?></div>
                 </div>
                 <div class="table-responsive">
                     <table class="table table-striped table-bordered table-condensed" id="tblresult">
@@ -113,10 +115,10 @@
                         </tbody>
                     </table>
                 </div>
-                <a href="<?= $ruta ?>inventario/pdfKardex" id="generarpdf" class="btn  btn-danger btn-lg"
+                <a href="#" id="exportar_pdf" class="btn  btn-danger btn-lg"
                    data-toggle="tooltip" title="Exportar a PDF"
                    data-original-title="fa fa-file-pdf-o"><i class="fa fa-file-pdf-o fa-fw"></i></a>
-                <a href="<?= $ruta ?>inventario/excelKardex/" class="btn btn-default btn-lg" data-toggle="tooltip"
+                <a href="#" id="exportar_excel" class="btn btn-default btn-lg" data-toggle="tooltip"
                    title="Exportar a Excel"
                    data-original-title="fa fa-file-excel-o"><i class="fa fa-file-excel-o fa-fw"></i></a>
 
@@ -128,6 +130,8 @@
             <!-- /.modal-content -->
         </div>
 
+        <input type="hidden" value="<?= $tipo_kardex ?>" id="tipo_kardex">
+        <input type="hidden" value="<?= $producto_id ?>" id="producto_id">
 
 </form>
 
@@ -135,81 +139,37 @@
 
     $(function () {
 
-        $('#tablaresult').dataTable({
-            "order": [[0, "desc"]]
-        });
-        $("#fecha").datepicker({format: 'dd-mm-yyyy'});
-
-
-        $("#select").chosen({
-            placeholder: "Seleccione el producto",
-            allowClear: true
-        });
-        $("#locales_in").chosen({
-            placeholder: "Seleccione el producto",
-            allowClear: true
-        });
-        $('#select').on("change", function () {
-            if ($(this).val() != "seleccione") {
-                $("#maxima").remove();
-                $("#minima").remove();
-                $.ajax({
-                    url: '<?= base_url()?>inventario/get_unidades_has_producto',
-                    type: 'POST',
-                    headers: {
-                        Accept: 'application/json'
-                    },
-                    data: {'id_producto': $(this).val()},
-                    success: function (data) {
-
-                        $("#fraccion").attr('max', data.unidades[0].unidades);
-                        $("#existencia").css("display", "block");
-                        $("#cantidad").val("");
-                        $("#fraccion").val("");
-//data.unidades[data.unidades.length -1].unidades
-                        $("#unidad_maxima").append("<div id='maxima'><div class='col-md-5'> Unidad Maxima " + data.unidades[0].nombre_unidad + "</div></div> ");
-                        $("#unidad_minima").append("<div id='minima'><div class='col-md-5'> Unidad Minima " + data.unidades[data.unidades.length - 1].nombre_unidad + "</div></div> ");
-
-                        $("#maximahidden").val(data.unidades[0].nombre_unidad);
-
-
-                    }
-                })
-            }
+        $("#exportar_excel").on('click', function () {
+            exportar_excel();
         });
 
+        $("#exportar_pdf").on('click', function () {
+            exportar_pdf();
+        });
 
     });
-    function remover(id) {
 
-        $("#" + id).remove();
+    function exportar_excel() {
+        var id = $('#producto_id').val();
+        var local = $("#locales").val();
+        var year = $("#year").val();
+        var mes = $("#mes").val();
 
+        if ($('#tipo_kardex').val() == 'FISCAL')
+            var win = window.open('<?= $ruta ?>inventario/kardex_excel/' + id + '/' + local + '/' + mes + '/' + year);
+        else
+            var win = window.open('<?= $ruta ?>inventario/kardex_interno_excel/' + id + '/' + local + '/' + mes + '/' + year);
+
+        win.focus();
     }
 
+    function exportar_pdf() {
+        var id = $('#producto_id').val();
+        var local = $("#locales").val();
+        var year = $("#year").val();
+        var mes = $("#mes").val();
 
-    function add_productos() {
-        $("#tablaresult").css("display", "block");
-        ///var table = $('#tablaresult').DataTable();
-
-
-        var maxima = $("#maximahidden");
-        var fraccion = $("#fraccion");
-        var cantidad = $("#cantidad");
-
-        var id = $("#select").val();
-        var nombre = $("#select option:selected").html();
-        if (id != "seleccione" && $("#cantidad").val() != "") {
-
-            $("#columnas").append('<tr id="' + id + '"><td class="center" width="10%">' + id + '<input type="hidden" name="id_producto[]" value="' + id + '"> </td>' +
-                '<td class="center" width="40%">' + nombre + '<input type="hidden" name="nombre_producto[]" value="' + nombre + '"></td>' +
-                '<td width="20%" id="unidad_medida_td"' + id + '">' + maxima.val() + '</td><td width="10%">' + cantidad.val() + '<input type="hidden" name="cantidad_producto[]" value="' + cantidad.val() + '"></td>' +
-                '<td width="10%">' + fraccion.val() + '<input type="hidden" name="fraccion_producto[]" value="' + fraccion.val() + '"></td>' +
-                '<td> <div class="btn-group"><a class="btn btn-default btn-default btn-default" data-toggle="tooltip" title="Remover" data-original-title="Remover" onclick="remover(' + id + ')"> <i class="fa fa-trash-o"></i> </a></div></td>' +
-                '</tr>');
-            cantidad.val('');
-            fraccion.val('');
-
-        }
-
+        var win = window.open('<?= $ruta ?>inventario/kardex_pdf/' + id + '/' + local + '/' + mes + '/' + year);
+        win.focus();
     }
 </script>
