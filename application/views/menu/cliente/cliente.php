@@ -22,7 +22,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
 
 
     <a class="btn btn-primary" onclick="agregar();">
-        <i class="fa fa-plus "> Nueva</i>
+        <i class="fa fa-plus "> Nuevo</i>
     </a>
     <br>
 

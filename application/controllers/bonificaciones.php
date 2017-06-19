@@ -209,7 +209,7 @@ class bonificaciones extends MY_Controller
         $bonificaciones['id_grupos_cliente'] = $this->input->post('grupos');
 
         $productos = $this->input->post('producto_condicion', true);
-        
+
                 $where = array(
             'bono_producto' => $this->input->post('bono_producto'),
             // 'bono_cantidad'=> $this->input->post('bono_cantidad'),
@@ -256,40 +256,37 @@ class bonificaciones extends MY_Controller
             }
         }
 
+        /* 18/06/2017 - MARIO DELGADO - DESDE AQUI SE COMENTO EL CODIGO PARA QUE PERMITE CREAR BONIFICACIONES REPETIDAS CON EL MISMO PRODUCTO
         if ($bonificacioerronea == false) {
             if ($coincidecantidad) {
                 $bonificacioerronea = true;
             }
         }
-        // echo '$bonificacioerronea';
-        // echo $bonificacioerronea;
 
-
-        //var_dump($bono_coicidencias);
-
-        if ($bonificacioerronea) {
+        if ($bonificacioerronea)
+        {
             $json['error'] = 'La bonificacion no  puede ser creada, por favor utilice una bonificacion existente que bonifica el mismo producto';
             if ($coincidecantidad) {
                 $json['error'] = 'La bonificacion no  puede ser creada, ya existe otra bonificacion con la misma configuracion que bonifica el mismo producto con la misma cantidad';
 
             }
-        } else {
-
-	
+        }
+        else
+        {	*/
 			if (empty($id)) {
 				$resultado = $this->bonificaciones_model->insertar($bonificaciones, $productos);
-	
+
 			} else {
 				$bonificaciones['id_bonificacion'] = $id;
 				$resultado = $this->bonificaciones_model->update($bonificaciones, $productos);
 			}
-	
+
 			if ($resultado == TRUE) {
 				$json['success'] = 'Solicitud Procesada con exito';
 			} else {
 				$json['error'] = 'Ha ocurrido un error al procesar la solicitud';
 			}
-        }
+        // AQUI TERMINA EL COMENTARIO 18/06/2017 }
 
         echo json_encode($json);
 

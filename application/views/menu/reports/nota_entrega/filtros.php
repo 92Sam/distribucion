@@ -1,5 +1,5 @@
 <div class="row">
-    <label class="col-md-2 control-label panel-admin-text">Cliente:</label>
+    <label class="col-md-1 control-label panel-admin-text">Cliente:</label>
     <div class="col-md-4">
 
         <select id="cliente_id" name="cliente_id" class="form-control">
@@ -25,7 +25,12 @@
 </div>
 <br>
 <div class="row">
-    <label class="col-md-2 control-label panel-admin-text">Periodo:</label>
+    <label class="col-md-1 control-label panel-admin-text">Periodo:</label>
+
+    <div class="col-md-2">
+        <input type="number" id="year" name="year" value="<?= date('Y') ?>" class="form-control">
+    </div>
+
     <div class="col-md-2">
 
         <select
@@ -46,9 +51,7 @@
         </select>
     </div>
 
-    <div class="col-md-2">
-        <input type="number" id="year" name="year" value="<?= date('Y') ?>" class="form-control">
-    </div>
+
 
     <div class="col-md-2">
         <label class="control-label panel-admin-text">Rango de Dias:</label>
