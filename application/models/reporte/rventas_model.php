@@ -220,6 +220,7 @@ class rventas_model extends CI_Model
                 c.ruc_cliente AS ruc_dni,
                 c.razon_social AS razon_social,
                 u.nombre AS vendedor,
+                v.venta_status AS estado_ne,
                 z.zona_nombre AS zona,
                 cp.nombre_condiciones AS condicion,
                 v.total AS total,
@@ -247,10 +248,14 @@ class rventas_model extends CI_Model
                     JOIN
                 condiciones_pago AS cp ON cp.id_condiciones = v.condicion_pago
             WHERE
-                hp.proceso_id = 4 AND v.venta_status != 'RECHAZADO' AND v.venta_status != 'ANULADO'
+                hp.proceso_id = 4 
 
 
         ";
+
+        if(isset($data['estado_ne']) && $data['estado_ne'] != '0'){
+            $query .= ' AND v.venta_status = "'.$data['estado_ne'].'" ';
+        }
 
         if (isset($data['cliente_id']) && $data['cliente_id'] != 0)
             $query .= " AND v.id_cliente = " . $data['cliente_id'];

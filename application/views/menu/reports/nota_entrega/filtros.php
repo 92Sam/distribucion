@@ -1,6 +1,6 @@
 <div class="row">
     <label class="col-md-1 control-label panel-admin-text">Cliente:</label>
-    <div class="col-md-4">
+    <div class="col-md-3">
 
         <select id="cliente_id" name="cliente_id" class="form-control">
             <option value="0">Todos</option>
@@ -10,13 +10,26 @@
         </select>
     </div>
 
-    <label class="col-md-2 control-label panel-admin-text">Estado:</label>
+    <label class="col-md-2 control-label panel-admin-text">Estado Imp.:</label>
     <div class="col-md-2">
 
         <select id="estado" name="estado" class="form-control">
             <option value="0">Todos</option>
             <option value="1">Cancelados</option>
             <option value="2">Pendientes</option>
+        </select>
+
+    </div>
+
+    <label class="col-md-2 control-label panel-admin-text">Estado Imp.:</label>
+    <div class="col-md-2">
+
+        <select id="estado_ne" name="estado_ne" class="form-control">
+            <option value="0">Todos</option>
+            <option value="ENTREGADO">ENTREGADO</option>
+            <option value="DEVUELTO PARCIALMENTE">DEVUELTO PARCIALMENTE</option>
+            <option value="RECHAZADO">RECHAZADO</option>
+            <option value="ANULADO">ANULADO</option>
         </select>
 
     </div>
@@ -84,7 +97,7 @@
             filter_cobranzas();
         });
 
-        $("#cliente_id, #estado, #mes").on('change', function(){
+        $("#cliente_id, #estado, #mes, #estado_ne").on('change', function(){
             $("#reporte_tabla").html('');
         });
 
@@ -98,13 +111,12 @@
         var data = {
             'cliente_id': $("#cliente_id").val(),
             'estado': $("#estado").val(),
+            'estado_ne': $("#estado_ne").val(),
             'year': $("#year").val(),
             'mes': $("#mes").val(),
             'dia_min': $("#dia_min").val(),
             'dia_max': $("#dia_max").val()
         };
-
-        console.log(data)
 
         $.ajax({
             url: '<?php echo base_url('reporte/nota_entrega/filter')?>',

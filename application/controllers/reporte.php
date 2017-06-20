@@ -255,6 +255,7 @@ class reporte extends MY_Controller
                 $data['ventas'] = $this->rventas_model->get_nota_entrega(array(
                     'cliente_id' => $this->input->post('cliente_id'),
                     'estado' => $this->input->post('estado'),
+                    'estado_ne' => $this->input->post('estado_ne'),
                     'year' => $this->input->post('year'),
                     'mes' => $this->input->post('mes'),
                     'dia_min' => $this->input->post('dia_min'),

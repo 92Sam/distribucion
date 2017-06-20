@@ -14,13 +14,15 @@
             <th>Vendedor</th>
             <th>Zona</th>
             <th>Condicion</th>
-            <th>Estado</th>
+            <th>Estado Imp.</th>
+            <th>Estado NE</th>
             <th>Total</th>
             <th>Documentos</th>
         </tr>
         <?php $total = 0; ?>
         <?php foreach ($ventas as $venta): ?>
-            <tr>
+            <?php $text = 'class="label-danger" style="color: #FFFFFF;"';?>
+            <tr <?= $venta->estado_ne == 'RECHAZADO' || $venta->estado_ne == 'ANULADO' ? $text : ''?>>
                 <td><?= date('d/m/Y', strtotime($venta->fecha)) ?></td>
                 <td><?= $venta->documento ?></td>
                 <td><?= $venta->ruc_dni ?></td>
@@ -29,7 +31,8 @@
                 <td><?= $venta->zona ?></td>
                 <td><?= $venta->condicion ?></td>
                 <td><?= $venta->estado ?></td>
-                <?php $total += $venta->total; ?>
+                <td><?= $venta->estado_ne ?></td>
+                <?php $total += $venta->estado_ne == 'RECHAZADO' || $venta->estado_ne == 'ANULADO' ? 0 : $venta->total; ?>
                 <td><?= MONEDA ?> <?= $venta->total ?></td>
                 <td>
                     <a class="btn btn-default btn-default btn-default" data-toggle="tooltip"
