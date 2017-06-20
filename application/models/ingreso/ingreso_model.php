@@ -331,7 +331,8 @@ class ingreso_model extends CI_Model
             'ingreso_status' => $cab_pie['status'],
             'impuesto_ingreso' => $cab_pie['montoigv'],
             'sub_total_ingreso' => $cab_pie['subTotal'],
-            'total_ingreso' => $cab_pie['totApagar']
+            'total_ingreso' => $cab_pie['totApagar'],
+            'pago' => $cab_pie['pago']
 
         );
 
