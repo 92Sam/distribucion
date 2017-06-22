@@ -94,7 +94,7 @@
 
 
 <script>
-    $(function () {
-        TablesDatatablesBonos.init();
-    });
+//    $(function () {
+//        TablesDatatablesBonos.init();
+//    });
 </script>

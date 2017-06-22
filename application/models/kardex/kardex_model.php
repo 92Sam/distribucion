@@ -57,7 +57,10 @@ class kardex_model extends CI_Model
         //Calculo los saldos finales
         if ($last_record != NULL) {
             $data['cantidad_final'] = $data['IO'] == 2 ? $last_record->cantidad_final - $data['cantidad'] : $last_record->cantidad_final + $data['cantidad'];
-            $data['costo_unitario_final'] = $data['IO'] == 2 ? $last_record->costo_unitario_final : ($last_record->total_final + $data['total']) / $data['cantidad_final'];
+            if ($data['cantidad_final'] != 0)
+                $data['costo_unitario_final'] = $data['IO'] == 2 ? $last_record->costo_unitario_final : ($last_record->total_final + $data['total']) / $data['cantidad_final'];
+            else
+                $data['costo_unitario_final'] = 0;
         } else {
             $data['costo_unitario_final'] = $data['IO'] == 2 ? 0 : $data['costo_unitario'];
             $data['cantidad_final'] = $data['cantidad'];

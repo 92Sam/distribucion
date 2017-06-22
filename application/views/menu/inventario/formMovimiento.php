@@ -64,7 +64,7 @@
                             <td></td>
                             <td></td>
                             <td></td>
-                            <td><?= $kardex['inicial'] != NULL ? $kardex['inicial']->nombre_unidad : $kardex['fiscal'][0]->nombre_unidad ?></td>
+                            <td><?= $kardex['inicial'] != NULL ? $kardex['inicial']->nombre_unidad : $producto->um_nombre ?></td>
                             <td>SALDO ANTERIOR</td>
 
                             <td></td>
@@ -116,9 +116,11 @@
                         </tbody>
                     </table>
                 </div>
+                <?php if($tipo_kardex == 'INTERNO'):?>
                 <a href="#" id="exportar_pdf" class="btn  btn-danger btn-lg"
                    data-toggle="tooltip" title="Exportar a PDF"
                    data-original-title="fa fa-file-pdf-o"><i class="fa fa-file-pdf-o fa-fw"></i></a>
+                <?php endif;?>
                 <a href="#" id="exportar_excel" class="btn btn-default btn-lg" data-toggle="tooltip"
                    title="Exportar a Excel"
                    data-original-title="fa fa-file-excel-o"><i class="fa fa-file-excel-o fa-fw"></i></a>
