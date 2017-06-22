@@ -108,6 +108,38 @@ class kardex_model extends CI_Model
 
         $kardex = $this->db->order_by('id', 'ASC')->get()->result();
 
+        $cantidad_inicial = 0;
+        $total_inicial = 0;
+        if ($kardex_inicial != NULL) {
+            $cantidad_inicial = $kardex_inicial->cantidad_final;
+            $total_inicial = $kardex_inicial->total_final;
+        }
+
+        $last_costo_unitario = 0;
+        foreach ($kardex as $k) {
+
+            if ($k->IO == 2) {
+                $k->cantidad_final = $cantidad_inicial - $k->cantidad;
+                $cantidad_inicial = $k->cantidad_final;
+
+                $k->total_final = ($k->cantidad_final * $last_costo_unitario);
+                $total_inicial = $k->total_final;
+                $k->costo_unitario_final = $last_costo_unitario;
+            } else if ($k->IO == 1) {
+                $k->cantidad_final = $cantidad_inicial + $k->cantidad;
+                $cantidad_inicial = $k->cantidad_final;
+
+                $k->total_final = $total_inicial + $k->total;
+                $total_inicial = $k->total_final;
+                if ($k->cantidad_final != 0)
+                    $k->costo_unitario_final = $k->total_final / $k->cantidad_final;
+                else
+                    $k->costo_unitario_final = 0;
+
+                $last_costo_unitario = $k->costo_unitario_final;
+            }
+        }
+
         return array('fiscal' => $kardex, 'inicial' => $kardex_inicial);
     }
 
@@ -145,7 +177,7 @@ class kardex_model extends CI_Model
             ->from('kardex')
             ->join('unidades', 'kardex.unidad_id=unidades.id_unidad')
             ->join('documento_fiscal', 'documento_fiscal.documento_fiscal_id=kardex.ref_id')
-            ->group_by('documento_fiscal.venta_id, tipo_doc, tipo_operacion')
+            ->group_by('kardex.ref_id, tipo_doc, tipo_operacion')
             ->order_by('id');
 
         $this->db->where('cantidad !=', 0);
