@@ -982,16 +982,17 @@ class consolidadodecargas extends MY_Controller
         $cell = $table->addRow()->addCell(3000, array('valign ' => 'center', 'align' => 'center', 'gridSpan' => 3));
         $cell->addText('Consolidado de Guía de Carga', array('italic' => true, 'bold' => true, 'size' => 16), 'pStyle');
 
-        $cell = $table->addRow()->addCell(3000, array('valign ' => 'center', 'align' => 'center'));
+        //2500 ESTABA EN 3000
+        $cell = $table->addRow()->addCell(2500, array('valign ' => 'center', 'align' => 'center'));
         $cell->addText('Liquidacion: ' . $campo['consolidado_id'], 'rBasicos', 'pStyle');
-        $table->addCell(3000)->addText('Responsable: ' . $campo['userCarga'], 'rBasicos', 'pStyle');
-        $table->addCell(3000)->addText('Vehículo: ' . $campo['camiones_placa'], 'rBasicos', 'pStyle');
+        $table->addCell(2500)->addText('Responsable: ' . $campo['userCarga'], 'rBasicos', 'pStyle');
+        $table->addCell(2500)->addText('Vehículo: ' . $campo['camiones_placa'], 'rBasicos', 'pStyle');
 
 
-        $cell = $table->addRow()->addCell(3000, array('valign ' => 'center', 'align' => 'center'));
+        $cell = $table->addRow()->addCell(2500, array('valign ' => 'center', 'align' => 'center'));
         $cell->addText('Almacen: ' . htmlentities($campo['local_nombre']), 'rBasicos', 'pStyle');
-        $table->addCell(3000)->addText('Zona: ' . htmlentities($data['detalleProducto'][0]['zona_nombre']), 'rBasicos', 'pStyle');
-        $table->addCell(3000)->addText('Chofer: ' . htmlentities($campo['chofernombre']), 'rBasicos', 'pStyle');
+        $table->addCell(2500)->addText('Zona: ' . htmlentities($data['detalleProducto'][0]['zona_nombre']), 'rBasicos', 'pStyle');
+        $table->addCell(2500)->addText('Chofer: ' . htmlentities($campo['chofernombre']), 'rBasicos', 'pStyle');
 
         $pdid = $data['detalleProducto'][0]['id_grupo'];
         $gruponombre = $data['detalleProducto'][0]['nombre_grupo'];
@@ -1082,8 +1083,8 @@ class consolidadodecargas extends MY_Controller
             $cantidadtotalgrupo = $cantidadtotalgrupo + $campoProducto['cantidadTotal'];
 
             $table1->addRow(200, array('exactHeight' => true));
-            $table1->addCell($w1)->addText();
-            $table1->addCell($w2)->addText(htmlspecialchars($campoProducto['producto_id']), 'rBasicos');
+//            $table1->addCell($w1)->addText();
+            $table1->addCell($w2)->addText(htmlspecialchars(sumCod($campoProducto['producto_id'], 4)), 'rBasicos');
             $table1->addCell($w3)->addText(htmlspecialchars(strtoupper($campoProducto['producto_nombre'])), 'rBasicos');
             $table1->addCell($w4)->addText(htmlspecialchars(strtoupper($campoProducto['nombre_unidad'])), 'rBasicos');
             $table1->addCell($w5)->addText(htmlspecialchars(strtoupper($campoProducto['presentacion'])), 'rBasicos');

@@ -23,8 +23,8 @@ class cajas_model extends CI_Model
 
             foreach ($desglose->desgloses as $detalle) {
                 $detalle->pendientes = $this->db->get_where('caja_pendiente', array(
-                    'estado'=>0,
-                    'caja_desglose_id'=>$detalle->id
+                    'estado' => 0,
+                    'caja_desglose_id' => $detalle->id
                 ))->result();
             }
 
@@ -127,7 +127,7 @@ class cajas_model extends CI_Model
         $fecha = date('Y-m-d H:i:s', strtotime($data['fecha'] . ' ' . date('H:i:s')));
         $cuenta = $this->get_cuenta($id);
 
-        if($data['tipo_ajuste'] == 'TRASPASO')
+        if ($data['tipo_ajuste'] == 'TRASPASO')
             $cuenta_destino = $this->get_cuenta($data['cuenta_id']);
 
         if ($data['tipo_ajuste'] == 'INGRESO' || $data['tipo_ajuste'] == 'EGRESO') {
@@ -199,17 +199,16 @@ class cajas_model extends CI_Model
                 'ref_id' => $id,
                 'ref_val' => $tasa,
             ));
-        }
-        else if ($data['tipo_ajuste'] == 'TRASPASO' && $cuenta->responsable_id != $cuenta_destino->responsable_id){
+        } else if ($data['tipo_ajuste'] == 'TRASPASO' && $cuenta->responsable_id != $cuenta_destino->responsable_id) {
 
             $this->db->insert('caja_pendiente', array(
-                'caja_desglose_id'=>$cuenta_destino->id,
-                'usuario_id'=>$this->session->userdata('nUsuCodigo'),
-                'tipo'=>'TRASPASO',
-                'IO'=>1,
-                'monto'=>$data['importe'],
-                'estado'=>0,
-                'ref_id'=>$id
+                'caja_desglose_id' => $cuenta_destino->id,
+                'usuario_id' => $this->session->userdata('nUsuCodigo'),
+                'tipo' => 'TRASPASO',
+                'IO' => 1,
+                'monto' => $data['importe'],
+                'estado' => 0,
+                'ref_id' => $id
             ));
         }
     }
@@ -219,33 +218,33 @@ class cajas_model extends CI_Model
         $fecha = date('Y-m-d H:i:s', strtotime($data['fecha'] . ' ' . date('H:i:s')));
         $cuenta = $this->get_cuenta($id);
 
-            $saldo = $cuenta->saldo - $data['importe'];
-            $saldo_old = $cuenta->saldo;
+        $saldo = $cuenta->saldo - $data['importe'];
+        $saldo_old = $cuenta->saldo;
 
-            $this->db->where('id', $id);
-            $this->db->update('caja_desglose', array(
-                'saldo' => $saldo
+        $this->db->where('id', $id);
+        $this->db->update('caja_desglose', array(
+            'saldo' => $saldo
+        ));
+
+        $this->cajas_mov_model->save_mov(array(
+            'caja_desglose_id' => $id,
+            'usuario_id' => $this->session->userdata('nUsuCodigo'),
+            'fecha_mov' => $fecha,
+            'movimiento' => 'ENGRESO',
+            'operacion' => 'SUNAT',
+            'medio_pago' => '7',
+            'saldo' => $data['importe'],
+            'saldo_old' => $saldo_old,
+            'ref_id' => '',
+            'ref_val' => implode('|', $data['retenciones']),
+        ));
+
+        foreach ($data['retenciones'] as $ret_id) {
+            $this->db->where('id', $ret_id);
+            $this->db->update('caja_movimiento', array(
+                'operacion' => 'SUNAT'
             ));
-
-            $this->cajas_mov_model->save_mov(array(
-                'caja_desglose_id' => $id,
-                'usuario_id' => $this->session->userdata('nUsuCodigo'),
-                'fecha_mov' => $fecha,
-                'movimiento' => 'ENGRESO',
-                'operacion' => 'SUNAT',
-                'medio_pago' => '7',
-                'saldo' => $data['importe'],
-                'saldo_old' => $saldo_old,
-                'ref_id' => '',
-                'ref_val' => implode('|', $data['retenciones']),
-            ));
-
-            foreach ($data['retenciones'] as $ret_id) {
-                $this->db->where('id', $ret_id);
-                $this->db->update('caja_movimiento', array(
-                    'operacion' => 'SUNAT'
-                ));
-            }
+        }
 
     }
 
@@ -278,90 +277,94 @@ class cajas_model extends CI_Model
             return TRUE;
     }
 
-    function save_pendiente($data){
+    function save_pendiente($data)
+    {
         $cuenta = $this->db->get_where('caja_desglose', array(
-            'caja_id'=>1,
-            'principal'=>1
+            'caja_id' => 1,
+            'principal' => 1
         ))->row();
 
         $this->db->insert('caja_pendiente', array(
-            'caja_desglose_id'=>$cuenta->id,
-            'usuario_id'=>$this->session->userdata('nUsuCodigo'),
-            'tipo'=>$data['tipo'],
-            'monto'=> $data['monto'],
-            'estado'=>0,
-            'IO'=>$data['IO'],
-            'ref_id'=>$data['ref_id']
+            'caja_desglose_id' => $cuenta->id,
+            'usuario_id' => $this->session->userdata('nUsuCodigo'),
+            'tipo' => $data['tipo'],
+            'monto' => $data['monto'],
+            'estado' => 0,
+            'IO' => $data['IO'],
+            'ref_id' => $data['ref_id']
         ));
     }
 
-    function update_pendiente($data){
+    function update_pendiente($data)
+    {
 
         $cuenta = $this->db->get_where('caja_desglose', array(
-            'caja_id'=>1,
-            'principal'=>1
+            'caja_id' => 1,
+            'principal' => 1
         ))->row();
 
         $caja_pendiente = $this->db->get_where('caja_pendiente', array(
-            'tipo'=>$data['tipo'],
-            'ref_id'=>$data['ref_id']
-            ))->row();
+            'tipo' => $data['tipo'],
+            'ref_id' => $data['ref_id']
+        ))->row();
 
-        if($caja_pendiente != NULL){
-            if($caja_pendiente->estado == 1){
+        if ($caja_pendiente != NULL) {
+            if ($caja_pendiente->estado == 1) {
                 $new_saldo = $cuenta->saldo + $caja_pendiente->monto;
                 $this->db->where('id', $cuenta->id);
-                $this->db->update('caja_desglose', array('saldo'=>$new_saldo));
+                $this->db->update('caja_desglose', array('saldo' => $new_saldo));
 
                 //hay que agregar el movimiento
             }
 
             $this->db->where('id', $caja_pendiente->id);
             $this->db->update('caja_pendiente', array(
-                'caja_desglose_id'=>$cuenta->id,
-                'usuario_id'=>$this->session->userdata('nUsuCodigo'),
-                'monto'=>$data['monto'],
-                'estado'=>0,
+                'caja_desglose_id' => $cuenta->id,
+                'usuario_id' => $this->session->userdata('nUsuCodigo'),
+                'monto' => $data['monto'],
+                'estado' => 0,
             ));
-        }
-        else{
-            if(!isset($data['IO']))
+        } else {
+            if (!isset($data['IO']))
                 $data['IO'] = 2;
 
             $this->db->insert('caja_pendiente', array(
-                'caja_desglose_id'=>$cuenta->id,
-                'usuario_id'=>$this->session->userdata('nUsuCodigo'),
-                'tipo'=>$data['tipo'],
-                'monto'=> $data['monto'],
-                'estado'=>0,
-                'IO'=>$data['IO'],
-                'ref_id'=>$data['ref_id']
+                'caja_desglose_id' => $cuenta->id,
+                'usuario_id' => $this->session->userdata('nUsuCodigo'),
+                'tipo' => $data['tipo'],
+                'monto' => $data['monto'],
+                'estado' => 0,
+                'IO' => $data['IO'],
+                'ref_id' => $data['ref_id']
             ));
         }
     }
 
-    function delete_pendiente($data){
+    function delete_pendiente($data)
+    {
 
         $cuenta = $this->db->get_where('caja_desglose', array(
-            'caja_id'=>1,
-            'principal'=>1
+            'caja_id' => 1,
+            'principal' => 1
         ))->row();
 
         $caja_pendiente = $this->db->get_where('caja_pendiente', array(
-            'tipo'=>$data['tipo'],
-            'ref_id'=>$data['ref_id']
-            ))->row();
+            'tipo' => $data['tipo'],
+            'ref_id' => $data['ref_id']
+        ))->row();
 
-        if($caja_pendiente->estado == 1){
-            $new_saldo = $cuenta->saldo + $caja_pendiente->monto;
-            $this->db->where('id', $cuenta->id);
-            $this->db->update('caja_desglose', array('saldo'=>$new_saldo));
+        if ($caja_pendiente != NULL) {
+            if ($caja_pendiente->estado == 1) {
+                $new_saldo = $cuenta->saldo + $caja_pendiente->monto;
+                $this->db->where('id', $cuenta->id);
+                $this->db->update('caja_desglose', array('saldo' => $new_saldo));
 
-            //hay que agregar el movimiento
+                //hay que agregar el movimiento
+            }
+
+            $this->db->where('id', $caja_pendiente->id);
+            $this->db->delete('caja_pendiente');
         }
-
-        $this->db->where('id', $caja_pendiente->id);
-        $this->db->delete('caja_pendiente');
     }
 
 
