@@ -649,6 +649,8 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
 
         //Validamos que el numero de operacion no se repita
         function  validarNumeroOperacion(){
+
+            return false;
             var operacion = $("#num_oper").val();
             $.ajax({
                 url: '<?= base_url()?>banco/validaNumeroOperacion/' + operacion,

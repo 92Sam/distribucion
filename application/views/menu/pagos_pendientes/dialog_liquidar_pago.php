@@ -377,6 +377,7 @@
 
      function  validarNumeroOperacion(){
 
+        return false;
         var operacion = $("#num_oper").val();
         $.ajax({
             url: '<?= base_url()?>banco/validaNumeroOperacion/' + operacion,

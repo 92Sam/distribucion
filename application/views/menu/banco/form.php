@@ -47,7 +47,7 @@
                                     <?php if ($caja_cuenta->caja_id == $caja_actual->id): ?>
                                         <option
                                             value="<?= $caja_cuenta->id ?>"
-                                        <?= $banco['cuenta_id'] == $caja_cuenta->id ? 'selected' : ''?>><?= $caja_cuenta->descripcion ?></option>
+                                        <?= isset($banco['cuenta_id']) && $banco['cuenta_id'] == $caja_cuenta->id ? 'selected' : ''?>><?= $caja_cuenta->descripcion ?></option>
                                     <?php endif; ?>
                                 <?php endforeach; ?>
                             </select>
