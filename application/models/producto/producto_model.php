@@ -421,6 +421,10 @@ class producto_model extends CI_Model
             $this->db->where('lineas.id_linea', $filter['talla_id']);
 
 
+        //2017-06-24 agregado filtro para productos activos
+        if ($activo != false) {
+            $this->db->where('producto.producto_activo', '1');
+        }
 
         if ($producto != false) {
             $this->db->where('producto.producto_id', $producto);

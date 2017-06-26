@@ -677,4 +677,35 @@ class pedidos extends REST_Controller
         }
     }
 
+    public function comprobar_stock_get() {
+        $get = $this->input->get(null, true);
+        $id_local = $get['id_local'];
+
+        $temp = array();
+        $temp2 = array();
+
+        $lista = isset($get['prodstock']) ? $get['prodstock'] : null;
+
+        if (count($lista) > 0) {
+            $listastock = json_decode($lista);
+
+            foreach($listastock as $data) {
+                $temp['producto_id'] = $data->id_producto;
+                $temp['local_id'] = $id_local;
+                $temp['cantidad'] = $data->cantidad;
+                $temp['unidad_id'] = $data->unidad_medida;
+                $temp2[] = $temp;
+            }
+
+            $result['sinstock'] = $this->inventario_model->check_stock($temp2);
+
+            if ($result) {
+                $this->response($result, 200);
+            } else {
+                $this->response(array(), 200);
+            }
+        } else {
+            $this->response(array(), 200);
+        }
+    }
 }
