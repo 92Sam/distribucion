@@ -74,7 +74,6 @@ class productos extends REST_Controller
 
         $local = $this->get('local');
 
-
         if (!empty($local)) {
             $productos = $this->producto_model->get_all_by_local($local, true, false);
             foreach ($productos as $producto) {
