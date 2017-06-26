@@ -350,10 +350,23 @@ class venta_cobro_model extends CI_Model
     {
         if ($validar) {
             if ($this->banco_model->buscarNumeroOperacion($data) != 0)
-            return false;
+                return false;
         }
 
         $credito = $this->db->get_where('credito', array('id_venta' => $venta_id))->row();
+
+        if (!isset($credito->id_venta)) {
+            $v = $this->db->get_where('venta', array('venta_id' => $venta_id))->row();
+            $this->db->insert('credito', array(
+                'id_venta' => $venta_id,
+                'dec_credito_montodeuda' => $v->total,
+                'var_credito_estado' => 'DEBE',
+                'dec_credito_montodebito' => 0.00
+            ));
+
+            $credito = $this->db->get_where('credito', array('id_venta' => $venta_id))->row();
+        }
+
         $historial_pago = array(
             'credito_id' => $venta_id,
             'historial_fecha' => date('Y-m-d H:i:s'),
@@ -368,8 +381,8 @@ class venta_cobro_model extends CI_Model
         if (isset($data['historial_estatus']))
             $historial_pago['historial_estatus'] = $data['historial_estatus'];
 
-        if ($historial_pago['historial_tipopago'] == 4){
-                $historial_pago['fecha_documento'] = $data['fecha_documento'] != NULL ? date('Y-m-d H:i:s', strtotime($data['fecha_documento'].' '.date('H:i:s'))) :  date('Y-m-d H:i:s');
+        if ($historial_pago['historial_tipopago'] == 4) {
+            $historial_pago['fecha_documento'] = $data['fecha_documento'] != NULL ? date('Y-m-d H:i:s', strtotime($data['fecha_documento'] . ' ' . date('H:i:s'))) : date('Y-m-d H:i:s');
             $historial_pago['historial_banco_id'] = $data['banco_id'];
         }
 
@@ -400,9 +413,9 @@ class venta_cobro_model extends CI_Model
             'pago_data' => $data['num_oper'],
             'vendedor_id' => $id
         );
-        if ($historial_pago['historial_tipopago'] == 4){
+        if ($historial_pago['historial_tipopago'] == 4) {
             $historial_pago['historial_banco_id'] = $data['banco_id'];
-            $historial_pago['fecha_documento'] = $data['fecha_documento'] != NULL ? date('Y-m-d H:i:s', strtotime($data['fecha_documento'].' '.date('H:i:s'))) :  date('Y-m-d H:i:s');
+            $historial_pago['fecha_documento'] = $data['fecha_documento'] != NULL ? date('Y-m-d H:i:s', strtotime($data['fecha_documento'] . ' ' . date('H:i:s'))) : date('Y-m-d H:i:s');
         }
 
         $this->db->insert('historial_pagos_clientes', $historial_pago);
