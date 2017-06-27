@@ -172,11 +172,11 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                                 <div class="col-md-3">
                                     <select name="pago" id="pago" class='cho form-control'
                                             required="true">
-                                        <option value="">Seleccione</option>
-                                        <option
-                                                value="CONTADO" <?php if ((isset($ingreso->pago) && $ingreso->pago == 'CONTADO') or !isset($ingreso->pago)) echo 'selected'; ?>>
-                                            CONTADO
-                                        </option>
+<!--                                        <option value="">Seleccione</option>-->
+<!--                                        <option-->
+<!--                                                value="CONTADO" --><?php //if ((isset($ingreso->pago) && $ingreso->pago == 'CONTADO') or !isset($ingreso->pago)) echo 'selected'; ?><!-->-->
+<!--                                            CONTADO-->
+<!--                                        </option>-->
                                         <option
                                                 value="CREDITO" <?php if (isset($ingreso->pago) && $ingreso->pago == 'CREDITO') echo 'selected'; ?>>
                                             CREDITO
