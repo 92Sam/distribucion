@@ -1517,6 +1517,12 @@ WHERE detalle_venta.id_venta='$id' group by detalle_venta.id_detalle");
 
         $query_detalle_venta = $sql_detalle_venta->result_array();
 
+        $nota_correlativo = $this->db->select_max('numero')
+            ->from('kardex')
+            ->where('IO', 2)
+            ->where('tipo_doc', 7)->get()->row();
+
+        $nota_correlativo = $nota_correlativo->numero != null ? ($nota_correlativo->numero + 1) : 1;
 
         /*************COMIENZO A DEVOLVER EL STOCK**********/
         for ($i = 0; $i < count($query_detalle_venta); $i++) {
@@ -1539,12 +1545,7 @@ WHERE detalle_venta.id_venta='$id' group by detalle_venta.id_detalle");
                 $referencia[] = $ref . $doc_fiscal->documento_serie . '-' . $doc_fiscal->documento_numero;
             }
 
-            $nota_correlativo = $this->db->select_max('numero')
-                ->from('kardex')
-                ->where('IO', 2)
-                ->where('tipo_doc', 7)->get()->row();
 
-            $nota_correlativo = $nota_correlativo->numero != null ? ($nota_correlativo->numero + 1) : 1;
             $this->kardex_model->insert_kardex(array(
                 'local_id' => $query_detalle_venta[$i]['local_id'],
                 'producto_id' => $query_detalle_venta[$i]['producto_id'],
@@ -2462,11 +2463,16 @@ where v.venta_id=" . $id_venta . " group by tr.id_detalle order by 1 ";
         return $data;
     }
 
-    function update_status($id_venta, $estatus)
+    function update_status($id_venta, $estatus, $motivo = NULL)
     {
         $this->db->trans_start();
         $pedido = $this->db->get_where('venta', array('venta_id' => $id_venta))->row();
         $data = array('venta_status' => $estatus);
+        if($estatus == 'RECHAZADO')
+            $data['motivo_rechazo'] = $motivo;
+        else
+            $data['motivo_rechazo'] = NULL;
+
         //CAMBIO DE ESTATUS EN EL DE LA VENTA
         $this->db->where('venta_id', $id_venta);
         $this->db->update('venta', $data);
@@ -2474,6 +2480,9 @@ where v.venta_id=" . $id_venta . " group by tr.id_detalle order by 1 ";
 
         $dataregistro = array('venta_id' => $id_venta, 'vendedor_id' => $pedido->id_vendedor,
             'estatus' => $estatus, 'fecha' => date('Y-m-d h:m:s'));
+
+
+
         $this->db->insert('venta_estatus', $dataregistro);
 
         $this->db->trans_complete();

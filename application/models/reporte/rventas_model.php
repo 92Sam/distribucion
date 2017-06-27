@@ -253,8 +253,8 @@ class rventas_model extends CI_Model
 
         ";
 
-        if(isset($data['estado_ne']) && $data['estado_ne'] != '0'){
-            $query .= ' AND v.venta_status = "'.$data['estado_ne'].'" ';
+        if (isset($data['estado_ne']) && $data['estado_ne'] != '0') {
+            $query .= ' AND v.venta_status = "' . $data['estado_ne'] . '" ';
         }
 
         if (isset($data['cliente_id']) && $data['cliente_id'] != 0)
@@ -304,7 +304,13 @@ class rventas_model extends CI_Model
                 CONCAT(df.documento_serie,
                         '-',
                         df.documento_numero) AS documento_numero,
-                SUM(dd.detalle_importe) AS importe
+                SUM(dd.detalle_importe) AS importe, 
+                (SELECT CONCAT(kardex.serie, ' - ', kardex.numero) 
+                    FROM 
+                      kardex 
+                    WHERE 
+                      kardex.tipo_doc = 7 AND tipo_operacion = 5 AND kardex.ref_id = " . $venta_id . " 
+                    LIMIT 1) AS nota_credito
             FROM
                 documento_fiscal AS df
                     JOIN

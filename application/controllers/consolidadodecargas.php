@@ -377,6 +377,7 @@ class consolidadodecargas extends MY_Controller
         $num_oper = $this->input->post('num_oper');
         $monto = $this->input->post('monto') != NULL ? $this->input->post('monto') : 0;
         $fec_ope = $this->input->post('fec_oper');
+        $motivo_id = $this->input->post('motivo_id');
 
 
         $venta = $this->venta_model->get_by('venta_id', $id_pedido);
@@ -395,7 +396,7 @@ class consolidadodecargas extends MY_Controller
         ));
 
 
-        $result = $this->venta_model->update_status($id_pedido, $estatus);
+        $result = $this->venta_model->update_status($id_pedido, $estatus, $motivo_id);
 
         if ($result != FALSE && $validacion != false) {
             //$json['success'] = 'Solicitud Procesada con exito';
@@ -703,11 +704,10 @@ class consolidadodecargas extends MY_Controller
 
         $consolidado_detalles = array();
         $temp_cantidad = array();
-        foreach ($consolidado_detalles_temp as $detalles){
-            if(isset($temp_cantidad[$detalles->producto_id.$detalles->um])){
-                $temp_cantidad[$detalles->producto_id.$detalles->um]->cantidad += $detalles->cantidad;
-            }
-            else{
+        foreach ($consolidado_detalles_temp as $detalles) {
+            if (isset($temp_cantidad[$detalles->producto_id . $detalles->um])) {
+                $temp_cantidad[$detalles->producto_id . $detalles->um]->cantidad += $detalles->cantidad;
+            } else {
                 $temp = new stdClass();
                 $temp->producto_id = $detalles->producto_id;
                 $temp->cantidad = $detalles->cantidad;
@@ -717,11 +717,11 @@ class consolidadodecargas extends MY_Controller
                 $temp->producto_nombre = $detalles->producto_nombre;
                 $temp->zona_id = $detalles->zona_id;
 
-                $temp_cantidad[$detalles->producto_id.$detalles->um] = $temp;
+                $temp_cantidad[$detalles->producto_id . $detalles->um] = $temp;
             }
         }
 
-        foreach ($temp_cantidad as $temp){
+        foreach ($temp_cantidad as $temp) {
             $consolidado_detalles[] = $temp;
         }
 
@@ -858,11 +858,10 @@ class consolidadodecargas extends MY_Controller
 
             $consolidado_detalles = array();
             $temp_cantidad = array();
-            foreach ($consolidado_detalles_temp as $detalles){
-                if(isset($temp_cantidad[$detalles->producto_id.$detalles->um])){
-                    $temp_cantidad[$detalles->producto_id.$detalles->um]->cantidad += $detalles->cantidad;
-                }
-                else{
+            foreach ($consolidado_detalles_temp as $detalles) {
+                if (isset($temp_cantidad[$detalles->producto_id . $detalles->um])) {
+                    $temp_cantidad[$detalles->producto_id . $detalles->um]->cantidad += $detalles->cantidad;
+                } else {
                     $temp = new stdClass();
                     $temp->producto_id = $detalles->producto_id;
                     $temp->cantidad = $detalles->cantidad;
@@ -871,11 +870,11 @@ class consolidadodecargas extends MY_Controller
                     $temp->um = $detalles->um;
                     $temp->producto_nombre = $detalles->producto_nombre;
 
-                    $temp_cantidad[$detalles->producto_id.$detalles->um] = $temp;
+                    $temp_cantidad[$detalles->producto_id . $detalles->um] = $temp;
                 }
             }
 
-            foreach ($temp_cantidad as $temp){
+            foreach ($temp_cantidad as $temp) {
                 $consolidado_detalles[] = $temp;
             }
 
@@ -910,6 +909,178 @@ class consolidadodecargas extends MY_Controller
         header("Content-Disposition: attachment; filename='remision.docx'");
         readfile(sys_get_temp_dir() . '/remision_temp.docx'); // or echo file_get_contents($temp_file);
         unlink(sys_get_temp_dir() . '/remision_temp.docx');
+    }
+
+    function imprimir_notas($consolidado_id)
+    {
+        $pedidos_rechazados = $this->db->select('
+            c.razon_social AS razon_social,
+            c.ruc_cliente AS ruc,
+            c.identificacion AS ruc_or_dni,
+            c.id_cliente AS cliente_id,
+            cd.consolidado_id AS consolidado_id,
+            v.venta_id AS venta_id,
+            gc.nombre_grupos_cliente AS tipo_cliente,
+            cp.nombre_condiciones AS venta_condicion,
+            hpp.created_at AS fecha_venta,
+            u.username AS vendedor,
+            v.tipo_doc_fiscal AS tipo_doc
+        ')->from('consolidado_detalle AS cd')
+            ->join('venta AS v', 'v.venta_id = cd.pedido_id')
+            ->join('historial_pedido_proceso AS hpp', 'hpp.pedido_id = v.venta_id')
+            ->join('usuario AS u', 'u.nUsuCodigo = v.id_vendedor')
+            ->join('condiciones_pago AS cp', 'cp.id_condiciones = v.condicion_pago')
+            ->join('cliente AS c', 'c.id_cliente = v.id_cliente')
+            ->join('grupos_cliente AS gc', 'gc.id_grupos_cliente = c.grupo_id')
+            ->where('hpp.proceso_id', PROCESO_IMPRIMIR)
+            ->where('v.venta_status', 'RECHAZADO')
+            ->where('cd.consolidado_id', $consolidado_id)
+            ->get()->result();
+
+        $notas_credito = array();
+
+        foreach ($pedidos_rechazados as $rechazos) {
+            $temp = new stdClass();
+
+            $temp->cliente = $rechazos->tipo_doc == 'FACTURA' ? $rechazos->razon_social : '';
+            $temp->ruc = $rechazos->tipo_doc == 'FACTURA' ? $rechazos->ruc : '';
+
+            if($rechazos->tipo_doc == 'FACTURA') {
+                $direccion = $this->db->get_where('cliente_datos', array(
+                    'cliente_id' => $rechazos->cliente_id,
+                    'tipo' => 1,
+                    'principal' => 1,
+                ))->row();
+                $temp->direccion = $direccion->valor;
+            }
+            else
+                $temp->direccion = '';
+
+            $temp->consolidado = $rechazos->consolidado_id;
+
+            $kardex = $this->db->get_where('kardex', array(
+                'ref_id' => $rechazos->venta_id,
+                'tipo_doc' => 7,
+                'tipo_operacion' => 5,
+                'IO' => 2,
+            ))->row();
+
+            $temp->documento = $kardex->serie . ' - ' . $kardex->numero;
+            $temp->doc_referencia = $kardex->referencia;
+            $temp->fecha = $kardex->fecha;
+
+            $temp->pedido = $rechazos->venta_id;
+            $temp->tipo_cliente = $rechazos->tipo_cliente;
+            $temp->venta_condicion = $rechazos->venta_condicion;
+            $temp->fecha_venta = $rechazos->fecha_venta;
+            $temp->vendedor = $rechazos->vendedor;
+            $temp->cliente_id = $rechazos->cliente_id;
+
+            $productos = $this->db->select('
+                k.producto_id AS producto_id,
+                p.producto_nombre AS producto_nombre,
+                u.nombre_unidad AS unidad_nombre,
+                k.cantidad AS cantidad,
+                k.costo_unitario AS precio,
+                k.total AS importe,
+            ')->from('kardex AS k')
+                ->join('producto AS p', 'p.producto_id = k.producto_id')
+                ->join('unidades AS u', 'u.id_unidad = k.unidad_id')
+                ->where('ref_id', $rechazos->venta_id)
+                ->where('tipo_doc', 7)
+                ->where('tipo_operacion', 5)
+                ->where('IO', 2)
+                ->get()->result();
+
+            $productos_nota = array();
+            foreach ($productos as $p) {
+                $temp_productos = new stdClass();
+                $temp_productos->codigo = sumCod($p->producto_id, 4);
+                $temp_productos->producto = $p->producto_nombre;
+                $temp_productos->um = $p->unidad_nombre;
+                $temp_productos->cantidad = $p->cantidad >= 0 ? $p->cantidad : $p->cantidad * -1;
+                $temp_productos->precio = $p->precio;
+                $temp_productos->importe = $p->importe >= 0 ? $p->importe : $p->importe * -1;
+
+                $productos_nota[] = $temp_productos;
+            }
+
+            $temp->productos = $productos_nota;
+            $notas_credito[] = $temp;
+        }
+
+
+        $cantidad_paginas = count($notas_credito);
+
+        $template_name = 'nota_credito' . $cantidad_paginas . '.docx';
+        $word = new \PhpOffice\PhpWord\PhpWord();
+        $template = new \PhpOffice\PhpWord\TemplateProcessor(base_url('recursos/formatos/nota_credito/' . $template_name));
+
+
+        for ($n = 0; $n < $cantidad_paginas; $n++) {
+
+            $index = $n + 1;
+            $template->setValue('cliente' . $index, $notas_credito[$n]->cliente);
+            $template->setValue('ruc' . $index, $notas_credito[$n]->ruc);
+            $template->setValue('direccion' . $index, $notas_credito[$n]->direccion);
+            $template->setValue('consolidado' . $index, $notas_credito[$n]->consolidado);
+
+            $template->setValue('documento' . $index, $notas_credito[$n]->documento);
+            $template->setValue('pedido' . $index, $notas_credito[$n]->pedido);
+            $template->setValue('tipo_cliente' . $index, $notas_credito[$n]->tipo_cliente);
+            $template->setValue('venta_cond' . $index, $notas_credito[$n]->venta_condicion);
+            $template->setValue('fecha' . $index, date('d/m/Y', strtotime($notas_credito[$n]->fecha)));
+            $template->setValue('fecha_v' . $index, date('d/m/Y', strtotime($notas_credito[$n]->fecha_venta)));
+            $template->setValue('vendedor' . $index, $notas_credito[$n]->vendedor);
+            $template->setValue('cliente_id' . $index, $notas_credito[$n]->cliente_id);
+
+            $detalle_index = 0;
+            $total = 0;
+            for ($i = 0; $i < 12; $i++) {
+                $codigo = '';
+                $producto = '';
+                $um = '';
+                $cantidad = '';
+                $precio = '';
+                $importe = '';
+
+                if (isset($notas_credito[$n]->productos[$detalle_index])) {
+                    $codigo = $notas_credito[$n]->productos[$detalle_index]->codigo;
+                    $producto = $notas_credito[$n]->productos[$detalle_index]->producto;
+                    $um = $notas_credito[$n]->productos[$detalle_index]->um;
+                    $cantidad = $notas_credito[$n]->productos[$detalle_index]->cantidad;
+                    $precio = $notas_credito[$n]->productos[$detalle_index]->precio;
+                    $importe = $notas_credito[$n]->productos[$detalle_index]->importe;
+
+                    $total += $importe;
+                    $detalle_index++;
+                }
+
+                $index_p = $index . '-' . ($i + 1);
+                $template->setValue('c' . $index_p, $codigo);
+                $template->setValue('producto' . $index_p, $producto);
+                $template->setValue('um' . $index_p, $um);
+                $template->setValue('ca' . $index_p, $cantidad);
+                $template->setValue('pre' . $index_p, $precio);
+                $template->setValue('imp' . $index_p, $importe);
+            }
+
+            $template->setValue('doc_referencia' . $index, $notas_credito[$n]->doc_referencia);
+
+            $igv = $total * 1.18 - $total;
+            $sub = $total - $igv;
+
+            $template->setValue('letras' . $index, numtoletras($total));
+
+            $template->setValue('sub' . $index, number_format($sub, 2));
+            $template->setValue('igv' . $index, number_format($igv, 2));
+            $template->setValue('total' . $index, number_format($total, 2));
+        }
+
+        $template->saveAs(sys_get_temp_dir() . '/nota_credito_temp.docx');
+        header("Content-Disposition: attachment; filename='nota_credito.docx'");
+        readfile(sys_get_temp_dir() . '/nota_credito_temp.docx'); // or echo file_get_contents($temp_file);
+        unlink(sys_get_temp_dir() . '/nota_credito_temp.docx');
     }
 
 

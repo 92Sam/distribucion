@@ -93,6 +93,13 @@
                                         <i class="fa fa-print"></i> Devoluciones
                                     </button>
                                 </div>
+
+                                <div style="float:left; margin-right: 10px">
+                                    <button type="button" class="btn btn-sm btn-info"
+                                            onclick="imprimir_notas(<?php echo $id_consolidado ?>);">
+                                        <i class="fa fa-print"></i> Notas de Credito
+                                    </button>
+                                </div>
                             <?php endif; ?>
                             <?php if ($total_liquidado > 0): ?>
                                 <div style="float:left;">
@@ -125,6 +132,14 @@
 
 
         }
+
+        function imprimir_notas(id) {
+
+            var win = window.open('<?= $ruta ?>consolidadodecargas/imprimir_notas/' + id, '_blank');
+            win.focus();
+
+        }
+
         function pedidoPreCancelacion(id) {
 
             var win = window.open('<?= $ruta ?>consolidadodecargas/pedidoPreCancelacion/' + id, '_blank');
@@ -176,11 +191,14 @@
                             $(".devolver_block").show();
                         }
 
-                        if (data.pedido.venta_status != 'RECHAZADO')
+                        if (data.pedido.venta_status != 'RECHAZADO') {
                             $(".pago_block").show();
+                            $(".motivo_block").hide();
+                        }
                         else {
                             $("#total").val('0.00');
                             $(".pago_block").hide();
+                            $(".motivo_block").show();
                         }
 
 

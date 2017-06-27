@@ -34,7 +34,7 @@
                             <?php $total += $detalle->importe ?>
                             <td><?= $detalle->importe ?></td>
                             <td><?= "NE " . $venta->serie . "-" . $venta->numero ?></td>
-                            <td>No Aplica</td>
+                            <td><?= $detalle->nota_credito != '' ? $detalle->nota_credito : 'No aplica' ?></td>
                         </tr>
                     <?php endforeach; ?>
 
@@ -44,8 +44,9 @@
 
             </div>
             <div class="row">
-                <div class="col-md-6"><h4>Consolidado: <?=$venta->consolidado_id?></h4></div>
-                <div class="col-md-6" style="text-align: right;"><h4>Total: <?=MONEDA?> <?=number_format($total, 2)?></h4></div>
+                <div class="col-md-6"><h4>Consolidado: <?= $venta->consolidado_id ?></h4></div>
+                <div class="col-md-6" style="text-align: right;"><h4>
+                        Total: <?= MONEDA ?> <?= number_format($total, 2) ?></h4></div>
             </div>
 
         </div>

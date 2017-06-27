@@ -81,7 +81,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
 
                 <div class="col-md-2">
                     <br>
-                    <input type="checkbox" id="limpiar_f" name="limpiar_fecha" >
+                    <input type="checkbox" id="limpiar_f" name="limpiar_fecha">
                     <label for="limpiar_f"
                            class="control-label panel-admin-text"
                            style="cursor: pointer;">
@@ -91,7 +91,8 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
 
                 <div class="col-md-1">
                     <br>
-                    <button type="button" title="Buscar" id="btn_buscar" class="btn btn-default form-control btn_buscar">
+                    <button type="button" title="Buscar" id="btn_buscar"
+                            class="btn btn-default form-control btn_buscar">
                         <i class="fa fa-search"></i>
                     </button>
                 </div>
@@ -135,7 +136,8 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
     </script>
 
 
-    <div class="modal fade" id="consolidadoLiquidacion" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop="static" data-keyboard="false"
+    <div class="modal fade" id="consolidadoLiquidacion" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+         data-backdrop="static" data-keyboard="false"
          aria-hidden="true">
 
     </div>
@@ -174,7 +176,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                             <div class="form-group">
                                 <div class="col-md-4">
                                     <label class="control-label panel-admin-text">PEDIDO: <span
-                                            id="pedido_numero"></span></label>
+                                                id="pedido_numero"></span></label>
                                 </div>
                                 <div class="col-md-8">
                                     <button type="button" style="color: #fff;" id="editar_pedido"
@@ -212,9 +214,27 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                                         <?php foreach ($metodos_pago as $pago): ?>
                                             <?php if ($pago->id_metodo != 7 && $pago->id_metodo != 6): ?>
                                                 <option
-                                                    value="<?= $pago->id_metodo ?>"><?= $pago->nombre_metodo ?></option>
+                                                        value="<?= $pago->id_metodo ?>"><?= $pago->nombre_metodo ?></option>
                                             <?php endif; ?>
                                         <?php endforeach; ?>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row motivo_block" style="display: none;">
+                            <br>
+                            <div class="form-group">
+                                <div class="col-md-4">
+                                    <label>Seleccione el Motivo</label>
+                                </div>
+                                <div class="col-md-8">
+                                    <select name="motivo_id" id="motivo_id" class="form-control">
+                                        <option value="">Seleccione</option>
+                                        <?php foreach (get_motivo_rechazo() as $key => $val): ?>
+                                            <option
+                                                    value="<?= $key ?>"><?= $val ?></option>
+                                        <?php endforeach ?>
                                     </select>
                                 </div>
                             </div>
@@ -231,7 +251,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                                         <option value="">Seleccione</option>
                                         <?php foreach ($bancos as $banco): ?>
                                             <option
-                                                value="<?= $banco->banco_id ?>"><?= $banco->banco_nombre ?></option>
+                                                    value="<?= $banco->banco_id ?>"><?= $banco->banco_nombre ?></option>
                                         <?php endforeach ?>
                                     </select>
                                 </div>
@@ -297,7 +317,8 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                                 <li class="glyphicon glyphicon-thumbs-up"></li>
                                 Confirmar
                             </button>
-                            <button type="button" id="liquidacion_cancelar" class="btn btn-warning" data-dismiss="modal">
+                            <button type="button" id="liquidacion_cancelar" class="btn btn-warning"
+                                    data-dismiss="modal">
                                 <li class="glyphicon glyphicon-thumbs-down"></li>
                                 Cancelar
                             </button>
@@ -371,8 +392,8 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
         var estatus_select = 'ENTREGADO';
         var estatus_consolidado;
 
-        jQuery(document).ready(function() {
-             $("#fechaoperacion_block").hide();
+        jQuery(document).ready(function () {
+            $("#fechaoperacion_block").hide();
         });
 
 
@@ -381,7 +402,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
 
             listadoajax();
 
-            $("#liquidacion_cancelar").on('click', function(){
+            $("#liquidacion_cancelar").on('click', function () {
                 $("#consolidadoLiquidacion").load('<?= $ruta ?>consolidadodecargas/verDetallesLiquidacion/' + $("#consolidado_id").val() + '/IMPRESO');
                 $("#cambiarEstatus").modal('hide');
             });
@@ -389,7 +410,6 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
             $("#editar_pedido").on('click', function () {
                 devolver();
             });
-
 
 
             $("#pago_id").on('click', function () {
@@ -408,7 +428,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                 }
                 else if ($(this).val() != '4') {
 
-                    if ($(this).val() == '5'){
+                    if ($(this).val() == '5') {
                         $("#fechaoperacion_block").hide();
                         $("#num_oper_label").html('N&uacute;mero de Cheque');
                     }
@@ -425,7 +445,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                     $('#limpiar_f').prop('checked', false)
 
                     if ($('#fecha_ini').val() == '' || $('#fecha_fin').val() == '') {
-                        show_msg('warning','Debe completar ambos campos del rango de fechas');
+                        show_msg('warning', 'Debe completar ambos campos del rango de fechas');
                         return false
                     }
                 }
@@ -473,7 +493,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
             var venta_id = $("#pedido_numero").html().trim();
 
             $.ajax({
-                url:  '<?php echo base_url()?>venta/devolver_pedido',
+                url: '<?php echo base_url()?>venta/devolver_pedido',
                 type: 'POST',
                 data: {'venta_id': venta_id},
 
@@ -507,17 +527,19 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                 },
                 error: function () {
                     $(".table-responsive").html('');
-                    show_msg('warning','Ha ocurrido un error en la opci&oacute;n');
+                    show_msg('warning', 'Ha ocurrido un error en la opci&oacute;n');
                 }
             })
         }
         function verificar_select() {
             $(".pago_block").hide();
             $(".devolver_block").hide();
+            $(".motivo_block").hide();
 
             if ($("#estatus").val() == 'RECHAZADO') {
                 $("#monto").val('0');
                 $("#total").val($("#estatus_value_rechazado").val());
+                $(".motivo_block").show();
             }
             if ($("#estatus").val() == 'ENTREGADO') {
                 $("#monto").val('0');
@@ -545,37 +567,42 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
             //DEPOSITO = 4
             //CHEQUE = 5
 
+            if ($("#estatus").val() == 'RECHAZADO' && $("#motivo_id").val() == ''){
+                show_msg('warning', 'Debe seleccionar un motivo');
+                return false;
+            }
 
-            if ($("#pago_id").val() != 0) {
 
-                if ($("#pago_id").val() == 3)
-                    $("#confirmacion").modal('show');
+                if ($("#pago_id").val() != 0) {
 
-                if ($("#pago_id").val() == 4){
-                    if (banco != '' && numeroOperacion != '' ){
-                        if (montoaCobrar == '0' || montoaCobrar == ' '){
-                            show_msg('warning','El importe del deposito debe ser mayor a cero');
+                    if ($("#pago_id").val() == 3)
+                        $("#confirmacion").modal('show');
+
+                    if ($("#pago_id").val() == 4) {
+                        if (banco != '' && numeroOperacion != '') {
+                            if (montoaCobrar == '0' || montoaCobrar == ' ') {
+                                show_msg('warning', 'El importe del deposito debe ser mayor a cero');
+                                $('#monto').trigger('focus');
+                            }
+                            else
+                                $("#confirmacion").modal('show');
+                        }
+                        else
+                            show_msg('warning', 'Es necesario seleccionar un banco e indicar el numero de operación');
+                    }
+                    if ($("#pago_id").val() == 5) {
+                        if (montoaCobrar == '0' || montoaCobrar == ' ') {
+                            show_msg('warning', 'El importe del deposito debe ser mayor a cero');
                             $('#monto').trigger('focus');
                         }
                         else
                             $("#confirmacion").modal('show');
                     }
-                    else
-                        show_msg('warning','Es necesario seleccionar un banco e indicar el numero de operación');
                 }
-                if ($("#pago_id").val() == 5) {
-                    if (montoaCobrar == '0' || montoaCobrar == ' ') {
-                        show_msg('warning','El importe del deposito debe ser mayor a cero');
-                        $('#monto').trigger('focus');
-                    }
-                    else
-                        $("#confirmacion").modal('show');
+                else {
+                    show_msg('warning', 'Seleccione un medio medio de pago');
+                    $("#pago_id").trigger('focus');
                 }
-            }
-            else {
-                show_msg('warning','Seleccione un medio medio de pago');
-                $("#pago_id").trigger('focus');
-            }
         }
 
 
@@ -592,12 +619,12 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
 
 
                 if (monto > total) {
-                    show_msg('warning','Debe ingresar un monto menor a al total de la deuda');
+                    show_msg('warning', 'Debe ingresar un monto menor a al total de la deuda');
                     return false;
                 }
 
                 if (monto < 0) {
-                    show_msg('warning','El monto a liquidar no puede ser negativo');
+                    show_msg('warning', 'El monto a liquidar no puede ser negativo');
                     return false;
                 }
 
@@ -648,26 +675,26 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
         }
 
         //Validamos que el numero de operacion no se repita
-        function  validarNumeroOperacion(){
+        function validarNumeroOperacion() {
 
             return false;
             var operacion = $("#num_oper").val();
             $.ajax({
                 url: '<?= base_url()?>banco/validaNumeroOperacion/' + operacion,
-                dataType:'json',
+                dataType: 'json',
                 async: false,
                 data: {'operacion': operacion},
                 type: 'POST',
 
-                success: function(data){
+                success: function (data) {
                     if (data.error == undefined)
                         result = false;
                     else
                         result = true;
 
                 },
-                error:function(){
-                    show_msg('danger','Ha ocurrido un error vuelva a intentar');
+                error: function () {
+                    show_msg('danger', 'Ha ocurrido un error vuelva a intentar');
                 }
             })
 
@@ -708,7 +735,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
 
                     $('#barloadermodal').modal('hide');
 
-                    show_msg('warning','Ha ocurrido un error');
+                    show_msg('warning', 'Ha ocurrido un error');
 
                     $('#pago_modal').modal('hide');
                     return false;

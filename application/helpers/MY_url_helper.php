@@ -1,5 +1,25 @@
 <?php
 
+function get_motivo_rechazo($code = -1)
+{
+    $motivos = array(
+        1 => 'El cliente no se encontraba',
+        2 => 'No era el producto que se pidio',
+        3 => 'El cliente no hizo el pedido',
+        4 => 'El precio no era el acordado',
+        99 => 'Otros'
+    );
+
+
+    if ($code != -1) {
+        return $motivos[$code];
+    }
+    else{
+        return $motivos;
+    }
+}
+
+
 function numtoletras($xcifra)
 {
     $xarray = array(0 => "Cero",
@@ -43,8 +63,8 @@ function numtoletras($xcifra)
                         if (substr($xaux, 0, 3) < 100) { // si el grupo de tres d�gitos es menor a una centena ( < 99) no hace nada y pasa a revisar las decenas
 
                         } else {
-                            $key = (int) substr($xaux, 0, 3);
-                            if (TRUE === array_key_exists($key, $xarray)){  // busco si la centena es n�mero redondo (100, 200, 300, 400, etc..)
+                            $key = (int)substr($xaux, 0, 3);
+                            if (TRUE === array_key_exists($key, $xarray)) {  // busco si la centena es n�mero redondo (100, 200, 300, 400, etc..)
                                 $xseek = $xarray[$key];
                                 $xsub = subfijo($xaux); // devuelve el subfijo correspondiente (Mill�n, Millones, Mil o nada)
                                 if (substr($xaux, 0, 3) == 100)
@@ -52,9 +72,8 @@ function numtoletras($xcifra)
                                 else
                                     $xcadena = " " . $xcadena . " " . $xseek . " " . $xsub;
                                 $xy = 3; // la centena fue redonda, entonces termino el ciclo del for y ya no reviso decenas ni unidades
-                            }
-                            else { // entra aqu� si la centena no fue numero redondo (101, 253, 120, 980, etc.)
-                                $key = (int) substr($xaux, 0, 1) * 100;
+                            } else { // entra aqu� si la centena no fue numero redondo (101, 253, 120, 980, etc.)
+                                $key = (int)substr($xaux, 0, 1) * 100;
                                 $xseek = $xarray[$key]; // toma el primer caracter de la centena y lo multiplica por cien y lo busca en el arreglo (para que busque 100,200,300, etc)
                                 $xcadena = " " . $xcadena . " " . $xseek;
                             } // ENDIF ($xseek)
@@ -64,7 +83,7 @@ function numtoletras($xcifra)
                         if (substr($xaux, 1, 2) < 10) {
 
                         } else {
-                            $key = (int) substr($xaux, 1, 2);
+                            $key = (int)substr($xaux, 1, 2);
                             if (TRUE === array_key_exists($key, $xarray)) {
                                 $xseek = $xarray[$key];
                                 $xsub = subfijo($xaux);
@@ -73,9 +92,8 @@ function numtoletras($xcifra)
                                 else
                                     $xcadena = " " . $xcadena . " " . $xseek . " " . $xsub;
                                 $xy = 3;
-                            }
-                            else {
-                                $key = (int) substr($xaux, 1, 1) * 10;
+                            } else {
+                                $key = (int)substr($xaux, 1, 1) * 10;
                                 $xseek = $xarray[$key];
                                 if (20 == substr($xaux, 1, 1) * 10)
                                     $xcadena = " " . $xcadena . " " . $xseek;
@@ -88,7 +106,7 @@ function numtoletras($xcifra)
                         if (substr($xaux, 2, 1) < 1) { // si la unidad es cero, ya no hace nada
 
                         } else {
-                            $key = (int) substr($xaux, 2, 1);
+                            $key = (int)substr($xaux, 2, 1);
                             $xseek = $xarray[$key]; // obtengo directamente el valor de la unidad (del uno al nueve)
                             $xsub = subfijo($xaux);
                             $xcadena = " " . $xcadena . " " . $xseek . " " . $xsub;
@@ -100,25 +118,25 @@ function numtoletras($xcifra)
         } // ENDDO
 
         if (substr(trim($xcadena), -5, 5) == "ILLON") // si la cadena obtenida termina en MILLON o BILLON, entonces le agrega al final la conjuncion DE
-            $xcadena.= " DE";
+            $xcadena .= " DE";
 
         if (substr(trim($xcadena), -7, 7) == "ILLONES") // si la cadena obtenida en MILLONES o BILLONES, entoncea le agrega al final la conjuncion DE
-            $xcadena.= " DE";
+            $xcadena .= " DE";
 
         // ----------- esta l�nea la puedes cambiar de acuerdo a tus necesidades o a tu pa�s -------
         if (trim($xaux) != "") {
             switch ($xz) {
                 case 0:
                     if (trim(substr($XAUX, $xz * 6, 6)) == "1")
-                        $xcadena.= "UN BILLON ";
+                        $xcadena .= "UN BILLON ";
                     else
-                        $xcadena.= " BILLONES ";
+                        $xcadena .= " BILLONES ";
                     break;
                 case 1:
                     if (trim(substr($XAUX, $xz * 6, 6)) == "1")
-                        $xcadena.= "UN MILLON ";
+                        $xcadena .= "UN MILLON ";
                     else
-                        $xcadena.= " MILLONES ";
+                        $xcadena .= " MILLONES ";
                     break;
                 case 2:
                     if ($xcifra < 1) {
@@ -128,7 +146,7 @@ function numtoletras($xcifra)
                         $xcadena = "UN SOLES $xdecimales/100  ";
                     }
                     if ($xcifra >= 2) {
-                        $xcadena.= " SOLES $xdecimales/100  "; //
+                        $xcadena .= " SOLES $xdecimales/100  "; //
                     }
                     break;
             } // endswitch ($xz)
