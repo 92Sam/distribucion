@@ -167,7 +167,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
             function impirmirGuiaConsolidado(id) {
                 $("#modalimprimir").modal('hide');
 
-                var win = window.open('<?= $ruta ?>consolidadodecargas/pdf/' + id, '_blank');
+                var win = window.open('<?= $ruta ?>consolidadodecargas/imprimir_consolidado/' + id, '_blank');
                 win.focus();
                 setTimeout(function () {
                     grupo.ajaxgrupo().success(function (data) {

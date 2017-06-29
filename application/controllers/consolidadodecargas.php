@@ -945,15 +945,14 @@ class consolidadodecargas extends MY_Controller
             $temp->cliente = $rechazos->tipo_doc == 'FACTURA' ? $rechazos->razon_social : '';
             $temp->ruc = $rechazos->tipo_doc == 'FACTURA' ? $rechazos->ruc : '';
 
-            if($rechazos->tipo_doc == 'FACTURA') {
+            if ($rechazos->tipo_doc == 'FACTURA') {
                 $direccion = $this->db->get_where('cliente_datos', array(
                     'cliente_id' => $rechazos->cliente_id,
                     'tipo' => 1,
                     'principal' => 1,
                 ))->row();
                 $temp->direccion = $direccion->valor;
-            }
-            else
+            } else
                 $temp->direccion = '';
 
             $temp->consolidado = $rechazos->consolidado_id;
@@ -1083,6 +1082,178 @@ class consolidadodecargas extends MY_Controller
         unlink(sys_get_temp_dir() . '/nota_credito_temp.docx');
     }
 
+    function imprimir_consolidado($id)
+    {
+
+
+        $consolidado = $this->db->select('
+            c.*, 
+            u_carga.nombre AS responsable,
+            chofer.nombre AS chofer,
+            camiones.camiones_placa as camion
+            ')
+            ->from('consolidado_carga AS c')
+            ->join('usuario AS u_carga', 'u_carga.nUsuCodigo = c.generado_por')
+            ->join('camiones', 'camiones.camiones_id = c.camion')
+            ->join('usuario AS chofer', 'chofer.nUsuCodigo = camiones.id_trabajadores')
+            ->where('consolidado_id', $id)
+            ->get()->row();
+
+        $pedidos_zonas = $this->db->select('z.zona_nombre as zona')
+            ->from('venta AS v')
+            ->join('consolidado_detalle AS cd', 'cd.pedido_id = v.venta_id')
+            ->join('cliente AS c', 'c.id_cliente = v.id_cliente')
+            ->join('zonas AS z', 'z.zona_id = c.id_zona')
+            ->where('cd.consolidado_id', $id)
+            ->group_by('z.zona_id')
+            ->get()->result();
+
+        $index = 0;
+        $zonas = '';
+        foreach ($pedidos_zonas as $p) {
+            $zonas .= $p->zona;
+            if ($index < count($pedidos_zonas) - 1)
+                $zonas .= ', ';
+            $index++;
+        }
+
+        if ($consolidado->status == 'ABIERTO') {
+            $pedidos = $this->db->get_where('consolidado_detalle', array('consolidado_id' => $id))->result();
+            foreach ($pedidos as $pedido) {
+                $venta = $this->db->get_where('venta', array('venta_id' => $pedido->pedido_id))->row();
+                if ($venta->tipo_doc_fiscal == 'BOLETA DE VENTA')
+                    $this->venta_model->set_numero_fiscal($pedido->pedido_id);
+                else
+                    $this->venta_model->set_numero_fiscal_temp($pedido->pedido_id);
+            }
+        }
+
+        $data['consolidado'] = $this->consolidado_model->get_consolidado_by(array('consolidado_id' => $id));
+        foreach ($data['consolidado'] as $campoCarga) {
+            if ($campoCarga['status'] == 'ABIERTO') {
+                $status = array(
+                    'consolidado_id' => $id,
+                    'status' => 'IMPRESO'
+                );
+
+                $this->consolidado_model->updateStatus($status);
+            }
+        }
+
+        $template_name = 'consolidado.docx';
+        $word = new \PhpOffice\PhpWord\PhpWord();
+        $template = new \PhpOffice\PhpWord\TemplateProcessor(base_url('recursos/formatos/consolidado/' . $template_name));
+
+
+        //CABECERA
+        $template->setValue('empresa', valueOption('EMPRESA_NOMBRE', 'TEAYUDO'));
+        $template->setValue('fecha', date('d/m/Y', strtotime($consolidado->fecha)));
+        $template->setValue('numero_consolidado', $consolidado->consolidado_id);
+        $template->setValue('responsable', $consolidado->responsable);
+        $template->setValue('camion', $consolidado->camion);
+        $template->setValue('zona', $zonas);
+        $template->setValue('chofer', $consolidado->chofer);
+
+        //PRODUCTOS
+        $productos = $this->db->select('
+            hpd.producto_id AS codigo,
+            p.producto_nombre AS producto,
+            u.nombre_unidad AS um,
+            p.presentacion AS medida,
+            SUM(hpd.stock) AS cantidad,
+            g.nombre_grupo AS grupo
+            ')
+            ->from('consolidado_detalle AS cd')
+            ->join('historial_pedido_proceso AS hpp', 'hpp.pedido_id = cd.pedido_id')
+            ->join('historial_pedido_detalle AS hpd', 'hpd.historial_pedido_proceso_id = hpp.id')
+            ->join('producto AS p', 'p.producto_id = hpd.producto_id')
+            ->join('grupos AS g', 'g.id_grupo = p.produto_grupo')
+            ->join('unidades AS u', 'u.id_unidad = hpd.unidad_id')
+            ->where('hpp.proceso_id', PROCESO_IMPRIMIR)
+            ->where('cd.consolidado_id', $id)
+            ->group_by('hpd.producto_id, hpd.unidad_id')
+            ->order_by('g.id_grupo')
+            ->get()->result();
+
+        $grupos = array();
+        $grupo = null;
+        $index = -1;
+        foreach ($productos as $producto) {
+
+            if ($grupo != $producto->grupo) {
+                $grupos[++$index] = array(
+                    'nombre' => $producto->grupo,
+                    'productos' => array($producto)
+                );
+                $grupo = $producto->grupo;
+            } else {
+                $grupos[$index]['productos'][] = $producto;
+            }
+
+        }
+
+        $template->cloneBlock('block', count($grupos));
+//        return false;
+
+        $index = 0;
+        $total = 0;
+        foreach ($grupos as $grupo) {
+
+            $template->setValue('linea_' . ++$index, $grupo['nombre']);
+
+            $template->cloneRow('cod_prod_' . $index, count($grupo['productos']));
+            $index_p = 0;
+            $subtotal = 0;
+            foreach ($grupo['productos'] as $producto) {
+
+                $template->setValue('cod_prod_' . $index . '#' . ++$index_p, sumCod($producto->codigo, 4));
+                $template->setValue('producto_nombre_' . $index . '#' . $index_p, $producto->producto);
+                $template->setValue('unidad_' . $index . '#' . $index_p, $producto->um);
+                $template->setValue('medida_' . $index . '#' . $index_p, $producto->medida);
+                $template->setValue('cantidad_' . $index . '#' . $index_p, $producto->cantidad);
+
+                $subtotal += $producto->cantidad;
+            }
+
+            $total += $subtotal;
+            $template->setValue('sub_total_' . $index, $subtotal);
+        }
+
+        $template->setValue('total_general', $total);
+
+
+        //NOTAS DE ENTREGA
+        $pedidos = $this->db->select('
+            v.venta_id AS venta_id,
+            v.venta_status AS estado,
+            dv.documento_Serie AS serie,
+            dv.documento_Numero AS numero
+            ')
+            ->from('venta AS v')
+            ->join('consolidado_detalle AS cd', 'cd.pedido_id = v.venta_id')
+            ->join('documento_venta AS dv', 'dv.id_tipo_documento = v.numero_documento')
+            ->join('cliente AS c', 'c.id_cliente = v.id_cliente')
+            ->join('zonas AS z', 'z.zona_id = c.id_zona')
+            ->where('cd.consolidado_id', $id)
+            ->get()->result();
+
+        $nota_entrega = '';
+        $estado = '';
+        foreach ($pedidos as $pedido) {
+            $nota_entrega .= $pedido->serie . " - " . $pedido->numero . "\n";
+            $estado .= $pedido->estado . "\n";
+        }
+
+        $template->setValue('nota_entrega', $nota_entrega);
+        $template->setValue('estado', $estado);
+
+
+        $template->saveAs(sys_get_temp_dir() . '/consolidado_temp.docx');
+        header("Content-Disposition: attachment; filename='consolidado.docx'");
+        readfile(sys_get_temp_dir() . '/consolidado_temp.docx'); // or echo file_get_contents($temp_file);
+        unlink(sys_get_temp_dir() . '/consolidado_temp.docx');
+
+    }
 
     function pdf($id)
     {
@@ -1103,7 +1274,6 @@ class consolidadodecargas extends MY_Controller
         //   var_dump($data['notasdeentrega']);
         $where = array('consolidado_id' => $id);
         $data['consolidado'] = $this->consolidado_model->get_consolidado_by($where);
-
         foreach ($data['consolidado'] as $campoCarga) {
             if ($campoCarga['status'] == 'ABIERTO') {
                 $status = array(
