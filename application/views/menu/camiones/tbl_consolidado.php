@@ -40,6 +40,7 @@
         <th style="text-align: center;">Camión</th>
         <th style="text-align: center;">Total Pedidos</th>
         <th style="text-align: center;">Chofer</th>
+        <th style="text-align: center;">Vendedores</th>
         <th style="text-align: center;">Estado</th>
         <th style="text-align: center;">Acciones</th>
 
@@ -70,6 +71,7 @@
                 <td><?= $campoConsolidado['camiones_placa'] ?></td>
                 <td><?= $campoConsolidado['total_pedidos'] ?></td>
                 <td><?= $campoConsolidado['nombre'] ?></td>
+                <td><?= $campoConsolidado['vendedor'] ?></td>
                 <td><?= $campoConsolidado['status'] ?></td>
 
                 <td class="center">

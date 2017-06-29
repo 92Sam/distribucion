@@ -51,7 +51,10 @@
 
         <div class="modal-header">
 
-            <button type="button" class="close" <?= isset($nota_entrega) ? "onclick=\"$('#noteDeEntrega').modal('hide');\"" : 'data-dismiss="modal"' ?> aria-hidden="true">&times;</button>
+            <button type="button"
+                    class="close" <?= isset($nota_entrega) ? "onclick=\"$('#noteDeEntrega').modal('hide');\"" : 'data-dismiss="modal"' ?>
+                    aria-hidden="true">&times;
+            </button>
             <h4 class="modal-title">Vista Previa</h4>
         </div>
         <div class="modal-body" id="notaiprimir">
@@ -228,7 +231,7 @@
                                                 </td>
                                                 <td style="border-top: 0px #000 dashed">
                                                     <?php echo MONEDA ?> <span
-                                                        id="totalR"><?= numtoletras($ventas[0]['montoTotal'] * 10 / 10); ?></span>
+                                                            id="totalR"><?= numtoletras($ventas[0]['montoTotal'] * 10 / 10); ?></span>
                                                 </td>
                                             </tr>
 
@@ -264,8 +267,10 @@
         <div class="modal-footer">
             <a href="#"
                class="btn btn-default" <?= isset($nota_entrega) ? "onclick=\"$('#noteDeEntrega').modal('hide');\"" : 'data-dismiss="modal"' ?>>Cerrar</a>
-            <a href="#" tabindex="0" type="button" id="imprimir" class="btn btn-primary"> <i
-                    class="fa fa-print"></i>Imprimir</a>
+            <?php if ($consolidado->status != 'ABIERTO'): ?>
+                <a href="#" tabindex="0" type="button" id="imprimir" class="btn btn-primary"> <i
+                            class="fa fa-print"></i>Imprimir</a>
+            <?php endif; ?>
         </div>
     </div>
 

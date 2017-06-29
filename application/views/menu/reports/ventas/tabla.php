@@ -7,7 +7,11 @@
         background-color: #f4f4f4;
     }
 </style>
-
+<?php
+$ventas->desgloses = sort_object($ventas->desgloses, function ($a, $b) {
+    return ($a->importe_completado < $b->importe_completado);
+});
+?>
 <table class="table table-bordered">
     <tr>
         <th>Desglose</th>

@@ -269,7 +269,9 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                                         <?php if (count($lstProducto) > 0): ?>
                                             <?php foreach ($lstProducto as $pd): ?>
                                                 <option
-                                                        value="<?php echo $pd['producto_id']; ?>"><?php echo sumCod($pd['producto_id']) . " - " . $pd['producto_nombre'] ?></option>
+                                                        value="<?php echo $pd['producto_id']; ?>">
+                                                    <?php echo sumCod($pd['producto_id']) . " - " . $pd['producto_nombre']. " - " . $pd['presentacion'] ?>
+                                                </option>
                                             <?php endforeach; ?>
                                         <?php else : ?>
                                         <?php endif; ?>

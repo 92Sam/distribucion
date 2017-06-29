@@ -363,6 +363,7 @@ class consolidadodecargas extends MY_Controller
             }
         }
 
+        $result['consolidado'] = $this->db->get_where('consolidado_carga', array('consolidado_id' => $id))->row();
         $result['consolidado_id'] = $id;
         $result['nota_entrega'] = '1';
         $this->load->view('menu/ventas/visualizarVenta', $result);

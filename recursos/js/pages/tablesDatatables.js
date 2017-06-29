@@ -166,6 +166,75 @@ var DT_detalles_descuento = function () {
     };
 }();
 
+var DT = function () {
+
+    return {
+        init: function (datatable) {
+            /* Initialize Bootstrap Datatables Integration */
+            App.datatables();
+
+            /* Initialize Datatables */
+            datatable_elemnt = $('#' + datatable);
+            var table = datatable_elemnt.dataTable({
+                retrieve: true,
+
+                columnDefs: [
+                    { targets: 0 }
+                ],
+                fixedColumns: false,
+                "paging":   false,
+                "ordering": false,
+                "info":     false,
+
+                "scrollCollapse": true,
+                "dom": '<"row"<"pull-left"f><"pull-right"l>>rt<"row"<"pull-left"i><"pull-right"p>>',
+                "language": {
+                    "emptyTable": "No se encontraron registros",
+                    "info": "Mostrando _START_ a _END_ de _TOTAL_ resultados",
+                    "infoEmpty": "Mostrando 0 a 0 de 0 resultados",
+                    "infoFiltered": "(filtrado de _MAX_ total resultados)",
+                    "infoPostFix": "",
+                    "thousands": ",",
+                    "lengthMenu": "_MENU_",
+                    "loadingRecords": "Cargando...",
+                    "processing": "Procesando...",
+                    // "search": "Buscar:",
+                    "zeroRecords": "No se encontraron resultados",
+                    "paginate": {
+                        "first": "Primero",
+                        "last": "Ultimo",
+                        "next": "Siguiente",
+                        "previous": "Anterior"
+                    },
+                    "aria": {
+                        "sortAscending": ": activar ordenar columnas ascendente",
+                        "sortDescending": ": activar ordenar columnas descendente"
+                    }
+                },
+                "fnInitComplete": function () {
+
+                    setTimeout(function () {
+                        $('div.dataTables_filter input').focus();
+                    }, 5);
+
+
+                },
+
+
+
+            });
+
+            /* Add placeholder attribute to the search input */
+            $('.dataTables_filter input').attr('placeholder', 'Buscar');
+            $('.dataTables_filter input').css('font-size', '11px');
+            $('.dataTables_filter input').css('height', '28px');
+
+            $('#table_length select').css('height', '28px');
+            $('#table_length select').css('font-size', '11px');
+        }
+    };
+}();
+
 
 var TablesDatatablesBonos = function () {
 

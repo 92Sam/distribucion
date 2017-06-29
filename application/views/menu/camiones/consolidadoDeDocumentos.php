@@ -205,7 +205,7 @@
     function notaEntrega(id, venta_id) {
         var venta = 0;
         if (venta_id != undefined)
-            venta = venta_id
+            venta = venta_id;
         {
             $.ajax({
                 url: '<?php echo $ruta . 'consolidadodecargas/notaEntrega'; ?>',

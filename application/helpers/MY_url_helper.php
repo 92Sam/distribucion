@@ -1,5 +1,19 @@
 <?php
 
+function sort_object($obj, $predicate)
+{
+    for ($i = 1; $i < count($obj); $i++) {
+        for ($j = 0; $j < count($obj) - $i; $j++) {
+            if ($predicate($obj[$j], $obj[$j + 1])) {
+                $k = $obj[$j + 1];
+                $obj[$j + 1] = $obj[$j];
+                $obj[$j] = $k;
+            }
+        }
+    }
+    return $obj;
+}
+
 function get_motivo_rechazo($code = -1)
 {
     $motivos = array(
@@ -13,8 +27,7 @@ function get_motivo_rechazo($code = -1)
 
     if ($code != -1) {
         return $motivos[$code];
-    }
-    else{
+    } else {
         return $motivos;
     }
 }

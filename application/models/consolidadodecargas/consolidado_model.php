@@ -155,7 +155,7 @@ class consolidado_model extends CI_Model
                     JOIN
                 zonas ON cliente.id_zona = zonas.zona_id
             WHERE
-                consolidado_detalle.consolidado_id = ".$campo."
+                consolidado_detalle.consolidado_id = " . $campo . "
                     AND venta_status IN ('DEVUELTO PARCIALMENTE' , 'RECHAZADO')
                     AND historial_pedido_proceso.proceso_id = 6
             GROUP BY producto.producto_id
@@ -195,12 +195,12 @@ class consolidado_model extends CI_Model
         $query = $this->db->get();
         $result = $query->result_array();
 
-        for ($i=0;$i<count($result);$i++){
-            $total = $this->db->get_where('consolidado_detalle', array('consolidado_id'=>$result[$i]['consolidado_id']))->result();
+        for ($i = 0; $i < count($result); $i++) {
+            $total = $this->db->get_where('consolidado_detalle', array('consolidado_id' => $result[$i]['consolidado_id']))->result();
 
             $result[$i]['total_pedidos'] = count($total);
 
-            foreach ($total as $t){
+            foreach ($total as $t) {
                 $pedidos = $this->db->select('z.zona_nombre as zona')
                     ->from('venta AS v')
                     ->join('consolidado_detalle AS cd', 'cd.pedido_id = v.venta_id')
@@ -212,15 +212,35 @@ class consolidado_model extends CI_Model
 
                 $index = 0;
                 $zonas = '';
-                foreach($pedidos as $p){
+                foreach ($pedidos as $p) {
                     $zonas .= $p->zona;
 
-                    if($index < count($pedidos) - 1)
+                    if ($index < count($pedidos) - 1)
                         $zonas .= ', ';
 
                     $index++;
                 }
                 $result[$i]['zonas'] = $zonas;
+
+                $vendedores = $this->db->select('u.nombre AS vendedor')
+                    ->from('venta AS v')
+                    ->join('consolidado_detalle AS cd', 'cd.pedido_id = v.venta_id')
+                    ->join('usuario AS u', 'u.nUsuCodigo = v.id_vendedor')
+                    ->where('cd.consolidado_id', $result[$i]['consolidado_id'])
+                    ->group_by('u.nUsuCodigo')
+                    ->get()->result();
+
+                $index = 0;
+                $vendedor = '';
+                foreach ($vendedores as $v) {
+                    $vendedor .= $v->vendedor;
+
+                    if ($index < count($vendedores) - 1)
+                        $vendedor .= ', ';
+
+                    $index++;
+                }
+                $result[$i]['vendedor'] = $vendedor;
             }
         }
 
@@ -320,9 +340,58 @@ class consolidado_model extends CI_Model
         $this->db->join('usuario as chofer', 'chofer.nUsuCodigo=camiones.id_trabajadores', 'left');
         $this->db->join('local', 'local.int_local_id=usuarioCarga.id_local', 'left');
         $this->db->order_by('consolidado_carga.consolidado_id desc');
-        $query = $this->db->get();
-        return $query->result_array();
+        $result = $this->db->get()->result_array();
 
+        for ($i = 0; $i < count($result); $i++) {
+            $total = $this->db->get_where('consolidado_detalle', array('consolidado_id' => $result[$i]['consolidado_id']))->result();
+
+            $result[$i]['total_pedidos'] = count($total);
+
+            foreach ($total as $t) {
+                $pedidos = $this->db->select('z.zona_nombre as zona')
+                    ->from('venta AS v')
+                    ->join('consolidado_detalle AS cd', 'cd.pedido_id = v.venta_id')
+                    ->join('cliente AS c', 'c.id_cliente = v.id_cliente')
+                    ->join('zonas AS z', 'z.zona_id = c.id_zona')
+                    ->where('cd.consolidado_id', $result[$i]['consolidado_id'])
+                    ->group_by('z.zona_id')
+                    ->get()->result();
+
+                $index = 0;
+                $zonas = '';
+                foreach ($pedidos as $p) {
+                    $zonas .= $p->zona;
+
+                    if ($index < count($pedidos) - 1)
+                        $zonas .= ', ';
+
+                    $index++;
+                }
+                $result[$i]['zonas'] = $zonas;
+
+                $vendedores = $this->db->select('u.nombre AS vendedor')
+                    ->from('venta AS v')
+                    ->join('consolidado_detalle AS cd', 'cd.pedido_id = v.venta_id')
+                    ->join('usuario AS u', 'u.nUsuCodigo = v.id_vendedor')
+                    ->where('cd.consolidado_id', $result[$i]['consolidado_id'])
+                    ->group_by('u.nUsuCodigo')
+                    ->get()->result();
+
+                $index = 0;
+                $vendedor = '';
+                foreach ($vendedores as $v) {
+                    $vendedor .= $v->vendedor;
+
+                    if ($index < count($vendedores) - 1)
+                        $vendedor .= ', ';
+
+                    $index++;
+                }
+                $result[$i]['vendedor'] = $vendedor;
+            }
+        }
+
+        return $result;
     }
 
 
@@ -544,7 +613,7 @@ class consolidado_model extends CI_Model
 
     function updateDetalle($data)
     {
-        if($data['liquidacion_monto_cobrado'] > 0)
+        if ($data['liquidacion_monto_cobrado'] > 0)
             if ($this->banco_model->buscarNumeroOperacion($data) != 0)
                 return false;
 

@@ -8,8 +8,10 @@
 
         <th style="text-align: center;">N° de Consolidado Guía Carga</th>
         <th style="text-align: center;">Fecha Entrega</th>
+        <th style="text-align: center;">Zonas</th>
         <th style="text-align: center;">Camión</th>
         <th style="text-align: center;">Chofer</th>
+        <th style="text-align: center;">Vendedores</th>
         <th style="text-align: center;">Estado</th>
         <th style="text-align: center;">Accion</th>
 
@@ -25,10 +27,12 @@
 
                 <td style="text-align: center;"><?= $campoConsolidado['consolidado_id'] ?></td>
                 <td style="text-align: center;"><span
-                        style="display: none;"><?= date('YmdHis', strtotime($campoConsolidado['fecha'])) ?></span><?= date('d-m-Y', strtotime($campoConsolidado['fecha'])) ?>
+                            style="display: none;"><?= date('YmdHis', strtotime($campoConsolidado['fecha'])) ?></span><?= date('d-m-Y', strtotime($campoConsolidado['fecha'])) ?>
                 </td>
+                <td style="text-align: center;"><?= $campoConsolidado['zonas'] ?></td>
                 <td style="text-align: center;"><?= $campoConsolidado['camiones_placa'] ?></td>
                 <td style="text-align: center;"><?= $campoConsolidado['nombre'] ?></td>
+                <td style="text-align: center;"><?= $campoConsolidado['vendedor'] ?></td>
                 <td style="text-align: center;"><?= $campoConsolidado['status'] ?></td>
                 <td style="text-align: center;">
                     <?php

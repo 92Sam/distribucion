@@ -567,30 +567,19 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
             //DEPOSITO = 4
             //CHEQUE = 5
 
-            if ($("#estatus").val() == 'RECHAZADO' && $("#motivo_id").val() == ''){
+            if ($("#estatus").val() == 'RECHAZADO' && $("#motivo_id").val() == '') {
                 show_msg('warning', 'Debe seleccionar un motivo');
                 return false;
             }
 
 
-                if ($("#pago_id").val() != 0) {
+            if ($("#pago_id").val() != 0) {
 
-                    if ($("#pago_id").val() == 3)
-                        $("#confirmacion").modal('show');
+                if ($("#pago_id").val() == 3)
+                    $("#confirmacion").modal('show');
 
-                    if ($("#pago_id").val() == 4) {
-                        if (banco != '' && numeroOperacion != '') {
-                            if (montoaCobrar == '0' || montoaCobrar == ' ') {
-                                show_msg('warning', 'El importe del deposito debe ser mayor a cero');
-                                $('#monto').trigger('focus');
-                            }
-                            else
-                                $("#confirmacion").modal('show');
-                        }
-                        else
-                            show_msg('warning', 'Es necesario seleccionar un banco e indicar el numero de operación');
-                    }
-                    if ($("#pago_id").val() == 5) {
+                if ($("#pago_id").val() == 4) {
+                    if (banco != '' && numeroOperacion != '') {
                         if (montoaCobrar == '0' || montoaCobrar == ' ') {
                             show_msg('warning', 'El importe del deposito debe ser mayor a cero');
                             $('#monto').trigger('focus');
@@ -598,11 +587,22 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                         else
                             $("#confirmacion").modal('show');
                     }
+                    else
+                        show_msg('warning', 'Es necesario seleccionar un banco e indicar el numero de operación');
                 }
-                else {
-                    show_msg('warning', 'Seleccione un medio medio de pago');
-                    $("#pago_id").trigger('focus');
+                if ($("#pago_id").val() == 5) {
+                    if (montoaCobrar == '0' || montoaCobrar == ' ') {
+                        show_msg('warning', 'El importe del deposito debe ser mayor a cero');
+                        $('#monto').trigger('focus');
+                    }
+                    else
+                        $("#confirmacion").modal('show');
                 }
+            }
+            else {
+                show_msg('warning', 'Seleccione un medio medio de pago');
+                $("#pago_id").trigger('focus');
+            }
         }
 
 
@@ -614,6 +614,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                 })
             },
             guardar: function () {
+
                 var monto = parseFloat($("#monto").val());
                 var total = parseFloat($("#total").val());
 
@@ -628,6 +629,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                     return false;
                 }
 
+                $('#barloadermodal').modal('show');
                 $.ajax({
                     url: '<?= base_url() ?>consolidadodecargas/liquidarPedido',
                     type: 'POST',
@@ -637,7 +639,6 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
 
                         if (data.success == '1') {
                             $('#confirmacion').modal('hide');
-                            $('#barloadermodal').modal('hide');
                             $('#cambiarEstatus').modal('hide');
                             $("#consolidadoLiquidacion").load('<?= $ruta ?>consolidadodecargas/verDetallesLiquidacion/' + $('#consolidado_id').val() + '/' + estatus_consolidado);
                         }
@@ -646,6 +647,9 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                             show_msg('warning', '<h4>Error. </h4><p>El numero de operación ingresado ya fue registrado</p>');
                             $("#num_oper").trigger('focus');
                         }
+                    },
+                    complete: function () {
+                        $('#barloadermodal').modal('hide');
                     }
 
                 });
