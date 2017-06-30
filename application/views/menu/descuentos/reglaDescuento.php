@@ -286,7 +286,7 @@
         }
 
         function save_precio(self) {
-            $(self).css('border-color', '#eea236');
+            $(self).css('background-color', '#eea236');
             var precio = parseFloat($(self).val());
 
             if (isNaN(precio)) {
@@ -318,10 +318,10 @@
                         var precio = parseFloat($(this).val());
 
                         if (isNaN(precio) || precio < 0) {
-                            $(this).css('border-color', '#ff0000');
+                            $(this).css('background-color', '#ff0000');
                         }
                         else {
-                            $(this).css('border-color', '#cecece');
+                            $(this).css('background-color', '#FFFFFF');
                         }
                     });
                 },
@@ -329,7 +329,7 @@
 
                 },
                 error: function (data) {
-
+                    $(this).css('background-color', '#ff0000');
                 }
             });
         }
