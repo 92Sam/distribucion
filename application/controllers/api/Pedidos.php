@@ -482,14 +482,24 @@ class pedidos extends REST_Controller
     function ventas_pagos_get(){
 
         $get = $this->get(null, true);
-        $id_vendedor = $get['vendedor'];
+        $id_vendedor = isset($get['vendedor']) ? $get['vendedor'] : null;
 
-        $data['clientes'] = $this->venta_cobro_model->get_pagos_pendientes(array(
-            'fecha_ini' => date('Y-m-01'),
-            'fecha_fin' => date('Y-m-d'),
-            'fecha_flag' => 0,
-            'vendedor_id' => $id_vendedor
-        ));
+        if ($id_vendedor) {
+            $data['clientes'] = $this->venta_cobro_model->get_pagos_pendientes(array(
+                'fecha_ini' => date('Y-m-01'),
+                'fecha_fin' => date('Y-m-d'),
+                'fecha_flag' => 0,
+                'vendedor_id' => $id_vendedor
+            ));
+
+        } else {
+            $data['clientes'] = $this->venta_cobro_model->get_pagos_pendientes(array(
+                'fecha_ini' => date('Y-m-01'),
+                'fecha_fin' => date('Y-m-d'),
+                'fecha_flag' => 0
+            ));
+        }
+
 
         if ($data) {
             $this->response($data, 200);
@@ -501,7 +511,7 @@ class pedidos extends REST_Controller
     function ventas_historial_get(){
 
         $get = $this->get(null, true);
-        $id_pedido = $get['pedido'];
+        $id_pedido = isset($get['pedido']) ? $get['pedido'] : null;
         $data = null;
 
         if ($id_pedido) {
@@ -518,7 +528,7 @@ class pedidos extends REST_Controller
     function ventas_liquidar_get() {
 
         $get = $this->get(null, true);
-        $id_vendedor = $get['vendedor'];
+        $id_vendedor = isset($get['vendedor']) ? $get['vendedor'] : null;
         $data = null;
 
         if ($id_vendedor) {
