@@ -1,5 +1,27 @@
 <?php
 
+function formatPrice($price, $min = 10) {
+    $r = number_format($price, 2);
+    $round = explode('.', $r);
+    $entero = $round[0];
+    $fraccion = $round[1];
+
+    for ($i = 0; $i <= 100; $i = $i + $min) {
+        if ($i < $fraccion && $i + $min > $fraccion) {
+            if (($i + $min - $fraccion) <= ($fraccion - $i))
+                $fraccion = $i + $min;
+            else if (($i + $min - $fraccion) > ($fraccion - $i))
+                $fraccion = $i;
+
+            if ($fraccion == 100) {
+                $fraccion = 0;
+                $entero = $entero + 1;
+            }
+        }
+    }
+    return number_format($entero.'.'.$fraccion, 2);
+}
+
 function sort_object($obj, $predicate)
 {
     for ($i = 1; $i < count($obj); $i++) {

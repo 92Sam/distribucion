@@ -247,7 +247,7 @@
                                         </div>
                                         <div class="col-xs-3" style="text-align: right;">
                                             <h6>Total: <?php echo MONEDA ?>
-                                                <span id="totalR"><?= ceil($ventas[0]['montoTotal'] * 10) / 10 ?></span>
+                                                <span id="totalR"><?= formatPrice($ventas[0]['montoTotal']) ?></span>
                                             </h6>
                                         </div>
                                     </div>

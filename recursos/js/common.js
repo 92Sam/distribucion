@@ -15,7 +15,7 @@ function formatPrice(price, min) {
     var r = +(Math.round(price + "e+4") + "e-4");
     var round = r.toFixed(2).split('.');
     var entero = round[0];
-    var fraccion = round[1]
+    var fraccion = round[1];
 
     for (var i = 0; i <= 100; i = i + min) {
         if (i < fraccion && i + min > fraccion) {

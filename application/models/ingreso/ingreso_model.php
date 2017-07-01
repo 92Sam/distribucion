@@ -68,7 +68,6 @@ class ingreso_model extends CI_Model
 
     function insertar_compra($cab_pie, $detalle)
     {
-
         $this->db->trans_start(true);
 
         $this->db->trans_begin();
@@ -303,7 +302,6 @@ class ingreso_model extends CI_Model
 
             }
         }
-
 
         $this->db->insert_batch('detalleingreso', $data);
 

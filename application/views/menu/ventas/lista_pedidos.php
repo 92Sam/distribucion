@@ -337,15 +337,15 @@ else echo 0; ?>/0"
                 var campo = $(this).val();
 
                 if ($('#valor_' + campo).val() != "") {
-                    $('#suma_metros_cubicos').html(suma);
+                    $('#suma_metros_cubicos').html(parseFloat(suma).toFixed(4));
 
                     suma += parseFloat($('#valor_' + campo).val());
                     console.log(suma);
-                    $('#suma_metros_cubicos').html(suma);
+                    $('#suma_metros_cubicos').html(parseFloat(suma).toFixed(4));
                 }
                 else {
                     suma += 0;
-                    $('#suma_metros_cubicos').html(suma);
+                    $('#suma_metros_cubicos').html(parseFloat(suma).toFixed(4));
                 }
 
 

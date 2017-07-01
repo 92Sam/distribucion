@@ -267,12 +267,24 @@ function accionGuardar() {
      }
      })
      }*/
+    var temp_prod = [];
+    for(var i=0;i<lst_producto.length;i++){
+        temp_prod.push({
+            Codigo: lst_producto[i].Codigo,
+            Cantidad: lst_producto[i].Cantidad,
+            ValorUnitario: lst_producto[i].ValorUnitario,
+            PrecUnt: lst_producto[i].PrecUnt,
+            Importe: lst_producto[i].Importe,
+            unidad: lst_producto[i].unidad,
+            producto_id: lst_producto[i].producto_id
+        });
+    }
 
-    var miJSON = JSON.stringify(lst_producto);
-    // console.log(miJSON);
+    var miJSON = JSON.stringify(temp_prod);
+    console.log(miJSON);
     $.ajax({
         type: 'POST',
-        data: $('#frmCompra').serialize() + '&lst_producto=' + miJSON + '',
+        data: $('#frmCompra').serialize() + '&lst_producto=' + miJSON,
         url: ruta + 'ingresos/registrar_ingreso',
         dataType: 'json',
         success: function (data) {
