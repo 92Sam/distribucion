@@ -1236,6 +1236,7 @@ class consolidadodecargas extends MY_Controller
             ->join('cliente AS c', 'c.id_cliente = v.id_cliente')
             ->join('zonas AS z', 'z.zona_id = c.id_zona')
             ->where('cd.consolidado_id', $id)
+            ->order_by('v.venta_id', 'ASC')
             ->get()->result();
 
         $nota_entrega = '';
@@ -1250,7 +1251,7 @@ class consolidadodecargas extends MY_Controller
 
 
         $template->saveAs(sys_get_temp_dir() . '/consolidado_temp.docx');
-        header("Content-Disposition: attachment; filename='consolidado.docx'");
+        header("Content-Disposition: attachment; filename='consolidado" . $id . ".docx'");
         readfile(sys_get_temp_dir() . '/consolidado_temp.docx'); // or echo file_get_contents($temp_file);
         unlink(sys_get_temp_dir() . '/consolidado_temp.docx');
 
