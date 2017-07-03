@@ -2157,13 +2157,19 @@ LEFT JOIN ingreso ON ingreso.id_ingreso = detalleingreso.id_ingreso WHERE id_pro
 
     function get_ventas_by($condicion, $completado = FALSE)
     {
-        $this->db->select('venta.*, cliente.*, zonas.zona_nombre, local.*,condiciones_pago.*,documento_venta.*,usuario.*,
-        (select SUM(metros_cubicos*detalle_venta.cantidad) from unidades_has_producto join detalle_venta
+        $this->db->select('venta.*, cliente.*, zonas.zona_nombre, local.*,condiciones_pago.*,documento_venta.*,usuario.*, grupos_cliente.*,
+        
+         (select SUM(metros_cubicos*detalle_venta.cantidad) from unidades_has_producto join detalle_venta
          on detalle_venta.id_producto=unidades_has_producto.producto_id where detalle_venta.id_venta=venta.venta_id
-         and detalle_venta.unidad_medida=unidades_has_producto.id_unidad) as total_metos_cubicos,  (select count(id_detalle)
+         and detalle_venta.unidad_medida=unidades_has_producto.id_unidad) as total_metos_cubicos,
+           
+           (select SUM(detalle_venta.cantidad) from detalle_venta
+         where detalle_venta.id_venta=venta.venta_id) as total_bultos, 
+         
+         (select count(id_detalle)
          from detalle_venta where id_venta=venta.venta_id and precio_sugerido>0) as preciosugerido,
-            (select count(id_producto) from detalle_venta where id_venta = venta.venta_id ) as cantidad_productos,
-            grupos_cliente.*');
+         
+         (select count(id_producto) from detalle_venta where id_venta = venta.venta_id ) as cantidad_productos');
 
         $this->db->from('venta');
         $this->db->join('cliente', 'cliente.id_cliente=venta.id_cliente');

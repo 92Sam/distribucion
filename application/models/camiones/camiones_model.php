@@ -12,9 +12,13 @@ class camiones_model extends CI_Model
 
     function get_all()
     {
+        $this->db->select('camiones.*, usuario.nombre, consolidado_carga.status AS consolidado_estado');
+        $this->db->from('camiones');
         $this->db->join('usuario', 'usuario.nUsuCodigo = camiones.id_trabajadores');
+        $this->db->join('consolidado_carga', 'consolidado_carga.camion = camiones.camiones_id AND consolidado_carga.status = "ABIERTO"', 'left');
         $this->db->where('camiones.deleted', 0);
-        $query = $this->db->get('camiones');
+        $this->db->group_by('camiones.camiones_id', 0);
+        $query = $this->db->get();
         return $query->result_array();
     }
 

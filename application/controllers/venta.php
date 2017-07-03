@@ -3701,6 +3701,13 @@ class venta extends MY_Controller
         $data['camiones'] = $this->camiones_model->get_all();
         $data['metros'] = $this->input->post('metros_c');
         $data['pedidos'] = $_POST["pedidos"];
+        $data['total_bultos'] = 0;
+
+        foreach ($data['pedidos'] as $p) {
+            $query = $this->db->select_sum('cantidad')->from('detalle_venta')->where('id_venta', $p)->get()->row();
+            $data['total_bultos'] += $query->cantidad;
+        }
+
         $this->load->view('menu/ventas/formCamiones', $data);
     }
 

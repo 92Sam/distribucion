@@ -99,7 +99,9 @@
                 <?php endforeach; ?>
             <?php endif; ?>
         <?php endif; ?>
-        <?php if (count($ventas) > 0):
+        <?php
+        $importe_pedidos = 0;
+        if (count($ventas) > 0):
             foreach ($ventas as $venta):
                 $venta_id = $venta->venta_id;
                 $venta_status = $venta->venta_status;
@@ -112,6 +114,12 @@
                             <input type="checkbox" name="pedido" id="pedido" class="cargarPedido"
                                    value="<?= $venta->venta_id ?>" onclick="sumarMetros();">
                         <?php endif; ?>
+                        <input type="hidden" id="total_bultos_<?= $venta->venta_id ?>"
+                               value="<?= $venta->total_bultos ?>">
+
+                        <input type="hidden" id="total_importe_<?= $venta->venta_id ?>"
+                               value="<?= $venta->total ?>">
+
                         <input type="hidden" name="<?= $venta->venta_id ?>"
                                id="valor_<?= $venta->venta_id ?>"
                                value="<?= isset($venta->total_metos_cubicos) ? $venta->total_metos_cubicos : 0 ?>">
@@ -127,6 +135,7 @@
                     <td><?= $venta_status; ?></td>
                     <td><?= $venta->zona_nombre ?></td>
                     <td><?= $venta->nombre_condiciones ?></td>
+                    <?php $importe_pedidos += $venta->total ?>
                     <td class="text-right" style="white-space: nowrap;"><?= MONEDA . ' ' . $venta->total ?></td>
                     <td class="acciones">
                         <?php if ($venta->venta_status == PEDIDO_ENTREGADO or $venta->venta_status == PEDIDO_ENVIADO or $venta->venta_status == PEDIDO_DEVUELTO): ?>
@@ -259,6 +268,7 @@ else echo 0; ?>/0"
 
     $(function () {
 
+        $('#importe_pedidos').html('<?= MONEDA . " " . number_format($importe_pedidos, 2)?>');
 
         if ($("#estatus").val() == 'GENERADO') {
             $("#select_all").show();
@@ -331,10 +341,19 @@ else echo 0; ?>/0"
     function sumarMetros() {
         $('#suma_metros_cubicos').html('0');
         var suma = 0;
+        var importe_pedido_sel = 0;
+        var total_bultos_sel = 0;
+        var pedido_sel = 0;
         console.log($(".cargarPedido:checked").length);
         $(".cargarPedido:checked").each(
             function () {
                 var campo = $(this).val();
+                pedido_sel++;
+                var bulto_sel = parseFloat($('#total_bultos_' + campo).val());
+                var imp_ped_sel = parseFloat($('#total_importe_' + campo).val());
+
+                importe_pedido_sel = parseFloat(importe_pedido_sel + imp_ped_sel);
+                total_bultos_sel = parseFloat(total_bultos_sel + bulto_sel);
 
                 if ($('#valor_' + campo).val() != "") {
                     $('#suma_metros_cubicos').html(parseFloat(suma).toFixed(4));
@@ -351,6 +370,10 @@ else echo 0; ?>/0"
 
             }
         );
+
+        $('#importe_pedidos_sel').html('<?=MONEDA?> ' + importe_pedido_sel.toFixed(2));
+        $('#total_bultos_sel').html(total_bultos_sel);
+        $('#pedidos_sel').html(pedido_sel);
     }
 
 

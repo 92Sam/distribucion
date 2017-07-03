@@ -172,7 +172,6 @@
     </div>
 
     <div id="consolidado_block" class="form-group row">
-        <h4>Asignaci&oacute;n de Consolidado</h4>
         <div class="col-md-1">
             <label class="control-label panel-admin-text">Consolidados</label>
         </div>
@@ -209,6 +208,17 @@
                 </span>
             </div>
         </div>
+
+        <div class="col-md-3">
+            <h4>BULTOS: <span id="total_bultos_sel">0</span></h4>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-3"></div>
+        <div class="col-md-3"><h5>Importe Pedidos: <span id="importe_pedidos"><?=MONEDA.' 0.00'?></span></h5></div>
+        <div class="col-md-3"><h5>Importe Pedidos Selec.: <span id="importe_pedidos_sel"><?=MONEDA.' 0.00'?></span></h5></div>
+        <div class="col-md-3"><h5>Pedidos Selec.: <span id="pedidos_sel">0</span></h5></div>
     </div>
 
     <div class="row">
@@ -364,6 +374,11 @@
 
                 // $("#hidden_consul").remove();
 
+
+                $('#importe_pedidos').html('<?=MONEDA?> 0.00');
+                $('#importe_pedidos_sel').html('<?=MONEDA?> 0.00');
+                $('#pedidos_sel').html('0');
+                $('#total_bultos_sel').html('0');
 
                 $.ajax({
                     url: '<?= base_url()?>venta/get_ventas',
