@@ -1247,13 +1247,13 @@ class consolidadodecargas extends MY_Controller
 
         foreach ($pedidos as $pedido) {
             if($n){
-                $nota_entrega1 .= $pedido->serie . " - " . $pedido->numero . "\n";
-                $estado1 .= $pedido->estado . "\n";
+                $nota_entrega1 .= $pedido->serie . " - " . $pedido->numero . "\r\n";
+                $estado1 .= $pedido->estado . "\r\n";
                 $n = false;
             }
             else{
-                $nota_entrega2 .= $pedido->serie . " - " . $pedido->numero . "\n";
-                $estado2 .= $pedido->estado . "\n";
+                $nota_entrega2 .= $pedido->serie . " - " . $pedido->numero . "\r\n";
+                $estado2 .= $pedido->estado . "\r\n";
                 $n = true;
             }
         }
