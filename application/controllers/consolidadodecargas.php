@@ -1208,7 +1208,7 @@ class consolidadodecargas extends MY_Controller
             foreach ($grupo['productos'] as $producto) {
 
                 $template->setValue('cod_prod_' . $index . '#' . ++$index_p, sumCod($producto->codigo, 4));
-                $template->setValue('producto_nombre_' . $index . '#' . $index_p, htmlentities($producto->producto));
+                $template->setValue('producto_nombre_' . $index . '#' . $index_p, htmlspecialchars($producto->producto));
                 $template->setValue('unidad_' . $index . '#' . $index_p, $producto->um);
                 $template->setValue('medida_' . $index . '#' . $index_p, $producto->medida);
                 $template->setValue('cantidad_' . $index . '#' . $index_p, $producto->cantidad);
