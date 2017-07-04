@@ -2838,7 +2838,7 @@ class venta extends MY_Controller
     {
 
         if ($tipo == 'VENTA') {
-            $result['notasdentrega'][]['ventas'] = $this->venta_model->obtener_venta($id);
+            $result['notasdentrega'][] = $this->venta_model->obtener_venta($id);
             $where = array('consolidado_detalle.pedido_id' => $id);
             $result['detalleC'] = $this->consolidado_model->get_detalle_by($where);
         } else {
@@ -2851,164 +2851,46 @@ class venta extends MY_Controller
                 if ($id != FALSE) {
                     $result['retorno'] = 'consolidadodecargas';
                     $result['id_venta'] = $id_pedido;
-                    $result['notasdentrega'][]['ventas'] = $this->venta_model->obtener_venta($id_pedido);
+                    $result['notasdentrega'][] = $this->venta_model->obtener_venta($id_pedido);
                 }
             }
         }
         //$html = $this->load->view('menu/reportes/rtfNotaDeEntrega', $result,true);
         $notasdentrega = $result['notasdentrega'];
 
-        // documento
-        $phpword = new \PhpOffice\PhpWord\PhpWord();
-        $styles = array(
-            'pageSizeW' => '12755.905511811',
-            'pageSizeH' => '7937.007874016',
-            'marginTop' => '566.929133858',
-            'marginLeft' => '866.858267717',
-            'marginRight' => '866.929133858',
-            'marginBottom' => '283.464566929',
-        );
 
+//        for ($n = 0; $n < count($notasdentrega); $n++) {
+//
+//            echo $notasdentrega[$n][0]['venta_id'];
+//        }
 
-        $phpword->addFontStyle('rStyle', array('size' => 15, 'allCaps' => true, 'spaceBefore' => 0, 'spaceAfter' => 0, 'spacing' => 0));
-        $phpword->addParagraphStyle('pStyle', array('align' => 'center', 'spaceBefore' => 0, 'spaceAfter' => 0, 'spacing' => 0));
-        $styleTable = array('borderSize' => 6, 'borderColor' => '999999', 'width' => 50 * 100);
-        $tablastyle = array('width' => 50 * 100, 'unit' => 'pct', 'align' => 'left');
-        if (isset($notasdentrega[0])) {
-            $i = 0;
-            foreach ($notasdentrega as $nota) {
-                $section = $phpword->addSection($styles);
-                $header = $section->addHeader();
+        $cantidad_paginas = count($notasdentrega);
 
-                if (isset($nota['ventas'][0])) {
-                    $ventas[0] = $nota['ventas'][0];
+        $template_name = 'notaentrega' . $cantidad_paginas . '.docx';
+        $word = new \PhpOffice\PhpWord\PhpWord();
+        $template = new \PhpOffice\PhpWord\TemplateProcessor(base_url('recursos/formatos/notaentrega/' . $template_name));
 
-                    // tabla titulos
-                    $table = $header->addTable($tablastyle);
-                    $cell = $table->addRow(650, array('exactHeight' => true))->addCell(3000, array('valign ' => 'center', 'align' => 'center'));
+        $detalle_index = 0;
+        for ($n = 0; $n < $cantidad_paginas; $n++) {
+            $ne = $notasdentrega[$n][0];
 
-                    $cell->addText(htmlspecialchars('NOTA DE ENTREGA '), 'rStyle', 'pStyle');
-
-                    $header->addTableStyle('Border', $styleTable);
-                    $innerCell = $table->addCell(2000, array('align' => 'right'))->addTable($styleTable)->addRow(200)->addCell(3000, array('align' => 'center'));
-                    $innerCell->addText(htmlspecialchars('NOTA DE ENTREGA Nº'), array('size' => 12, 'align ' => 'center'), 'pStyle');
-                    $innerCell->addText((isset($ventas[0]['serie']) AND isset($ventas[0]['numero'])) ? $ventas[0]['serie'] . $ventas[0]['numero'] : '', array('size' => 12, 'align ' => 'center'), 'pStyle');
-                    if (isset($result['detalleC'][0])) {
-                        $table->addCell()->addText(htmlspecialchars("CGC: " + $result['detalleC'][0]['consolidado_id']));
-                    }
-
-                    $header->addTextBreak(1);
-                    // tabla de datos basicos
-
-                    $phpword->addFontStyle('rBasicos', array('size' => 8, 'allCaps' => true, 'spaceBefore' => 0, 'spaceAfter' => 0, 'spacing' => 0));
-                    $table1 = $header->addTable($tablastyle);
-                    $cell = $table1->addRow(150, array('exactHeight' => true))->addCell(566);
-                    $cell->addText(htmlspecialchars('CLIENTE'), 'rBasicos');
-                    $table1->addCell(7000)->addText(htmlspecialchars(strtoupper($ventas[0]['cliente'])), 'rBasicos');
-
-                    $table1->addCell(4000)->addText(htmlspecialchars('COD. CLIE: ' . $ventas[0]['cliente_id']), 'rBasicos');
-                    $table1->addCell(4000)->addText(htmlspecialchars('F. EMISION: ' . date('Y-m-d', strtotime($ventas[0]['fechaemision']))), 'rBasicos');
-                    $table1->addCell(4000)->addText(htmlspecialchars('USUA: ' . strtoupper($ventas[0]['vendedor'])), 'rBasicos');
-
-                    $table1->addRow(150, array('exactHeight' => true))->addCell(566)->addText(htmlspecialchars('DIRECCION: '), 'rBasicos');
-                    $table1->addCell(7000, array('gridSpan' => 2))->addText(htmlspecialchars((isset($ventas[0]['clienteDireccion'])) ? strtoupper($ventas[0]['clienteDireccion']) : ''), 'rBasicos');
-
-                    $table1->addCell(4000)->addText(htmlspecialchars('F. VENC.: ' . (isset($result['detalleC'][0]) ? date('Y-m-d', strtotime($result['detalleC'][0]['fecha'])) : '')), 'rBasicos');
-                    $table1->addCell(4000)->addText(htmlspecialchars('HORA: ' . (isset($result['detalleC'][0]) ? date('H:i:s', strtotime($result['detalleC'][0]['fecha'])) : '')), 'rBasicos');
-
-                    $table1->addRow(150, array('exactHeight' => true))->addCell(566)->addText(htmlspecialchars('CONTACTO: '), 'rBasicos');
-                    $table1->addCell(7000)->addText(htmlspecialchars(((isset($ventas[0]['representanteCliente'])) ? strtoupper($ventas[0]['representanteCliente']) : '')), 'rBasicos');
-                    $table1->addCell(4000)->addText((htmlspecialchars('TELEFONO: ' . (isset($ventas[0]['telefonoC1']) ? $ventas[0]['telefonoC1'] : ''))), 'rBasicos');
-
-                    $table1->addCell(4000)->addText(htmlspecialchars('COND. VENTA:' . strtoupper($ventas[0]['nombre_condiciones'])), 'rBasicos');
-                    $table1->addCell(4000)->addText(htmlspecialchars('VEND.:' . ((isset($ventas[0]['id_vendedor'])) ? $ventas[0]['id_vendedor'] : '')), 'rBasicos');
-
-                    $header->addTextBreak(1);
-                    $table1 = $section->addTable($tablastyle);
-                    $table1->addRow(200, array('exactHeight' => true, 'tblHeader' => true))->addCell(1000, array('valign ' => 'bottom'))->addText(htmlspecialchars('CODIGO'), 'rBasicos');
-                    $table1->addCell(9000)->addText(htmlspecialchars('DESCRIPCION'), 'rBasicos');
-                    $table1->addCell(2000)->addText(htmlspecialchars('PRESENTACION'), 'rBasicos');
-                    $table1->addCell(1500)->addText(htmlspecialchars('CANTIDAD'), 'rBasicos');
-                    $table1->addCell(1500)->addText(htmlspecialchars('PREC. UNIT.'), 'rBasicos');
-                    $table1->addCell(1000)->addText(htmlspecialchars('TOTAL'), 'rBasicos');
-                    $table1->addRow(250, array('exactHeight' => true, 'tblHeader' => true))->addCell(null, array('valign' => 'top', 'gridSpan' => 6))
-                        ->addText('___________________________________________________________________________________________________');
-
-                    // tabla de productos
-                    $table1 = $section->addTable($tablastyle);
-                    foreach ($nota['ventas'] as $venta) {
-                        $um = isset($venta['abreviatura']) ? $venta['abreviatura'] : $venta['nombre_unidad'];
-                        $cantidad_entero = intval($venta['cantidad'] / 1) > 0 ? intval($venta['cantidad'] / 1) : '';
-                        $cantidad_decimal = fmod($venta['cantidad'], 1);
-
-                        $cantidad = $cantidad_entero;
-
-                        if ($cantidad_decimal > 0) {
-                            if (!empty($cantidad_entero)) {
-                                $cantidad = $cantidad_entero . "." . $cantidad_decimal;
-
-                            } else
-                                $cantidad = $cantidad_decimal;
-
-                            if ($cantidad_decimal == 0.25 or $cantidad_decimal == 0.250)
-                                $cantidad = $cantidad_entero . " " . '1/4';
-                            if ($cantidad_decimal == 0.5 or $cantidad_decimal == 0.50 or $cantidad_decimal == 0.500)
-                                $cantidad = $cantidad_entero . " " . '1/2';
-                            if ($cantidad_decimal == 0.75 or $cantidad_decimal == 0.750)
-                                $cantidad = $cantidad_entero . " " . '3/4';
-                        }
-
-
-                        if ($venta['producto_cualidad'] == 'MEDIBLE') {
-
-                            if ($venta['unidades'] == 12 or $venta['orden'] == 1) {
-                                $cantidad = floatval($venta['cantidad']);
-
-                            } else {
-                                $cantidad = floatval($venta['cantidad'] * $venta['unidades']);
-                                $um = $venta['unidad_minima'];
-                            }
-                        }
-
-                        $table1->addRow(150, array('exactHeight' => true));
-                        $table1->addCell(1000)->addText(htmlspecialchars($venta['producto_id']), 'rBasicos');
-                        $table1->addCell(9000)->addText(htmlspecialchars(strtoupper($venta['nombre']) . (($venta['bono'] == 1) ? ' --- BONIFICACION' : '')), 'rBasicos');
-                        $table1->addCell(2000)->addText(htmlspecialchars(strtoupper($venta['presentacion'])), 'rBasicos');
-                        $table1->addCell(1500)->addText($cantidad . " " . $um, 'rBasicos');
-                        $table1->addCell(1500)->addText($venta['preciounitario'], 'rBasicos');
-                        $table1->addCell(1000)->addText($venta['importe'], 'rBasicos');
-
-                    }
-                    $footer = $section->addFooter();
-                    // $footer->addTextBreak(1);
-                    $table1 = $footer->addTable($tablastyle);
-                    $table1->addRow(150, array('exactHeight' => true))->addCell(9000, array('gridSpan' => 3))->addText(htmlspecialchars('SON:' . MONEDA . $this->numtoletras($ventas[0]['montoTotal'] * 10 / 10)), 'rBasicos');
-
-                    $table1->addRow(150, array('exactHeight' => true))->addCell(4900)->addText(htmlspecialchars('*CANJEAR POR BOLETA O FACTURA '), 'rBasicos');
-                    $table1->addCell()->addText(htmlspecialchars('____________________________ '), 'rBasicos', 'pStyle');
-                    $table1->addCell(2000);
-                    // $section->addTextBreak(1);
-                    $table1->addRow(150, array('exactHeight' => true))->addCell(4900)->addText(htmlspecialchars(' *GRACIAS POR SU COMPRA. VUELVA PRONTO'), 'rBasicos');
-                    $table1->addCell(7000)->addText(htmlspecialchars('RECIBO CONFORME'), 'rBasicos', 'pStyle');
-                    $table1->addCell(2000)->addText(htmlspecialchars('Total: ' . MONEDA . ' ' . ceil($ventas[0]['montoTotal'] * 10) / 10), 'rBasicos');
-
-                    // $section->addTextBreak(1);
-                }
-
-
-            }
+            $index = $n + 1;
+            $template->setValue('num-ne' . $index, $ne['venta_id']);
+            $template->setValue('empresa' . $index, htmlentities(valueOption('EMPRESA_NOMBRE', 'TEAYUDO')));
+            $template->setValue('cnld' . $index, $ne['consolidado_id']);
+            $template->setValue('nombre_cliente' . $index, $ne['cliente']);
+            $template->setValue('fecha' . $index, date('d/m/Y', strtotime($ne['fechaemision'])));
+            $template->setValue('hora' . $index, date('H:i:s', strtotime($ne['fechaemision'])));
+            $template->setValue('vendedor' . $index, $ne['vendedor']);
+            $template->setValue('direccion_entrega' . $index, $ne['clienteDireccion']);
+            $template->setValue('condicion' . $index, $ne['nombre_condiciones']);
         }
 
+        $template->saveAs(sys_get_temp_dir() . '/notaentrega_temp.docx');
+        header("Content-Disposition: attachment; filename='notaentrega.docx'");
+        readfile(sys_get_temp_dir() . '/notaentrega_temp.docx'); // or echo file_get_contents($temp_file);
+        unlink(sys_get_temp_dir() . '/notaentrega_temp.docx');
 
-        $file = 'NotaDeEntrega' . $id . '.docx';
-        header("Content-Description: File Transfer");
-        header('Content-Disposition: attachment; filename="' . $file . '"');
-        header('Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document');
-        header('Content-Transfer-Encoding: binary');
-        header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-        header('Expires: 0');
-        $xmlWriter = \PhpOffice\PhpWord\IOFactory::createWriter($phpword, 'Word2007');
-        $xmlWriter->save("php://output");
 
     }
 
