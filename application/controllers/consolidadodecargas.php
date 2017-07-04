@@ -1147,13 +1147,13 @@ class consolidadodecargas extends MY_Controller
 
 
         //CABECERA
-        $template->setValue('empresa', valueOption('EMPRESA_NOMBRE', 'TEAYUDO'));
+        $template->setValue('empresa', htmlentities(valueOption('EMPRESA_NOMBRE', 'TEAYUDO')));
         $template->setValue('fecha', date('d/m/Y', strtotime($consolidado->fecha)));
         $template->setValue('numero_consolidado', $consolidado->consolidado_id);
-        $template->setValue('responsable', $consolidado->responsable);
-        $template->setValue('camion', $consolidado->camion);
-        $template->setValue('zona', $zonas);
-        $template->setValue('chofer', $consolidado->chofer);
+        $template->setValue('responsable', htmlentities($consolidado->responsable));
+        $template->setValue('camion', htmlentities($consolidado->camion));
+        $template->setValue('zona', htmlentities($zonas));
+        $template->setValue('chofer', htmlentities($consolidado->chofer));
 
         //PRODUCTOS
         $productos = $this->db->select('
@@ -1173,7 +1173,7 @@ class consolidadodecargas extends MY_Controller
             ->where('hpp.proceso_id', PROCESO_IMPRIMIR)
             ->where('cd.consolidado_id', $id)
             ->group_by('hpd.producto_id, hpd.unidad_id')
-            ->order_by('g.id_grupo')
+            ->order_by('g.id_grupo, p.producto_nombre')
             ->get()->result();
 
         $grupos = array();
@@ -1200,7 +1200,7 @@ class consolidadodecargas extends MY_Controller
         $total = 0;
         foreach ($grupos as $grupo) {
 
-            $template->setValue('linea_' . ++$index, $grupo['nombre']);
+            $template->setValue('linea_' . ++$index, htmlentities($grupo['nombre']));
 
             $template->cloneRow('cod_prod_' . $index, count($grupo['productos']));
             $index_p = 0;
@@ -1208,7 +1208,7 @@ class consolidadodecargas extends MY_Controller
             foreach ($grupo['productos'] as $producto) {
 
                 $template->setValue('cod_prod_' . $index . '#' . ++$index_p, sumCod($producto->codigo, 4));
-                $template->setValue('producto_nombre_' . $index . '#' . $index_p, $producto->producto);
+                $template->setValue('producto_nombre_' . $index . '#' . $index_p, htmlentities($producto->producto));
                 $template->setValue('unidad_' . $index . '#' . $index_p, $producto->um);
                 $template->setValue('medida_' . $index . '#' . $index_p, $producto->medida);
                 $template->setValue('cantidad_' . $index . '#' . $index_p, $producto->cantidad);
@@ -1239,15 +1239,30 @@ class consolidadodecargas extends MY_Controller
             ->order_by('v.venta_id', 'ASC')
             ->get()->result();
 
-        $nota_entrega = '';
-        $estado = '';
+        $nota_entrega1 = '';
+        $nota_entrega2 = '';
+        $estado1 = '';
+        $estado2 = '';
+        $n = true;
+
         foreach ($pedidos as $pedido) {
-            $nota_entrega .= $pedido->serie . " - " . $pedido->numero . "\n";
-            $estado .= $pedido->estado . "\n";
+            if($n){
+                $nota_entrega1 .= $pedido->serie . " - " . $pedido->numero . "\n";
+                $estado1 .= $pedido->estado . "\n";
+                $n = false;
+            }
+            else{
+                $nota_entrega2 .= $pedido->serie . " - " . $pedido->numero . "\n";
+                $estado2 .= $pedido->estado . "\n";
+                $n = true;
+            }
         }
 
-        $template->setValue('nota_entrega', $nota_entrega);
-        $template->setValue('estado', $estado);
+        $template->setValue('nota_entrega1', $nota_entrega1);
+        $template->setValue('estado1', $estado1);
+
+        $template->setValue('nota_entrega2', $nota_entrega2);
+        $template->setValue('estado2', $estado2);
 
 
         $template->saveAs(sys_get_temp_dir() . '/consolidado_temp.docx');
