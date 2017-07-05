@@ -2304,6 +2304,51 @@ LEFT JOIN ingreso ON ingreso.id_ingreso = detalleingreso.id_ingreso WHERE id_pro
         return $query->row_array();
     }
 
+    function get_nota_entrega($venta_id)
+    {
+
+        $venta = $this->db->select('
+                v.venta_id AS venta_id,
+                cd.consolidado_id AS consolidado_id,
+                c.razon_social AS cliente,
+                v.fecha AS fecha_emision,
+                u.nombre AS vendedor,
+                cond.nombre_condiciones AS condicion,
+                c.id_cliente AS cliente_id
+            ')
+            ->from('venta AS v')
+            ->join('consolidado_detalle AS cd', 'cd.pedido_id = v.venta_id')
+            ->join('cliente AS c', 'c.id_cliente = v.venta_id')
+            ->join('usuario AS u', 'u.nUsuCodigo = v.id_vendedor')
+            ->join('condiciones_pago AS cond', 'cond.id_condiciones = v.condicion_pago')
+            ->where('v.venta_id', $venta_id)
+            ->get()->row();
+
+
+        $venta->detalles = $this->db->select('
+                    dv.id_producto AS codigo,
+                    p.producto_nombre AS nombre,
+                    p.presentacion AS presentacion,
+                    dv.cantidad AS cantidad,
+                    dv.precio AS precio,
+                    dv.detalle_importe AS importe
+                ')->from('detalle_venta AS dv')
+            ->join('producto AS p', 'p.producto_id = dv.id_producto')
+            ->where('dv.id_venta', $venta->venta_id)
+            ->get()->result();
+
+        $dato = $this->db->get_where('cliente_datos', array(
+            'cliente_id' => $venta->cliente_id,
+            'principal' => 1,
+            'tipo' => 1
+        ))->row();
+
+        $venta->direccion = $dato->valor;
+
+
+        return $venta;
+    }
+
 
     function obtener_venta($id_venta)
     {
@@ -2475,7 +2520,7 @@ where v.venta_id=" . $id_venta . " group by tr.id_detalle order by 1 ";
         $this->db->trans_start();
         $pedido = $this->db->get_where('venta', array('venta_id' => $id_venta))->row();
         $data = array('venta_status' => $estatus);
-        if($estatus == 'RECHAZADO')
+        if ($estatus == 'RECHAZADO')
             $data['motivo_rechazo'] = $motivo;
         else
             $data['motivo_rechazo'] = NULL;
@@ -2487,7 +2532,6 @@ where v.venta_id=" . $id_venta . " group by tr.id_detalle order by 1 ";
 
         $dataregistro = array('venta_id' => $id_venta, 'vendedor_id' => $pedido->id_vendedor,
             'estatus' => $estatus, 'fecha' => date('Y-m-d h:m:s'));
-
 
 
         $this->db->insert('venta_estatus', $dataregistro);

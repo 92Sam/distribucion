@@ -1,7 +1,7 @@
 <?php
 
 function formatPrice($price, $min = 10) {
-    $r = number_format($price, 2);
+    $r = number_format($price, 2, '.', '');
     $round = explode('.', $r);
     $entero = $round[0];
     $fraccion = $round[1];
@@ -19,7 +19,8 @@ function formatPrice($price, $min = 10) {
             }
         }
     }
-    return number_format($entero.'.'.$fraccion, 2);
+    $result = number_format($entero.'.'.$fraccion, 2);;
+    return $result;
 }
 
 function sort_object($obj, $predicate)

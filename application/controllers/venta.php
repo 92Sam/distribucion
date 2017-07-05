@@ -2836,33 +2836,16 @@ class venta extends MY_Controller
     public
     function rtfNotaDeEntrega($id = null, $tipo)
     {
-
+        $notasdentrega = array();
         if ($tipo == 'VENTA') {
-            $result['notasdentrega'][] = $this->venta_model->obtener_venta($id);
-            $where = array('consolidado_detalle.pedido_id' => $id);
-            $result['detalleC'] = $this->consolidado_model->get_detalle_by($where);
+            $notasdentrega[] = $this->venta_model->get_nota_entrega($id);
         } else {
 
-            $where = array('consolidado_detalle.consolidado_id' => $id);
-            $result['detalleC'] = $this->consolidado_model->get_detalle_by($where);
-            $result['notasdentrega'] = array();
-            foreach ($result['detalleC'] as $pedido) {
-                $id_pedido = $pedido['pedido_id'];
-                if ($id != FALSE) {
-                    $result['retorno'] = 'consolidadodecargas';
-                    $result['id_venta'] = $id_pedido;
-                    $result['notasdentrega'][] = $this->venta_model->obtener_venta($id_pedido);
-                }
+            $pedidos = $this->db->get_where('consolidado_detalle', array('consolidado_id' => $id))->result();
+            foreach ($pedidos as $pedido) {
+                $notasdentrega[] = $this->venta_model->get_nota_entrega($pedido->pedido_id);
             }
         }
-        //$html = $this->load->view('menu/reportes/rtfNotaDeEntrega', $result,true);
-        $notasdentrega = $result['notasdentrega'];
-
-
-//        for ($n = 0; $n < count($notasdentrega); $n++) {
-//
-//            echo $notasdentrega[$n][0]['venta_id'];
-//        }
 
         $cantidad_paginas = count($notasdentrega);
 
@@ -2870,21 +2853,55 @@ class venta extends MY_Controller
         $word = new \PhpOffice\PhpWord\PhpWord();
         $template = new \PhpOffice\PhpWord\TemplateProcessor(base_url('recursos/formatos/notaentrega/' . $template_name));
 
-        $detalle_index = 0;
-        for ($n = 0; $n < $cantidad_paginas; $n++) {
-            $ne = $notasdentrega[$n][0];
+        $index = 1;
 
-            $index = $n + 1;
-            $template->setValue('num-ne' . $index, $ne['venta_id']);
+        foreach ($notasdentrega as $ne) {
+            $total_importe = 0;
+            $template->setValue('num-ne' . $index, $ne->venta_id);
             $template->setValue('empresa' . $index, htmlentities(valueOption('EMPRESA_NOMBRE', 'TEAYUDO')));
-            $template->setValue('cnld' . $index, $ne['consolidado_id']);
-            $template->setValue('nombre_cliente' . $index, $ne['cliente']);
-            $template->setValue('fecha' . $index, date('d/m/Y', strtotime($ne['fechaemision'])));
-            $template->setValue('hora' . $index, date('H:i:s', strtotime($ne['fechaemision'])));
-            $template->setValue('vendedor' . $index, $ne['vendedor']);
-            $template->setValue('direccion_entrega' . $index, $ne['clienteDireccion']);
-            $template->setValue('condicion' . $index, $ne['nombre_condiciones']);
+            $template->setValue('cnld' . $index, $ne->consolidado_id);
+            $template->setValue('nombre_cliente' . $index, $ne->cliente);
+            $template->setValue('fecha' . $index, date('d/m/Y', strtotime($ne->fecha_emision)));
+            $template->setValue('hora' . $index, date('H:i:s', strtotime($ne->fecha_emision)));
+            $template->setValue('vendedor' . $index, $ne->vendedor);
+            $template->setValue('direccion_entrega' . $index, $ne->direccion);
+            $template->setValue('condicion' . $index, $ne->condicion);
+
+            for ($i = 0; $i < 20; $i++) {
+                $codigo = '';
+                $prod = '';
+                $presentacion = '';
+                $cantidad = '';
+                $precio = '';
+                $importe = '';
+
+                if (isset($ne->detalles[$i])) {
+                    $codigo = sumCod($ne->detalles[$i]->codigo, 4);
+                    $prod = $ne->detalles[$i]->nombre;
+                    $presentacion = $ne->detalles[$i]->presentacion;
+                    $cantidad = $ne->detalles[$i]->cantidad;
+                    $precio = $ne->detalles[$i]->precio;
+                    $importe = $ne->detalles[$i]->importe;
+                }
+
+                $dindex = $index . '-' . ($i + 1);
+                $template->setValue('cp' . $dindex, $codigo);
+                $template->setValue('nombre-producto' . $dindex, htmlspecialchars($prod));
+                $template->setValue('present' . $dindex, htmlspecialchars($presentacion));
+                $template->setValue('ct' . $dindex, $cantidad);
+                $template->setValue('pre' . $dindex, $precio);
+                $template->setValue('total' . $dindex, $importe);
+
+                $total_importe += $importe;
+            }
+
+            $template->setValue('total_imp' . $index, formatPrice($total_importe));
+            $template->setValue('total_letras' . $index, numtoletras($total_importe));
+
+            $index++;
         }
+
+
 
         $template->saveAs(sys_get_temp_dir() . '/notaentrega_temp.docx');
         header("Content-Disposition: attachment; filename='notaentrega.docx'");
