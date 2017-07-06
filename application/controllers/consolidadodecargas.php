@@ -188,6 +188,18 @@ class consolidadodecargas extends MY_Controller
         }
 
         $data['id_consolidado'] = $id;
+
+        $data['consolidado_detalle'] = $this->db->select('
+            c.consolidado_id as consolidado_id,
+            camion.camiones_placa AS placa,
+            chofer.nombre AS chofer
+        ')
+            ->from('consolidado_carga AS c')
+            ->join('camiones AS camion', 'camion.camiones_id = c.camion')
+            ->join('usuario AS chofer', 'chofer.nUsuCodigo = camion.id_trabajadores')
+            ->where('c.consolidado_id', $id)
+            ->get()->row();
+
         $this->load->view('menu/consolidadodecargas/consolidadoLiquidacion', $data);
     }
 

@@ -293,15 +293,15 @@
 
     $(function () {
 
-        var id_venta = '<?php echo $id_venta; ?>';
-        var consolidado_id = '<?= isset($consolidado_id) ? $consolidado_id : "" ?>';
+        var id_venta = '<?= count($notasdentrega) == 1 ? $ventas[0]['venta_id'] : ''?>';
+        var consolidado_id = '<?= count($notasdentrega) > 1 && isset($consolidado_id) ? $consolidado_id : ''?>';
         $("#imprimir").click(function () {
 
             if (consolidado_id == '') {
                 var id = id_venta;
                 var tipo = 'VENTA';
             } else {
-                var id = consolidado_id
+                var id = consolidado_id;
                 var tipo = 'CONSOLIDADO';
             }
 

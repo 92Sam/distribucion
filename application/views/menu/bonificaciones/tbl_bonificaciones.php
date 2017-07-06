@@ -93,8 +93,11 @@
 </div>
 
 
+
 <script>
-//    $(function () {
-//        TablesDatatablesBonos.init();
-//    });
+
+    $(function () {
+        DT.init('tableyiop');
+    });
+
 </script>

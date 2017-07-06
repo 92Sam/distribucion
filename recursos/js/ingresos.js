@@ -142,9 +142,7 @@ $(document).ready(function () {
                     }
                 }
 
-                $("#unidades ")
-                    .html(
-                        '<option value="">Seleccione</option>');
+                $("#unidades ").html('');
 
                 $("#unidades")
                     .append(options);
@@ -844,7 +842,9 @@ function refreshProductos() {
                 options += '<option  value="'
                     + data[i].producto_id
                     + '">'
-                    + data[i].producto_nombre
+                    + sumCod(data[i].producto_id, 4) + ' - '
+                    + data[i].producto_nombre + ' - '
+                    + data[i].presentacion
                     + '</option>';
 
 

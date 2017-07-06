@@ -5,7 +5,10 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title">N° de Liquidación de Guia de Carga => <?= $id_consolidado ?></h4>
+                <h4 class="modal-title">N° de Liquidación de Guia de Carga =>
+                    CNLD: <?= $id_consolidado ?>, Camion: <?= $consolidado_detalle->placa ?>,
+                    Chofer: <?= $consolidado_detalle->chofer ?>
+                </h4>
                 <input type="hidden" value="<?= $id_consolidado ?>" id="con_id">
             </div>
 
@@ -51,7 +54,7 @@
                                                 data-pedido_id="<?= $consolidadoDetalles['venta_id']; ?>"
                                                 class="btn btn-sm btn-<?= $consolidadoDetalles['venta_status'] == 'ENVIADO' ? 'default' : 'warning' ?> liquidar_pedido">
                                             <i
-                                                class="fa fa-refresh"></i>
+                                                    class="fa fa-refresh"></i>
                                             <?= $consolidadoDetalles['venta_status'] == 'ENVIADO' ? 'Liquidar' : 'Cambiar' ?>
                                         </button>
                                     </td>
@@ -65,8 +68,8 @@
                     <br>
                     <h3 style="font-weight:bold;">
                         <label class="control-label badge b-warning"> Monto total cobrado:
-                        <span
-                            style="font-weight:bold;"><?= isset($total_liquidado) ? MONEDA . ' ' . number_format($total_liquidado, 2) : 'S/. 0.00'; ?></span>
+                            <span
+                                    style="font-weight:bold;"><?= isset($total_liquidado) ? MONEDA . ' ' . number_format($total_liquidado, 2) : 'S/. 0.00'; ?></span>
                         </label>
                     </h3>
 
@@ -122,13 +125,12 @@
         function pedidoDevolucion(id) {
 
 
-                var win = window.open('<?= $ruta ?>consolidadodecargas/pedidoDevolucion/' + id, '_blank');
-                win.focus();
+            var win = window.open('<?= $ruta ?>consolidadodecargas/pedidoDevolucion/' + id, '_blank');
+            win.focus();
 
-                grupo.ajaxgrupo().success(function (data) {
+            grupo.ajaxgrupo().success(function (data) {
 
-                });
-
+            });
 
 
         }
