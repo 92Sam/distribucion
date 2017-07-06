@@ -1050,7 +1050,9 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
                     ->join('bonificaciones_has_producto', 'bonificaciones_has_producto.id_bonificacion = bonificaciones.id_bonificacion')
                     ->where('bonificaciones_has_producto.id_producto', $detalle->producto_id)
                     ->where('bonificaciones.id_unidad', $detalle->unidad_id)
-                    ->where('bonificaciones.id_grupos_cliente', $venta->grupo_id);
+                    ->where('bonificaciones.cantidad_condicion <=', $detalle->cantidad)
+                    ->where('bonificaciones.id_grupos_cliente', $venta->grupo_id)
+                    ->order_by('bonificaciones.cantidad_condicion', 'DESC');
 
                 $detalle->bonus_dato = $this->db->get()->row();
             }
@@ -2331,7 +2333,8 @@ LEFT JOIN ingreso ON ingreso.id_ingreso = detalleingreso.id_ingreso WHERE id_pro
                     p.presentacion AS presentacion,
                     dv.cantidad AS cantidad,
                     dv.precio AS precio,
-                    dv.detalle_importe AS importe
+                    dv.detalle_importe AS importe,
+                    dv.bono AS bono
                 ')->from('detalle_venta AS dv')
             ->join('producto AS p', 'p.producto_id = dv.id_producto')
             ->where('dv.id_venta', $venta->venta_id)
