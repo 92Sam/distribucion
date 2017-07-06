@@ -201,6 +201,7 @@ class venta_cobro_model extends CI_Model
             foreach ($cobranza->pagos_pendientes->detalles as $pago) {
                 $temp = new stdClass();
                 $temp->id = $pago->historial_id;
+                $temp->fecha = $pago->fecha;
                 $temp->documento = 'Venta: ' . $cobranza->documento_serie . ' - ' . $cobranza->documento_numero;
                 $temp->vendedor_nombre = $cobranza->vendedor_nombre;
                 $temp->pago_nombre = $pago->pago_nombre;
@@ -249,6 +250,7 @@ class venta_cobro_model extends CI_Model
             foreach ($cobranza->consolidado->detalles as $pago) {
                 $temp = new stdClass();
                 $temp->id = $pago->historial_id;
+                $temp->fecha = $pago->fecha;
                 $temp->documento = 'Venta: ' . $cobranza->documento_serie . ' - ' . $cobranza->documento_numero;
                 $temp->vendedor_nombre = $cobranza->vendedor_nombre;
                 $temp->consolidado = $cobranza->consolidado_id;
@@ -290,6 +292,7 @@ class venta_cobro_model extends CI_Model
         foreach ($pagos as $pago) {
             $temp = new stdClass();
             $temp->id = $pago->historial_id;
+            $temp->fecha = $pago->fecha;
             $temp->documento = 'Conjunto de Efectivos';
             $temp->vendedor_nombre = $pago->vendedor_nombre;
             $temp->pago_nombre = $pago->pago_nombre;

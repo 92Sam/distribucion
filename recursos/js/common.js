@@ -9,6 +9,27 @@ function show_msg(type, msg) {
     });
 }
 
+function sumCod(code, length) {
+    var len = length;
+
+    if (len < code.length) len++;
+
+    var temp = code.split("");
+    temp = temp.reverse();
+
+    var result = [];
+    var n = 0;
+    for (var i = len - 1; i >= 0; i--) {
+        if (temp[n] != undefined)
+            result.push(temp[n++]);
+        else
+            result.push("0");
+    }
+
+    result = result.reverse();
+    return result.join("");
+}
+
 function formatPrice(price, min) {
     if (min == undefined)
         min = 10;

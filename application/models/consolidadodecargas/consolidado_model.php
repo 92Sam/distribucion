@@ -410,6 +410,7 @@ class consolidado_model extends CI_Model
         $this->db->join('banco', 'banco.banco_id=consolidado_detalle.confirmacion_banco_id', 'left');
 
         $this->db->where($where);
+        $this->db->order_by('venta.venta_id', 'ASC');
         $query = $this->db->get()->result_array();
 
         for ($i = 0; $i < count($query); $i++) {

@@ -51,7 +51,7 @@
                                 <a class="btn btn-sm btn-primary" data-toggle="tooltip"
                                    title="Imprimir" data-original-title="Imprimir"
                                    href="#"
-                                   onclick="notaEntrega('<?= isset($consolidado['consolidado_id']) ? $consolidado['consolidado_id'] : 0 ?>', 'VENTA'); ">
+                                   onclick="notaEntrega('<?= isset($consolidado['consolidado_id']) ? $consolidado['consolidado_id'] : 0 ?>', <?= $detalle['venta_id'] ?>); ">
                                     <i class="fa fa-print fa-fw" id="ic"></i></a>
                                 <?php if ($consolidado['status'] == 'ABIERTO'): ?>
                                     <a class="btn btn-sm btn-warning" data-toggle="tooltip"

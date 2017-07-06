@@ -2828,6 +2828,8 @@ class venta extends MY_Controller
             $where = array('consolidado_detalle.pedido_id' => $idventa);
             $result['detalleC'] = $this->consolidado_model->get_detalle_by($where);
             $result['id_venta'] = $idventa;
+            $cd = $this->db->get_where('consolidado_detalle', array('pedido_id' => $idventa))->row();
+            $result['consolidado'] = $this->db->get_where('consolidado_carga', array('consolidado_id' => $cd->consolidado_id))->row();
             $result['retorno'] = 'venta/consultar';
             $this->load->view('menu/ventas/visualizarVenta', $result);
         }
@@ -2900,7 +2902,6 @@ class venta extends MY_Controller
 
             $index++;
         }
-
 
 
         $template->saveAs(sys_get_temp_dir() . '/notaentrega_temp.docx');

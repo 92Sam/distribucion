@@ -2318,7 +2318,7 @@ LEFT JOIN ingreso ON ingreso.id_ingreso = detalleingreso.id_ingreso WHERE id_pro
             ')
             ->from('venta AS v')
             ->join('consolidado_detalle AS cd', 'cd.pedido_id = v.venta_id')
-            ->join('cliente AS c', 'c.id_cliente = v.venta_id')
+            ->join('cliente AS c', 'c.id_cliente = v.id_cliente')
             ->join('usuario AS u', 'u.nUsuCodigo = v.id_vendedor')
             ->join('condiciones_pago AS cond', 'cond.id_condiciones = v.condicion_pago')
             ->where('v.venta_id', $venta_id)

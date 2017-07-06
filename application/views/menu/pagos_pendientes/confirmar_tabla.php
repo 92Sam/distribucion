@@ -26,6 +26,7 @@
         <thead>
         <tr>
             <th>DOC</th>
+            <th>Fecha Operacion</th>
             <th>Vendedor</th>
             <th>Monto</th>
         </tr>
@@ -34,6 +35,7 @@
         <?php foreach ($pagos->pendientes as $pago): ?>
             <tr id="row_<?= $pago->id ?>">
                 <td><?= $pago->documento ?></td>
+                <td><?= date('d/m/Y H:i:s', strtotime($pago->fecha)) ?></td>
                 <td><?= $pago->vendedor_nombre ?></td>
                 <td><?= MONEDA . ' ' . number_format($pago->monto, 2) ?></td>
             </tr>
@@ -61,6 +63,7 @@
         <tr>
             <th><input type="checkbox" id="select_all"></th>
             <th>Descripci&oacute;n</th>
+            <th>Fecha Operacion</th>
             <th>Vendedor</th>
             <th>Medio de Pago</th>
             <th>Destino</th>
@@ -75,6 +78,7 @@
             <tr>
                 <td><input type="checkbox" class="select_all" value="<?= $pago->id ?>"></td>
                 <td><?= $pago->documento ?></td>
+                <td><?= date('d/m/Y H:i:s', strtotime($pago->fecha)) ?></td>
                 <td><?= $pago->vendedor_nombre ?></td>
                 <td><?= $pago->pago_nombre ?></td>
                 <td>
@@ -139,6 +143,7 @@
         <thead>
         <tr>
             <th>Descripci&oacute;n</th>
+            <th>Fecha Operacion</th>
             <th>Consolidado</th>
             <th>Vendedor</th>
             <th>Medio de Pago</th>
@@ -156,6 +161,7 @@
                     <input type="hidden" class="con_pagos_<?= $pago->consolidado ?>" value="<?= $pago->id ?>">
                     <?= $pago->documento ?>
                 </td>
+                <td><?= date('d/m/Y H:i:s', strtotime($pago->fecha)) ?></td>
                 <td><?= sumCod($pago->consolidado, 5) ?></td>
                 <td><?= $pago->vendedor_nombre ?></td>
                 <td><?= $pago->pago_nombre ?></td>
