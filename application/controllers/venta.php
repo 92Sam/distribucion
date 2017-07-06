@@ -2880,6 +2880,7 @@ class venta extends MY_Controller
                 if (isset($ne->detalles[$i])) {
                     $codigo = sumCod($ne->detalles[$i]->codigo, 4);
                     $prod = $ne->detalles[$i]->nombre;
+                    $prod .= $ne->detalles[$i]->bono == 1 ? ' -- BONO' : '';
                     $presentacion = $ne->detalles[$i]->presentacion;
                     $cantidad = $ne->detalles[$i]->cantidad;
                     $precio = $ne->detalles[$i]->precio;
