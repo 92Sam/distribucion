@@ -1538,7 +1538,7 @@ function calculatotales(producto_id, producto_nombre, unidad_nombre, cantidad, p
     } else
         tr += "<td> -- </td>";
     tr +=
-        "<td>" + subtotal + "</td>" +
+        "<td>" + parseFloat(subtotal).toFixed(2) + "</td>" +
         "<td>";
     if (precio_sugerido > 0 && $("#edit_pedido").val() == 1) {
         tr += "<a href='#' data-toggle='tooltip' tittle='Aceptar Precio Sugerido' data-original-title='Aceptar Precio Sugerido' onclick='aplicarPrecioSugerido(" + count + ", " + cantidad + ", " + porcentaje_impuesto + ",  \"" + cualidad + "\", " + precio_sugerido + ", " + producto_id + " )' class='btn btn-default'><i class='fa fa-check-circle'></i> </a>";
@@ -1563,13 +1563,12 @@ function calculatotales(producto_id, producto_nombre, unidad_nombre, cantidad, p
     $("#tbodyproductos").append(tr);
     $("#preciostbody").html('');
     $("#cantidad").val('');
-    var impuesto = parseFloat((subtotal * (porcentaje_impuesto / 100))).toFixed(2);
-    var nuevoimpuesto = parseFloat(impuesto) + parseFloat($("#montoigv").val());
     var nuevototal = (parseFloat(subtotal) + parseFloat($("#totApagar").val())).toFixed(2);
+    var sub = parseFloat(nuevototal / 1.18);
     document.getElementById('totApagar').value = parseFloat(nuevototal).toFixed(2);
     $('#totApagar2').html(nuevototal);
-    document.getElementById('montoigv').value = nuevoimpuesto;
-    document.getElementById('subTotal').value = parseFloat(nuevototal - nuevoimpuesto).toFixed(2);
+    document.getElementById('subTotal').value = parseFloat(sub).toFixed(2);
+    document.getElementById('montoigv').value = parseFloat(nuevototal - sub).toFixed(2);
 }
 
 function addProductoToArray(producto_id, producto_nombre, unidad_id, unidad_nombre, cantidad, precio, precio_sugerido, subtotal, unidades, producto_cualidad, porcentaje_impuesto, isbono, venta_sin_stock) {

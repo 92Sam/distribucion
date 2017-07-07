@@ -2104,10 +2104,10 @@ class venta extends MY_Controller
             $template->setValue('cnld' . $index, $documentos[$n]->consolidado_id);
             $template->setValue('numero' . $index, $k->serie . "-" . $k->numero);
             $template->setValue('pedido' . $index, sumCod($documentos[$n]->pedido_id, 4));
-            $template->setValue('tipo_clien' . $index, $documentos[$n]->tipo_cliente);
-            $template->setValue('cond' . $index, $documentos[$n]->venta_condicion);
+            $template->setValue('tipo_clien' . $index, htmlspecialchars($documentos[$n]->tipo_cliente));
+            $template->setValue('cond' . $index, htmlspecialchars($documentos[$n]->venta_condicion));
             $template->setValue('distrito' . $index, $documentos[$n]->zona_id);
-            $template->setValue('vendedor' . $index, $documentos[$n]->vendedor);
+            $template->setValue('vendedor' . $index, htmlspecialchars($documentos[$n]->vendedor));
             $template->setValue('cliente_id' . $index, $documentos[$n]->cliente_id);
 
             $productos = $this->db->select('
@@ -2144,8 +2144,8 @@ class venta extends MY_Controller
 
                 $index_p = $index . '-' . ($i + 1);
                 $template->setValue('cod' . $index_p, $id);
-                $template->setValue('producto' . $index_p, $nombre);
-                $template->setValue('um' . $index_p, $um);
+                $template->setValue('producto' . $index_p, htmlspecialchars($nombre));
+                $template->setValue('um' . $index_p, htmlspecialchars($um));
                 $template->setValue('c' . $index_p, $cantidad);
                 $template->setValue('prc' . $index_p, $precio);
                 $template->setValue('imp' . $index_p, $importe);
@@ -2229,16 +2229,16 @@ class venta extends MY_Controller
 
             $k = $kardex[count($kardex) - 1];
 
-            $template->setValue('cliente' . $index, $documentos[$n]->razon_social);
+            $template->setValue('cliente' . $index, htmlspecialchars($documentos[$n]->razon_social));
             $template->setValue('ruc' . $index, $documentos[$n]->ruc);
-            $template->setValue('direccion' . $index, $dato->valor);
+            $template->setValue('direccion' . $index, htmlspecialchars($dato->valor));
             $template->setValue('fecha' . $index, date('d/m/Y', strtotime($documentos[$n]->fecha)));
             $template->setValue('fecha_v' . $index, date('d/m/Y', strtotime($documentos[$n]->fecha_vencimiento)));
             $template->setValue('documento' . $index, $k->serie . "-" . $k->numero);
             $template->setValue('pedido' . $index, sumCod($documentos[$n]->pedido_id, 4));
-            $template->setValue('tipo_cliente' . $index, $documentos[$n]->tipo_cliente);
-            $template->setValue('venta_cond' . $index, $documentos[$n]->venta_condicion);
-            $template->setValue('vendedor' . $index, $documentos[$n]->vendedor);
+            $template->setValue('tipo_cliente' . $index, htmlspecialchars($documentos[$n]->tipo_cliente));
+            $template->setValue('venta_cond' . $index, htmlspecialchars($documentos[$n]->venta_condicion));
+            $template->setValue('vendedor' . $index, htmlspecialchars($documentos[$n]->vendedor));
             $template->setValue('cliente_id' . $index, $documentos[$n]->cliente_id);
             $template->setValue('consolidado' . $index, $documentos[$n]->consolidado_id);
 
@@ -2276,8 +2276,8 @@ class venta extends MY_Controller
 
                 $index_p = $index . '-' . ($i + 1);
                 $template->setValue('c' . $index_p, $id);
-                $template->setValue('producto' . $index_p, $nombre);
-                $template->setValue('um' . $index_p, $um);
+                $template->setValue('producto' . $index_p, htmlspecialchars($nombre));
+                $template->setValue('um' . $index_p, htmlspecialchars($um));
                 $template->setValue('ca' . $index_p, $cantidad);
                 $template->setValue('pre' . $index_p, $precio);
                 $template->setValue('imp' . $index_p, $importe);
@@ -2838,11 +2838,13 @@ class venta extends MY_Controller
     public
     function rtfNotaDeEntrega($id = null, $tipo)
     {
+        $text_index = '';
         $notasdentrega = array();
         if ($tipo == 'VENTA') {
             $notasdentrega[] = $this->venta_model->get_nota_entrega($id);
+            $text_index = '_CNLD' . $notasdentrega[0]->consolidado_id . '_NE' . $id;
         } else {
-
+            $text_index = 's_CNLD' . $id;
             $pedidos = $this->db->get_where('consolidado_detalle', array('consolidado_id' => $id))->result();
             foreach ($pedidos as $pedido) {
                 $notasdentrega[] = $this->venta_model->get_nota_entrega($pedido->pedido_id);
@@ -2859,15 +2861,15 @@ class venta extends MY_Controller
 
         foreach ($notasdentrega as $ne) {
             $total_importe = 0;
-            $template->setValue('num-ne' . $index, $ne->venta_id);
-            $template->setValue('empresa' . $index, htmlentities(valueOption('EMPRESA_NOMBRE', 'TEAYUDO')));
+            $template->setValue('num-ne' . $index, $ne->serie . $ne->numero);
+            $template->setValue('empresa' . $index, htmlspecialchars(valueOption('EMPRESA_NOMBRE', 'TEAYUDO')));
             $template->setValue('cnld' . $index, $ne->consolidado_id);
-            $template->setValue('nombre_cliente' . $index, $ne->cliente);
+            $template->setValue('nombre_cliente' . $index, htmlspecialchars($ne->cliente));
             $template->setValue('fecha' . $index, date('d/m/Y', strtotime($ne->fecha_emision)));
             $template->setValue('hora' . $index, date('H:i:s', strtotime($ne->fecha_emision)));
-            $template->setValue('vendedor' . $index, $ne->vendedor);
-            $template->setValue('direccion_entrega' . $index, $ne->direccion);
-            $template->setValue('condicion' . $index, $ne->condicion);
+            $template->setValue('vendedor' . $index, htmlspecialchars($ne->vendedor));
+            $template->setValue('direccion_entrega' . $index, htmlspecialchars($ne->direccion));
+            $template->setValue('condicion' . $index, htmlspecialchars($ne->condicion));
 
             for ($i = 0; $i < 20; $i++) {
                 $codigo = '';
@@ -2906,7 +2908,7 @@ class venta extends MY_Controller
 
 
         $template->saveAs(sys_get_temp_dir() . '/notaentrega_temp.docx');
-        header("Content-Disposition: attachment; filename='notaentrega.docx'");
+        header("Content-Disposition: attachment; filename='notaentrega" . $text_index . ".docx'");
         readfile(sys_get_temp_dir() . '/notaentrega_temp.docx'); // or echo file_get_contents($temp_file);
         unlink(sys_get_temp_dir() . '/notaentrega_temp.docx');
 
@@ -2959,10 +2961,10 @@ class venta extends MY_Controller
             $template->setValue('cnld' . $index, $documentos[$n]->consolidado_id);
             $template->setValue('numero' . $index, $documentos[$n]->serie . "-" . $documentos[$n]->numero);
             $template->setValue('pedido' . $index, sumCod($documentos[$n]->pedido_id, 4));
-            $template->setValue('tipo_clien' . $index, $documentos[$n]->tipo_cliente);
-            $template->setValue('cond' . $index, $documentos[$n]->venta_condicion);
+            $template->setValue('tipo_clien' . $index, htmlspecialchars($documentos[$n]->tipo_cliente));
+            $template->setValue('cond' . $index, htmlspecialchars($documentos[$n]->venta_condicion));
             $template->setValue('distrito' . $index, $documentos[$n]->zona_id);
-            $template->setValue('vendedor' . $index, $documentos[$n]->vendedor);
+            $template->setValue('vendedor' . $index, htmlspecialchars($documentos[$n]->vendedor));
             $template->setValue('cliente_id' . $index, $documentos[$n]->cliente_id);
 
             $productos = $this->db->select('
@@ -2999,8 +3001,8 @@ class venta extends MY_Controller
 
                 $index_p = $index . '-' . ($i + 1);
                 $template->setValue('cod' . $index_p, $id);
-                $template->setValue('producto' . $index_p, $nombre);
-                $template->setValue('um' . $index_p, $um);
+                $template->setValue('producto' . $index_p, htmlspecialchars($nombre));
+                $template->setValue('um' . $index_p, htmlspecialchars($um));
                 $template->setValue('c' . $index_p, $cantidad);
                 $template->setValue('prc' . $index_p, $precio);
                 $template->setValue('imp' . $index_p, $importe);
@@ -3071,16 +3073,16 @@ class venta extends MY_Controller
             ))->row();
 
             $index = $n + 1;
-            $template->setValue('cliente' . $index, $documentos[$n]->razon_social);
+            $template->setValue('cliente' . $index, htmlspecialchars($documentos[$n]->razon_social));
             $template->setValue('ruc' . $index, $documentos[$n]->ruc);
-            $template->setValue('direccion' . $index, $dato->valor);
+            $template->setValue('direccion' . $index, htmlspecialchars($dato->valor));
             $template->setValue('fecha' . $index, date('d/m/Y', strtotime($documentos[$n]->fecha)));
             $template->setValue('fecha_v' . $index, date('d/m/Y', strtotime($documentos[$n]->fecha_vencimiento)));
             $template->setValue('documento' . $index, $documentos[$n]->serie . "-" . $documentos[$n]->numero);
             $template->setValue('pedido' . $index, sumCod($documentos[$n]->pedido_id, 4));
-            $template->setValue('tipo_cliente' . $index, $documentos[$n]->tipo_cliente);
-            $template->setValue('venta_cond' . $index, $documentos[$n]->venta_condicion);
-            $template->setValue('vendedor' . $index, $documentos[$n]->vendedor);
+            $template->setValue('tipo_cliente' . $index, htmlspecialchars($documentos[$n]->tipo_cliente));
+            $template->setValue('venta_cond' . $index, htmlspecialchars($documentos[$n]->venta_condicion));
+            $template->setValue('vendedor' . $index, htmlspecialchars($documentos[$n]->vendedor));
             $template->setValue('cliente_id' . $index, $documentos[$n]->cliente_id);
             $template->setValue('consolidado' . $index, $documentos[$n]->consolidado_id);
 
@@ -3118,8 +3120,8 @@ class venta extends MY_Controller
 
                 $index_p = $index . '-' . ($i + 1);
                 $template->setValue('c' . $index_p, $id);
-                $template->setValue('producto' . $index_p, $nombre);
-                $template->setValue('um' . $index_p, $um);
+                $template->setValue('producto' . $index_p, htmlspecialchars($nombre));
+                $template->setValue('um' . $index_p, htmlspecialchars($um));
                 $template->setValue('ca' . $index_p, $cantidad);
                 $template->setValue('pre' . $index_p, $precio);
                 $template->setValue('imp' . $index_p, $importe);

@@ -2311,6 +2311,8 @@ LEFT JOIN ingreso ON ingreso.id_ingreso = detalleingreso.id_ingreso WHERE id_pro
 
         $venta = $this->db->select('
                 v.venta_id AS venta_id,
+                doc_venta.documento_Serie AS serie,
+                doc_venta.documento_Numero AS numero,
                 cd.consolidado_id AS consolidado_id,
                 c.razon_social AS cliente,
                 v.fecha AS fecha_emision,
@@ -2320,6 +2322,7 @@ LEFT JOIN ingreso ON ingreso.id_ingreso = detalleingreso.id_ingreso WHERE id_pro
             ')
             ->from('venta AS v')
             ->join('consolidado_detalle AS cd', 'cd.pedido_id = v.venta_id')
+            ->join('documento_venta AS doc_venta', 'doc_venta.id_tipo_documento = v.numero_documento')
             ->join('cliente AS c', 'c.id_cliente = v.id_cliente')
             ->join('usuario AS u', 'u.nUsuCodigo = v.id_vendedor')
             ->join('condiciones_pago AS cond', 'cond.id_condiciones = v.condicion_pago')
