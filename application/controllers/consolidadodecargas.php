@@ -759,13 +759,13 @@ class consolidadodecargas extends MY_Controller
             $index = $n + 1;
             $template->setValue('fecha_e' . $index, date('d/m/Y', strtotime($remision->fecha_emision)));
             $template->setValue('fecha_t' . $index, date('d/m/Y', strtotime($remision->fecha_traslado)));
-            $template->setValue('placa' . $index, $remision->placa);
-            $template->setValue('transportista' . $index, $remision->transportista);
+            $template->setValue('placa' . $index, htmlspecialchars($remision->placa));
+            $template->setValue('transportista' . $index, htmlspecialchars($remision->transportista));
 
             $template->setValue('cliente' . $index, 'VARIOS');
             $template->setValue('ruc' . $index, '');
-            $template->setValue('direccion' . $index, $distrito->distrito);
-            $template->setValue('llegada' . $index, $distrito->distrito);
+            $template->setValue('direccion' . $index, htmlspecialchars($distrito->distrito));
+            $template->setValue('llegada' . $index, htmlspecialchars($distrito->distrito));
 
             for ($i = 0; $i < 38; $i++) {
                 $id = '';
@@ -789,8 +789,8 @@ class consolidadodecargas extends MY_Controller
                 $index_p = $index . '-' . ($i + 1);
                 $template->setValue($index_p, $id);
                 $template->setValue('c' . $index_p, $cantidad);
-                $template->setValue('u' . $index_p, $um);
-                $template->setValue('producto' . $index_p, $nombre);
+                $template->setValue('u' . $index_p, htmlspecialchars($um));
+                $template->setValue('producto' . $index_p, htmlspecialchars($nombre));
                 $template->setValue('prc' . $index_p, $valor_unitario);
                 $template->setValue('v' . $index_p, $valor_venta);
             }
@@ -839,8 +839,8 @@ class consolidadodecargas extends MY_Controller
             $index = $n + 1;
             $template->setValue('fecha_e' . $index, date('d/m/Y', strtotime($remision->fecha_emision)));
             $template->setValue('fecha_t' . $index, date('d/m/Y', strtotime($remision->fecha_traslado)));
-            $template->setValue('placa' . $index, $remision->placa);
-            $template->setValue('transportista' . $index, $remision->transportista);
+            $template->setValue('placa' . $index, htmlspecialchars($remision->placa));
+            $template->setValue('transportista' . $index, htmlspecialchars($remision->transportista));
 
             $dato = $this->db->get_where('cliente_datos', array(
                 'cliente_id' => $facturas[$n]->cliente_id,
@@ -848,10 +848,10 @@ class consolidadodecargas extends MY_Controller
                 'tipo' => 1
             ))->row();
 
-            $template->setValue('cliente' . $index, $facturas[$n]->razon_social);
+            $template->setValue('cliente' . $index, htmlspecialchars($facturas[$n]->razon_social));
             $template->setValue('ruc' . $index, $facturas[$n]->ruc);
-            $template->setValue('direccion' . $index, $dato->valor);
-            $template->setValue('llegada' . $index, $dato->valor);
+            $template->setValue('direccion' . $index, htmlspecialchars($dato->valor));
+            $template->setValue('llegada' . $index, htmlspecialchars($dato->valor));
 
             $consolidado_detalles_temp = $this->db->select('
             dv.id_producto AS producto_id,
@@ -911,8 +911,8 @@ class consolidadodecargas extends MY_Controller
                 $index_p = $index . '-' . ($i + 1);
                 $template->setValue($index_p, $id);
                 $template->setValue('c' . $index_p, $cantidad);
-                $template->setValue('u' . $index_p, $um);
-                $template->setValue('producto' . $index_p, $nombre);
+                $template->setValue('u' . $index_p, htmlspecialchars($um));
+                $template->setValue('producto' . $index_p, htmlspecialchars($nombre));
                 $template->setValue('prc' . $index_p, $valor_unitario);
                 $template->setValue('v' . $index_p, $valor_venta);
             }
@@ -1032,19 +1032,19 @@ class consolidadodecargas extends MY_Controller
         for ($n = 0; $n < $cantidad_paginas; $n++) {
 
             $index = $n + 1;
-            $template->setValue('cliente' . $index, $notas_credito[$n]->cliente);
+            $template->setValue('cliente' . $index, htmlspecialchars($notas_credito[$n]->cliente));
             $template->setValue('ruc' . $index, $notas_credito[$n]->ruc);
-            $template->setValue('direccion' . $index, $notas_credito[$n]->direccion);
+            $template->setValue('direccion' . $index, htmlspecialchars($notas_credito[$n]->direccion));
             $template->setValue('consolidado' . $index, $notas_credito[$n]->consolidado);
 
             $template->setValue('documento' . $index, $notas_credito[$n]->documento);
             $template->setValue('pedido' . $index, $notas_credito[$n]->pedido);
-            $template->setValue('tipo_cliente' . $index, $notas_credito[$n]->tipo_cliente);
-            $template->setValue('venta_cond' . $index, $notas_credito[$n]->venta_condicion);
+            $template->setValue('tipo_cliente' . $index, htmlspecialchars($notas_credito[$n]->tipo_cliente));
+            $template->setValue('venta_cond' . $index, htmlspecialchars($notas_credito[$n]->venta_condicion));
             $template->setValue('fecha' . $index, date('d/m/Y', strtotime($notas_credito[$n]->fecha)));
             $template->setValue('fecha_v' . $index, date('d/m/Y', strtotime($notas_credito[$n]->fecha_venta)));
-            $template->setValue('vendedor' . $index, $notas_credito[$n]->vendedor);
-            $template->setValue('cliente_id' . $index, $notas_credito[$n]->cliente_id);
+            $template->setValue('vendedor' . $index, htmlspecialchars($notas_credito[$n]->vendedor));
+            $template->setValue('cliente_id' . $index, htmlspecialchars($notas_credito[$n]->cliente_id));
 
             $detalle_index = 0;
             $total = 0;
@@ -1070,8 +1070,8 @@ class consolidadodecargas extends MY_Controller
 
                 $index_p = $index . '-' . ($i + 1);
                 $template->setValue('c' . $index_p, $codigo);
-                $template->setValue('producto' . $index_p, $producto);
-                $template->setValue('um' . $index_p, $um);
+                $template->setValue('producto' . $index_p, htmlspecialchars($producto));
+                $template->setValue('um' . $index_p, htmlspecialchars($um));
                 $template->setValue('ca' . $index_p, $cantidad);
                 $template->setValue('pre' . $index_p, $precio);
                 $template->setValue('imp' . $index_p, $importe);
@@ -1159,13 +1159,13 @@ class consolidadodecargas extends MY_Controller
 
 
         //CABECERA
-        $template->setValue('empresa', htmlentities(valueOption('EMPRESA_NOMBRE', 'TEAYUDO')));
+        $template->setValue('empresa', htmlspecialchars(valueOption('EMPRESA_NOMBRE', 'TEAYUDO')));
         $template->setValue('fecha', date('d/m/Y', strtotime($consolidado->fecha)));
         $template->setValue('numero_consolidado', $consolidado->consolidado_id);
-        $template->setValue('responsable', htmlentities($consolidado->responsable));
-        $template->setValue('camion', htmlentities($consolidado->camion));
-        $template->setValue('zona', htmlentities($zonas));
-        $template->setValue('chofer', htmlentities($consolidado->chofer));
+        $template->setValue('responsable', htmlspecialchars($consolidado->responsable));
+        $template->setValue('camion', htmlspecialchars($consolidado->camion));
+        $template->setValue('zona', htmlspecialchars($zonas));
+        $template->setValue('chofer', htmlspecialchars($consolidado->chofer));
 
         //PRODUCTOS
         $productos = $this->db->select('
@@ -1212,7 +1212,7 @@ class consolidadodecargas extends MY_Controller
         $total = 0;
         foreach ($grupos as $grupo) {
 
-            $template->setValue('linea_' . ++$index, htmlentities($grupo['nombre']));
+            $template->setValue('linea_' . ++$index, htmlspecialchars($grupo['nombre']));
 
             $template->cloneRow('cod_prod_' . $index, count($grupo['productos']));
             $index_p = 0;
@@ -1221,8 +1221,8 @@ class consolidadodecargas extends MY_Controller
 
                 $template->setValue('cod_prod_' . $index . '#' . ++$index_p, sumCod($producto->codigo, 4));
                 $template->setValue('producto_nombre_' . $index . '#' . $index_p, htmlspecialchars($producto->producto));
-                $template->setValue('unidad_' . $index . '#' . $index_p, $producto->um);
-                $template->setValue('medida_' . $index . '#' . $index_p, $producto->medida);
+                $template->setValue('unidad_' . $index . '#' . $index_p, htmlspecialchars($producto->um));
+                $template->setValue('medida_' . $index . '#' . $index_p, htmlspecialchars($producto->medida));
                 $template->setValue('cantidad_' . $index . '#' . $index_p, $producto->cantidad);
 
                 $subtotal += $producto->cantidad;
