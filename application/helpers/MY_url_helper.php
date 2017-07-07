@@ -1,5 +1,17 @@
 <?php
 
+function get_pago($id){
+    $pagos = array(
+        '3'=>'EFECTIVO',
+        '4'=>'DEPOSITO',
+        '5'=>'CHEQUE',
+        '6'=>'NOTA DE CREDITO',
+        '7'=>'RETENCION'
+    );
+    
+    return $pagos[$id];
+}
+
 function formatPrice($price, $min = 10) {
     $r = number_format($price, 2, '.', '');
     $round = explode('.', $r);

@@ -17,6 +17,7 @@
                     <th>Movimiento</th>
                     <th>Operacion</th>
                     <th>Pago</th>
+                    <th>Motivo</th>
                     <th>Saldo</th>
                 </tr>
                 </thead>
@@ -30,7 +31,8 @@
                         <td><?= $mov->usuario_nombre ?></td>
                         <td><?= $mov->movimiento ?></td>
                         <td><?= $mov->operacion ?></td>
-                        <td><?= $mov->medio_pago ?></td>
+                        <td><?= $mov->medio_pago != 'INTERNO' ? get_pago($mov->medio_pago) : $mov->medio_pago ?></td>
+                        <td><?= $mov->ref_val ?></td>
                         <td><?= $mov->moneda_id == 1 ? MONEDA : DOLAR ?> <?= number_format($mov->saldo, 2) ?></td>
                     </tr>
 
