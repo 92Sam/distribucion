@@ -568,7 +568,6 @@ function hacerventa(imprimir, flag) {
     }
 
 
-
     if ($("#id_cliente").val() == '') {
         alertModal('<h4>Datos incompletos</h4> <p>Debe seleccionar el cliente</p>', 'warning', true);
         return false;
@@ -594,7 +593,7 @@ function hacerventa(imprimir, flag) {
         return false;
     }
 
-    if($('#tipo_documento').val() == 'FACTURA' && $('#id_cliente option:selected').attr('data-iden') != 1){
+    if ($('#tipo_documento').val() == 'FACTURA' && $('#id_cliente option:selected').attr('data-iden') != 1) {
         alertModal('<h4>Error.</h4> <p>El cliente debe tener ruc para realizar un pedido con factura</p>', 'warning', true);
         return false;
     }
@@ -700,15 +699,15 @@ function hacerventa(imprimir, flag) {
                                 $("#ventamodal").modal('hide');
                             }
                         } else {
-                            if(data.sin_stock == undefined){
+                            if (data.sin_stock == undefined) {
                                 alertModal('<h4>Error</h4> <p> Ha ocurrido un error al guardar la venta</p>', 'warning', true);
                             } else {
                                 alertModal('<h4>Error</h4> <p> No hay stock para terminar el pedido</p>', 'warning', true);
                                 /*var str = '';
-                                for(var i = 0; i < data.sin_stock.length; i++){
-                                    str += 'Producto: ' + data.sin_stock[i].producto_id + ', cantidad: ' + data.sin_stock[i].cantidad_actual + '<br>';
-                                }
-                                alertModal('<h4>Detalles</h4> <p> '+str+'</p>', 'warning', true);*/
+                                 for(var i = 0; i < data.sin_stock.length; i++){
+                                 str += 'Producto: ' + data.sin_stock[i].producto_id + ', cantidad: ' + data.sin_stock[i].cantidad_actual + '<br>';
+                                 }
+                                 alertModal('<h4>Detalles</h4> <p> '+str+'</p>', 'warning', true);*/
                             }
                             $("#realizarventa").removeClass('disabled');
                             $("#btnRealizarVentaAndView").removeClass('disabled');
@@ -792,7 +791,7 @@ function hacerventa(imprimir, flag) {
                         } else {
                             $("#realizarventa").removeClass('disabled');
                             $("#btnRealizarVentaAndView").removeClass('disabled');
-                            if(data.sin_stock == undefined)
+                            if (data.sin_stock == undefined)
                                 alertModal('<h4>Error</h4> <p> Ha ocurrido un error al guardar la venta</p>', 'warning', true);
                             else {
                                 alertModal('<h4>Error</h4> <p> No hay stock para terminar el pedido</p>', 'warning', true);
@@ -848,6 +847,7 @@ function cambiarnombreprecio() {
         success: function (data) {
 
             for (var i = 0; i < data.length; i++) {
+                // alert(data[i].precio);
                 tr = "<tr tabindex='" + i + "' id='" + data[i].id_unidad + "'>" +
                     "<td>" +
                     "<input type='hidden' name='unidadnombre' id='unidadnombre" + data[i].id_unidad + "' value='" + data[i].nombre_unidad + "'/>" + data[i].nombre_unidad + "</td>" +
@@ -856,7 +856,8 @@ function cambiarnombreprecio() {
                 if (data[i].nombre_precio == $("#tituloprecio").text()) {
                     tr += "<td><input type='hidden' name='unidadprecio' id='unidadprecio" + data[i].id_unidad + "' value='" + data[i].precio + "'/>" +
                         "<input type='hidden' name='porcentaje_impuesto' id='porcentaje_impuesto" + data[i].id_unidad + "' value='" + data[i].porcentaje_impuesto + "'/>" +
-                        "<input type='hidden' name='unidaddescuento' id='unidaddescuento" + data[i].id_unidad + "' value='" + data[i].descuento_precio + "'/><span id='precio_unidad_" + data[i].id_unidad + "'>" + data[i].precio + "</span></td>";
+                        "<input type='hidden' name='unidaddescuento' id='unidaddescuento" + data[i].id_unidad + "' value='" + data[i].descuento_precio + "'/>" +
+                        "<span id='precio_unidad_" + data[i].id_unidad + "' data-precio='" + data[i].precio + "'></span></td>";
                 }
                 tr += "</tr>";
                 $("#preciostbody").append(tr);
@@ -1232,16 +1233,15 @@ function addBonosToTable(lacantidadcomprada, unidadseleccionada, idprpod, cantid
     var cantidad_tomar_en_cuenta_AUX = lacantidadcomprada;
 
 
-
     jQuery.each(bonos_arr, function (o, values) {
-        var cantidad_p=0;
+        var cantidad_p = 0;
         jQuery.each(values, function (i, bonito) {
             cantidad_p = 0;
             jQuery.each(lst_producto, function (mm, produtyy) {
                 // if (parseInt(produtyy.id_producto) === parseInt(bonito.bono_id)) {
                 jQuery.each(bonito.bonificaciones_has_producto, function (oo, bonificicion_has_ppp) {
                     var esigual = parseInt(bonificicion_has_ppp.id_producto) === parseInt(produtyy.id_producto);
-                   // console.log(esigual);
+                    // console.log(esigual);
                     if (esigual === true && produtyy.bono != 'true') {
 
                         cantidad_p = parseFloat(produtyy.cantidad) + cantidad_p;
@@ -1270,7 +1270,7 @@ function addBonosToTable(lacantidadcomprada, unidadseleccionada, idprpod, cantid
             var newcantidad = vecesbono * parseFloat(bonito.bono_cantidad);
             cantidad_bonificar = cantidad_bonificar + newcantidad;
             //  console.log(cantidad_bonificar);
-            console.log(newcantidad+ ' newcantidad');
+            console.log(newcantidad + ' newcantidad');
             //console.log(vecesbono+ ' vecesbono');
 
             console.log(cantidad_tomar_en_cuenta);
@@ -1282,7 +1282,6 @@ function addBonosToTable(lacantidadcomprada, unidadseleccionada, idprpod, cantid
                 var elbonito = new Array();
                 elbonito = bonito;
                 elbonito.bono_cantidad = cantidad_bonificar;
-
 
 
                 /******busco para ver si el bono ya existe********/
@@ -1308,7 +1307,7 @@ function addBonosToTable(lacantidadcomprada, unidadseleccionada, idprpod, cantid
                 console.log('cantidad_tomar_en_cuentaaaa' + cantidad_tomar_en_cuenta);
 
                 console.log('vecesbono' + vecesbono);
-                console.log(' elbonito.bono_cantidad' +  elbonito.bono_cantidad);
+                console.log(' elbonito.bono_cantidad' + elbonito.bono_cantidad);
                 console.log('cantidad_bonificar' + cantidad_bonificar);
                 console.log('bonito.condicion_cantidad' + bonito.condicion_cantidad);
                 //console.log(bonito.condicion_cantidad);
@@ -1365,14 +1364,14 @@ function addBonosToTable(lacantidadcomprada, unidadseleccionada, idprpod, cantid
                     if ((lacantidadcomprada != 0 && countarcoinci >= 1 && parseFloat(cantidad_tomar_en_cuenta_temp) < parseFloat(values[0].condicion_cantidad) ) ||
                         (lacantidadcomprada == 0 && countarcoinci >= 1 && (
 
-                            ( cantidad_tomar_en_cuenta_temp<=cantidad_tomar_en_cuenta_AUX || cantidadanterior==cantidad_tomar_en_cuenta_AUX)
+                            ( cantidad_tomar_en_cuenta_temp <= cantidad_tomar_en_cuenta_AUX || cantidadanterior == cantidad_tomar_en_cuenta_AUX)
                             //parseFloat(cantidad_tomar_en_cuenta_AUX) < parseFloat(cantidad_tomar_en_cuenta_temp) && cantidadanterior<cantidad_tomar_en_cuenta_temp
 
                         ))) {
                         eliminar = false;
                     }
-                    if(cantidad_tomar_en_cuenta_temp>=bonito.condicion_cantidad && cantidad_tomar_en_cuenta_temp< parseFloat(values[0].condicion_cantidad)){
-                        eliminar=true;
+                    if (cantidad_tomar_en_cuenta_temp >= bonito.condicion_cantidad && cantidad_tomar_en_cuenta_temp < parseFloat(values[0].condicion_cantidad)) {
+                        eliminar = true;
                     }
 
                     console.log(eliminar);
@@ -2032,7 +2031,6 @@ function buscarProducto() {
 }
 
 
-
 function buscarProductoEditar() {
     var id = $("#selectproductos").val();
 
@@ -2096,7 +2094,7 @@ function buscarProductoEditar() {
             if ($("#stockhidden" + id).length > 0) {
 
                 var temp_maxima = 0;
-                if(producto_temp[id] != undefined)
+                if (producto_temp[id] != undefined)
                     temp_maxima = parseFloat(producto_temp[id]);
 
                 var val = (parseFloat(data.existencia_unidad) * parseFloat(data.maxima_unidades)) + parseFloat(data.existencia_fraccion);
@@ -2110,7 +2108,7 @@ function buscarProductoEditar() {
             }
             else {
                 var temp_maxima = 0;
-                if(producto_temp[id] != undefined)
+                if (producto_temp[id] != undefined)
                     temp_maxima = parseFloat(producto_temp[id]);
 
                 $("#inentariocontainer").append('<input id="stockhidden' + id + '" type="hiden" value="0"/><input id="stock_status_' + id + '" type="hiden" value="' + data.stock_status + '"/>');
@@ -2153,7 +2151,7 @@ function buscarProductoEditar() {
 }
 
 var producto_temp = [];
-function add_cantidad_temp(producto_id, cantidad){
+function add_cantidad_temp(producto_id, cantidad) {
     producto_temp[producto_id] = cantidad;
 }
 // Escalas
