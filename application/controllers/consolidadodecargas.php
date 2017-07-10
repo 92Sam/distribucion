@@ -465,6 +465,9 @@ class consolidadodecargas extends MY_Controller
             if ($pedido->venta_status == PEDIDO_RECHAZADO) {
                 //RETORNO TODO EL STOCK
                 $this->venta_model->devolver_all_stock($detalle->pedido_id);
+            } else {
+                if ($pedido->tipo_doc_fiscal == 'BOLETA DE VENTA')
+                    $this->venta_model->set_numero_fiscal($detalle->pedido_id);
             }
 
             if ($detalle->liquidacion_monto_cobrado == 0 || $detalle->liquidacion_monto_cobrado == null) {
@@ -1134,9 +1137,7 @@ class consolidadodecargas extends MY_Controller
             $pedidos = $this->db->get_where('consolidado_detalle', array('consolidado_id' => $id))->result();
             foreach ($pedidos as $pedido) {
                 $venta = $this->db->get_where('venta', array('venta_id' => $pedido->pedido_id))->row();
-                if ($venta->tipo_doc_fiscal == 'BOLETA DE VENTA')
-                    $this->venta_model->set_numero_fiscal($pedido->pedido_id);
-                else
+                if ($venta->tipo_doc_fiscal == 'FACTURA')
                     $this->venta_model->set_numero_fiscal_temp($pedido->pedido_id);
             }
         }
@@ -1258,12 +1259,11 @@ class consolidadodecargas extends MY_Controller
         $n = true;
 
         foreach ($pedidos as $pedido) {
-            if($n){
+            if ($n) {
                 $nota_entrega1 .= $pedido->serie . " - " . $pedido->numero . "\r\n";
                 $estado1 .= $pedido->estado . "\r\n";
                 $n = false;
-            }
-            else{
+            } else {
                 $nota_entrega2 .= $pedido->serie . " - " . $pedido->numero . "\r\n";
                 $estado2 .= $pedido->estado . "\r\n";
                 $n = true;
@@ -1291,9 +1291,7 @@ class consolidadodecargas extends MY_Controller
             $pedidos = $this->db->get_where('consolidado_detalle', array('consolidado_id' => $id))->result();
             foreach ($pedidos as $pedido) {
                 $venta = $this->db->get_where('venta', array('venta_id' => $pedido->pedido_id))->row();
-                if ($venta->tipo_doc_fiscal == 'BOLETA DE VENTA')
-                    $this->venta_model->set_numero_fiscal($pedido->pedido_id);
-                else
+                if ($venta->tipo_doc_fiscal == 'FACTURA')
                     $this->venta_model->set_numero_fiscal_temp($pedido->pedido_id);
             }
         }

@@ -3,6 +3,7 @@
 <div id="inentariocontainer" style="display: none;"></div>
 <input type="hidden" id="producto_cualidad" value="">
 <input type="hidden" id="idlocal" value="<?= $this->session->userdata('id_local'); ?>">
+<input type="hidden" id="pedidos_maximo" value="<?= valueOption('REFRESCAR_PEDIDOS', '20') ?>">
 <style>
     .tr_head {
         background-color: #B1AEAE;

@@ -543,6 +543,16 @@ function alertModal(message, type, disabled) {
 
 function hacerventa(imprimir, flag) {
 
+    var num_pedidos = $('#tbodyproductos tr').length;
+    if(parseInt(num_pedidos) > parseInt($('#pedidos_maximo').val())){
+        $.bootstrapGrowl('<h4>Ha excedido el maximo de productos por pedido.</h4>', {
+            type: 'warning',
+            delay: 2500,
+            allow_dismiss: true
+        });
+        return;
+    }
+
     if ($('#tipo_documento').val() == 'FACTURA') {
         if ($('#razon_social').val() == '') {
             $.bootstrapGrowl('<h4>Debe ingresar razon social</h4>', {

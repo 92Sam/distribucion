@@ -1434,26 +1434,29 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
                 $referencia[] = $ref . $doc_fiscal->documento_serie . '-' . $doc_fiscal->documento_numero;
             }
 
-            $nota_correlativo = $this->db->select_max('numero')
-                ->from('kardex')
-                ->where('IO', 2)
-                ->where('tipo_doc', 7)->get()->row();
+            if ($doc_fiscal->documento_tipo == 'FACTURA') {
 
-            $nota_correlativo = $nota_correlativo->numero != null ? ($nota_correlativo->numero + 1) : 1;
-            $this->kardex_model->insert_kardex(array(
-                'local_id' => $venta->local_id,
-                'producto_id' => $historial->producto_id,
-                'unidad_id' => $historial->unidad_id,
-                'serie' => '0001',
-                'numero' => sumCod($nota_correlativo, 5),
-                'tipo_doc' => 7,
-                'tipo_operacion' => 5,
-                'cantidad' => ($historial->stock * -1),
-                'costo_unitario' => $historial->precio_unitario,
-                'IO' => 2,
-                'ref_id' => $venta_id,
-                'referencia' => implode("|", $referencia)
-            ));
+                $nota_correlativo = $this->db->select_max('numero')
+                    ->from('kardex')
+                    ->where('IO', 2)
+                    ->where('tipo_doc', 7)->get()->row();
+
+                $nota_correlativo = $nota_correlativo->numero != null ? ($nota_correlativo->numero + 1) : 1;
+                $this->kardex_model->insert_kardex(array(
+                    'local_id' => $venta->local_id,
+                    'producto_id' => $historial->producto_id,
+                    'unidad_id' => $historial->unidad_id,
+                    'serie' => '0001',
+                    'numero' => sumCod($nota_correlativo, 5),
+                    'tipo_doc' => 7,
+                    'tipo_operacion' => 5,
+                    'cantidad' => ($historial->stock * -1),
+                    'costo_unitario' => $historial->precio_unitario,
+                    'IO' => 2,
+                    'ref_id' => $venta_id,
+                    'referencia' => implode("|", $referencia)
+                ));
+            }
 
             $stock_actual = $this->db->get_where('inventario', array(
                 'id_producto' => $historial->producto_id,
@@ -1547,21 +1550,23 @@ WHERE detalle_venta.id_venta='$id' group by detalle_venta.id_detalle");
                 $referencia[] = $ref . $doc_fiscal->documento_serie . '-' . $doc_fiscal->documento_numero;
             }
 
+            if ($doc_fiscal->documento_tipo == 'FACTURA') {
 
-            $this->kardex_model->insert_kardex(array(
-                'local_id' => $query_detalle_venta[$i]['local_id'],
-                'producto_id' => $query_detalle_venta[$i]['producto_id'],
-                'unidad_id' => $query_detalle_venta[$i]['unidad_medida'],
-                'serie' => '0001',
-                'numero' => sumCod($nota_correlativo, 5),
-                'tipo_doc' => 7,
-                'tipo_operacion' => 5,
-                'cantidad' => ($query_detalle_venta[$i]['cantidad'] * -1),
-                'costo_unitario' => $query_detalle_venta[$i]['precio'] / 1.18,
-                'IO' => 2,
-                'ref_id' => $id,
-                'referencia' => implode("|", $referencia),
-            ));
+                $this->kardex_model->insert_kardex(array(
+                    'local_id' => $query_detalle_venta[$i]['local_id'],
+                    'producto_id' => $query_detalle_venta[$i]['producto_id'],
+                    'unidad_id' => $query_detalle_venta[$i]['unidad_medida'],
+                    'serie' => '0001',
+                    'numero' => sumCod($nota_correlativo, 5),
+                    'tipo_doc' => 7,
+                    'tipo_operacion' => 5,
+                    'cantidad' => ($query_detalle_venta[$i]['cantidad'] * -1),
+                    'costo_unitario' => $query_detalle_venta[$i]['precio'] / 1.18,
+                    'IO' => 2,
+                    'ref_id' => $id,
+                    'referencia' => implode("|", $referencia),
+                ));
+            }
 
 
             $local = $query_detalle_venta[$i]['local_id'];
