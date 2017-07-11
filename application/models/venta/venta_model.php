@@ -245,29 +245,15 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
         }
 
         // Venta a Credito
-        if ($venta_cabecera['diascondicionpagoinput'] > 0 or ($venta_cabecera['diascondicionpagoinput'] == 0 && $venta_cabecera['importe'] < $venta_cabecera['total'])) {
-            $credito = array(
-                'id_venta' => $venta_id,
-                'dec_credito_montodeuda' => $venta_cabecera['total'],
-                //'var_credito_estado' => ($venta_cabecera['importe'] > 0) ? CREDITO_ACUENTA : CREDITO_DEBE,
-                'var_credito_estado' => CREDITO_DEBE,
-                // 'dec_credito_montodebito' => $venta_cabecera['importe']
-                'dec_credito_montodebito' => 0
-            );
+        $credito = array(
+            'id_venta' => $venta_id,
+            'dec_credito_montodeuda' => $venta_cabecera['total'],
+            'var_credito_estado' => CREDITO_DEBE,
+            'dec_credito_montodebito' => 0
+        );
 
-            //echo $venta_cabecera['venta_tipo'];
 
-            if ($venta_cabecera['venta_tipo'] == 'CAJA') {
-
-                $credito['dec_credito_montodebito'] = $venta_cabecera['importe'];
-
-                if (floatval($venta_cabecera['importe']) != 0.00) {
-                    $credito['var_credito_estado'] = CREDITO_ACUENTA;
-                }
-            }
-
-            $this->db->insert('credito', $credito);
-        }
+        $this->db->insert('credito', $credito);
 
         $this->db->trans_complete();
 
@@ -1434,7 +1420,7 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
                 $referencia[] = $ref . $doc_fiscal->documento_serie . '-' . $doc_fiscal->documento_numero;
             }
 
-            if ($doc_fiscal->documento_tipo == 'FACTURA') {
+            if ($venta->tipo_doc_fiscal == 'FACTURA') {
 
                 $nota_correlativo = $this->db->select_max('numero')
                     ->from('kardex')
@@ -1502,7 +1488,7 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
     {
         $this->db->trans_start(true);
         $this->db->trans_begin();
-
+        $venta = $this->db->get_where('venta', array('venta_id' => $id))->row();
         $this->historial_pedido_model->insertar_pedido(PROCESO_DEVOLVER, array(
             'pedido_id' => $id,
             'responsable_id' => $this->session->userdata('nUsuCodigo'),
@@ -1550,7 +1536,7 @@ WHERE detalle_venta.id_venta='$id' group by detalle_venta.id_detalle");
                 $referencia[] = $ref . $doc_fiscal->documento_serie . '-' . $doc_fiscal->documento_numero;
             }
 
-            if ($doc_fiscal->documento_tipo == 'FACTURA') {
+            if ($venta->tipo_doc_fiscal == 'FACTURA') {
 
                 $this->kardex_model->insert_kardex(array(
                     'local_id' => $query_detalle_venta[$i]['local_id'],
