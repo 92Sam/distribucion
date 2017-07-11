@@ -5,6 +5,7 @@
 <input type="hidden" id="producto_cualidad" value="">
 <input type="hidden" id="devolver" value="<?php echo isset($devolver) ? 'true' : 'false'; ?>">
 <input type="hidden" id="idlocal" value="<?= $this->session->userdata('id_local'); ?>">
+<input type="hidden" id="pedidos_maximo" value="<?= valueOption('REFRESCAR_PEDIDOS', '20') ?>">
 <input type="hidden" id="preciosugerido" value="<?php echo isset($preciosugerido) ? 'true' : 'false'; ?>">
 <script>
     var countproducto = 0;
