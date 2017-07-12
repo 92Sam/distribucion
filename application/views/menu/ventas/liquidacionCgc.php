@@ -385,6 +385,12 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
 
     </div>
 
+    <div class="modal fade" id="noteDeEntrega" tabindex="-1" role="dialog"
+         aria-labelledby="myModalLabel"
+         aria-hidden="true">
+
+    </div>
+
 
     <script>
 

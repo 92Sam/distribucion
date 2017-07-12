@@ -448,7 +448,7 @@ class venta_cobro_model extends CI_Model
         );
         $cuenta = NULL;
 
-        if ($pago->historial_tipopago == 3 || $pago->historial_tipopago == 5) {
+        if ($pago->historial_tipopago == 3 || $pago->historial_tipopago == 5 || $pago->historial_tipopago == 6) {
             $cuenta = $this->cajas_model->get_cuenta($cuenta_id);
 
         } elseif ($pago->historial_tipopago == 4) {
@@ -465,9 +465,13 @@ class venta_cobro_model extends CI_Model
         if ($cuenta != NULL) {
             $data_mov['caja_desglose_id'] = $cuenta->id;
             $data_mov['saldo_old'] = $cuenta->saldo;
+
             $this->cajas_mov_model->save_mov($data_mov);
 
-            $this->cajas_model->update_saldo($cuenta->id, $pago->historial_monto);
+            if ($pago->historial_tipopago != 6) {
+
+                $this->cajas_model->update_saldo($cuenta->id, $pago->historial_monto);
+            }
 
             if ($pago->historial_estatus == 'PENDIENTE' || $pago->historial_estatus == 'CONSOLIDADO') {
                 $this->db->where('historial_id', $id);

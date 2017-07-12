@@ -34,8 +34,10 @@
                         <?php $cerrar_consolidado_flag = true; ?>
                         <?php $devolucion_flag = false; ?>
                         <?php $total_liquidado = 0; ?>
+                        <?php $total_boleta = 0; ?>
                         <?php foreach ($consolidado as $consolidadoDetalles): ?>
                             <tr>
+                                <?php if ($consolidadoDetalles['tipo_doc_fiscal'] == 'BOLETA DE VENTA') $total_boleta++; ?>
                                 <td style="text-align: center"><?= 'NE - ' . $consolidadoDetalles['documento_Numero']; ?></td>
                                 <td style="text-align: center"><?= number_format($consolidadoDetalles['bulto'], 0) ?></td>
                                 <td style="text-align: center"><?= $consolidadoDetalles['razon_social']; ?></td>
@@ -77,47 +79,86 @@
 
 
                     <div class="modal-footer" id="">
-                        <?php if ($cerrar_consolidado_flag && $status == 'IMPRESO'): ?>
-                            <button type="button" id="" class="btn btn-sm btn-primary"
-                                    onclick="grupo.cerrarLiquidacion()">
-                                <li class="glyphicon glyphicon-thumbs-up"></li>
-                                Cerrar Liquidación
-                            </button>
-                        <?php endif; ?>
-                        <button type="button" class="btn btn-sm btn-danger" data-dismiss="modal">
-                            <li class="glyphicon glyphicon-thumbs-down"></li>
-                            Salir
-                        </button>
+
+                        <div class="btn-group">
+                            <a class="btn btn-sm btn-primary" data-toggle="tooltip"
+                               title="Ver Nota" data-original-title="Ver"
+                               href="#"
+                               onclick="notaEntrega('<?= $id_consolidado ?>'); ">
+                                <span>Notas de Entrega</span>
+                            </a>
+                        </div>
                         <?php if ($status == 'CONFIRMADO' || $status == 'CERRADO'): ?>
-                            <?php if ($devolucion_flag): ?>
-                                <div style="float:left; margin-right: 10px">
-                                    <button type="button" class="btn btn-sm btn-info"
-                                            onclick="pedidoDevolucion(<?php echo $id_consolidado ?>);">
-                                        <i class="fa fa-print"></i> Devoluciones
-                                    </button>
-                                </div>
-
-                                <div style="float:left; margin-right: 10px">
-                                    <button type="button" class="btn btn-sm btn-info"
-                                            onclick="imprimir_notas(<?php echo $id_consolidado ?>);">
-                                        <i class="fa fa-print"></i> Notas de Credito
-                                    </button>
-                                </div>
-                            <?php endif; ?>
-                            <?php if ($total_liquidado > 0): ?>
-                                <div style="float:left;">
-                                    <button type="button" class="btn btn-sm btn-info"
-                                            onclick="pedidoPreCancelacion(<?php echo $id_consolidado ?>);">
-                                        <i class="fa fa-print"></i> Pre-Cancelación
-                                    </button>
-                                </div>
-                            <?php endif; ?>
+                        <?php if ($total_boleta != 0): ?>
+                            <div class="btn-group">
+                                <a class="btn btn-sm btn-default" data-toggle="tooltip"
+                                   title="Ver" data-original-title="Ver"
+                                   href="#"
+                                   onclick="impirmirGuiaBoleta('<?= $id_consolidado ?>'); ">
+                                    <span>Guia de remision Boletas</span>
+                                </a>
+                            </div>
                         <?php endif; ?>
 
+
+                        <?php if ($total_boleta != 0): ?>
+                        <div class="btn-group">
+                            <a class="btn btn-sm btn-primary" data-toggle="tooltip"
+                               title="Boletas" data-original-title="Ver"
+                               href="#"
+                               onclick="docFiscal('<?= $id_consolidado ?>'); ">
+                                <span>Boletas de ventas</span>
+                            </a>
+                        </div>
+                            <?php endif; ?>
+                            <?php endif; ?>
+
+                            <?php if ($cerrar_consolidado_flag && $status == 'IMPRESO'): ?>
+                        <div class="btn-group">
+                                <button type="button" id="" class="btn btn-sm btn-primary"
+                                        onclick="grupo.cerrarLiquidacion()">
+                                    <li class="glyphicon glyphicon-thumbs-up"></li>
+                                    Cerrar Liquidación
+                                </button>
+                        </div>
+                            <?php endif; ?>
+
+                            <?php if ($status == 'CONFIRMADO' || $status == 'CERRADO'): ?>
+                                <?php if ($devolucion_flag): ?>
+
+                                    <div class="btn-group">
+                                        <button type="button" class="btn btn-sm btn-info"
+                                                onclick="pedidoDevolucion(<?php echo $id_consolidado ?>);">
+                                            <i class="fa fa-print"></i> Devoluciones
+                                        </button>
+                                    </div>
+
+                                    <div class="btn-group">
+                                        <button type="button" class="btn btn-sm btn-info"
+                                                onclick="imprimir_notas(<?php echo $id_consolidado ?>);">
+                                            <i class="fa fa-print"></i> Notas de Credito
+                                        </button>
+                                    </div>
+                                <?php endif; ?>
+                                <?php if ($total_liquidado > 0): ?>
+                                    <div class="btn-group">
+                                        <button type="button" class="btn btn-sm btn-info"
+                                                onclick="pedidoPreCancelacion(<?php echo $id_consolidado ?>);">
+                                            <i class="fa fa-print"></i> Pre-Cancelación
+                                        </button>
+                                    </div>
+                                <?php endif; ?>
+                            <?php endif; ?>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-sm btn-danger" data-dismiss="modal">
+                                <li class="glyphicon glyphicon-thumbs-down"></li>
+                                Salir
+                            </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
     </form>
 
 
@@ -130,6 +171,47 @@
 
             grupo.ajaxgrupo().success(function (data) {
 
+            });
+
+
+        }
+
+        function notaEntrega(id, venta_id) {
+            var venta = 0;
+            if (venta_id != undefined)
+                venta = venta_id;
+            {
+                $.ajax({
+                    url: '<?php echo $ruta . 'consolidadodecargas/notaEntrega'; ?>',
+                    type: 'POST',
+                    data: {"id": id, 'venta_id': venta},
+                    success: function (data) {
+                        $("#noteDeEntrega").html(data);
+                        $("#noteDeEntrega").modal('show');
+                    }
+                });
+            }
+
+        }
+
+        function impirmirGuiaBoleta(id) {
+
+            var win = window.open('<?= $ruta ?>consolidadodecargas/rtfRemisionBoleta/' + id, '_blank');
+            win.focus();
+
+        }
+
+        function docFiscal(id) {
+
+
+            $.ajax({
+                url: '<?php echo $ruta . 'consolidadodecargas/docFiscalBoleta'; ?>',
+                type: 'POST',
+                data: "id=" + id,
+                success: function (data) {
+                    $("#noteDeEntrega").html(data);
+                    $("#noteDeEntrega").modal('show');
+                }
             });
 
 

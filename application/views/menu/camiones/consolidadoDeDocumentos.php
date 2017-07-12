@@ -83,16 +83,7 @@
             </div>
             <br>
 
-            <?php if ($total_boleta != 0): ?>
-                <div class="btn-group">
-                    <a class="btn btn-sm btn-default" data-toggle="tooltip"
-                       title="Ver" data-original-title="Ver"
-                       href="#"
-                       onclick="impirmirGuiaBoleta('<?php if (isset($consolidado['consolidado_id'])) echo $consolidado['consolidado_id']; ?>'); ">
-                        <span>Guia de remision Boletas</span>
-                    </a>
-                </div>
-            <?php endif; ?>
+
 
             <?php if ($total_factura != 0): ?>
                 <div class="btn-group">
@@ -126,16 +117,6 @@
                     </div>
                 <?php endif; ?>
 
-                <?php if ($total_boleta != 0): ?>
-                    <div class="btn-group">
-                    <a class="btn btn-sm btn-primary" data-toggle="tooltip"
-                       title="Boletas" data-original-title="Ver"
-                       href="#"
-                       onclick="docFiscal('<?php if (isset($consolidado['consolidado_id'])) echo $consolidado['consolidado_id']; ?>'); ">
-                        <span>Boletas de ventas</span>
-                    </a>
-                <?php endif; ?>
-                </div>
             <?php } ?>
 
         </div>
