@@ -24,9 +24,10 @@
     }
 
 </style>
-
+<?php if (count($clientes) == 0 && isset($form_filter)) echo '<h3>No hay resultados para mostrar.</h3>' ?>
 <?php foreach ($clientes as $cliente): ?>
-    <table class="table table-condensed table-bordered">
+    <div class="table-responsive">
+    <table class="table table-condensed table-bordered" id="tabla_<?= $cliente->cliente_id ?>">
         <tbody>
         <tr>
             <th>Cliente</th>
@@ -62,12 +63,12 @@
                     <?= MONEDA ?>
                     <?= number_format($cliente->subtotal_venta - $cliente->subtotal_pago, 2) ?>
                 </label>
-                <?php if($cliente->subtotal_venta - $cliente->subtotal_pago > 0):?>
-                <button style="float: right" type="button" class="b-primary pagar_cliente"
-                        data-cliente_id="<?= $cliente->cliente_id ?>">
-                    <i class="fa fa-money"></i>
-                </button>
-            <?php endif;?>
+                <?php if ($cliente->subtotal_venta - $cliente->subtotal_pago > 0): ?>
+                    <button style="float: right" type="button" class="b-primary pagar_cliente"
+                            data-cliente_id="<?= $cliente->cliente_id ?>">
+                        <i class="fa fa-money"></i>
+                    </button>
+                <?php endif; ?>
             </td>
         </tr>
         <tr>
@@ -105,8 +106,13 @@
                 </td>
                 <td><?= $cobranza->atraso ?></td>
                 <td>
-                    <button type="button" class="b-default ver_pagos"
+                    <button type="button" class="b-primary ver_pagos"
                             data-pedido_id="<?= $cobranza->venta_id ?>">
+                        <i class="fa fa-search"></i>
+                    </button>
+
+                    <button type="button" class="b-default show_detalle"
+                            data-id="<?= $cobranza->venta_id ?>">
                         <i class="fa fa-search"></i>
                     </button>
                 </td>
@@ -115,11 +121,36 @@
         <?php endforeach; ?>
         </tbody>
     </table>
+    </div>
 <?php endforeach; ?>
+
+<div class="modal fade" id="detalle_modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+
+</div>
 
 <script type="text/javascript">
 
     $(document).ready(function () {
+//        var first_table_id = $('.table').attr('id');
+//        if (first_table_id != undefined && $('#cliente_id').val() != 0){
+//            alert(first_table_id)
+//            DT.init(first_table_id);
+//        }
+
+
+        $('.show_detalle').on('click', function (e) {
+            e.preventDefault();
+
+            $.ajax({
+                url: '<?=base_url("reporte_modals/detalle_nota_entrega")?>/' + $(this).attr('data-id'),
+                type: 'GET',
+                success: function (data) {
+                    $('#detalle_modal').html(data);
+                    $('#detalle_modal').modal('show');
+                }
+            })
+        });
 
         $(".pagar_pedido").on('click', function () {
             var id = $(this).attr('data-pedido_id');

@@ -33,17 +33,21 @@ class pago_pendiente extends MY_Controller
                     'zonas_id' => json_decode($this->input->post('zonas_id'))
                 ));
 
+                $data['form_filter'] = true;
+
 
                 echo $this->load->view('menu/pagos_pendientes/tbl_listareg_pagospendiente', $data, true);
                 break;
             }
             default: {
 
-                $data['clientes'] = $this->venta_cobro_model->get_pagos_pendientes(array(
-                    'fecha_ini' => date('Y-m-01'),
-                    'fecha_fin' => date('Y-m-d'),
-                    'fecha_flag' => 0
-                ));
+//                $data['clientes'] = $this->venta_cobro_model->get_pagos_pendientes(array(
+//                    'fecha_ini' => date('Y-m-01'),
+//                    'fecha_fin' => date('Y-m-d'),
+//                    'fecha_flag' => 0
+//                ));
+
+                $data['clientes'] = array();
 
 
                 $data['reporte_filtro'] = $this->load->view('menu/pagos_pendientes/pagospendientes_filtro', array(

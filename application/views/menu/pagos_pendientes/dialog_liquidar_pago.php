@@ -101,13 +101,14 @@
                         <tr>
                             <th><input type="checkbox" id="select_all"></th>
                             <th>DOC</th>
+                            <th>Fecha</th>
                             <th>Monto</th>
                             <th>Acci&oacute;n</th>
                         </tr>
                         </thead>
                         <tbody>
                         <tr style="font-weight: bold;">
-                            <td colspan="2">TOTAL EFECTIVO</td>
+                            <td colspan="3">TOTAL EFECTIVO</td>
                             <td><?= MONEDA . ' ' . number_format($total_efectivo, 2) ?></td>
                             <td></td>
                         </tr>
@@ -115,6 +116,7 @@
                             <tr id="row_<?= $pago->id ?>">
                                 <td><input type="checkbox" class="select_all" value="<?= $pago->id ?>"></td>
                                 <td><?= $pago->documento ?></td>
+                                <td><?= date('d/m/Y H:i:s', strtotime($pago->fecha)) ?></td>
                                 <td>
                                     <?= MONEDA . ' ' ?> <?= number_format($pago->monto, 2) ?>
                                     <span style="display: none;" id="monto_<?= $pago->id ?>"><?= number_format($pago->monto, 2, '.', '') ?></span>
@@ -147,6 +149,7 @@
                                 <th>Medio de Pago</th>
                                 <th>Destino</th>
                                 <th>Operaci&oacute;n</th>
+                                <th>Fecha</th>
                                 <th>Monto</th>
                                 <th>Acci&oacute;n</th>
                             </tr>
@@ -157,6 +160,7 @@
                                     <td><?= $pago->pago_nombre ?></td>
                                     <td><?= $pago->pago_id == 4 ? 'BANCO: ' . $pago->banco_nombre : 'CAJA' ?></td>
                                     <td><?= $pago->num_oper ?></td>
+                                    <td><?= date('d/m/Y H:i:s', strtotime($pago->fecha)) ?></td>
                                     <td><?= MONEDA . ' ' . number_format($pago->monto, 2) ?></td>
                                     <td>
                                         <div class="btn-group">

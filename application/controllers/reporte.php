@@ -109,18 +109,20 @@ class reporte extends MY_Controller
                     'estado' => $this->input->post('estado')
                 ));
 
+                $data['form_filter'] = true;
+
 
                 echo $this->load->view('menu/reports/cliente_estado/tabla', $data, true);
                 break;
             }
             default: {
 
-                $data['clientes'] = $this->rcliente_estado_model->get_estado_cuenta(array(
-                    'fecha_ini' => date('Y-m-01'),
-                    'fecha_fin' => date('Y-m-d'),
-                    'fecha_flag' => 1
-                ));
-
+//                $data['clientes'] = $this->rcliente_estado_model->get_estado_cuenta(array(
+//                    'fecha_ini' => date('Y-m-01'),
+//                    'fecha_fin' => date('Y-m-d'),
+//                    'fecha_flag' => 1
+//                ));
+                $data['clientes'] = array();
 
                 $data['reporte_filtro'] = $this->load->view('menu/reports/cliente_estado/filtros', array(
                     'vendedores' => $this->usuario_model->select_all_by_roll('Vendedor'),

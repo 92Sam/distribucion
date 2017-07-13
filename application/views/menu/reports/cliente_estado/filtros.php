@@ -261,6 +261,7 @@
     });
 
     function filter_cobranzas() {
+        $('#barloadermodal').modal('show');
         $("#charm").tcharm('hide');
         var data = {
             'fecha_ini': $("#fecha_ini").val(),
@@ -290,6 +291,9 @@
             type: 'post',
             success: function (data) {
                 $("#reporte_tabla").html(data);
+            },
+            complete: function(){
+                $('#barloadermodal').modal('hide');
             }
         });
     }

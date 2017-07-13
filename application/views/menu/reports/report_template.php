@@ -18,6 +18,11 @@
 
 </div>
 
+<div class="modal fade" id="detalle_modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+
+</div>
+
 
 <script type="text/javascript">
     <?= isset($reporte_js) ? $reporte_js : '' ?>

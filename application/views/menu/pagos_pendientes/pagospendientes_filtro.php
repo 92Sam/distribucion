@@ -90,7 +90,7 @@
         </div>
         <div class="col-md-4">
             <select id="vendedor_id" name="vendedor_id" class="form-control">
-                <option value="0">Todos</option>
+                <option value="0">Seleccione Vendedor</option>
                 <?php foreach ($vendedores as $vendedor): ?>
                     <option value="<?= $vendedor->nUsuCodigo ?>"><?= $vendedor->nombre ?></option>
                 <?php endforeach; ?>
@@ -168,6 +168,12 @@
         add_checkbox_events();
 
         $('.btn_buscar').on('click', function () {
+
+            if($('#vendedor_id').val() == '0'){
+                show_msg('warning', 'Seleccione un Vendedor');
+                return;
+            }
+
             filter_cobranzas();
         });
 
@@ -231,6 +237,7 @@
     });
 
     function filter_cobranzas() {
+        $('#barloadermodal').modal('show');
         $("#charm").tcharm('hide');
         var data = {
             'fecha_ini': $("#fecha_ini").val(),
@@ -260,6 +267,9 @@
             type: 'post',
             success: function (data) {
                 $("#reporte_tabla").html(data);
+            },
+            complete: function (data) {
+                $('#barloadermodal').modal('hide');
             }
         });
     }

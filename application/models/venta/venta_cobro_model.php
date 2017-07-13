@@ -40,7 +40,6 @@ class venta_cobro_model extends CI_Model
 
         $this->db->where_in('credito.var_credito_estado', array(CREDITO_DEBE, CREDITO_ACUENTA));
 
-
         if (isset($params['cliente_id']) && $params['cliente_id'] != 0)
             $this->db->where('cliente.id_cliente', $params['cliente_id']);
 

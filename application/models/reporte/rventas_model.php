@@ -446,6 +446,7 @@ class rventas_model extends CI_Model
     function get_historial_cobranzas($params)
     {
         $query = "SELECT
+                    v.venta_id AS venta_id,
                     hpc.historial_id AS historial_id,
                     hpc.historial_fecha AS fecha,
                     hpc.historial_monto AS monto,

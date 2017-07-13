@@ -89,16 +89,7 @@
                             </a>
                         </div>
                         <?php if ($status == 'CONFIRMADO' || $status == 'CERRADO'): ?>
-                        <?php if ($total_boleta != 0): ?>
-                            <div class="btn-group">
-                                <a class="btn btn-sm btn-default" data-toggle="tooltip"
-                                   title="Ver" data-original-title="Ver"
-                                   href="#"
-                                   onclick="impirmirGuiaBoleta('<?= $id_consolidado ?>'); ">
-                                    <span>Guia de remision Boletas</span>
-                                </a>
-                            </div>
-                        <?php endif; ?>
+
 
 
                         <?php if ($total_boleta != 0): ?>
