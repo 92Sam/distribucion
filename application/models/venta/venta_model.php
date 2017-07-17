@@ -865,7 +865,7 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
         }
 
         // HAGO LAS BONIFICACIONES
-        if ($space > 0) {
+        if (count($pedido_bonos) > 0) {
             $documentos = $this->db->get_where('documento_fiscal', array(
                 'venta_id' => $venta_id
             ))->result();
