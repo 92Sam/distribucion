@@ -21,6 +21,45 @@ class zona extends MY_Controller
               redirect(base_url() . 'inicio');
           }
       }*/
+
+    function bonos()
+    {
+        $this->load->model('bonificaciones/bonificador_model');
+
+        $productos[] = array(
+            'producto_id' => 43,
+            'unidad_id' => 6,
+            'cantidad' => 100
+        );
+
+        $productos[] = array(
+            'producto_id' => 44,
+            'unidad_id' => 6,
+            'cantidad' => 150
+        );
+
+        $productos[] = array(
+            'producto_id' => 32,
+            'unidad_id' => 6,
+            'cantidad' => 150
+        );
+
+        $productos[] = array(
+            'producto_id' => 27,
+            'unidad_id' => 6,
+            'cantidad' => 140
+        );
+
+        $bonificaciones = $this->bonificador_model->bonificar(1, $productos);
+
+        foreach ($bonificaciones as $b) {
+            echo 'Producto_id: ' . $b['producto_id'] . '<br>';
+            echo 'Unidad_id: ' . $b['unidad_id'] . '<br>';
+            echo 'Cantidad Bono: ' . $b['cantidad'] . '<br>';
+            echo '<br>';
+        }
+    }
+
     function index()
     {
         //$data="";
