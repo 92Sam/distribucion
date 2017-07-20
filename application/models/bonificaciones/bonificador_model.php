@@ -40,6 +40,7 @@ class bonificador_model extends CI_Model
     {
         foreach ($bonos as $b) {
             $cantidad_condicion = 0;
+            $prods_id = array();
             $index = $b->bono_producto_id . '_' . $b->bono_um_id;
 
             $bono_has_producto = $this->db->get_where('bonificaciones_has_producto', array(
@@ -47,6 +48,7 @@ class bonificador_model extends CI_Model
             ))->result();
 
             foreach ($bono_has_producto as $bhp) {
+
                 foreach ($productos as $p) {
                     if ($p['producto_id'] == $bhp->id_producto && $p['unidad_id'] == $b->um_id) {
                         if (!isset($this->bonificaciones[$index])) {
@@ -57,21 +59,36 @@ class bonificador_model extends CI_Model
                                 'flag' => true
                             );
                         }
+
+                        $prods_id[] = $bhp->id_producto;
                         $cantidad_condicion += $p['cantidad'];
+
+
                     }
                 }
             }
 
             if (isset($this->bonificaciones[$index]) && $this->bonificaciones[$index]['flag'] == true) {
                 $this->bonificaciones[$index]['flag'] = false;
+
+                $bono_has_producto = $this->db->where_in('id_producto', $prods_id)
+                    ->get('bonificaciones_has_producto')->result();
+
+                $bonos_id = array();
+                foreach ($bono_has_producto as $bhp){
+                    $bonos_id[] = $bhp->id_bonificacion;
+                }
+
                 do {
                     $condiciones_bono = $this->db->select('*')
                         ->from('bonificaciones as b')
                         ->where('bono_producto', $this->bonificaciones[$index]['producto_id'])
                         ->where('bono_unidad', $this->bonificaciones[$index]['unidad_id'])
                         ->where('cantidad_condicion <=', $cantidad_condicion)
+                        ->where_in('id_bonificacion', $bonos_id)
                         ->order_by('cantidad_condicion', 'DESC')
                         ->get()->result();
+
 
                     if (count($condiciones_bono) > 0) {
                         $multi = 0;

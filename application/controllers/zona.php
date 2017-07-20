@@ -35,7 +35,7 @@ class zona extends MY_Controller
         $productos[] = array(
             'producto_id' => 44,
             'unidad_id' => 6,
-            'cantidad' => 150
+            'cantidad' => 160
         );
 
         $productos[] = array(
@@ -49,6 +49,36 @@ class zona extends MY_Controller
             'unidad_id' => 6,
             'cantidad' => 140
         );
+
+        $productos[] = array(
+            'producto_id' => 129,
+            'unidad_id' => 6,
+            'cantidad' => 100
+        );
+
+        $productos[] = array(
+            'producto_id' => 130,
+            'unidad_id' => 6,
+            'cantidad' => 50
+        );
+//
+//        $productos[] = array(
+//            'producto_id' => 131,
+//            'unidad_id' => 6,
+//            'cantidad' => 0
+//        );
+//
+//        $productos[] = array(
+//            'producto_id' => 132,
+//            'unidad_id' => 6,
+//            'cantidad' => 0
+//        );
+//
+//        $productos[] = array(
+//            'producto_id' => 133,
+//            'unidad_id' => 6,
+//            'cantidad' => 0
+//        );
 
         $bonificaciones = $this->bonificador_model->bonificar(1, $productos);
 
