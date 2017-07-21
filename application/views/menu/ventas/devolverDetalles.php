@@ -33,7 +33,7 @@
     <div class="modal-content">
         <div class="modal-header">
             <h3>Devolver Venta <span
-                    id="venta_numero"><?= sumCod($venta->venta_id, 6) ?></span></h3>
+                        id="venta_numero"><?= sumCod($venta->venta_id, 6) ?></span></h3>
             <input type="hidden" id="venta_id" value="<?= $venta->venta_id ?>">
         </div>
         <div class="modal-body">
@@ -43,9 +43,9 @@
                     <div class="row" style="font-size: 15px;">
                         <div class="col-md-2"><label class="control-label">Total Pagado:</label></div>
                         <div class="col-md-3"><?= MONEDA ?> <span
-                                id="total_pagado"
-                                data-documento="<?= $venta->documento_id ?>"
-                                data-subtotal="<?= $venta->subtotal ?>">
+                                    id="total_pagado"
+                                    data-documento="<?= $venta->documento_id ?>"
+                                    data-subtotal="<?= $venta->subtotal ?>">
                                     <?= $venta->total ?>
                                 </span></div>
 
@@ -53,7 +53,7 @@
 
                         <div class="col-md-3"><label class="control-label">Total Devolver:</label></div>
                         <div id="total_devolver_text" class="col-md-3"><?= MONEDA ?> <span
-                                id="total_devolver">0.00</span></div>
+                                    id="total_devolver">0.00</span></div>
                     </div>
 
                     <hr class="hr-margin-5">
@@ -74,15 +74,9 @@
                         <?php foreach ($venta->detalles as $detalle): ?>
                             <tr class="producto_detalles_list <?= $detalle->bono == 1 ? 'b-warning' : '' ?>"
                                 data-id="<?= $detalle->detalle_id ?>"
-                                data-bono_check="<?=$detalle->producto_id.$detalle->unidad_id.$detalle->bono.'bono'?>"
-                                data-bono="<?= $detalle->bono ?>"
+                                data-has_bono="<?= $detalle->bono ?>"
                                 data-producto_id="<?= $detalle->producto_id ?>"
                                 data-unidad_id="<?= $detalle->unidad_id ?>"
-                                data-has_bono="<?= $detalle->bono == 0 && $detalle->bonus_dato != null ? 1 : 0 ?>"
-                                data-bono_cantidad_condicion="<?= $detalle->bono == 0 && $detalle->bonus_dato != null ? $detalle->bonus_dato->cantidad_condicion : '' ?>"
-                                data-bono_cantidad="<?= $detalle->bono == 0 && $detalle->bonus_dato != null ? $detalle->bonus_dato->bono_cantidad : '' ?>"
-                                data-bono_unidad_id="<?= $detalle->bono == 0 && $detalle->bonus_dato != null ? $detalle->bonus_dato->unidad_id : '' ?>"
-                                data-bono_producto_id="<?= $detalle->bono == 0 && $detalle->bonus_dato != null ? $detalle->bonus_dato->producto_id : '' ?>"
                             >
                                 <td id="producto_codigo_<?= $detalle->detalle_id ?>"><?= $detalle->producto_id ?></td>
                                 <td id="producto_nombre_<?= $detalle->detalle_id ?>"><?= $detalle->producto_nombre ?> <?= $detalle->bono == 1 ? '(BONO)' : '' ?></td>
@@ -166,6 +160,8 @@
 
 <script>
 
+    var devoluciones = [];
+
     $('.devolver_input').bind('keyup change click mouseleave', function () {
         var id = $(this).attr('data-id');
         var devolver = isNaN(parseFloat($(this).val())) ? 0 : parseFloat($(this).val());
@@ -202,39 +198,39 @@
         if (!validar_venta())
             return false;
 
-            var devoluciones = prepare_devolucion();
-            //console.log(JSON.stringify(devoluciones))
-            //return false;
+        prepare_devolucion(function () {
 
-        var template = '<h3>Devoluci&oacute;n de la Venta ' + $('#venta_numero').html().trim() + '</h3>';
-        template += '<hr class="hr-margin-10">';
-        template += '<h4><label>Productos Devueltos:</label></h4>';
+            var template = '<h3>Devoluci&oacute;n de la Venta ' + $('#venta_numero').html().trim() + '</h3>';
+            template += '<hr class="hr-margin-10">';
+            template += '<h4><label>Productos Devueltos:</label></h4>';
+//            console.log(devoluciones);
+            for (var i = 0; i < devoluciones.length; i++) {
+                if (devoluciones[i].devolver != 0) {
+                    var id = devoluciones[i].detalle_id;
+                    var producto_codigo = $('#producto_codigo_' + id).html().trim();
+                    var producto_nombre = $('#producto_nombre_' + id).html().trim();
+                    var unidad_nombre = $('#unidad_nombre_' + id).html().trim();
+                    var cantidad_devuelta = devoluciones[i].devolver;
+                    var bono_class = devoluciones[i].bono == 1 ? 'b-warning' : '';
 
-        for(var i = 0; i < devoluciones.length; i++){
-            if(devoluciones[i].devolver != 0){
-                var id = devoluciones[i].detalle_id;
-                var producto_codigo = $('#producto_codigo_' + id).html().trim();
-                var producto_nombre = $('#producto_nombre_' + id).html().trim();
-                var unidad_nombre = $('#unidad_nombre_' + id).html().trim();
-                var cantidad_devuelta = devoluciones[i].devolver;
-                var bono_class = devoluciones[i].bono == 1 ? 'b-warning' : '';
-
-                template += '<div class="row '+bono_class+'">';
-                template += '<div class="col-md-8">' + producto_codigo + ' - ' + producto_nombre + '</div>';
-                template += '<div class="col-md-4">' + cantidad_devuelta + ' ' + unidad_nombre + '</div>';
-                template += '</div>';
-                template += '<hr class="hr-margin-5">';
+                    template += '<div class="row ' + bono_class + '">';
+                    template += '<div class="col-md-8">' + producto_codigo + ' - ' + producto_nombre + '</div>';
+                    template += '<div class="col-md-4">' + cantidad_devuelta + ' ' + unidad_nombre + '</div>';
+                    template += '</div>';
+                    template += '<hr class="hr-margin-5">';
+                }
             }
-        }
 
 
-        template += '<hr class="hr-margin-10">';
-        template += '<h4><label>Total a devolver:</label> ' + $('#total_devolver_text').html().trim() + '</h4>';
+            template += '<hr class="hr-margin-10">';
+            template += '<h4><label>Total a devolver:</label> ' + $('#total_devolver_text').html().trim() + '</h4>';
 
-        $('#confirm_venta_text').html(template);
-        $('#confirm_venta_button').attr('onclick', 'devolver_venta();');
+            $('#confirm_venta_text').html(template);
+            $('#confirm_venta_button').attr('onclick', 'devolver_venta();');
 
-        $('#dialog_venta_confirm').modal('show');
+            $('#dialog_venta_confirm').modal('show');
+        });
+
     });
 
     function validar_venta() {
@@ -291,167 +287,157 @@
             total_importe = parseFloat($("#total_pagado").attr('data-subtotal')) - subtotales;
         }
 
-        var devoluciones = prepare_devolucion();
+        prepare_devolucion(function () {
 
-        $.ajax({
-            url: '<?php echo base_url() . 'venta/devolver_venta'; ?>',
-            type: 'POST',
-            data: {'venta_id': venta_id, 'total_importe': total_importe, 'devoluciones': JSON.stringify(devoluciones)},
+            $.ajax({
+                url: '<?php echo base_url() . 'venta/devolver_venta'; ?>',
+                type: 'POST',
+                data: {
+                    'venta_id': venta_id,
+                    'total_importe': total_importe,
+                    'devoluciones': JSON.stringify(devoluciones)
+                },
 
-            success: function () {
-                $('#dialog_venta_confirm').modal('hide');
-                $('#ventamodal_devolver').modal('hide');
-                $(".modal-backdrop").remove();
-                $.bootstrapGrowl('<h4>Correcto.</h4> <p>Venta devuelta con exito.</p>', {
-                    type: 'success',
-                    delay: 5000,
-                    allow_dismiss: true
-                });
+                success: function () {
+                    $('#dialog_venta_confirm').modal('hide');
+                    $('#ventamodal_devolver').modal('hide');
+                    $(".modal-backdrop").remove();
+                    $.bootstrapGrowl('<h4>Correcto.</h4> <p>Venta devuelta con exito.</p>', {
+                        type: 'success',
+                        delay: 5000,
+                        allow_dismiss: true
+                    });
 
-                var consolidado_id = $("#con_id").val();
-                $.ajax({
-                    url: '<?= base_url()?>consolidadodecargas/get_pedido' + '/' + venta_id,
-                    type: 'POST',
-                    headers: {
-                        Accept: 'application/json'
-                    },
-                    success: function (data) {
+                    var consolidado_id = $("#con_id").val();
+                    $.ajax({
+                        url: '<?= base_url()?>consolidadodecargas/get_pedido' + '/' + venta_id,
+                        type: 'POST',
+                        headers: {
+                            Accept: 'application/json'
+                        },
+                        success: function (data) {
 
-                        $("#id_pedido_liquidacion").val(venta_id);
-                        $("#consolidado_id").val(consolidado_id);
-                        $("#estatus").val('DEVUELTO PARCIALMENTE').trigger('chosen:updated');
-                        $("#pago_id").val('3').trigger('chosen:updated');
-                        $(".devolver_block").show();
-                        $("#banco_block").hide();
-                        $(".pago_block").show();
-                        $("#cobrar_todo").prop('checked', false);
+                            $("#id_pedido_liquidacion").val(venta_id);
+                            $("#consolidado_id").val(consolidado_id);
+                            $("#estatus").val('DEVUELTO PARCIALMENTE').trigger('chosen:updated');
+                            $("#pago_id").val('3').trigger('chosen:updated');
+                            $(".devolver_block").show();
+                            $("#banco_block").hide();
+                            $(".pago_block").show();
+                            $("#cobrar_todo").prop('checked', false);
 
-                        $("#num_oper").val('');
-                        $("#pedido_numero").html(venta_id);
-                        $("#total").val(data.pedido.total);
-                        $("#monto").val(0);
+                            $("#num_oper").val('');
+                            $("#pedido_numero").html(venta_id);
+                            $("#total").val(data.pedido.total);
+                            $("#monto").val(0);
 
-                        $("#cambiarEstatus").modal('show');
-                    },
-                    error: function () {
-                        $.bootstrapGrowl('<h4>Ha ocurrido un error en la opci&oacute;n</h4>', {
-                            type: 'warning',
-                            delay: 2500,
-                            allow_dismiss: true
-                        });
-                    },
-                    complete: function (data) {
-                        $('#barloadermodal').modal('hide');
-                    }
-                })
-            },
-            error: function () {
+                            $("#cambiarEstatus").modal('show');
+                        },
+                        error: function () {
+                            $.bootstrapGrowl('<h4>Ha ocurrido un error en la opci&oacute;n</h4>', {
+                                type: 'warning',
+                                delay: 2500,
+                                allow_dismiss: true
+                            });
+                        },
+                        complete: function (data) {
+                            $('#barloadermodal').modal('hide');
+                        }
+                    })
+                },
+                error: function () {
 
-                $.bootstrapGrowl('<h4>Error.</h4> <p>Ha ocurrido un error en la operaci&oacute;n</p>', {
-                    type: 'danger',
-                    delay: 5000,
-                    allow_dismiss: true
-                });
-                $('#barloadermodal').modal('hide');
-            }
+                    $.bootstrapGrowl('<h4>Error.</h4> <p>Ha ocurrido un error en la operaci&oacute;n</p>', {
+                        type: 'danger',
+                        delay: 5000,
+                        allow_dismiss: true
+                    });
+                    $('#barloadermodal').modal('hide');
+                }
+            });
         });
+
+
     }
 
-    function prepare_devolucion() {
-        var devoluciones = [];
-        var bonificaciones = [];
+    function prepare_devolucion(callback) {
+        var venta_id = $("#venta_id").val();
+        var productos = [];
+        devoluciones = [];
+
         $('.producto_detalles_list').each(function () {
             var id = $(this).attr('data-id');
             var bono = $(this).attr('data-has_bono');
 
-            var devolver = isNaN(parseFloat($('#cantidad_devuelta_' + id).val())) ? 0 : parseFloat($('#cantidad_devuelta_' + id).val());
-            var devolucion = {};
-            var bonificacion = {};
-
-            if($(this).attr('data-bono') == 0){
-                devolucion = {};
-                devolucion.detalle_id = id;
-                devolucion.producto_id = $(this).attr('data-producto_id');
-                devolucion.unidad_id = $(this).attr('data-unidad_id');
-                devolucion.devolver = devolver;
-                devolucion.new_cantidad = parseFloat($('#cantidad_' + id).html());
-                devolucion.new_importe = parseFloat($('#subtotal_' + id).html());
-                devolucion.bono = 0;
-
-                if(bono == 1){
-                    var tr_bono = $(this).attr('data-bono_producto_id') + $(this).attr('data-bono_unidad_id') + '1bono';
-                    devolucion.bono_detalle_id = $('tr[data-bono_check='+tr_bono+']').attr('data-id');
-                    devolucion.bono_cantidad_condicion = parseFloat($(this).attr('data-bono_cantidad_condicion'));
-                    devolucion.bono_cantidad = parseFloat($(this).attr('data-bono_cantidad'));
-                    devolucion.bono_producto_id = $(this).attr('data-bono_producto_id');
-                    devolucion.bono_unidad_id = $(this).attr('data-bono_unidad_id');
-                }
-
-                devoluciones.push(devolucion);
+            if (bono != 1) {
+                productos.push({
+                    producto_id: $(this).attr('data-producto_id'),
+                    unidad_id: $(this).attr('data-unidad_id'),
+                    cantidad: parseFloat($('#cantidad_' + id).html())
+                });
             }
-            else{
-                bonificacion = {};
-                bonificacion.detalle_id = id;
-                bonificacion.producto_id = $(this).attr('data-producto_id');
-                bonificacion.unidad_id = $(this).attr('data-unidad_id');
-                bonificacion.cantidad = parseFloat($('#cantidad_' + id).html());
-                bonificacion.bono = 1;
-
-                bonificaciones.push(bonificacion);
-            }
-
         });
 
-        var result = [];
-        for(var i = 0; i < devoluciones.length; i++){
-            var temp = {};
-            temp.detalle_id = devoluciones[i].detalle_id;
-            temp.producto_id = devoluciones[i].producto_id;
-            temp.unidad_id = devoluciones[i].unidad_id;
-            temp.devolver = devoluciones[i].devolver;
-            temp.new_cantidad = devoluciones[i].new_cantidad;
-            temp.new_importe = devoluciones[i].new_importe;
-            temp.bono = devoluciones[i].bono;
+        $('#barloadermodal').modal('show');
+        $.ajax({
+            url: '<?= base_url()?>venta/calcular_devolver_pedido_bonos' + '/' + venta_id,
+            type: 'POST',
+            headers: {
+                Accept: 'application/json'
+            },
+            data: {productos: JSON.stringify(productos)},
+            success: function (data) {
 
-            result.push(temp);
-        }
+                $('.producto_detalles_list').each(function () {
+                    var temp = {};
+                    var id = $(this).attr('data-id');
+                    var bono = $(this).attr('data-has_bono');
 
-        for(var i = 0; i < bonificaciones.length; i++){
-            var temp = {};
-            var cantidad = 0;
-            for(var j = 0; j < devoluciones.length; j++){
-                if(devoluciones[j].bono_detalle_id != undefined){
-                    if(bonificaciones[i].detalle_id == devoluciones[j].bono_detalle_id){
-                        cantidad += devoluciones[j].new_cantidad;
-                        bonificaciones[i].bono_cantidad_condicion = devoluciones[j].bono_cantidad_condicion;
-                        bonificaciones[i].bono_cantidad = devoluciones[j].bono_cantidad;
+                    if (bono != 1) {
+                        temp.detalle_id = id;
+                        temp.producto_id = $(this).attr('data-producto_id');
+                        temp.unidad_id = $(this).attr('data-unidad_id');
+                        temp.devolver = isNaN(parseFloat($('#cantidad_devuelta_' + id).val())) ? 0 : parseFloat($('#cantidad_devuelta_' + id).val());
+                        temp.new_cantidad = parseFloat($('#cantidad_' + id).html());
+                        temp.new_importe = parseFloat($('#subtotal_' + id).html());
+                        temp.bono = 0;
+
                     }
-                }
+                    else{
+
+                        temp.detalle_id = id;
+                        temp.producto_id = $(this).attr('data-producto_id');
+                        temp.unidad_id = $(this).attr('data-unidad_id');
+                        temp.new_cantidad = 0;
+                        temp.devolver = parseFloat($('#cantidad_' + id).html());
+
+                        for(var i = 0; i < data.new_bonos.length; i++){
+                            if(data.new_bonos[i].producto_id == $(this).attr('data-producto_id') && data.new_bonos[i].unidad_id == $(this).attr('data-unidad_id')){
+                                temp.new_cantidad = parseFloat(data.new_bonos[i].cantidad);
+                                temp.devolver = parseFloat($('#cantidad_' + id).html() - data.new_bonos[i].cantidad);
+                                break;
+                            }
+                        }
+
+                        temp.new_importe = 0;
+                        temp.bono = 1;
+                    }
+
+                    devoluciones.push(temp);
+                });
+
+
+                callback();
+
+            },
+            complete: function (data) {
+                $('#barloadermodal').modal('hide');
+            },
+            error: function (data) {
+                alert('not');
             }
-
-            var cantidad_actual = parseFloat($("#cantidad_" + bonificaciones[i].detalle_id).attr('data-cantidad'));
-
-            var new_cantidad = 0;
-            if(cantidad != 0){
-                var k = bonificaciones[i].bono_cantidad_condicion;
-                while(k <= cantidad){
-                    new_cantidad += bonificaciones[i].bono_cantidad;
-                    k += bonificaciones[i].bono_cantidad_condicion;
-                }
-            }
-
-            temp.detalle_id = bonificaciones[i].detalle_id;
-            temp.producto_id = bonificaciones[i].producto_id;
-            temp.unidad_id = bonificaciones[i].unidad_id;
-            temp.devolver = parseFloat(cantidad_actual) - parseFloat(new_cantidad);
-            temp.new_cantidad = new_cantidad;
-            temp.new_importe = 0;
-            temp.bono = bonificaciones[i].bono;
-
-            result.push(temp);
-        }
-
-        return result;
+        });
     }
+
 
 </script>

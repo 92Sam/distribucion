@@ -31,9 +31,14 @@ class bonificador_model extends CI_Model
                 ->get()->result();
         }
 
-        $temp = $this->regla1($bonos, $productos);
+        $this->regla1($bonos, $productos);
 
-        return $this->bonificaciones;
+        $temp = array();
+        foreach ($this->bonificaciones as $b)
+            if($b['cantidad'] > 0)
+                $temp[] = $b;
+
+        return $temp;
     }
 
     private function regla1($bonos, $productos)

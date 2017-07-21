@@ -154,6 +154,33 @@ class venta extends MY_Controller
         $this->load->view('menu/ventas/devolverDetalles', $data);
     }
 
+    function calcular_devolver_pedido_bonos($venta_id)
+    {
+        $this->load->model('bonificaciones/bonificador_model');
+        $cliente = $this->db->select('c.grupo_id')
+            ->from('venta as v')
+            ->join('cliente as c', 'c.id_cliente = v.id_cliente')
+            ->where('v.venta_id', $venta_id)
+            ->get()->row();
+
+        $productos = array();
+        foreach (json_decode($this->input->post('productos')) as $p) {
+            if ($p->cantidad > 0) {
+                $productos[] = array(
+                    'producto_id' => $p->producto_id,
+                    'unidad_id' => $p->unidad_id,
+                    'cantidad' => $p->cantidad,
+                );
+            }
+
+        }
+
+        $data['new_bonos'] = $this->bonificador_model->bonificar($cliente->grupo_id, $productos);
+
+        header('Content-Type: application/json');
+        echo json_encode($data);
+    }
+
     function devolver_venta()
     {
         $venta_id = $this->input->post('venta_id');

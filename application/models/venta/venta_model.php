@@ -1022,26 +1022,7 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
 
             $venta->total += $detalle->cantidad * $detalle->precio;
 
-            $detalle->bonus_dato = null;
 
-            if ($detalle->bono == 0) {
-                $this->db->select('
-                    bonificaciones.cantidad_condicion,
-                    bonificaciones.bono_cantidad,
-                    bonificaciones.bono_unidad as unidad_id,
-                    bonificaciones.cantidad_condicion,
-                    bonificaciones.bono_producto as producto_id
-                ')
-                    ->from('bonificaciones')
-                    ->join('bonificaciones_has_producto', 'bonificaciones_has_producto.id_bonificacion = bonificaciones.id_bonificacion')
-                    ->where('bonificaciones_has_producto.id_producto', $detalle->producto_id)
-                    ->where('bonificaciones.id_unidad', $detalle->unidad_id)
-                    ->where('bonificaciones.cantidad_condicion <=', $detalle->cantidad)
-                    ->where('bonificaciones.id_grupos_cliente', $venta->grupo_id)
-                    ->order_by('bonificaciones.cantidad_condicion', 'DESC');
-
-                $detalle->bonus_dato = $this->db->get()->row();
-            }
         }
 
         $venta->impuesto = number_format(($venta->total * 18) / 100, 2);
