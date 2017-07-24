@@ -83,7 +83,7 @@ class rcobranza_model extends CI_Model
         }
 
 
-        $cobranzas = $this->db->get()->result();
+        $cobranzas = $this->db->order_by('venta.venta_id')->get()->result();
 
         foreach ($cobranzas as $cobranza) {
 
