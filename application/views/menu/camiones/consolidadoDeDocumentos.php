@@ -115,6 +115,17 @@
                         <span>Notas de Entrega</span>
                     </a>
                 </div>
+                <?php if ($total_boleta != 0): ?>
+                    <div class="btn-group">
+                        <a class="btn btn-sm btn-primary" data-toggle="tooltip"
+                           title="Boletas" data-original-title="Ver"
+                           href="#"
+                           onclick="docFiscal('<?php if (isset($consolidado['consolidado_id'])) echo $consolidado['consolidado_id']; ?>'); ">
+                            <span>Boletas de ventas</span>
+                        </a>
+                    </div>
+                <?php endif; ?>
+
                 <?php if ($total_factura != 0): ?>
                     <div class="btn-group">
                         <a class="btn btn-sm btn-primary" data-toggle="tooltip"

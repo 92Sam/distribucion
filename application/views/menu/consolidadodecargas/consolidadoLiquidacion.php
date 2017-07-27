@@ -88,21 +88,10 @@
                                 <span>Notas de Entrega</span>
                             </a>
                         </div>
-                        <?php if ($status == 'CONFIRMADO' || $status == 'CERRADO'): ?>
 
 
 
-                        <?php if ($total_boleta != 0): ?>
-                        <div class="btn-group">
-                            <a class="btn btn-sm btn-primary" data-toggle="tooltip"
-                               title="Boletas" data-original-title="Ver"
-                               href="#"
-                               onclick="docFiscal('<?= $id_consolidado ?>'); ">
-                                <span>Boletas de ventas</span>
-                            </a>
-                        </div>
-                            <?php endif; ?>
-                            <?php endif; ?>
+
 
                             <?php if ($cerrar_consolidado_flag && $status == 'IMPRESO'): ?>
                         <div class="btn-group">

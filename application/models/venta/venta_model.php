@@ -626,6 +626,85 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
         $this->db->trans_off();
     }
 
+    function generar_documentos_fiscales($venta_id)
+    {
+        $this->load->model('venta/venta_fiscal_model');
+        $pedido = $this->db->get_where('venta', array('venta_id' => $venta_id))->row();
+        $pedido_detalles = $this->db->get_where('detalle_venta', array('id_venta' => $venta_id))->result();
+
+        $params = array(
+            'max_items' => $pedido->tipo_doc_fiscal == 'FACTURA' ? valueOption('FACTURA_MAX', 10) : valueOption('BOLETA_MAX', 5),
+            'max_importe' => $pedido->tipo_doc_fiscal == 'FACTURA' ? 0 : valueOption('MONTO_BOLETAS_VENTA', 0)
+        );
+
+        $productos = array();
+        $cliente = $this->db->get_where('cliente', array('id_cliente' => $pedido->id_cliente))->row();
+        $cliente_descuento = $cliente->descuento;
+
+        foreach ($pedido_detalles as $pd) {
+
+            $detalle_precio = $pd->precio;
+            if ($pedido->tipo_doc_fiscal == 'BOLETA DE VENTA' && $cliente_descuento != NULL && $pd->bono != 1) {
+                $detalle_precio = number_format($detalle_precio - ($detalle_precio * $cliente_descuento / 100), 2);
+            }
+
+            $productos[] = array(
+                'producto_id' => $pd->id_producto,
+                'unidad_id' => $pd->unidad_medida,
+                'precio' => $detalle_precio,
+                'cantidad' => $pd->cantidad,
+                'bono' => $pd->bono,
+            );
+        }
+
+        $docs = $this->venta_fiscal_model->split_documents($params, $productos);
+
+        if (count($docs) > 0) {
+
+            foreach ($docs as $doc) {
+
+                $fiscal_id = $this->updateFiscal($pedido);
+                foreach ($doc as $p) {
+
+                    $this->db->insert('documento_detalle', array(
+                        'documento_fiscal_id' => $fiscal_id,
+                        'id_venta' => $pedido->venta_id,
+                        'id_producto' => $p['producto_id'],
+                        'precio' => $p['precio'],
+                        'cantidad' => $p['cantidad'],
+                        'id_unidad' => $p['unidad_id'],
+                        'detalle_importe' => $p['cantidad'] * $p['precio'],
+                    ));
+
+                    $fiscal = $this->db->get_where('documento_fiscal', array('documento_fiscal_id' => $fiscal_id))->row();
+
+                    $tipo_doc = 0;
+                    if ($pedido->tipo_doc_fiscal == 'FACTURA')
+                        $tipo_doc = 1;
+                    elseif ($pedido->tipo_doc_fiscal == 'BOLETA DE VENTA')
+                        $tipo_doc = 3;
+
+                    $this->kardex_model->insert_kardex(array(
+                        'local_id' => $pedido->local_id,
+                        'producto_id' => $p['producto_id'],
+                        'unidad_id' => $p['unidad_id'],
+                        'serie' => $fiscal->documento_serie,
+                        'numero' => $fiscal->documento_numero,
+                        'tipo_doc' => $tipo_doc,
+                        'tipo_operacion' => 1,
+                        'cantidad' => $p['cantidad'],
+                        'costo_unitario' => $p['bono'] != 1 ? $p['precio'] / 1.18 : 0.00,
+                        'IO' => 2,
+                        'ref_id' => $fiscal_id,
+                        'referencia' => $p['bono'] == 1 ? 'BONO' : ''
+                    ));
+                }
+
+            }
+        }
+
+    }
+
     function set_numero_fiscal_temp($venta_id)
     {
         $pedido = $this->db->get_where('venta', array('venta_id' => $venta_id))->row();
