@@ -72,7 +72,7 @@ class venta_fiscal_model extends CI_Model
 
                 //mientras no vacie este producto por todos los documentos no salgo
                 while ($flag) {
-
+                    $counter_full = 0;
                     //Aqui itero sobre los documentos para ir vaciando de 1 en 1 las cantidades de los productos
                     for ($j = 0; $j < $cbi; $j++) {
 
@@ -106,13 +106,22 @@ class venta_fiscal_model extends CI_Model
                             // si cumple alguna de las condiciones entonces hago el vaciado de ese producto
                             if ($importe_doc + $products[$i]['precio'] <= $max_importe || $max_importe == 0) {
                                 $result[$j][$p_index]['cantidad']++;
-                                $result[$j][$p_index]['importe'] += $products[$i]['precio'];
                                 $products[$i]['cantidad']--;
+                                $result[$j][$p_index]['importe'] += $products[$i]['precio'];
+                            }
+                            elseif($importe_doc + $products[$i]['precio'] > $max_importe){
+                                $counter_full++;
                             }
 
                         }
 
                     }
+
+                    //Si se llenaron todas las cantidades por limite de importe
+                    //creo un nuevo espacio
+                    if($cbi == $counter_full)
+                        $cbi++;
+                    $counter_full = 0;
 
                     //aqui compruebo si esta vaciado el producto, sino vuelvo al ciclo.
                     if ($products[$i]['cantidad'] > 0) {
