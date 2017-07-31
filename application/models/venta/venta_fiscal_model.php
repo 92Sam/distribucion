@@ -11,10 +11,8 @@ class venta_fiscal_model extends CI_Model
     function split_documents($params, $products)
     {
 
-        if ($this->validate_data($params, $products) == false) {
-            //aqui el logger escribira el motivo del error.
+        if ($this->validate_data($params, $products) == false)
             return array();
-        }
 
         $old_products = new ArrayObject($products);
 
@@ -146,7 +144,7 @@ class venta_fiscal_model extends CI_Model
 
 
                 if ($max_iteraciones <= 0) {
-                    //aqui escribo en el logger que hubo un error pq excedi el limite de iteraciones.
+                    $this->save_logger('MAX_ITER', "Numero maximo de iteraciones superado", $params, $old_products, $subgrupos_result);
                     return array();
                 }
 
@@ -166,7 +164,6 @@ class venta_fiscal_model extends CI_Model
         if ($this->split_test($params, $old_products, $return) == true) {
             return $return;
         } else {
-            //aqui el logger escribira el motivo del error.
             return array();
         }
 
@@ -176,39 +173,115 @@ class venta_fiscal_model extends CI_Model
     function validate_data($params, $products)
     {
 
-        //valida que todos los precios de los productos tienen que ser menor el maximo importe
-        // a no ser que el maximo importe sea 0 q en ese caso no tiene limite de importe. Si hay un precio mayor que
-        // un importe maximo no saldria del ciclo pq la cantidad 1 no pude picarla.
+        $max_imp = $params['max_importe'];
+        //validacion de precios de productos mayor al limite de importe
+        if ($max_imp > 0) {
+            foreach ($products as $prod) {
+                if ($prod['precio'] > $max_imp) {
+                    $this->save_logger('DATA', "Error en el precio de los productos", $params, $products);
+                    return false;
+                }
+            }
+        }
 
-        //valida que solo puede haber un solo registro de la combinacion producto_id, unidad_id, bono
-        // esto es super importante ya que esa combinacion de ser unica pq es el $p_index que uso para asociar
-        // las cantidades. esto no deberia suceder ya tendria q estar previamente validado pero es mejor nuestro descarte.
+        if (count($products) == 0) {
+            $this->save_logger('DATA', "Productos vacios", $params, $products);
+            return false;
+        }
 
-        //en si valida lo que se te pueda ocurrir en los datos iniciales que puedan afectar el algoritmo
-        // max_items > 0, max_importe >= 0, doc = BOLETA o FACTURA
+        //validacion de items unicos
+        foreach ($products as $prod) {
+            $count = 0;
+            foreach ($products as $prod_in) {
+                $prod_item = $prod['producto_id'] . $prod['unidad_id'] . $prod['bono'];
+                $prod_in_item = $prod_in['producto_id'] . $prod_in['unidad_id'] . $prod_in['bono'];
+                if ($prod_item == $prod_in_item) {
+                    $count++;
+                }
+
+                if ($count > 1) {
+                    $this->save_logger('DATA', "Error en items unicos", $params, $products);
+                    return false;
+                }
+            }
+        }
 
 
-        //devuelve true si pasa las validaciones
+        //validacion de parametros
+        if ($params['max_items'] <= 0) {
+            $this->save_logger('DATA', "Error en max_items", $params, $products);
+            return false;
+        }
+
+        if ($params['max_importe'] < 0) {
+            $this->save_logger('DATA', "Error en max_importe", $params, $products);
+            return false;
+        }
+
         return true;
     }
 
     function split_test($params, $products, $result)
     {
 
-        //NOTA. Este $products que pase es una copia del $products original llamada $old_products
-        // ya q $products baja sus cantidades a 0. Revisa bien de todas formas pq solo te lo maquetee
+        $init_importe = 0;
+        $limit_items = $params['max_items'];
+        $limit_imp = $params['max_importe'];
 
+        //calculo valores iniciales
+        foreach ($products as $prod) {
+            $init_importe += $prod['cantidad'] * $prod['precio'];
+        }
 
-        //validar aqui si:
+        $fin_importe = 0;
 
-        //1. las cantidades
-        //2. los importes
-        //3. el limite de items
-        //4. el limite de importe en caso tenga
+        //calculo valores finales
+        foreach ($result as $boletas) {
+            $bol_importe = 0;
+            foreach ($boletas as $bol) {
+                $fin_importe += $bol['importe'];
+                $bol_importe += $bol['importe'];
+            }
 
+            if ($limit_imp > 0 && $bol_importe > $limit_imp) {
+                $this->save_logger('SPLIT', "Error limite de importe por boleta excedido", $params, $products, $result);
+                return false;
+            }
 
-        //devuelve true si pasa los test
+            if (sizeof($boletas) > $limit_items) {
+                $this->save_logger('SPLIT', "Error limite de productos por boleta excedido", $params, $products, $result);
+                return false;
+            }
+        }
+
+        //comparo importes finales
+        if ($init_importe != $fin_importe) {
+            $this->save_logger('SPLIT', "Error importe inicial e importe final no coinciden", $params, $products, $result);
+            return false;
+        }
+
         return true;
+    }
+
+
+    function save_logger($tipo, $msg, $params, $products, $result = array())
+    {
+        $data['fecha'] = date('Y-m-d h:m:s');
+        $data['tipo'] = $tipo;
+        $data['msg'] = $msg;
+        $data['params'] = json_encode($params);
+        $data['products'] = json_encode($products);
+        $data['result'] = count($result) > 0 ? json_encode($result) : null;
+
+        $this->db->trans_start();
+        $this->db->insert('documentos_logger', $data);
+        $this->db->trans_complete();
+
+        if ($this->db->trans_status() === FALSE) {
+            return FALSE;
+        } else {
+            return TRUE;
+        }
     }
 
 }

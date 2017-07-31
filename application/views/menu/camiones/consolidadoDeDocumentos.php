@@ -88,7 +88,7 @@
                        title="Ver" data-original-title="Ver"
                        href="#"
                        onclick="impirmirGuiaBoleta('<?php if (isset($consolidado['consolidado_id'])) echo $consolidado['consolidado_id']; ?>'); ">
-                        <span>Guia de remision Boletas</span>
+                        <i class="fa fa-print"></i> <span>Guia de remision Boletas</span>
                     </a>
                 </div>
             <?php endif; ?>
@@ -100,7 +100,7 @@
                        title="Ver" data-original-title="Ver"
                        href="#"
                        onclick="impirmirGuiaFactura('<?php if (isset($consolidado['consolidado_id'])) echo $consolidado['consolidado_id']; ?>'); ">
-                        <span>Guia de remision Facturas</span>
+                        <i class="fa fa-print"></i> <span>Guia de remision Facturas</span>
                     </a>
                 </div>
             <?php endif; ?>
@@ -112,7 +112,7 @@
                        title="Ver Nota" data-original-title="Ver"
                        href="#"
                        onclick="notaEntrega('<?php if (isset($consolidado['consolidado_id'])) echo $consolidado['consolidado_id']; ?>'); ">
-                        <span>Notas de Entrega</span>
+                        <i class="fa fa-search"></i>  <span>Notas de Entrega</span>
                     </a>
                 </div>
                 <?php if ($total_boleta != 0): ?>
@@ -121,7 +121,7 @@
                            title="Boletas" data-original-title="Ver"
                            href="#"
                            onclick="docFiscal('<?php if (isset($consolidado['consolidado_id'])) echo $consolidado['consolidado_id']; ?>'); ">
-                            <span>Boletas de ventas</span>
+                            <i class="fa fa-print"></i> <span>Boletas de ventas</span>
                         </a>
                     </div>
                 <?php endif; ?>
@@ -132,7 +132,7 @@
                            title="Facturas" data-original-title="Ver"
                            href="#"
                            onclick="docFiscalFact('<?php if (isset($consolidado['consolidado_id'])) echo $consolidado['consolidado_id']; ?>'); ">
-                            <span>Facturas</span>
+                            <i class="fa fa-print"></i> <span>Facturas</span>
                         </a>
                     </div>
                 <?php endif; ?>
@@ -267,32 +267,42 @@
     }
 
     function docFiscal(id) {
+        var tipo = 'CONSOLIDADO';
 
-        {
-            $.ajax({
-                url: '<?php echo $ruta . 'consolidadodecargas/docFiscalBoleta'; ?>',
-                type: 'POST',
-                data: "id=" + id,
-                success: function (data) {
-                    $("#noteDeEntrega").html(data);
-                    $("#noteDeEntrega").modal('show');
-                }
-            });
-        }
+        var win = window.open('<?= $ruta ?>venta/imprimir_boleta_rtf/' + id + '/' + tipo);
+        win.focus();
+
+
+//        {
+//            $.ajax({
+//                url: '<?php //echo $ruta . 'consolidadodecargas/docFiscalBoleta'; ?>//',
+//                type: 'POST',
+//                data: "id=" + id,
+//                success: function (data) {
+//                    $("#noteDeEntrega").html(data);
+//                    $("#noteDeEntrega").modal('show');
+//                }
+//            });
+//        }
 
     }
     function docFiscalFact(id) {
-        {
-            $.ajax({
-                url: '<?php echo $ruta . 'consolidadodecargas/docFiscalFactura'; ?>',
-                type: 'POST',
-                data: "id=" + id,
-                success: function (data) {
-                    $("#noteDeEntrega").html(data);
-                    $("#noteDeEntrega").modal('show');
-                }
-            });
-        }
+        var tipo = 'CONSOLIDADO';
+
+        var win = window.open('<?= $ruta ?>venta/imprimir_factura_rtf/' + id + '/' + tipo);
+        win.focus();
+
+//        {
+//            $.ajax({
+//                url: '<?php //echo $ruta . 'consolidadodecargas/docFiscalFactura'; ?>//',
+//                type: 'POST',
+//                data: "id=" + id,
+//                success: function (data) {
+//                    $("#noteDeEntrega").html(data);
+//                    $("#noteDeEntrega").modal('show');
+//                }
+//            });
+//        }
 
     }
 </script>

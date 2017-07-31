@@ -660,7 +660,6 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
         $docs = $this->venta_fiscal_model->split_documents($params, $productos);
 
         if (count($docs) > 0) {
-
             foreach ($docs as $doc) {
 
                 $fiscal_id = $this->updateFiscal($pedido);
@@ -701,6 +700,11 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
                 }
 
             }
+            
+            return true;
+        }
+        else{
+            return false;
         }
 
     }

@@ -1130,42 +1130,45 @@ class consolidadodecargas extends MY_Controller
             $index++;
         }
 
+        $split = true;
+
         if ($consolidado->status == 'ABIERTO') {
             $pedidos = $this->db->get_where('consolidado_detalle', array('consolidado_id' => $id))->result();
             foreach ($pedidos as $pedido) {
                 $venta = $this->db->get_where('venta', array('venta_id' => $pedido->pedido_id))->row();
-                $this->venta_model->generar_documentos_fiscales($pedido->pedido_id);
+                $split = $this->venta_model->generar_documentos_fiscales($pedido->pedido_id);
             }
         }
 
-        $data['consolidado'] = $this->consolidado_model->get_consolidado_by(array('consolidado_id' => $id));
-        foreach ($data['consolidado'] as $campoCarga) {
-            if ($campoCarga['status'] == 'ABIERTO') {
-                $status = array(
-                    'consolidado_id' => $id,
-                    'status' => 'IMPRESO'
-                );
+        if ($split == true) {
+            $data['consolidado'] = $this->consolidado_model->get_consolidado_by(array('consolidado_id' => $id));
+            foreach ($data['consolidado'] as $campoCarga) {
+                if ($campoCarga['status'] == 'ABIERTO') {
+                    $status = array(
+                        'consolidado_id' => $id,
+                        'status' => 'IMPRESO'
+                    );
 
-                $this->consolidado_model->updateStatus($status);
+                    $this->consolidado_model->updateStatus($status);
+                }
             }
-        }
 
-        $template_name = 'consolidado.docx';
-        $word = new \PhpOffice\PhpWord\PhpWord();
-        $template = new \PhpOffice\PhpWord\TemplateProcessor(base_url('recursos/formatos/consolidado/' . $template_name));
+            $template_name = 'consolidado.docx';
+            $word = new \PhpOffice\PhpWord\PhpWord();
+            $template = new \PhpOffice\PhpWord\TemplateProcessor(base_url('recursos/formatos/consolidado/' . $template_name));
 
 
-        //CABECERA
-        $template->setValue('empresa', htmlspecialchars(valueOption('EMPRESA_NOMBRE', 'TEAYUDO')));
-        $template->setValue('fecha', date('d/m/Y', strtotime($consolidado->fecha)));
-        $template->setValue('numero_consolidado', $consolidado->consolidado_id);
-        $template->setValue('responsable', htmlspecialchars($consolidado->responsable));
-        $template->setValue('camion', htmlspecialchars($consolidado->camion));
-        $template->setValue('zona', htmlspecialchars($zonas));
-        $template->setValue('chofer', htmlspecialchars($consolidado->chofer));
+            //CABECERA
+            $template->setValue('empresa', htmlspecialchars(valueOption('EMPRESA_NOMBRE', 'TEAYUDO')));
+            $template->setValue('fecha', date('d/m/Y', strtotime($consolidado->fecha)));
+            $template->setValue('numero_consolidado', $consolidado->consolidado_id);
+            $template->setValue('responsable', htmlspecialchars($consolidado->responsable));
+            $template->setValue('camion', htmlspecialchars($consolidado->camion));
+            $template->setValue('zona', htmlspecialchars($zonas));
+            $template->setValue('chofer', htmlspecialchars($consolidado->chofer));
 
-        //PRODUCTOS
-        $productos = $this->db->select('
+            //PRODUCTOS
+            $productos = $this->db->select('
             hpd.producto_id AS codigo,
             p.producto_nombre AS producto,
             u.nombre_unidad AS um,
@@ -1173,110 +1176,116 @@ class consolidadodecargas extends MY_Controller
             SUM(hpd.stock) AS cantidad,
             g.nombre_grupo AS grupo
             ')
-            ->from('consolidado_detalle AS cd')
-            ->join('historial_pedido_proceso AS hpp', 'hpp.pedido_id = cd.pedido_id')
-            ->join('historial_pedido_detalle AS hpd', 'hpd.historial_pedido_proceso_id = hpp.id')
-            ->join('producto AS p', 'p.producto_id = hpd.producto_id')
-            ->join('grupos AS g', 'g.id_grupo = p.produto_grupo')
-            ->join('unidades AS u', 'u.id_unidad = hpd.unidad_id')
-            ->where('hpp.proceso_id', PROCESO_IMPRIMIR)
-            ->where('cd.consolidado_id', $id)
-            ->group_by('hpd.producto_id, hpd.unidad_id')
-            ->order_by('g.id_grupo, p.producto_nombre')
-            ->get()->result();
+                ->from('consolidado_detalle AS cd')
+                ->join('historial_pedido_proceso AS hpp', 'hpp.pedido_id = cd.pedido_id')
+                ->join('historial_pedido_detalle AS hpd', 'hpd.historial_pedido_proceso_id = hpp.id')
+                ->join('producto AS p', 'p.producto_id = hpd.producto_id')
+                ->join('grupos AS g', 'g.id_grupo = p.produto_grupo')
+                ->join('unidades AS u', 'u.id_unidad = hpd.unidad_id')
+                ->where('hpp.proceso_id', PROCESO_IMPRIMIR)
+                ->where('cd.consolidado_id', $id)
+                ->group_by('hpd.producto_id, hpd.unidad_id')
+                ->order_by('g.id_grupo, p.producto_nombre')
+                ->get()->result();
 
-        $grupos = array();
-        $grupo = null;
-        $index = -1;
-        foreach ($productos as $producto) {
+            $grupos = array();
+            $grupo = null;
+            $index = -1;
+            foreach ($productos as $producto) {
 
-            if ($grupo != $producto->grupo) {
-                $grupos[++$index] = array(
-                    'nombre' => $producto->grupo,
-                    'productos' => array($producto)
-                );
-                $grupo = $producto->grupo;
-            } else {
-                $grupos[$index]['productos'][] = $producto;
+                if ($grupo != $producto->grupo) {
+                    $grupos[++$index] = array(
+                        'nombre' => $producto->grupo,
+                        'productos' => array($producto)
+                    );
+                    $grupo = $producto->grupo;
+                } else {
+                    $grupos[$index]['productos'][] = $producto;
+                }
+
             }
 
-        }
-
-        $template->cloneBlock('block', count($grupos));
+            $template->cloneBlock('block', count($grupos));
 //        return false;
 
-        $index = 0;
-        $total = 0;
-        foreach ($grupos as $grupo) {
+            $index = 0;
+            $total = 0;
+            foreach ($grupos as $grupo) {
 
-            $template->setValue('linea_' . ++$index, htmlspecialchars($grupo['nombre']));
+                $template->setValue('linea_' . ++$index, htmlspecialchars($grupo['nombre']));
 
-            $template->cloneRow('cod_prod_' . $index, count($grupo['productos']));
-            $index_p = 0;
-            $subtotal = 0;
-            foreach ($grupo['productos'] as $producto) {
+                $template->cloneRow('cod_prod_' . $index, count($grupo['productos']));
+                $index_p = 0;
+                $subtotal = 0;
+                foreach ($grupo['productos'] as $producto) {
 
-                $template->setValue('cod_prod_' . $index . '#' . ++$index_p, sumCod($producto->codigo, 4));
-                $template->setValue('producto_nombre_' . $index . '#' . $index_p, htmlspecialchars($producto->producto));
-                $template->setValue('unidad_' . $index . '#' . $index_p, htmlspecialchars($producto->um));
-                $template->setValue('medida_' . $index . '#' . $index_p, htmlspecialchars($producto->medida));
-                $template->setValue('cantidad_' . $index . '#' . $index_p, $producto->cantidad);
+                    $template->setValue('cod_prod_' . $index . '#' . ++$index_p, sumCod($producto->codigo, 4));
+                    $template->setValue('producto_nombre_' . $index . '#' . $index_p, htmlspecialchars($producto->producto));
+                    $template->setValue('unidad_' . $index . '#' . $index_p, htmlspecialchars($producto->um));
+                    $template->setValue('medida_' . $index . '#' . $index_p, htmlspecialchars($producto->medida));
+                    $template->setValue('cantidad_' . $index . '#' . $index_p, $producto->cantidad);
 
-                $subtotal += $producto->cantidad;
+                    $subtotal += $producto->cantidad;
+                }
+
+                $total += $subtotal;
+                $template->setValue('sub_total_' . $index, $subtotal);
             }
 
-            $total += $subtotal;
-            $template->setValue('sub_total_' . $index, $subtotal);
-        }
-
-        $template->setValue('total_general', $total);
+            $template->setValue('total_general', $total);
 
 
-        //NOTAS DE ENTREGA
-        $pedidos = $this->db->select('
+            //NOTAS DE ENTREGA
+            $pedidos = $this->db->select('
             v.venta_id AS venta_id,
             v.venta_status AS estado,
             dv.documento_Serie AS serie,
             dv.documento_Numero AS numero
             ')
-            ->from('venta AS v')
-            ->join('consolidado_detalle AS cd', 'cd.pedido_id = v.venta_id')
-            ->join('documento_venta AS dv', 'dv.id_tipo_documento = v.numero_documento')
-            ->join('cliente AS c', 'c.id_cliente = v.id_cliente')
-            ->join('zonas AS z', 'z.zona_id = c.id_zona')
-            ->where('cd.consolidado_id', $id)
-            ->order_by('v.venta_id', 'ASC')
-            ->get()->result();
+                ->from('venta AS v')
+                ->join('consolidado_detalle AS cd', 'cd.pedido_id = v.venta_id')
+                ->join('documento_venta AS dv', 'dv.id_tipo_documento = v.numero_documento')
+                ->join('cliente AS c', 'c.id_cliente = v.id_cliente')
+                ->join('zonas AS z', 'z.zona_id = c.id_zona')
+                ->where('cd.consolidado_id', $id)
+                ->order_by('v.venta_id', 'ASC')
+                ->get()->result();
 
-        $nota_entrega1 = '';
-        $nota_entrega2 = '';
-        $estado1 = '';
-        $estado2 = '';
-        $n = true;
+            $nota_entrega1 = '';
+            $nota_entrega2 = '';
+            $estado1 = '';
+            $estado2 = '';
+            $n = true;
 
-        foreach ($pedidos as $pedido) {
-            if ($n) {
-                $nota_entrega1 .= $pedido->serie . " - " . $pedido->numero . "\r\n";
-                $estado1 .= $pedido->estado . "\r\n";
-                $n = false;
-            } else {
-                $nota_entrega2 .= $pedido->serie . " - " . $pedido->numero . "\r\n";
-                $estado2 .= $pedido->estado . "\r\n";
-                $n = true;
+            foreach ($pedidos as $pedido) {
+                if ($n) {
+                    $nota_entrega1 .= $pedido->serie . " - " . $pedido->numero . "\r\n";
+                    $estado1 .= $pedido->estado . "\r\n";
+                    $n = false;
+                } else {
+                    $nota_entrega2 .= $pedido->serie . " - " . $pedido->numero . "\r\n";
+                    $estado2 .= $pedido->estado . "\r\n";
+                    $n = true;
+                }
             }
+
+            $template->setValue('nota_entrega1', $nota_entrega1);
+            $template->setValue('estado1', $estado1);
+
+            $template->setValue('nota_entrega2', $nota_entrega2);
+            $template->setValue('estado2', $estado2);
+
+
+            $template->saveAs(sys_get_temp_dir() . '/consolidado_temp.docx');
+            header("Content-Disposition: attachment; filename='consolidado" . $id . ".docx'");
+            readfile(sys_get_temp_dir() . '/consolidado_temp.docx'); // or echo file_get_contents($temp_file);
+            unlink(sys_get_temp_dir() . '/consolidado_temp.docx');
+
+        }
+        else{
+            echo "No se ha podido generar los documentos de este consolidado. Revise el logger y contacta a Antonio Martin.";
         }
 
-        $template->setValue('nota_entrega1', $nota_entrega1);
-        $template->setValue('estado1', $estado1);
-
-        $template->setValue('nota_entrega2', $nota_entrega2);
-        $template->setValue('estado2', $estado2);
-
-
-        $template->saveAs(sys_get_temp_dir() . '/consolidado_temp.docx');
-        header("Content-Disposition: attachment; filename='consolidado" . $id . ".docx'");
-        readfile(sys_get_temp_dir() . '/consolidado_temp.docx'); // or echo file_get_contents($temp_file);
-        unlink(sys_get_temp_dir() . '/consolidado_temp.docx');
 
     }
 
