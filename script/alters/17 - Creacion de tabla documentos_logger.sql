@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS `documentos_logger` (
   `tipo` varchar(50) NOT NULL,
   `msg` varchar(50) NOT NULL,
   `params` varchar(1000) NOT NULL,
-  `products` varchar(1000) NOT NULL,
-  `result` varchar(1000) NULL,
+  `products` longtext NOT NULL,
+  `result` longtext NULL,
   PRIMARY KEY (`id_doc_log`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1;

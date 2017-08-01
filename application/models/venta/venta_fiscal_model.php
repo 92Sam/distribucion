@@ -81,7 +81,7 @@ class venta_fiscal_model extends CI_Model
                 $flag = true;
 
                 // Creo una condicion de para finita para el while
-                $max_iteraciones = $cbi * $total_cantidades * $total_products;
+                $max_iteraciones = $cbi * $total_cantidades * $total_products * 100;
 
                 //mientras no vacie este producto por todos los documentos no salgo
                 while ($flag && (--$max_iteraciones > 0)) {

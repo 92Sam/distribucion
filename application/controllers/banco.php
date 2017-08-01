@@ -14,173 +14,173 @@ class banco extends MY_Controller
 
         $this->load->model('venta/venta_fiscal_model');
 
-        $productos[] = array(
-            'producto_id' => 126,
-            'unidad_id' => 6,
-            'precio' => 8,
-            'cantidad' => 100,
-            'bono' => 0,
-        );
-
-        $productos[] = array(
-            'producto_id' => 127,
-            'unidad_id' => 6,
-            'precio' => 73,
-            'cantidad' => 30,
-            'bono' => 0,
-        );
-
-        $productos[] = array(
-            'producto_id' => 44,
-            'unidad_id' => 6,
-            'precio' => 11,
-            'cantidad' => 100,
-            'bono' => 0,
-        );
-
-
-        $productos[] = array(
-            'producto_id' => 44,
-            'unidad_id' => 6,
-            'precio' => 0,
-            'cantidad' => 3,
-            'bono' => 1,
-        );
+//        $productos[] = array(
+//            'producto_id' => 126,
+//            'unidad_id' => 6,
+//            'precio' => 8,
+//            'cantidad' => 100,
+//            'bono' => 0,
+//        );
 //
+//        $productos[] = array(
+//            'producto_id' => 127,
+//            'unidad_id' => 6,
+//            'precio' => 73,
+//            'cantidad' => 30,
+//            'bono' => 0,
+//        );
+//
+//        $productos[] = array(
+//            'producto_id' => 44,
+//            'unidad_id' => 6,
+//            'precio' => 11,
+//            'cantidad' => 100,
+//            'bono' => 0,
+//        );
+//
+//
+//        $productos[] = array(
+//            'producto_id' => 44,
+//            'unidad_id' => 6,
+//            'precio' => 0,
+//            'cantidad' => 3,
+//            'bono' => 1,
+//        );
+////
+//        $productos[] = array(
+//            'producto_id' => 125,
+//            'unidad_id' => 6,
+//            'precio' => 0,
+//            'cantidad' => 11,
+//            'bono' => 1,
+//        );
+//
+//        $productos[] = array(
+//            'producto_id' => 1,
+//            'unidad_id' => 1,
+//            'precio' => 71,
+//            'cantidad' => 50,
+//            'bono' => 0,
+//        );
+//
+//        $productos[] = array(
+//            'producto_id' => 2,
+//            'unidad_id' => 1,
+//            'precio' => 3,
+//            'cantidad' => 5,
+//            'bono' => 0,
+//        );
+//
+//        $productos[] = array(
+//            'producto_id' => 3,
+//            'unidad_id' => 1,
+//            'precio' => 55,
+//            'cantidad' => 100,
+//            'bono' => 0,
+//        );
+//
+//        $productos[] = array(
+//            'producto_id' => 4,
+//            'unidad_id' => 1,
+//            'precio' => 0,
+//            'cantidad' => 30,
+//            'bono' => 0,
+//        );
+//
+//
+//        $productos[] = array(
+//            'producto_id' => 5,
+//            'unidad_id' => 1,
+//            'precio' => 0,
+//            'cantidad' => 35,
+//            'bono' => 0,
+//        );
+//
+//        $productos[] = array(
+//            'producto_id' => 6,
+//            'unidad_id' => 1,
+//            'precio' => 10.20,
+//            'cantidad' => 120,
+//            'bono' => 0,
+//        );
+//
+//        $productos[] = array(
+//            'producto_id' => 7,
+//            'unidad_id' => 1,
+//            'precio' => 10,
+//            'cantidad' => 55,
+//            'bono' => 0,
+//        );
+//
+//        $productos[] = array(
+//            'producto_id' => 8,
+//            'unidad_id' => 1,
+//            'precio' => 16.50,
+//            'cantidad' => 100,
+//            'bono' => 0,
+//        );
+//
+//        $productos[] = array(
+//            'producto_id' => 9,
+//            'unidad_id' => 1,
+//            'precio' => 15.50,
+//            'cantidad' => 100,
+//            'bono' => 0,
+//        );
+//
+//        $productos[] = array(
+//            'producto_id' => 10,
+//            'unidad_id' => 1,
+//            'precio' => 18.80,
+//            'cantidad' => 125,
+//            'bono' => 0,
+//        );
+//
+//        $productos[] = array(
+//            'producto_id' => 11,
+//            'unidad_id' => 1,
+//            'precio' => 41.50,
+//            'cantidad' => 45,
+//            'bono' => 0,
+//        );
+//
+//        $productos[] = array(
+//            'producto_id' => 12,
+//            'unidad_id' => 1,
+//            'precio' => 25.50,
+//            'cantidad' => 20,
+//            'bono' => 0,
+//        );
+//
+//        $productos[] = array(
+//            'producto_id' => 13,
+//            'unidad_id' => 1,
+//            'precio' => 0,
+//            'cantidad' => 9,
+//            'bono' => 1,
+//        );
+//
+//        $productos[] = array(
+//            'producto_id' => 14,
+//            'unidad_id' => 1,
+//            'precio' => 0,
+//            'cantidad' => 3,
+//            'bono' => 1,
+//        );
+
         $productos[] = array(
-            'producto_id' => 125,
+            'producto_id' => 86,
             'unidad_id' => 6,
-            'precio' => 0,
-            'cantidad' => 11,
-            'bono' => 1,
-        );
-
-        $productos[] = array(
-            'producto_id' => 1,
-            'unidad_id' => 1,
-            'precio' => 71,
-            'cantidad' => 50,
+            'precio' => 93,
+            'cantidad' => 2,
             'bono' => 0,
-        );
-
-        $productos[] = array(
-            'producto_id' => 2,
-            'unidad_id' => 1,
-            'precio' => 3,
-            'cantidad' => 5,
-            'bono' => 0,
-        );
-
-        $productos[] = array(
-            'producto_id' => 3,
-            'unidad_id' => 1,
-            'precio' => 55,
-            'cantidad' => 100,
-            'bono' => 0,
-        );
-
-        $productos[] = array(
-            'producto_id' => 4,
-            'unidad_id' => 1,
-            'precio' => 0,
-            'cantidad' => 30,
-            'bono' => 0,
-        );
-
-
-        $productos[] = array(
-            'producto_id' => 5,
-            'unidad_id' => 1,
-            'precio' => 0,
-            'cantidad' => 35,
-            'bono' => 0,
-        );
-
-        $productos[] = array(
-            'producto_id' => 6,
-            'unidad_id' => 1,
-            'precio' => 10.20,
-            'cantidad' => 120,
-            'bono' => 0,
-        );
-
-        $productos[] = array(
-            'producto_id' => 7,
-            'unidad_id' => 1,
-            'precio' => 10,
-            'cantidad' => 55,
-            'bono' => 0,
-        );
-
-        $productos[] = array(
-            'producto_id' => 8,
-            'unidad_id' => 1,
-            'precio' => 16.50,
-            'cantidad' => 100,
-            'bono' => 0,
-        );
-
-        $productos[] = array(
-            'producto_id' => 9,
-            'unidad_id' => 1,
-            'precio' => 15.50,
-            'cantidad' => 100,
-            'bono' => 0,
-        );
-
-        $productos[] = array(
-            'producto_id' => 10,
-            'unidad_id' => 1,
-            'precio' => 18.80,
-            'cantidad' => 125,
-            'bono' => 0,
-        );
-
-        $productos[] = array(
-            'producto_id' => 11,
-            'unidad_id' => 1,
-            'precio' => 41.50,
-            'cantidad' => 45,
-            'bono' => 0,
-        );
-
-        $productos[] = array(
-            'producto_id' => 12,
-            'unidad_id' => 1,
-            'precio' => 25.50,
-            'cantidad' => 20,
-            'bono' => 0,
-        );
-
-        $productos[] = array(
-            'producto_id' => 13,
-            'unidad_id' => 1,
-            'precio' => 0,
-            'cantidad' => 9,
-            'bono' => 1,
-        );
-
-        $productos[] = array(
-            'producto_id' => 14,
-            'unidad_id' => 1,
-            'precio' => 0,
-            'cantidad' => 3,
-            'bono' => 1,
-        );
-
-        $productos[] = array(
-            'producto_id' => 15,
-            'unidad_id' => 1,
-            'precio' => 0,
-            'cantidad' => 3,
-            'bono' => 1,
         );
 
 
         //configura los parametros aqui
         $params = array(
             'max_items' => 10,
-            'max_importe' => 0
+            'max_importe' => 700
         );
         //doc pueder ser 'BOLETA' o 'FACTURA'
 
