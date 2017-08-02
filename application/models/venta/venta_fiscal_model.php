@@ -255,7 +255,7 @@ class venta_fiscal_model extends CI_Model
         }
 
         //comparo importes finales
-        if ($init_importe != $fin_importe) {
+        if (number_format($init_importe) - number_format($fin_importe) != 0) {
             $this->save_logger('SPLIT', "Error importe inicial e importe final no coinciden", $params, $products, $result);
             return false;
         }
