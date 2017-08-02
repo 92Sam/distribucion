@@ -718,4 +718,17 @@ class pedidos extends REST_Controller
             $this->response(array(), 200);
         }
     }
+
+    public function entregas_items_get() {
+        $get = $this->input->get(null, true);
+
+        $venta_id = $get['venta_id'];
+        $result = $this->ventas->get_venta_detalle($venta_id);
+
+        if ($result) {
+            $this->response($result, 200);
+        } else {
+            $this->response(array(), 200);
+        }
+    }
 }
