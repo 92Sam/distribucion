@@ -176,7 +176,7 @@ class kardex_model extends CI_Model
         )
             ->from('kardex')
             ->join('unidades', 'kardex.unidad_id=unidades.id_unidad')
-            ->join('documento_fiscal', 'documento_fiscal.documento_fiscal_id=kardex.ref_id')
+            ->join('documento_fiscal', 'documento_fiscal.documento_fiscal_id=kardex.ref_id', 'left')
             ->group_by('kardex.ref_id, tipo_doc, tipo_operacion')
             ->order_by('id');
 
@@ -239,7 +239,7 @@ class kardex_model extends CI_Model
                 $last_costo_unitario = $k->costo_unitario_final;
             }
         }
-
+        
         return array('fiscal' => $kardex, 'inicial' => $kardex_inicial);
     }
 
