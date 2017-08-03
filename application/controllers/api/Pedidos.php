@@ -554,6 +554,7 @@ class pedidos extends REST_Controller
         $vendedor = $get['vendedor'];
         $monto = $get['monto'] != NULL ? $get['monto'] : 0;
         $fecha_oper = $get['fecha_oper'];
+        $mot_rechazo = $get['mot_rechazo'];
 
         $venta = $this->ventas->get_by('venta_id', $id_pedido);
 
@@ -572,7 +573,7 @@ class pedidos extends REST_Controller
             'fecha_documento' => $fecha_oper
         ));
 
-        $result = $this->ventas->update_status($id_pedido, $estatus);
+        $result = $this->ventas->update_status($id_pedido, $estatus, $mot_rechazo);
 
         if ($result === false) {
             $this->response(array('status' => 'failed'));
