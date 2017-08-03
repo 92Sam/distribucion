@@ -1171,7 +1171,7 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
             'pedido_id' => $venta_id,
         ))->row();
 
-        if($proceso != NULL) {
+        if ($proceso != NULL) {
             $this->db->where('historial_pedido_proceso_id', $proceso->id);
             $this->db->delete('historial_pedido_detalle');
 
@@ -1180,10 +1180,11 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
             $this->db->delete('historial_pedido_proceso');
         }
 
+        $venta = $this->db->get_where('venta', array('venta_id' => $venta_id))->row();
         $this->db->insert('historial_pedido_proceso', array(
             'proceso_id' => PROCESO_DEVOLVER,
             'pedido_id' => $venta_id,
-            'responsable_id' => $this->session->userdata('nUsuCodigo'),
+            'responsable_id' => $venta->id_vendedor,
             'fecha_plan' => date('Y-m-d H:i:s'),
             'created_at' => date('Y-m-d H:i:s'),
             'actual' => 0
@@ -1468,19 +1469,18 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
             ->get()->result();
 
         $result = array();
-        
-        foreach($docs_fiscal as $doc){
-            
-            foreach ($doc->detalles as $detalle){
 
-                foreach ($detalle_historial as $historial){
+        foreach ($docs_fiscal as $doc) {
+
+            foreach ($doc->detalles as $detalle) {
+
+                foreach ($detalle_historial as $historial) {
 
 //                    if($historial->producto_id == $detalle->id_producto && $historial->unidad_id == $detalle->id_unidad && $historial->precio == $detalle->)
 
                 }
             }
         }
-        
 
 
     }
