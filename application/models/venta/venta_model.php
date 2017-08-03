@@ -1171,12 +1171,14 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
             'pedido_id' => $venta_id,
         ))->row();
 
-        $this->db->where('historial_pedido_proceso_id', $proceso->id);
-        $this->db->delete('historial_pedido_detalle');
+        if($proceso != NULL) {
+            $this->db->where('historial_pedido_proceso_id', $proceso->id);
+            $this->db->delete('historial_pedido_detalle');
 
-        $this->db->where('proceso_id', PROCESO_DEVOLVER);
-        $this->db->where('pedido_id', $venta_id);
-        $this->db->delete('historial_pedido_proceso');
+            $this->db->where('proceso_id', PROCESO_DEVOLVER);
+            $this->db->where('pedido_id', $venta_id);
+            $this->db->delete('historial_pedido_proceso');
+        }
 
         $this->db->insert('historial_pedido_proceso', array(
             'proceso_id' => PROCESO_DEVOLVER,
@@ -1448,6 +1450,39 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
         $this->db->where($where);
         $query = $this->db->get('credito');
         return $query->row_array();
+    }
+
+    function devolver_parcial($venta_id)
+    {
+
+        $venta = $this->db->get_where('venta', array('venta_id' => $venta_id))->row();
+        $docs_fiscal = $this->db->get_where('documento_fiscal', array('venta_id' => $venta_id))->result();
+        foreach ($docs_fiscal as $doc)
+            $doc->detalles = $this->db->get_where('documento_detalle', array('documento_fiscal_id' => $doc->documento_fiscal_id))->result();
+
+        $detalle_historial = $this->db->select('historial_pedido_detalle.*')
+            ->from('historial_pedido_detalle')
+            ->join('historial_pedido_proceso', 'historial_pedido_proceso.id = historial_pedido_detalle.historial_pedido_proceso_id')
+            ->where('historial_pedido_proceso.pedido_id', $venta_id)
+            ->where('historial_pedido_proceso.proceso_id', PROCESO_DEVOLVER)
+            ->get()->result();
+
+        $result = array();
+        
+        foreach($docs_fiscal as $doc){
+            
+            foreach ($doc->detalles as $detalle){
+
+                foreach ($detalle_historial as $historial){
+
+//                    if($historial->producto_id == $detalle->id_producto && $historial->unidad_id == $detalle->id_unidad && $historial->precio == $detalle->)
+
+                }
+            }
+        }
+        
+
+
     }
 
     function devolver_parcial_stock($venta_id)

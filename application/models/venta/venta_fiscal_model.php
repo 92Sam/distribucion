@@ -263,7 +263,6 @@ class venta_fiscal_model extends CI_Model
         return true;
     }
 
-
     function save_logger($tipo, $msg, $params, $products, $result = array())
     {
         $data['fecha'] = date('Y-m-d h:m:s');
