@@ -585,11 +585,9 @@ class pedidos extends REST_Controller
 
         $get = $this->get(null, true);
 
-        $devol = $get['devoluciones'];
-
         $venta_id = $get['venta_id'];
         $total_importe = $get['total_importe'];
-        $devoluciones = json_decode($devol);
+        $devoluciones = json_decode($get['devoluciones']);
 
         $result = $this->ventas->devolver_venta($venta_id, $total_importe, $devoluciones);
 
