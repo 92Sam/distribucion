@@ -673,6 +673,7 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
                         'cantidad' => $p['cantidad'],
                         'id_unidad' => $p['unidad_id'],
                         'detalle_importe' => $p['cantidad'] * $p['precio'],
+                        'bono' => $p['bono']
                     ));
 
                     $fiscal = $this->db->get_where('documento_fiscal', array('documento_fiscal_id' => $fiscal_id))->row();
@@ -1453,37 +1454,57 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
         return $query->row_array();
     }
 
-    function devolver_parcial($venta_id)
-    {
-
-        $venta = $this->db->get_where('venta', array('venta_id' => $venta_id))->row();
-        $docs_fiscal = $this->db->get_where('documento_fiscal', array('venta_id' => $venta_id))->result();
-        foreach ($docs_fiscal as $doc)
-            $doc->detalles = $this->db->get_where('documento_detalle', array('documento_fiscal_id' => $doc->documento_fiscal_id))->result();
-
-        $detalle_historial = $this->db->select('historial_pedido_detalle.*')
-            ->from('historial_pedido_detalle')
-            ->join('historial_pedido_proceso', 'historial_pedido_proceso.id = historial_pedido_detalle.historial_pedido_proceso_id')
-            ->where('historial_pedido_proceso.pedido_id', $venta_id)
-            ->where('historial_pedido_proceso.proceso_id', PROCESO_DEVOLVER)
-            ->get()->result();
-
-        $result = array();
-
-        foreach ($docs_fiscal as $doc) {
-
-            foreach ($doc->detalles as $detalle) {
-
-                foreach ($detalle_historial as $historial) {
-
-//                    if($historial->producto_id == $detalle->id_producto && $historial->unidad_id == $detalle->id_unidad && $historial->precio == $detalle->)
-
-                }
-            }
-        }
-
-
-    }
+//    function devolver_parcial($venta_id)
+//    {
+//
+//        $venta = $this->db->get_where('venta', array('venta_id' => $venta_id))->row();
+//        $docs_fiscal = $this->db->get_where('documento_fiscal', array('venta_id' => $venta_id))->result();
+//        foreach ($docs_fiscal as $doc)
+//            $doc->detalles = $this->db->get_where('documento_detalle', array('documento_fiscal_id' => $doc->documento_fiscal_id))->result();
+//
+//        $detalle_historial = $this->db->select('historial_pedido_detalle.*')
+//            ->from('historial_pedido_detalle')
+//            ->join('historial_pedido_proceso', 'historial_pedido_proceso.id = historial_pedido_detalle.historial_pedido_proceso_id')
+//            ->where('historial_pedido_proceso.pedido_id', $venta_id)
+//            ->where('historial_pedido_proceso.proceso_id', PROCESO_DEVOLVER)
+//            ->get()->result();
+//
+//        $result = array();
+//
+//        foreach ($docs_fiscal as $doc) {
+//            foreach ($doc->detalles as $detalle) {
+//
+//                foreach ($detalle_historial as $historial) {
+//                    $cantidad = 0;
+//                    if ($historial->producto_id == $detalle->id_producto)
+//                        if ($historial->unidad_id == $detalle->id_unidad) {
+//                                if ($historial->stock > 0) {
+//
+//                                    if ($historial->stock >= $detalle->cantidad) {
+//                                        $cantidad = $detalle->cantidad;
+//                                        $historial->stock -= $cantidad;
+//                                    } else {
+//                                        $cantidad = $historial->stock;
+//                                        $historial->stock -= $cantidad;
+//                                    }
+//
+//                                    $result[$doc->documento_fiscal_id][] = array(
+//                                        'producto_id' => $historial->producto_id,
+//                                        'unidad_id' => $historial->unidad_id,
+//                                        'costo_unitario' => $historial->costo_unitario,
+//                                        'cantidad' => $cantidad,
+//                                    );
+//                                }
+//                            }
+//
+//                }
+//            }
+//        }
+//
+//        var_dump($result);
+//
+//
+//    }
 
     function devolver_parcial_stock($venta_id)
     {

@@ -9,6 +9,10 @@ class banco extends MY_Controller
         $this->load->model('banco/banco_model');
     }
 
+    function test(){
+        echo urldecode('%5B%7B%22detalle_id%22%3A%2232988%22%2C%22producto_id%22%3A%2243%22%2C%22unidad_id%22%3A6%2C%22devolver%22%3A1%2C%22new_cantidad%22%3A%2249%22%2C%22new_importe%22%3A543.9%2C%22bono%22%3A0%7D%2C%7B%22detalle_id%22%3A%2232989%22%2C%22producto_id%22%3A%2244%22%2C%22unidad_id%22%3A6%2C%22devolver%22%3A0%2C%22new_cantidad%22%3A%2250%22%2C%22new_importe%22%3A555.0%2C%22bono%22%3A0%7D%2C%7B%22detalle_id%22%3A%2232990%22%2C%22producto_id%22%3A%2232%22%2C%22unidad_id%22%3A6%2C%22devolver%22%3A0%2C%22new_cantidad%22%3A%22100%22%2C%22new_importe%22%3A1560.0%2C%22bono%22%3A0%7D%2C%7B%22detalle_id%22%3A%2232991%22%2C%22producto_id%22%3A%2244%22%2C%22unidad_id%22%3A6%2C%22devolver%22%3A3%2C%22new_cantidad%22%3A%222%22%2C%22new_importe%22%3A0%2C%22bono%22%3A1%7D%2C%7B%22detalle_id%22%3A%2232992%22%2C%22producto_id%22%3A%2232%22%2C%22unidad_id%22%3A6%2C%22devolver%22%3A0%2C%22new_cantidad%22%3A%223%22%2C%22new_importe%22%3A0%2C%22bono%22%3A1%7D%5D');
+    }
+
     function fiscal()
     {
 

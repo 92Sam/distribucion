@@ -460,6 +460,7 @@ class consolidadodecargas extends MY_Controller
             } else {
                 //RETORNO EL STOCK SI ES UN PEDIDO DEVUELTO
                 $this->venta_model->devolver_parcial_stock($detalle->pedido_id);
+//                $this->venta_model->devolver_parcial($detalle->pedido_id);
             }
 
             if ($pedido->venta_status == PEDIDO_RECHAZADO) {
