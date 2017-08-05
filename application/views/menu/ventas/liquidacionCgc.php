@@ -34,16 +34,6 @@
     <li>Flujo de Trabajo</li>
     <li>Liquidación CGC</li>
 </ul>
-<div class="row">
-    <div class="col-xs-12">
-        <div class="alert alert-success alert-dismissable" id="success"
-             style="display:<?php echo isset($success) ? 'block' : 'none' ?>">
-            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">X</button>
-            <h4><i class="icon fa fa-check"></i> Operaci&oacute;n realizada</h4>
-            <span id="successspan"><?php echo isset($success) ? $success : '' ?></div>
-        </span>
-    </div>
-</div>
 <?php
 echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "</div>");
 ?>
@@ -614,9 +604,9 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
 
         var grupo = {
             ajaxgrupo: function () {
+                show_msg('success', 'Se ha cerrado el consolidado');
                 return $.ajax({
                     url: '<?= base_url()?>consolidadodecargas/liquidacion'
-
                 })
             },
             guardar: function () {
@@ -661,6 +651,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                 });
             },
             cerrarLiquidacion: function () {
+                $('#cerrar_liquidacion_button').attr('disabled', 'disabled');
                 App.formSubmitAjax($("#formcerrarliquidacion").attr('action'), this.ajaxgrupo, 'consolidadoLiquidacion', 'formcerrarliquidacion');
 
             }

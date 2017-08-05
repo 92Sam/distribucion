@@ -78,6 +78,10 @@
                             <td style="white-space: nowrap;"><?= $kardex['inicial'] != NULL ? MONEDA . ' ' . number_format($kardex['inicial']->costo_unitario_final, 2) : MONEDA . ' 0.00' ?></td>
                             <td style="white-space: nowrap;"><?= $kardex['inicial'] != NULL ? MONEDA . ' ' . number_format($kardex['inicial']->total_final, 2) : MONEDA . ' 0.00' ?></td>
                         </tr>
+                        <?php $total_entrada = 0; ?>
+                        <?php $total_salida = 0; ?>
+                        <?php $total_entrada_importe = 0; ?>
+                        <?php $total_salida_importe = 0; ?>
                         <?php if (count($kardex['fiscal']) > 0): ?>
                             <?php foreach ($kardex['fiscal'] as $detalle): ?>
                                 <tr>
@@ -92,6 +96,8 @@
                                     <?php $tipo_operacion = get_tipo_operacion($detalle->tipo_operacion) ?>
                                     <td><?= $tipo_operacion['value'] ?></td>
                                     <?php if ($detalle->IO == 1): ?>
+                                        <?php $total_entrada += $detalle->cantidad ?>
+                                        <?php $total_entrada_importe += $detalle->total ?>
                                         <td><?= $detalle->cantidad ?></td>
                                         <td style="white-space: nowrap;"><?= MONEDA . ' ' . number_format($detalle->costo_unitario, 2) ?></td>
                                         <td style="white-space: nowrap;"><?= MONEDA . ' ' . number_format($detalle->total, 2) ?></td>
@@ -100,6 +106,8 @@
                                         <td></td>
                                     <?php endif; ?>
                                     <?php if ($detalle->IO == 2): ?>
+                                        <?php $total_salida += $detalle->cantidad ?>
+                                        <?php $total_salida_importe += $detalle->total ?>
                                         <td></td>
                                         <td></td>
                                         <td></td>
@@ -112,15 +120,30 @@
                                     <td style="white-space: nowrap;"><?= MONEDA . ' ' . number_format($detalle->total_final, 2) ?></td>
                                 </tr>
                             <?php endforeach; ?>
+                            <tr>
+                                <th rowspan="2" colspan="7"></th>
+                                <th colspan="3">Total Entradas</th>
+                                <th colspan="3">Total Salidas</th>
+                                <th colspan="3"></th>
+                            </tr>
+                            <tr style="font-weight: bold;">
+                                <td><?= $total_entrada ?></td>
+                                <td></td>
+                                <td><?= MONEDA . ' ' . number_format($total_entrada_importe, 2) ?></td>
+                                <td><?= $total_salida ?></td>
+                                <td></td>
+                                <td><?= MONEDA . ' ' . number_format($total_salida_importe, 2) ?></td>
+                                <td colspan="3"></td>
+                            </tr>
                         <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
-                <?php if($tipo_kardex == 'INTERNO'):?>
-                <a href="#" id="exportar_pdf" class="btn  btn-danger btn-lg"
-                   data-toggle="tooltip" title="Exportar a PDF"
-                   data-original-title="fa fa-file-pdf-o"><i class="fa fa-file-pdf-o fa-fw"></i></a>
-                <?php endif;?>
+                <?php if ($tipo_kardex == 'INTERNO'): ?>
+                    <a href="#" id="exportar_pdf" class="btn  btn-danger btn-lg"
+                       data-toggle="tooltip" title="Exportar a PDF"
+                       data-original-title="fa fa-file-pdf-o"><i class="fa fa-file-pdf-o fa-fw"></i></a>
+                <?php endif; ?>
                 <a href="#" id="exportar_excel" class="btn btn-default btn-lg" data-toggle="tooltip"
                    title="Exportar a Excel"
                    data-original-title="fa fa-file-excel-o"><i class="fa fa-file-excel-o fa-fw"></i></a>

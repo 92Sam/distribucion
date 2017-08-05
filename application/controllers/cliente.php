@@ -105,6 +105,7 @@ class cliente extends MY_Controller
             'importe_deuda' => !empty($_POST['importe_deuda']) ? $_POST['importe_deuda'] : null,
             'id_zona' => !empty($zona) ? $zona : null,
             'vendedor_a' => !empty($vendedor_id) ? $vendedor_id : null,
+            'nombre_boleta' => !empty($_POST['nombre_boleta']) ? $_POST['nombre_boleta'] : null
         );
 
         $datos = array(
@@ -113,6 +114,7 @@ class cliente extends MY_Controller
             'representante_dni' => $_POST['representante_dni']
         );
 
+//        var_dump($cliente);
         if (empty($id)) {
             $resultado = $this->cliente_model->insertar($cliente, $_POST['items'], $datos);
         } else {

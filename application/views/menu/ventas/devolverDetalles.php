@@ -236,6 +236,7 @@
     function validar_venta() {
         var flag = true;
         var n = 0;
+
         $('.producto_detalles_list').each(function () {
             var id = $(this).attr('data-id');
             var cantidad = parseFloat($('#cantidad_' + id).html());
@@ -255,9 +256,21 @@
             if (cantidad == old_cantidad)
                 n++;
 
+
         });
         if (n == $('.producto_detalles_list').length) {
             $.bootstrapGrowl('<h4>Error.</h4> <p>Por favor devuelva una cantidad.</p>', {
+                type: 'warning',
+                delay: 5000,
+                allow_dismiss: true
+            });
+            $('#cantidad_devuelta_' + id).trigger('focus');
+            return false;
+        }
+
+
+        if (parseFloat($('#total_pagado').html()) == parseFloat($('#total_devolver').html())) {
+            $.bootstrapGrowl('<h4>Error.</h4> <p>No puede devolver todos los productos. Haga un rechazo.</p>', {
                 type: 'warning',
                 delay: 5000,
                 allow_dismiss: true
@@ -270,6 +283,7 @@
     }
 
     function devolver_venta() {
+
 
         $("#barloadermodal").modal({
             show: true,

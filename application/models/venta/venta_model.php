@@ -641,6 +641,9 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
         $cliente = $this->db->get_where('cliente', array('id_cliente' => $pedido->id_cliente))->row();
         $cliente_descuento = $cliente->descuento;
 
+        if($cliente->nombre_boleta == 1)
+            $params['max_importe'] = 0;
+
         foreach ($pedido_detalles as $pd) {
 
             $detalle_precio = $pd->precio;

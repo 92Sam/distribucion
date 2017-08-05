@@ -137,6 +137,7 @@
                 'id_zona': $('#zona').val(),
                 'vendedor_a': $('#vendedor').val(),
                 'importe_deuda': $('#importe_deuda').val(),
+                'nombre_boleta': $('#nombre_boleta').val(),
                 'items': items
             },
             success: function (data) {
@@ -214,11 +215,11 @@
                             <select name="tipo_cliente" id="tipo_cliente" required="true" class="form-control">
                                 <option value="-1">Seleccione</option>
                                 <option
-                                    value="1" <?php if (isset($cliente['tipo_cliente']) and $cliente['tipo_cliente'] == 1) echo 'selected' ?>>
+                                        value="1" <?php if (isset($cliente['tipo_cliente']) and $cliente['tipo_cliente'] == 1) echo 'selected' ?>>
                                     Natural
                                 </option>
                                 <option
-                                    value="0" <?php if (isset($cliente['tipo_cliente']) and $cliente['tipo_cliente'] == 0) echo 'selected' ?>>
+                                        value="0" <?php if (isset($cliente['tipo_cliente']) and $cliente['tipo_cliente'] == 0) echo 'selected' ?>>
                                     Juridico
                                 </option>
                             </select>
@@ -258,7 +259,8 @@
                             </select>
                         </div>
                         <div class="col-md-2">
-                            <input type="text" disabled name="ruc_cliente" id="ruc_cliente" required="true" class="form-control"
+                            <input type="text" disabled name="ruc_cliente" id="ruc_cliente" required="true"
+                                   class="form-control"
                                    value="<?php if (isset($cliente['ruc_cliente'])) echo $cliente['ruc_cliente']; ?>">
                         </div>
 
@@ -285,9 +287,9 @@
                                 </div>
                                 <div class="col-md-3" id="dni_ruc_cont">
                                     <input type="text" name="representante_dni" id="representante_dni"
-                                            required="true"
+                                           required="true"
                                            class="form-control"
-                                    value="<?php if (isset($cdatos['representante_dni'])) echo $cdatos['representante_dni']; ?>">
+                                           value="<?php if (isset($cdatos['representante_dni'])) echo $cdatos['representante_dni']; ?>">
 
                                 </div>
                             </div>
@@ -334,7 +336,7 @@
                                     $paais['pais' . $p] = $pais['id_pais'];
                                     ?>
                                     <option
-                                        value="<?php echo $pais['id_pais'] ?>" <?php if (isset($cliente['id_pais']) and $cliente['pais_id'] == $pais['id_pais']) echo 'selected' ?>><?= $pais['nombre_pais'] ?></option>
+                                            value="<?php echo $pais['id_pais'] ?>" <?php if (isset($cliente['id_pais']) and $cliente['pais_id'] == $pais['id_pais']) echo 'selected' ?>><?= $pais['nombre_pais'] ?></option>
                                     <?php
                                     $p++;
                                 } ?>
@@ -356,7 +358,7 @@
                                         $eestado['estado' . $e] = $estado['estados_id'];
                                         ?>
                                         <option
-                                            value="<?php echo $estado['estados_id'] ?>" <?php if (isset($cliente['estados_id']) and $cliente['estados_id'] == $estado['estados_id']) echo 'selected' ?>><?= $estado['estados_nombre'] ?></option>
+                                                value="<?php echo $estado['estados_id'] ?>" <?php if (isset($cliente['estados_id']) and $cliente['estados_id'] == $estado['estados_id']) echo 'selected' ?>><?= $estado['estados_nombre'] ?></option>
                                         <?php $e++;
                                     } ?>
 
@@ -372,7 +374,7 @@
                                         ?>
                                         <?php foreach ($estados as $estado): ?>
                                         <option
-                                            value="<?php echo $estado['estados_id'] ?>" <?php if (isset($cliente['estados_id']) and $cliente['estados_id'] == $estado['estados_id']) echo 'selected' ?>><?= $estado['estados_nombre'] ?></option>
+                                                value="<?php echo $estado['estados_id'] ?>" <?php if (isset($cliente['estados_id']) and $cliente['estados_id'] == $estado['estados_id']) echo 'selected' ?>><?= $estado['estados_nombre'] ?></option>
                                         <?php $e++; endforeach ?>
                                     <?php endif ?>
                                 </select>
@@ -393,7 +395,7 @@
                                     <option value="">Seleccione</option>
                                     <?php foreach ($ciudades as $ciudad): ?>
                                         <option
-                                            value="<?php echo $ciudad['ciudad_id'] ?>" <?php if (isset($cliente['ciudad_id']) and $cliente['ciudad_id'] == $ciudad['ciudad_id']) echo 'selected' ?>><?= $ciudad['ciudad_nombre'] ?></option>
+                                                value="<?php echo $ciudad['ciudad_id'] ?>" <?php if (isset($cliente['ciudad_id']) and $cliente['ciudad_id'] == $ciudad['ciudad_id']) echo 'selected' ?>><?= $ciudad['ciudad_nombre'] ?></option>
                                     <?php endforeach ?>
 
                                 </select>
@@ -406,7 +408,7 @@
                                     <?php if (isset($cliente['id_cliente'])): ?>
                                         <?php foreach ($ciudades as $ciudad): ?>
                                             <option
-                                                value="<?php echo $ciudad['ciudad_id'] ?>" <?php if (isset($cliente['ciudad_id']) and $cliente['ciudad_id'] == $ciudad['ciudad_id']) echo 'selected' ?>><?= $ciudad['ciudad_nombre'] ?></option>
+                                                    value="<?php echo $ciudad['ciudad_id'] ?>" <?php if (isset($cliente['ciudad_id']) and $cliente['ciudad_id'] == $ciudad['ciudad_id']) echo 'selected' ?>><?= $ciudad['ciudad_nombre'] ?></option>
                                         <?php endforeach ?>
                                     <?php endif ?>
                                 </select>
@@ -429,7 +431,7 @@
                                 <option value="0">Seleccione</option>
                                 <?php foreach ($zonas as $zona): ?>
                                     <option
-                                        value="<?php echo $zona['zona_id'] ?>" <?php if (isset($cliente['id_zona']) and $cliente['id_zona'] == $zona['zona_id']) echo 'selected' ?>><?= $zona['zona_nombre'] ?></option>
+                                            value="<?php echo $zona['zona_id'] ?>" <?php if (isset($cliente['id_zona']) and $cliente['id_zona'] == $zona['zona_id']) echo 'selected' ?>><?= $zona['zona_nombre'] ?></option>
                                 <?php endforeach ?>
                             </select>
                         </div>
@@ -445,7 +447,7 @@
 
                                     ?>
                                     <option
-                                        value="<?php echo $vendedor['nUsuCodigo'] ?>" <?php if (isset($cliente['vendedor_a']) and $cliente['vendedor_a'] == $vendedor['nUsuCodigo']) echo 'selected' ?>><?= $vendedor['nombre'] ?></option>
+                                            value="<?php echo $vendedor['nUsuCodigo'] ?>" <?php if (isset($cliente['vendedor_a']) and $cliente['vendedor_a'] == $vendedor['nUsuCodigo']) echo 'selected' ?>><?= $vendedor['nombre'] ?></option>
                                 <?php endforeach ?>
                             </select>
                         </div>
@@ -478,11 +480,11 @@
                             <select name="s_retencion" id="s_retencion" class="form-control">
                                 <option value="">Seleccione</option>
                                 <option
-                                    value="1" <?php if (isset($cliente['agente_retencion']) and $cliente['agente_retencion'] == 1) echo 'selected' ?>>
+                                        value="1" <?php if (isset($cliente['agente_retencion']) and $cliente['agente_retencion'] == 1) echo 'selected' ?>>
                                     Si
                                 </option>
                                 <option
-                                    value="0" <?php if (isset($cliente['agente_retencion']) and $cliente['agente_retencion'] == 0) echo 'selected' ?>>
+                                        value="0" <?php if (isset($cliente['agente_retencion']) and $cliente['agente_retencion'] == 0) echo 'selected' ?>>
                                     No
                                 </option>
                             </select>
@@ -507,7 +509,7 @@
                                 <option value="">Seleccione</option>
                                 <?php foreach ($grupos as $grupo): ?>
                                     <option
-                                        value="<?php echo $grupo['id_grupos_cliente'] ?>" <?php if (isset($cliente['grupo_id']) and $cliente['grupo_id'] == $grupo['id_grupos_cliente']) echo 'selected' ?>><?= $grupo['nombre_grupos_cliente'] ?></option>
+                                            value="<?php echo $grupo['id_grupos_cliente'] ?>" <?php if (isset($cliente['grupo_id']) and $cliente['grupo_id'] == $grupo['id_grupos_cliente']) echo 'selected' ?>><?= $grupo['nombre_grupos_cliente'] ?></option>
                                 <?php endforeach ?>
                             </select>
 
@@ -520,11 +522,11 @@
                             <select name="s_descuento" id="s_descuento" class="form-control">
                                 <option value="">Seleccione</option>
                                 <option
-                                    value="1" <?php if (isset($cliente['descuento']) and $cliente['descuento'] != NULL) echo 'selected' ?>>
+                                        value="1" <?php if (isset($cliente['descuento']) and $cliente['descuento'] != NULL) echo 'selected' ?>>
                                     Si
                                 </option>
                                 <option
-                                    value="0" <?php if (isset($cliente['descuento']) and $cliente['descuento'] == NULL) echo 'selected' ?>>
+                                        value="0" <?php if (isset($cliente['descuento']) and $cliente['descuento'] == NULL) echo 'selected' ?>>
                                     No
                                 </option>
                             </select>
@@ -534,7 +536,7 @@
                                    value="<?php if (isset($cliente['descuento'])) echo $cliente['descuento']; ?>">
 
                         </div>
-                </div>
+                    </div>
                 </div>
 
                 <div class="row">
@@ -543,10 +545,28 @@
                             <label class="control-label panel-admin-text">Importe Deuda</label>
                         </div>
 
-                        <div class="col-md-4" id=''>
+                        <div class="col-md-4">
                             <input disabled type="number" name="importe_deuda" id="importe_deuda" class="form-control"
                                    value="<?php if (isset($cliente['importe_deuda'])) echo $cliente['importe_deuda']; ?>">
 
+                        </div>
+                        
+                        <div class="col-md-2">
+                            <label class="control-label panel-admin-text">Nombre en Boleta</label>
+                        </div>
+
+                        <div class="col-md-4">
+                            <select name="nombre_boleta" id="nombre_boleta" class="form-control">
+                                <option
+                                        value="0" <?php if (isset($cliente['nombre_boleta']) and $cliente['nombre_boleta'] == 0) echo 'selected' ?>>
+                                    No
+                                </option>
+                                <option
+                                        value="1" <?php if (isset($cliente['nombre_boleta']) and $cliente['nombre_boleta'] != 0) echo 'selected' ?>>
+                                    Si
+                                </option>
+
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -620,8 +640,9 @@
                                             ?></td>
                                         <td><i id="editar_dato" title="Editar" onclick="editar_dato(this)"
                                                class="editar_d gi gi-edit sidebar-nav-icon" style=""></i>&nbsp;&nbsp;<i
-                                                id="eliminar_dato" title="Eliminar" onclick="modalEliminarDato(this)"
-                                                class="eliminar_d fa fa-trash sidebar-nav-icon"></i></td>
+                                                    id="eliminar_dato" title="Eliminar"
+                                                    onclick="modalEliminarDato(this)"
+                                                    class="eliminar_d fa fa-trash sidebar-nav-icon"></i></td>
                                     </tr>
 
                                 <?php }
@@ -799,19 +820,19 @@
 
         if ($('#tipo_identificacion').val() == 1) {
             $('#ruc_cliente').mask('99999999999');
-            $('#ruc_cliente').prop('disabled',false);
+            $('#ruc_cliente').prop('disabled', false);
 
 
         }
         else if ($('#tipo_identificacion').val() == 2) {
             $('#ruc_cliente').mask('99999999');
-            $('#ruc_cliente').prop('disabled',false);
+            $('#ruc_cliente').prop('disabled', false);
 
 
         }
         else {
             $('#ruc_cliente').mask('');
-            $('#ruc_cliente').prop('disabled',true);
+            $('#ruc_cliente').prop('disabled', true);
 
 
         }
@@ -873,7 +894,7 @@
         }
     }
 
-    function change_descuento(){
+    function change_descuento() {
         if ($('#s_descuento').val() == 1) {
             $('#div_descuento').show()
         } else {

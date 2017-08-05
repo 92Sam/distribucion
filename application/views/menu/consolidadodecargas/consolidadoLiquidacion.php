@@ -95,7 +95,7 @@
 
                             <?php if ($cerrar_consolidado_flag && $status == 'IMPRESO'): ?>
                         <div class="btn-group">
-                                <button type="button" id="" class="btn btn-sm btn-primary"
+                                <button type="button" id="cerrar_liquidacion_button" class="btn btn-sm btn-primary"
                                         onclick="grupo.cerrarLiquidacion()">
                                     <li class="glyphicon glyphicon-thumbs-up"></li>
                                     Cerrar Liquidación
