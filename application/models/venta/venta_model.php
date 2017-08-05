@@ -1460,9 +1460,6 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
     function devolver_parcial($venta_id)
     {
 
-        $this->db->trans_start(true);
-        $this->db->trans_begin();
-
         $venta = $this->db->get_where('venta', array('venta_id' => $venta_id))->row();
         $docs_fiscal = $this->db->get_where('documento_fiscal', array('venta_id' => $venta_id))->result();
         foreach ($docs_fiscal as $doc)
@@ -1577,14 +1574,7 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
 
         }
 
-        $this->db->trans_complete();
-        if ($this->db->trans_status() === FALSE) {
-            return false;
-        } else {
-            return true;
-        }
-
-        $this->db->trans_off();
+        return true;
 
     }
 

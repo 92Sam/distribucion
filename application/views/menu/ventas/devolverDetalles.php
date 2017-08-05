@@ -98,7 +98,7 @@
                                 </td>
                                 <td style="text-align: right; width: 150px;"><?= MONEDA ?>
                                     <span id="subtotal_<?= $detalle->detalle_id ?>" class="subtotales">
-                                            <?= $detalle->importe ?>
+                                            <?= number_format($detalle->importe, 2) ?>
                                         </span>
                                 </td>
                             </tr>
@@ -417,7 +417,7 @@
                         temp.bono = 0;
 
                     }
-                    else{
+                    else {
 
                         temp.detalle_id = id;
                         temp.producto_id = $(this).attr('data-producto_id');
@@ -425,8 +425,8 @@
                         temp.new_cantidad = 0;
                         temp.devolver = parseFloat($('#cantidad_' + id).html());
 
-                        for(var i = 0; i < data.new_bonos.length; i++){
-                            if(data.new_bonos[i].producto_id == $(this).attr('data-producto_id') && data.new_bonos[i].unidad_id == $(this).attr('data-unidad_id')){
+                        for (var i = 0; i < data.new_bonos.length; i++) {
+                            if (data.new_bonos[i].producto_id == $(this).attr('data-producto_id') && data.new_bonos[i].unidad_id == $(this).attr('data-unidad_id')) {
                                 temp.new_cantidad = parseFloat(data.new_bonos[i].cantidad);
                                 temp.devolver = parseFloat($('#cantidad_' + id).html() - data.new_bonos[i].cantidad);
                                 break;
