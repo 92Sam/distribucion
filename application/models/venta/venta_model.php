@@ -647,7 +647,7 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
         foreach ($pedido_detalles as $pd) {
 
             $detalle_precio = $pd->precio;
-            if ($pedido->tipo_doc_fiscal == 'BOLETA DE VENTA' && $cliente_descuento != NULL && $pd->bono != 1) {
+            if ($pedido->tipo_doc_fiscal == 'BOLETA DE VENTA' && $cliente_descuento != NULL && $pd->bono != 1 && $params['max_importe'] > 0) {
                 $detalle_precio = number_format($detalle_precio - ($detalle_precio * $cliente_descuento / 100), 2);
             }
 
