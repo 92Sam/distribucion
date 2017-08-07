@@ -3000,6 +3000,11 @@ class venta extends MY_Controller
                 $template->setValue('dni' . $index, $documentos[$n]->ruc);
                 $template->setValue('direccion' . $index, htmlspecialchars($dato->valor));
             }
+            else{
+                $template->setValue('cliente' . $index, '');
+                $template->setValue('dni' . $index, '');
+                $template->setValue('direccion' . $index, '');
+            }
             $template->setValue('fecha' . $index, date('d/m/Y', strtotime($documentos[$n]->fecha)));
             $template->setValue('cnld' . $index, $documentos[$n]->consolidado_id);
             $template->setValue('numero' . $index, $documentos[$n]->serie . "-" . $documentos[$n]->numero);
