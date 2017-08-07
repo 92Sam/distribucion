@@ -2958,6 +2958,7 @@ class venta extends MY_Controller
             c.razon_social AS razon_social,
             c.ruc_cliente AS ruc,
             c.id_cliente AS cliente_id,
+            c.nombre_boleta AS nombre_boleta,
             df.documento_serie AS serie,
             df.documento_numero AS numero
         ')->from('documento_fiscal AS df')
@@ -2986,16 +2987,19 @@ class venta extends MY_Controller
 
         for ($n = 0; $n < count($documentos); $n++) {
 
-            $dato = $this->db->get_where('cliente_datos', array(
-                'cliente_id' => $documentos[$n]->cliente_id,
-                'principal' => 1,
-                'tipo' => 1
-            ))->row();
-
             $index = $n + 1;
-            $template->setValue('cliente' . $index, htmlspecialchars($documentos[$n]->razon_social));
-            $template->setValue('dni' . $index, $documentos[$n]->ruc);
-            $template->setValue('direccion' . $index, htmlspecialchars($dato->valor));
+
+            if ($documentos[$n]->nombre_boleta == 1) {
+                $dato = $this->db->get_where('cliente_datos', array(
+                    'cliente_id' => $documentos[$n]->cliente_id,
+                    'principal' => 1,
+                    'tipo' => 1
+                ))->row();
+
+                $template->setValue('cliente' . $index, htmlspecialchars($documentos[$n]->razon_social));
+                $template->setValue('dni' . $index, $documentos[$n]->ruc);
+                $template->setValue('direccion' . $index, htmlspecialchars($dato->valor));
+            }
             $template->setValue('fecha' . $index, date('d/m/Y', strtotime($documentos[$n]->fecha)));
             $template->setValue('cnld' . $index, $documentos[$n]->consolidado_id);
             $template->setValue('numero' . $index, $documentos[$n]->serie . "-" . $documentos[$n]->numero);
