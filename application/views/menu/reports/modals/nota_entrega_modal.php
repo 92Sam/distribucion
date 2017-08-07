@@ -38,7 +38,7 @@
             </table>
         </div>
         <div class="modal-footer">
-            <a href="#" class="btn btn-danger" data-dismiss="modal">Cerrar</a>
+            <a href="#" class="btn btn-danger" onclick="$('#detalle_modal').modal('hide')">Cerrar</a>
         </div>
     </div>
 </div>

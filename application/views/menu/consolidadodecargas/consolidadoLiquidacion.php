@@ -19,6 +19,7 @@
                         <tr>
 
                             <th style="text-align: center">Documento</th>
+                            <th style="text-align: center">Tipo</th>
                             <th style="text-align: center">Bultos</th>
                             <th style="text-align: center">Cliente</th>
                             <th style="text-align: center">Importe Actual</th>
@@ -27,6 +28,7 @@
                                 <th style="text-align: center">Acciones</th>
                             <?php endif; ?>
                             <th style="text-align: center">Monto Cobrado</th>
+                            <th></th>
 
                         </tr>
                         </thead>
@@ -39,6 +41,7 @@
                             <tr>
                                 <?php if ($consolidadoDetalles['tipo_doc_fiscal'] == 'BOLETA DE VENTA') $total_boleta++; ?>
                                 <td style="text-align: center"><?= 'NE - ' . $consolidadoDetalles['documento_Numero']; ?></td>
+                                <td style="text-align: center"><?= $consolidadoDetalles['tipo_doc_fiscal']; ?></td>
                                 <td style="text-align: center"><?= number_format($consolidadoDetalles['bulto'], 0) ?></td>
                                 <td style="text-align: center"><?= $consolidadoDetalles['razon_social']; ?></td>
                                 <td style="text-align: right">
@@ -63,6 +66,12 @@
                                 <?php endif; ?>
                                 <?php $total_liquidado += $consolidadoDetalles['montocobradoliquidacion']; ?>
                                 <td style="text-align: right;"><?= MONEDA . ' ' . number_format($consolidadoDetalles['montocobradoliquidacion'], 2) ?></td>
+                                <td>
+                                    <a href="#" class="btn btn-default show_detalle"
+                                       data-id="<?= $consolidadoDetalles['venta_id'] ?>">
+                                        <i class="fa fa-search"></i>
+                                    </a>
+                                </td>
                             </tr>
                         <?php endforeach; ?>
                         </tbody>
@@ -90,56 +99,54 @@
                         </div>
 
 
-
-
-
-                            <?php if ($cerrar_consolidado_flag && $status == 'IMPRESO'): ?>
-                        <div class="btn-group">
+                        <?php if ($cerrar_consolidado_flag && $status == 'IMPRESO'): ?>
+                            <div class="btn-group">
                                 <button type="button" id="cerrar_liquidacion_button" class="btn btn-sm btn-primary"
                                         onclick="grupo.cerrarLiquidacion()">
                                     <li class="glyphicon glyphicon-thumbs-up"></li>
                                     Cerrar Liquidación
                                 </button>
-                        </div>
+                            </div>
+                        <?php endif; ?>
+
+                        <?php if ($status == 'CONFIRMADO' || $status == 'CERRADO'): ?>
+                            <?php if ($devolucion_flag): ?>
+
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-sm btn-info"
+                                            onclick="pedidoDevolucion(<?php echo $id_consolidado ?>);">
+                                        <i class="fa fa-print"></i> Devoluciones
+                                    </button>
+                                </div>
+
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-sm btn-info"
+                                            onclick="imprimir_notas(<?php echo $id_consolidado ?>);">
+                                        <i class="fa fa-print"></i> Notas de Credito
+                                    </button>
+                                </div>
                             <?php endif; ?>
-
-                            <?php if ($status == 'CONFIRMADO' || $status == 'CERRADO'): ?>
-                                <?php if ($devolucion_flag): ?>
-
-                                    <div class="btn-group">
-                                        <button type="button" class="btn btn-sm btn-info"
-                                                onclick="pedidoDevolucion(<?php echo $id_consolidado ?>);">
-                                            <i class="fa fa-print"></i> Devoluciones
-                                        </button>
-                                    </div>
-
-                                    <div class="btn-group">
-                                        <button type="button" class="btn btn-sm btn-info"
-                                                onclick="imprimir_notas(<?php echo $id_consolidado ?>);">
-                                            <i class="fa fa-print"></i> Notas de Credito
-                                        </button>
-                                    </div>
-                                <?php endif; ?>
-                                <?php if ($total_liquidado > 0): ?>
-                                    <div class="btn-group">
-                                        <button type="button" class="btn btn-sm btn-info"
-                                                onclick="pedidoPreCancelacion(<?php echo $id_consolidado ?>);">
-                                            <i class="fa fa-print"></i> Pre-Cancelación
-                                        </button>
-                                    </div>
-                                <?php endif; ?>
+                            <?php if ($total_liquidado > 0): ?>
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-sm btn-info"
+                                            onclick="pedidoPreCancelacion(<?php echo $id_consolidado ?>);">
+                                        <i class="fa fa-print"></i> Pre-Cancelación
+                                    </button>
+                                </div>
                             <?php endif; ?>
+                        <?php endif; ?>
                         <div class="btn-group">
                             <button type="button" class="btn btn-sm btn-danger" data-dismiss="modal">
                                 <li class="glyphicon glyphicon-thumbs-down"></li>
                                 Salir
                             </button>
-                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
     </form>
+
 
 
     <script type="text/javascript">
@@ -218,6 +225,20 @@
     </script>
     <script type="text/javascript">
         $(document).ready(function () {
+
+            $('.show_detalle').on('click', function(e){
+                e.preventDefault();
+
+                $.ajax({
+                    url: '<?=base_url("reporte_modals/detalle_nota_entrega")?>/' + $(this).attr('data-id'),
+                    type: 'GET',
+                    success: function(data){
+                        $('#detalle_modal').html(data);
+                        $('#detalle_modal').modal('show');
+                    }
+                })
+            });
+
 
             $(".liquidar_pedido").on('click', function () {
 
