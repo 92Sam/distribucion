@@ -64,7 +64,7 @@
         <h4>Total Boletas: <?= MONEDA ?> <?= number_format($total, 2) ?></h4>
     </div>
     <div class="col-md-4" style="text-align: right">
-        <h4>Total NE (B+D): <?= MONEDA ?> <?= number_format($total_descuento - $total + $venta_total, 2) ?></h4>
+        <h4>Total NE (B+D): <?= MONEDA ?> <?= number_format($total_descuento, 2) ?></h4>
     </div>
 </div>
 
