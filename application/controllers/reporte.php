@@ -56,7 +56,7 @@ class reporte extends MY_Controller
                 $data['fecha_fin'] = $params->fecha_fin;
                 $data['fecha_flag'] = $params->fecha_flag;
 
-//                $data['mostrar_detalles'] = $this->input->post('mostrar_detalles');
+                $data['mostrar_detalles'] = $this->input->post('mostrar_detalles');
 
                 $this->load->library('mpdf53/mpdf');
                 $mpdf = new mPDF('utf-8', 'A4-L');
