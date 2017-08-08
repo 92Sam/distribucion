@@ -42,7 +42,7 @@
             <td><?= $cobranza->atraso ?></td>
         </tr>
 
-        <? foreach ($cobranza->detalles as $detalle): ?>
+        <?php foreach ($cobranza->detalles as $detalle): ?>
             <tr class="tabla_detalles">
                 <td colspan="3"><?= $detalle->tipo_pago_nombre ?></td>
                 <td><?= date('d/m/Y', strtotime($detalle->fecha)) ?></td>

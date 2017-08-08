@@ -79,17 +79,19 @@ $total_saldo = 0; ?>
             <td><?= $cobranza->atraso ?></td>
         </tr>
 
-        <?php foreach ($cobranza->detalles as $detalle): ?>
-            <tr>
-                <td colspan="3"><?= $detalle->tipo_pago_nombre ?></td>
-                <td><?= date('d/m/Y', strtotime($detalle->fecha)) ?></td>
-                <td></td>
-                <td><?= MONEDA . ' ' . number_format($detalle->monto, 2) ?></td>
-                <?php $actual_desglose += $detalle->monto; ?>
-                <td><?= MONEDA . ' ' . number_format($cobranza->total_deuda - $actual_desglose, 2) ?></td>
-                <td colspan="3"></td>
-            </tr>
-        <?php endforeach; ?>
+        <?php if ($mostrar_detalles == 1): ?>
+            <?php foreach ($cobranza->detalles as $detalle): ?>
+                <tr>
+                    <td colspan="3"><?= $detalle->tipo_pago_nombre ?></td>
+                    <td><?= date('d/m/Y', strtotime($detalle->fecha)) ?></td>
+                    <td></td>
+                    <td><?= MONEDA . ' ' . number_format($detalle->monto, 2) ?></td>
+                    <?php $actual_desglose += $detalle->monto; ?>
+                    <td><?= MONEDA . ' ' . number_format($cobranza->total_deuda - $actual_desglose, 2) ?></td>
+                    <td colspan="3"></td>
+                </tr>
+            <?php endforeach; ?>
+        <?php endif; ?>
     <?php endforeach; ?>
 </table>
 <table border="0">
