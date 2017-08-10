@@ -305,7 +305,7 @@ $primary_nav = array(
             ),
 
             array(
-                'name' => 'Devoluci&oacute;n de Ventas',
+                'name' => 'Devoluciones',
                 'url' => $ruta . 'venta/devolver',
                 'icon' => 'fa fa-share',
                 'slug' => 'devolucionventa'

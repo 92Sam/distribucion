@@ -476,24 +476,50 @@ class venta extends MY_Controller
     }
 
 
-    function devolver()
+    function devolver($action = '')
     {
 
-        if ($this->session->flashdata('success') != FALSE) {
-            $data ['success'] = $this->session->flashdata('success');
-        }
-        if ($this->session->flashdata('error') != FALSE) {
-            $data ['error'] = $this->session->flashdata('error');
-        }
+        $this->load->model('reporte/rventas_model');
 
-        $estatus = array('COMPLETADO');
-        $data["ventas"] = $this->venta_model->get_venta_by_status($estatus);
-        $dataCuerpo['cuerpo'] = $this->load->view('menu/ventas/devolverventa', $data, true);
-        if ($this->input->is_ajax_request()) {
-            echo $dataCuerpo['cuerpo'];
-        } else {
-            $this->load->view('menu/template', $dataCuerpo);
+        switch ($action) {
+            case 'filter': {
+                $data['ventas'] = $this->rventas_model->get_for_devolver(array(
+                    'cliente_id' => $this->input->post('cliente_id'),
+                    'year' => $this->input->post('year'),
+                    'mes' => $this->input->post('mes'),
+                    'dia_min' => $this->input->post('dia_min'),
+                    'dia_max' => $this->input->post('dia_max')
+                ));
+
+                echo $this->load->view('menu/ventas/devolverventa_tabla', $data, true);
+                break;
+            }
+            default: {
+                $data['ventas'] = $this->rventas_model->get_for_devolver(array(
+                    'year' => date('Y'),
+                    'mes' => date('m'),
+                    'dia_min' => date('d'),
+                    'dia_max' => date('d')
+                ));
+
+                $data['clientes'] = $this->cliente_model->get_all();
+
+                $data['reporte_tabla'] = $this->load->view('menu/ventas/devolverventa_tabla', $data, true);
+                $dataCuerpo['cuerpo'] = $this->load->view('menu/ventas/devolverventa', $data, true);
+                if ($this->input->is_ajax_request()) {
+                    echo $dataCuerpo['cuerpo'];
+                } else {
+                    $this->load->view('menu/template', $dataCuerpo);
+                }
+            }
         }
+    }
+
+    function rechazar_exec($id)
+    {
+        $this->venta_model->devolver_all_stock($id);
+        $this->db->where('venta_id', $id);
+        $this->db->update('venta', array('venta_status' => PEDIDO_RECHAZADO));
     }
 
     function ventaEstatus($venta_id, $estatus)
@@ -2999,8 +3025,7 @@ class venta extends MY_Controller
                 $template->setValue('cliente' . $index, htmlspecialchars($documentos[$n]->razon_social));
                 $template->setValue('dni' . $index, $documentos[$n]->ruc);
                 $template->setValue('direccion' . $index, htmlspecialchars($dato->valor));
-            }
-            else{
+            } else {
                 $template->setValue('cliente' . $index, '');
                 $template->setValue('dni' . $index, '');
                 $template->setValue('direccion' . $index, '');

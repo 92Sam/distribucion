@@ -9,67 +9,7 @@ class banco extends MY_Controller
         $this->load->model('banco/banco_model');
     }
 
-    function test(){
-        echo urldecode('%5B%7B%22detalle_id%22%3A%2232988%22%2C%22producto_id%22%3A%2243%22%2C%22unidad_id%22%3A6%2C%22devolver%22%3A1%2C%22new_cantidad%22%3A%2249%22%2C%22new_importe%22%3A543.9%2C%22bono%22%3A0%7D%2C%7B%22detalle_id%22%3A%2232989%22%2C%22producto_id%22%3A%2244%22%2C%22unidad_id%22%3A6%2C%22devolver%22%3A0%2C%22new_cantidad%22%3A%2250%22%2C%22new_importe%22%3A555.0%2C%22bono%22%3A0%7D%2C%7B%22detalle_id%22%3A%2232990%22%2C%22producto_id%22%3A%2232%22%2C%22unidad_id%22%3A6%2C%22devolver%22%3A0%2C%22new_cantidad%22%3A%22100%22%2C%22new_importe%22%3A1560.0%2C%22bono%22%3A0%7D%2C%7B%22detalle_id%22%3A%2232991%22%2C%22producto_id%22%3A%2244%22%2C%22unidad_id%22%3A6%2C%22devolver%22%3A3%2C%22new_cantidad%22%3A%222%22%2C%22new_importe%22%3A0%2C%22bono%22%3A1%7D%2C%7B%22detalle_id%22%3A%2232992%22%2C%22producto_id%22%3A%2232%22%2C%22unidad_id%22%3A6%2C%22devolver%22%3A0%2C%22new_cantidad%22%3A%223%22%2C%22new_importe%22%3A0%2C%22bono%22%3A1%7D%5D');
-    }
 
-    function fiscal()
-    {
-
-        $this->load->model('venta/venta_fiscal_model');
-
-        $temp = json_decode('{"0":{"producto_id":"32","unidad_id":"6","precio":"15.50","cantidad":"500.00","bono":"0"},"1":{"producto_id":"33","unidad_id":"6","precio":"28.00","cantidad":"500.00","bono":"0"},"2":{"producto_id":"44","unidad_id":"6","precio":"11.20","cantidad":"700.00","bono":"0"},"3":{"producto_id":"32","unidad_id":"6","precio":"0.00","cantidad":"15.00","bono":"1"},"4":{"producto_id":"33","unidad_id":"6","precio":"0.00","cantidad":"10.00","bono":"1"},"5":{"producto_id":"44","unidad_id":"6","precio":"0.00","cantidad":"35.00","bono":"1"}}');
-
-        $productos = array();
-
-        foreach ($temp as $t){
-            $productos[] = array(
-                'producto_id' => $t->producto_id,
-                'unidad_id' => $t->unidad_id,
-                'precio' => $t->precio,
-                'cantidad' => $t->cantidad,
-                'bono' => $t->bono,
-            );
-        }
-
-
-
-
-        //configura los parametros aqui
-        $params = array(
-            'max_items' => 10,
-            'max_importe' => 700
-        );
-        //doc pueder ser 'BOLETA' o 'FACTURA'
-
-        $total_pedido = 0;
-        foreach ($productos as $p)
-            $total_pedido += $p['cantidad'] * $p['precio'];
-
-        echo 'TOTAL PEDIDO: ' . $total_pedido . '<br><br>';
-
-        $data = $this->venta_fiscal_model->split_documents($params, $productos);
-
-        $total_boleta = 0;
-        foreach ($data as $key => $prods) {
-            echo 'DOC: ' . ($key + 1) . '<br>';
-            $total_importe = 0;
-            foreach ($prods as $d) {
-                echo 'Prod id: ' . $d['producto_id'] . ($d['bono'] == 1 ? " -- Bono" : "") . '<br>';
-                echo 'Cantidad: ' . $d['cantidad'] . '<br>';
-                echo 'Precio: ' . $d['precio'] . '<br>';
-                echo 'Importe: ' . $d['importe'] . '<br>';
-                $total_importe += $d['importe'];
-                echo '<br>';
-            }
-            echo 'TOTAL: ' . $total_importe;
-            $total_boleta += $total_importe;
-            echo '<br>--------------------------------<br><br>';
-        }
-
-        echo 'TOTAL BOLETAS: ' . $total_boleta;
-
-    }
 
 
     function index()

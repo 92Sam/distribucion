@@ -641,7 +641,7 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
         $cliente = $this->db->get_where('cliente', array('id_cliente' => $pedido->id_cliente))->row();
         $cliente_descuento = $cliente->descuento;
 
-        if($cliente->nombre_boleta == 1)
+        if ($cliente->nombre_boleta == 1)
             $params['max_importe'] = 0;
 
         foreach ($pedido_detalles as $pd) {
@@ -1478,7 +1478,7 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
             foreach ($doc->detalles as $detalle) {
 
                 foreach ($detalle_historial as $historial) {
-                    $cantidad = 0;
+
                     if ($historial->producto_id == $detalle->id_producto)
                         if ($historial->unidad_id == $detalle->id_unidad)
                             if ($historial->bonificacion == $detalle->bono) {
@@ -1678,6 +1678,22 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
         $this->db->trans_start(true);
         $this->db->trans_begin();
         $venta = $this->db->get_where('venta', array('venta_id' => $id))->row();
+
+        $proceso = $this->db->get_where('historial_pedido_proceso', array(
+            'proceso_id' => PROCESO_DEVOLVER,
+            'pedido_id' => $id,
+        ))->row();
+
+        if ($proceso != NULL) {
+            $this->db->where('historial_pedido_proceso_id', $proceso->id);
+            $this->db->delete('historial_pedido_detalle');
+
+            $this->db->where('proceso_id', PROCESO_DEVOLVER);
+            $this->db->where('pedido_id', $id);
+            $this->db->delete('historial_pedido_proceso');
+        }
+
+
         $this->historial_pedido_model->insertar_pedido(PROCESO_DEVOLVER, array(
             'pedido_id' => $id,
             'responsable_id' => $this->session->userdata('nUsuCodigo'),

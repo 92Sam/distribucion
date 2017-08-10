@@ -206,6 +206,72 @@ class rventas_model extends CI_Model
             ->join('zonas', 'cliente.id_zona = zonas.zona_id');
     }
 
+    function get_for_devolver($data)
+    {
+        $query = "
+            SELECT
+                hp.created_at AS fecha,
+                CONCAT('NE ',
+                        dv.documento_Serie,
+                        '-',
+                        dv.documento_Numero) AS documento,
+                v.venta_id AS venta_id,
+                c.ruc_cliente AS ruc_dni,
+                c.razon_social AS razon_social,
+                u.nombre AS vendedor,
+                v.venta_status AS estado_ne,
+                z.zona_nombre AS zona,
+                cp.nombre_condiciones AS condicion,
+                v.total AS total,
+                IF((SELECT
+                            var_credito_estado
+                        FROM
+                            credito
+                        WHERE
+                            credito.id_venta = v.venta_id
+                        LIMIT 1) = 'CANCELADA',
+                    'CANCELADO',
+                    'PENDIENTE') AS estado
+            FROM
+                venta AS v
+                    JOIN
+                historial_pedido_proceso AS hp ON hp.pedido_id = v.venta_id
+                    JOIN 
+                credito ON credito.id_venta = v.venta_id 
+                    JOIN
+                documento_venta AS dv ON dv.id_tipo_documento = v.numero_documento
+                    JOIN
+                cliente AS c ON c.id_cliente = v.id_cliente
+                    JOIN
+                usuario AS u ON u.nUsuCodigo = v.id_vendedor
+                    JOIN
+                zonas AS z ON z.zona_id = c.id_zona
+                    JOIN
+                condiciones_pago AS cp ON cp.id_condiciones = v.condicion_pago
+            WHERE
+                hp.proceso_id = 4 AND v.venta_status = 'ENTREGADO' AND hp.proceso_id = 4 
+            AND (SELECT COUNT(*) FROM historial_pagos_clientes WHERE credito_id = v.venta_id) = 0
+
+
+        ";
+
+
+        if (isset($data['cliente_id']) && $data['cliente_id'] != 0)
+            $query .= " AND v.id_cliente = " . $data['cliente_id'];
+
+        if (isset($data['mes']) && isset($data['year']) && isset($data['dia_min']) && isset($data['dia_max'])) {
+            $last_day = last_day($data['year'], sumCod($data['mes'], 2));
+            if ($last_day > $data['dia_max'])
+                $last_day = $data['dia_max'];
+
+            $query .= " AND hp.created_at >= '" . $data['year'] . '-' . sumCod($data['mes'], 2) . '-' . $data['dia_min'] . " 00:00:00'";
+            $query .= " AND hp.created_at <= '" . $data['year'] . '-' . sumCod($data['mes'], 2) . '-' . $last_day . " 23:59:59'";
+        }
+
+
+        return $this->db->query($query)->result();
+    }
+
 
     function get_nota_entrega($data)
     {
