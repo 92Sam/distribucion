@@ -1457,6 +1457,29 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
         return $query->row_array();
     }
 
+    function getNC()
+    {
+        $this->db->where('config_key', 'NC_NEXT');
+
+        $numero = $this->db->get('configuraciones')->row();
+        $numero = $numero != NULL ? $numero->config_value : 1;
+
+        $this->db->where('config_key', 'NC_SERIE');
+
+        $serie = $this->db->get('configuraciones')->row();
+        $serie = $serie != NULL ? $serie->config_value : 1;
+
+        //Actualizo el siguiente correlativo
+        $this->db->where('config_key', 'NC_NEXT');
+
+        $this->db->update('configuraciones', array('config_value' => $numero + 1));
+
+        return array(
+            'serie' => sumCod($serie, 4),
+            'numero' => sumCod($numero, 5)
+        );
+    }
+
     function devolver_parcial($venta_id)
     {
 
@@ -1509,12 +1532,7 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
 
         foreach ($result as $key => $productos) {
 
-            $nota_correlativo = $this->db->select_max('numero')
-                ->from('kardex')
-                ->where('IO', 2)
-                ->where('tipo_doc', 7)->get()->row();
-
-            $nota_correlativo = $nota_correlativo->numero != null ? ($nota_correlativo->numero + 1) : 1;
+            $nota_correlativo = $this->getNC();
 
             $doc_fiscal = $this->db->get_where('documento_fiscal', array('documento_fiscal_id' => $key))->row();
             $ref = '';
@@ -1531,8 +1549,8 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
                     'local_id' => $venta->local_id,
                     'producto_id' => $p['producto_id'],
                     'unidad_id' => $p['unidad_id'],
-                    'serie' => '0001',
-                    'numero' => sumCod($nota_correlativo, 5),
+                    'serie' => $nota_correlativo['serie'],
+                    'numero' => $nota_correlativo['numero'],
                     'tipo_doc' => 7,
                     'tipo_operacion' => 5,
                     'cantidad' => ($p['cantidad'] * -1),
@@ -1713,12 +1731,7 @@ WHERE detalle_venta.id_venta='$id' group by detalle_venta.id_detalle");
 
         $query_detalle_venta = $sql_detalle_venta->result_array();
 
-        $nota_correlativo = $this->db->select_max('numero')
-            ->from('kardex')
-            ->where('IO', 2)
-            ->where('tipo_doc', 7)->get()->row();
-
-        $nota_correlativo = $nota_correlativo->numero != null ? ($nota_correlativo->numero + 1) : 1;
+        $nota_correlativo = $this->getNC();
 
         /*************COMIENZO A DEVOLVER EL STOCK**********/
         for ($i = 0; $i < count($query_detalle_venta); $i++) {
@@ -1746,8 +1759,8 @@ WHERE detalle_venta.id_venta='$id' group by detalle_venta.id_detalle");
                 'local_id' => $query_detalle_venta[$i]['local_id'],
                 'producto_id' => $query_detalle_venta[$i]['producto_id'],
                 'unidad_id' => $query_detalle_venta[$i]['unidad_medida'],
-                'serie' => '0001',
-                'numero' => sumCod($nota_correlativo, 5),
+                'serie' => $nota_correlativo['serie'],
+                'numero' => $nota_correlativo['numero'],
                 'tipo_doc' => 7,
                 'tipo_operacion' => 5,
                 'cantidad' => ($query_detalle_venta[$i]['cantidad'] * -1),

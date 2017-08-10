@@ -485,10 +485,7 @@ class venta extends MY_Controller
             case 'filter': {
                 $data['ventas'] = $this->rventas_model->get_for_devolver(array(
                     'cliente_id' => $this->input->post('cliente_id'),
-                    'year' => $this->input->post('year'),
-                    'mes' => $this->input->post('mes'),
-                    'dia_min' => $this->input->post('dia_min'),
-                    'dia_max' => $this->input->post('dia_max')
+                    'pedido' => $this->input->post('pedido') != "" ? $this->input->post('pedido') : '-',
                 ));
 
                 echo $this->load->view('menu/ventas/devolverventa_tabla', $data, true);
@@ -496,10 +493,7 @@ class venta extends MY_Controller
             }
             default: {
                 $data['ventas'] = $this->rventas_model->get_for_devolver(array(
-                    'year' => date('Y'),
-                    'mes' => date('m'),
-                    'dia_min' => date('d'),
-                    'dia_max' => date('d')
+                    'pedido' => '-'
                 ));
 
                 $data['clientes'] = $this->cliente_model->get_all();
@@ -513,6 +507,24 @@ class venta extends MY_Controller
                 }
             }
         }
+    }
+
+    function devolver_detalles($id)
+    {
+        $data['docs_fiscales'] = $this->db->get_where('documento_fiscal', array(
+            'venta_id' => $id
+        ))->result();
+
+        $this->db->where('config_key', 'NC_NEXT');
+        $numero = $this->db->get('configuraciones')->row();
+        $data['numero'] = $numero != NULL ? $numero->config_value : 1;
+
+        $this->db->where('config_key', 'NC_SERIE');
+        $serie = $this->db->get('configuraciones')->row();
+        $data['serie'] = $serie != NULL ? $serie->config_value : 1;
+        
+        header('Content-Type: application/json');
+        echo json_encode($data);
     }
 
     function rechazar_exec($id)

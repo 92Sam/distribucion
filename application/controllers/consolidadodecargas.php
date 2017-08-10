@@ -925,13 +925,16 @@ class consolidadodecargas extends MY_Controller
         unlink(sys_get_temp_dir() . '/remision_temp.docx');
     }
 
-    function imprimir_notas($consolidado_id)
+    function imprimir_notas($id, $tipo_id = 'CONSOLIDADO')
     {
-        $pedidos_rechazados = $this->db->select('
+        $this->db->select('
+            k.serie AS serie,
+            k.numero AS numero,
             c.razon_social AS razon_social,
             c.ruc_cliente AS ruc,
             c.identificacion AS ruc_or_dni,
             c.id_cliente AS cliente_id,
+            c.nombre_boleta AS nombre_boleta,
             cd.consolidado_id AS consolidado_id,
             v.venta_id AS venta_id,
             gc.nombre_grupos_cliente AS tipo_cliente,
@@ -941,14 +944,21 @@ class consolidadodecargas extends MY_Controller
             v.tipo_doc_fiscal AS tipo_doc
         ')->from('consolidado_detalle AS cd')
             ->join('venta AS v', 'v.venta_id = cd.pedido_id')
+            ->join('kardex AS k', 'k.ref_id = v.venta_id')
             ->join('historial_pedido_proceso AS hpp', 'hpp.pedido_id = v.venta_id')
             ->join('usuario AS u', 'u.nUsuCodigo = v.id_vendedor')
             ->join('condiciones_pago AS cp', 'cp.id_condiciones = v.condicion_pago')
             ->join('cliente AS c', 'c.id_cliente = v.id_cliente')
             ->join('grupos_cliente AS gc', 'gc.id_grupos_cliente = c.grupo_id')
             ->where('hpp.proceso_id', PROCESO_IMPRIMIR)
-            ->where('v.venta_status', 'RECHAZADO')
-            ->where('cd.consolidado_id', $consolidado_id)
+            ->where("(v.venta_status = 'RECHAZADO' OR v.venta_status = 'DEVUELTO PARCIALMENTE')");
+
+        if ($tipo_id == 'CONSOLIDADO')
+            $this->db->where('cd.consolidado_id', $id);
+        elseif ($tipo_id == 'VENTA')
+            $this->db->where('v.venta_id', $id);
+
+        $pedidos_rechazados = $this->db->group_by('k.serie, k.numero')
             ->get()->result();
 
         $notas_credito = array();
@@ -956,10 +966,10 @@ class consolidadodecargas extends MY_Controller
         foreach ($pedidos_rechazados as $rechazos) {
             $temp = new stdClass();
 
-            $temp->cliente = $rechazos->tipo_doc == 'FACTURA' ? $rechazos->razon_social : '';
-            $temp->ruc = $rechazos->tipo_doc == 'FACTURA' ? $rechazos->ruc : '';
+            $temp->cliente = $rechazos->tipo_doc == 'FACTURA' || $rechazos->nombre_boleta == 1 ? $rechazos->razon_social : '';
+            $temp->ruc = $rechazos->tipo_doc == 'FACTURA' || $rechazos->nombre_boleta == 1 ? $rechazos->ruc : '';
 
-            if ($rechazos->tipo_doc == 'FACTURA') {
+            if ($rechazos->tipo_doc == 'FACTURA' || $rechazos->nombre_boleta == 1) {
                 $direccion = $this->db->get_where('cliente_datos', array(
                     'cliente_id' => $rechazos->cliente_id,
                     'tipo' => 1,
@@ -972,6 +982,8 @@ class consolidadodecargas extends MY_Controller
             $temp->consolidado = $rechazos->consolidado_id;
 
             $kardex = $this->db->get_where('kardex', array(
+                'serie' => $rechazos->serie,
+                'numero' => $rechazos->numero,
                 'ref_id' => $rechazos->venta_id,
                 'tipo_doc' => 7,
                 'tipo_operacion' => 5,
@@ -999,6 +1011,8 @@ class consolidadodecargas extends MY_Controller
             ')->from('kardex AS k')
                 ->join('producto AS p', 'p.producto_id = k.producto_id')
                 ->join('unidades AS u', 'u.id_unidad = k.unidad_id')
+                ->where('serie', $rechazos->serie)
+                ->where('numero', $rechazos->numero)
                 ->where('ref_id', $rechazos->venta_id)
                 ->where('tipo_doc', 7)
                 ->where('tipo_operacion', 5)
@@ -1282,8 +1296,7 @@ class consolidadodecargas extends MY_Controller
             readfile(sys_get_temp_dir() . '/consolidado_temp.docx'); // or echo file_get_contents($temp_file);
             unlink(sys_get_temp_dir() . '/consolidado_temp.docx');
 
-        }
-        else{
+        } else {
             echo "No se ha podido generar los documentos de este consolidado. Revise el logger y contacta a Antonio Martin.";
         }
 

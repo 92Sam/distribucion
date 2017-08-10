@@ -81,10 +81,28 @@
                 <input type="hidden" id="ne_id">
                 <h3>¿Estas seguro de devolver esta nota de entrega?</h3>
 
+                <h4>Documentos Asociados</h4>
+                <div id="docs_asociados" style="padding-left: 25px;padding-right: 25px;">
+
+                </div>
+                <br>
+                <h4>Numero de la Nota de Credito</h4>
+                <div class="row">
+                    <div class="col-md-2"></div>
+                    <div class="col-md-3">
+                        <input type="text" id="nc_serie" class="form-control" disabled>
+                    </div>
+                    <div class="col-md-5">
+                        <input type="text" id="nc_numero" class="form-control" disabled>
+                    </div>
+                    <div class="col-md-2"></div>
+                </div>
+
+
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-warning" id="confirmar_b" onclick="rechazar_exec()">Confirmar
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-default" id="confirmar_b" onclick="rechazar_exec()">Confirmar
                 </button>
 
             </div>
@@ -110,7 +128,36 @@
     function rechazar(id, ne) {
         $('#ne_id').val(id);
         $('#ne_tittulo').html(ne);
-        $('#confirmar_modal').modal('show');
+        $("#barloadermodal").modal('show');
+
+        $.ajax({
+            url: '<?=base_url("venta/devolver_detalles")?>/' + id,
+            type: 'GET',
+            headers: {
+                Accept: 'application/json'
+            },
+            success: function (data) {
+                $('#docs_asociados').html('');
+                for (var i = 0; i < data.docs_fiscales.length; i++) {
+                    var doc = "";
+                    if (data.docs_fiscales[i].documento_tipo == 'FACTURA')
+                        doc += "FA ";
+                    else
+                        doc += "BO ";
+
+                    doc += data.docs_fiscales[i].documento_serie + "-" + data.docs_fiscales[i].documento_numero;
+                    var template = '<input type="text" value="' + doc + '" disabled> ';
+                    $('#docs_asociados').append(template);
+                }
+
+                $('#nc_serie').val(sumCod(data.serie, 4));
+                $('#nc_numero').val(sumCod(data.numero, 5));
+                $('#confirmar_modal').modal('show');
+            },
+            complete: function (data) {
+                $("#barloadermodal").modal('hide');
+            }
+        });
 
     }
 
@@ -125,9 +172,9 @@
             type: 'GET',
             success: function (data) {
                 show_msg('success', 'La ' + $('#ne_tittulo').html() + ' ha sido devuelta.');
-                $('#confirmar_modal').modal('hide');
 
-                filter_cobranzas();
+                $('#confirmar_modal').modal('hide');
+                filter_cobranzas(id);
             },
             complete: function (data) {
                 $("#barloadermodal").modal('hide');

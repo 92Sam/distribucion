@@ -92,6 +92,21 @@ class opciones extends MY_Controller
         );
 
         $configuraciones[] = array(
+            'config_key' => "NC_NEXT",
+            'config_value' => $this->input->post('NC_NEXT')
+        );
+
+        $configuraciones[] = array(
+            'config_key' => "NC_SERIE",
+            'config_value' => $this->input->post('NC_SERIE')
+        );
+
+        $configuraciones[] = array(
+            'config_key' => "NC_MAX",
+            'config_value' => $this->input->post('NC_MAX')
+        );
+
+        $configuraciones[] = array(
             'config_key' => "FACTURA_NEXT",
             'config_value' => $this->input->post('FACTURA_NEXT')
         );

@@ -259,15 +259,9 @@ class rventas_model extends CI_Model
         if (isset($data['cliente_id']) && $data['cliente_id'] != 0)
             $query .= " AND v.id_cliente = " . $data['cliente_id'];
 
-        if (isset($data['mes']) && isset($data['year']) && isset($data['dia_min']) && isset($data['dia_max'])) {
-            $last_day = last_day($data['year'], sumCod($data['mes'], 2));
-            if ($last_day > $data['dia_max'])
-                $last_day = $data['dia_max'];
 
-            $query .= " AND hp.created_at >= '" . $data['year'] . '-' . sumCod($data['mes'], 2) . '-' . $data['dia_min'] . " 00:00:00'";
-            $query .= " AND hp.created_at <= '" . $data['year'] . '-' . sumCod($data['mes'], 2) . '-' . $last_day . " 23:59:59'";
-        }
-
+        if (isset($data['pedido']) && $data['pedido'] != "")
+            $query .= " AND v.venta_id LIKE '%" . $data['pedido'] . "%'";
 
         return $this->db->query($query)->result();
     }

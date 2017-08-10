@@ -160,6 +160,41 @@
             </div>
 
             <br>
+            <h4>NOTA DE CREDITO CONFIGURACION</h4>
+            <div class="form-group">
+                <div class="col-md-4">
+                    <label class="control-label">Nota de Credito Serie:</label>
+                </div>
+                <div class="col-md-8">
+                    <input type="number" size="10" name="NC_SERIE" id="NC_SERIE"
+                           class="form-control"
+                           value="<?= valueOption('NC_SERIE', 1) ?>">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-md-4">
+                    <label class="control-label">Nota de Credito Correlativo:</label>
+                </div>
+                <div class="col-md-8">
+                    <input type="number" size="10" name="NC_NEXT" id="NC_NEXT"
+                           class="form-control"
+                           value="<?= valueOption('NC_NEXT', 1) ?>">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div class="col-md-4">
+                    <label class="control-label">Maximo de Items Por Nota de Credito:</label>
+                </div>
+                <div class="col-md-8">
+                    <input type="number" size="10" name="NC_MAX" id="NC_MAX"
+                           class="form-control"
+                           value="<?= valueOption('NC_MAX', 12) ?>">
+                </div>
+            </div>
+
+            <br>
             <h4>FACTURA CONFIGURACION</h4>
             <div class="form-group">
                 <div class="col-md-4">
