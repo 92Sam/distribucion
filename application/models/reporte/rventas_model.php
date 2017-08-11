@@ -260,7 +260,7 @@ class rventas_model extends CI_Model
             $query .= " AND v.id_cliente = " . $data['cliente_id'];
 
 
-        if (isset($data['pedido']) && $data['pedido'] != "")
+        if (isset($data['pedido']) && $data['pedido'] != "-")
             $query .= " AND v.venta_id LIKE '%" . $data['pedido'] . "%'";
 
         return $this->db->query($query)->result();
