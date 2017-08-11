@@ -58,7 +58,8 @@
                                        style="margin-left: 5px;"
                                        title="Eliminar del Consolidado" data-original-title="Eliminar del Consolidado"
                                        href="#"
-                                       onclick="confirmarEliminacion();">
+                                       onclick="confirmarEliminacion('<?= $consolidado['consolidado_id'] ?>',
+                                               '<?php echo $detalle['venta_id']; ?>');">
                                         <i class="fa fa-remove" id="ic"></i></a>
                                 <?php endif; ?>
                             </td>
@@ -112,7 +113,7 @@
                        title="Ver Nota" data-original-title="Ver"
                        href="#"
                        onclick="notaEntrega('<?php if (isset($consolidado['consolidado_id'])) echo $consolidado['consolidado_id']; ?>'); ">
-                        <i class="fa fa-search"></i>  <span>Notas de Entrega</span>
+                        <i class="fa fa-search"></i> <span>Notas de Entrega</span>
                     </a>
                 </div>
                 <?php if ($total_boleta != 0): ?>
@@ -151,14 +152,13 @@
                 <button type="button" class="close" aria-hidden="true">&times;</button>
                 <h4 class="modal-title">Confirmaci&oacute;n</h4>
             </div>
-
+            <input type="hidden" id="del_consolidado_id">
+            <input type="hidden" id="del_venta_id">
             <div class="modal-body">¿Esta seguro que desea quitar la nota de entrega seleccionada?
             </div>
             <div class="modal-footer">
                 <button type="button" id="" class="btn btn-primary"
-                        onclick="eliminar_pedido(
-                                '<?= $consolidado['consolidado_id'] ?>',
-                                '<?php echo $detalle['venta_id']; ?>'); ">
+                        onclick="eliminar_pedido(); ">
                     <li class="glyphicon glyphicon-thumbs-up"></li>
                     Si
                 </button>
@@ -184,8 +184,10 @@
     });
 
 
-    function confirmarEliminacion() {
+    function confirmarEliminacion(consolidado_id, venta_id) {
 
+        $('#del_consolidado_id').val(consolidado_id);
+        $('#del_venta_id').val(venta_id);
         $("#confirmacion").modal('show');
     }
 
@@ -221,11 +223,11 @@
 
     }
 
-    function eliminar_pedido(id, venta_id) {
+    function eliminar_pedido() {
 
-        var venta = 0;
-        if (venta_id != undefined)
-            venta = venta_id;
+        var venta = $('#del_venta_id').val();
+        var id = $('#del_consolidado_id').val();
+
         {
             $.ajax({
                 url: '<?php echo $ruta . 'consolidadodecargas/eliminar_pedido_consolidado'; ?>',
