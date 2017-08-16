@@ -257,96 +257,109 @@ class clientes extends REST_Controller
     }
 
     // Save
-    public function create_get()
+    public function guardar_get()
     {
-        //$this->request->method;
-        $this->form_validation->set_rules('identificacion', '', 'required');
-        $this->form_validation->set_rules('email', '', 'required');
-        $this->form_validation->set_rules('razon_social', '', 'required');
+        //Datos variables
+        $id = $_POST['cliente_id'];
+        $ciudad_id = $_POST['ciudad_id'];
+        $vendedor_id = $_POST['vendedor_a'];
+        $razon_social = $_POST['razon_social'];
+        $ruc_cliente = $_POST['ruc_cliente'];
+        $latitud = $_POST['latitud'];
+        $longitud = $_POST['longitud'];
+        $zona_id = $_POST['zona_id'];
+        $direccion = $_POST['direccion'];
+        $celular = $_POST['celular'];
+        $correo = $_POST['correo'];
 
-        /* if ($this->form_validation->run() === false) {
-             $this->response(array('status' => 'failed', 'errors' => 'Ingrese los parametros requeridos'), 400);
-         } else {*/
-        $vendedor_id = $this->input->get('vendedor');
-        $cliente['ciudad_id'] = $this->input->get('ciudad_id', true);
-        $cliente['codigo_postal'] = $this->input->get('codigo_postal', true);
-        $cliente['descuento'] = $this->input->get('descuento', true);
-        $cliente['direccion'] = $this->input->get('direccion', true);
-        $cliente['direccion2'] = $this->input->get('direccion2', true);
-        $cliente['email'] = $this->input->get('email', true);
-        $cliente['grupo_id'] = $this->input->get('grupo_id', true);
-        $cliente['representante'] = $this->input->get('representante', true);
-        $cliente['limite_credito'] = $this->input->get('limite_credito', true);
-        $cliente['razon_social'] = $this->input->get('razon_social', true);
-        $cliente['identificacion'] = $this->input->get('identificacion', true);
-        $cliente['pagina_web'] = $this->input->get('pagina_web', true);
-        $cliente['telefono1'] = $this->input->get('telefono1', true);
-        $cliente['telefono2'] = $this->input->get('telefono2', true);
-        $cliente['nota'] = $this->input->get('nota', true);
-        $cliente['latitud'] = $this->input->get('latitud', true);
-        $cliente['longitud'] = $this->input->get('longitud', true);
-        $cliente['id_zona'] = $this->input->get('id_zona', true);
-        $cliente['vendedor_a'] = !empty($vendedor_id) ? $vendedor_id : null;
+        //Datos fijos
+        $descuento = 2;
+        $excento_impuesto = 0;
+        $grupo_id = 1;
+        $representante = null;
+        $limite_credito = null;
+        $identificacion = 2;
+        $cliente_status = 1;
+        $tipo_cliente = 1;
+        $agente_retencion = 0;
+        $linea_credito_valor = null;
+        $linea_libre = 1;
+        $linea_libre_valor = null;
+        $importe_deuda = null;
+        $deuda_bolera = null;
 
-        $get = $this->input->get(null);
-        if (!empty($get)) {
-            $save = $this->cliente_model->insertar($cliente);
-            if ($save === false) {
-                $this->response(array('status' => 'failed', 'errors' => $save));
-            } else {
-                if ($save === true) {
-                    $this->response(array('status' => 'success'));
-                } else {
-                    $this->response(array('status' => 'failed', 'errors' => $save));
-                }
-            }
-        } else {
-            $this->response(array('status' => 'failed',
-                'errors' => 'No han llegado parametros'
-            ));
+        $cliente = array(
+            'tipo_cliente' => $tipo_cliente,
+            'ciudad_id' => $ciudad_id,
+            'grupo_id' => $grupo_id,
+            'representante' => $representante,
+            'razon_social' => $razon_social,
+
+            'agente_retencion' => $agente_retencion,
+            'linea_credito_valor' => $linea_credito_valor,
+            'descuento' => $descuento,
+            'linea_libre' => $linea_libre,
+            'linea_libre_valor' => $linea_libre_valor,
+
+            'identificacion' => $identificacion,
+            'ruc_cliente' => $ruc_cliente,
+            'latitud' => $latitud,
+            'longitud' => $longitud,
+            'importe_deuda' => $importe_deuda,
+            'id_zona' => $zona_id,
+            'vendedor_a' => $vendedor_id,
+        );
+
+        $items = array();
+        if ($direccion != null) {
+            $data = array(
+                'tipo' => 1,
+                'valor' => $direccion,
+                'principal' => true
+            );
+
+            array_push($items, $data);
         }
-        //}
-    }
 
-    // Update
-    public function update_get()
-    {
-        $vendedor_id = $this->input->get('vendedor');
-        $cliente['ciudad_id'] = $this->input->get('ciudad_id', true);
-        $cliente['codigo_postal'] = $this->input->get('codigo_postal', true);
-        $cliente['descuento'] = $this->input->get('descuento', true);
-        $cliente['direccion'] = $this->input->get('direccion', true);
-        $cliente['direccion2'] = $this->input->get('direccion2', true);
-        $cliente['email'] = $this->input->get('email', true);
-        $cliente['grupo_id'] = $this->input->get('grupo_id', true);
-        $cliente['representante'] = $this->input->get('representante', true);
-        $cliente['limite_credito'] = $this->input->get('limite_credito', true);
-        $cliente['razon_social'] = $this->input->get('razon_social', true);
-        $cliente['identificacion'] = $this->input->get('identificacion', true);
-        $cliente['pagina_web'] = $this->input->get('pagina_web', true);
-        $cliente['telefono1'] = $this->input->get('telefono1', true);
-        $cliente['telefono2'] = $this->input->get('telefono2', true);
-        $cliente['nota'] = $this->input->get('nota', true);
-        $cliente['latitud'] = $this->input->get('latitud', true);
-        $cliente['longitud'] = $this->input->get('longitud', true);
-        $cliente['id_zona'] = $this->input->get('id_zona', true);
-        $cliente['vendedor_a'] = !empty($vendedor_id) ? $vendedor_id : null;
-        $cliente['id_cliente'] = $this->input->get('id_cliente', true);
+        if ($celular != null) {
+            $data = array(
+                'tipo' => 2,
+                'valor' => $celular,
+                'principal' => false
+            );
 
-        $post = $this->input->get(null, true);
-        if (!empty($post)) {
-            $save = $this->cliente_model->update($cliente);
-            if ($save === false) {
-                $this->response(array('status' => 'failed', 'errors' => $save));
-            } else {
-                if ($save === true) {
-                    $this->response(array('status' => 'success'));
-                } else {
-                    $this->response(array('status' => 'failed', 'errors' => $save));
-                }
-            }
+            array_push($items, $data);
+        }
+
+        if ($correo != null) {
+            $data = array(
+                'tipo' => 3,
+                'valor' => $correo,
+                'principal' => false
+            );
+
+            array_push($items, $data);
+        }
+
+        $datos = array(
+            'gerente_dni' => null,
+            'representante' => null,
+            'representante_dni' => null
+        );
+
+        if (empty($id)) {
+            $result = $this->cliente_model->insertar($cliente, $_POST['items'], $datos);
+
         } else {
+            $cliente['id_cliente'] = $id;
+            $result = $this->cliente_model->update($cliente, $_POST['items'], $datos);
+        }
+
+        if ($result === false) {
             $this->response(array('status' => 'failed'));
+
+        } else {
+            $this->response(array('status' => 'success'));
         }
     }
 }
