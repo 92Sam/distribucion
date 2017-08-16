@@ -349,7 +349,7 @@ class clientes extends REST_Controller
             'representante_dni' => null
         );
 
-        if (empty($id)) {
+        if ($id == null) {
             $result = $this->cliente_model->insertar($cliente, $_POST['items'], $datos);
 
         } else {
