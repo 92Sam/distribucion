@@ -259,18 +259,20 @@ class clientes extends REST_Controller
     // Save
     public function guardar_get()
     {
+        $post = $this->input->get();
+
         //Datos variables
-        $id = $_POST['cliente_id'];
-        $ciudad_id = $_POST['ciudad_id'];
-        $vendedor_id = $_POST['vendedor_a'];
-        $razon_social = $_POST['razon_social'];
-        $ruc_cliente = $_POST['ruc_cliente'];
-        $latitud = $_POST['latitud'];
-        $longitud = $_POST['longitud'];
-        $zona_id = $_POST['zona_id'];
-        $direccion = $_POST['direccion'];
-        $celular = $_POST['celular'];
-        $correo = $_POST['correo'];
+        $id = $post['cliente_id'];
+        $ciudad_id = $post['ciudad_id'];
+        $vendedor_id = $post['vendedor_a'];
+        $razon_social = $post['razon_social'];
+        $ruc_cliente = $post['ruc_cliente'];
+        $latitud = $post['latitud'];
+        $longitud = $post['longitud'];
+        $zona_id = $post['zona_id'];
+        $direccion = $post['direccion'];
+        $celular = $post['celular'];
+        $correo = $post['correo'];
 
         //Datos fijos
         $descuento = 2;
