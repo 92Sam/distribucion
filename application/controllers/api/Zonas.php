@@ -91,6 +91,7 @@ class zonas extends REST_Controller
             foreach($zonas as $z) {
                 $valor['zona_id'] = $z['zona_id'];
                 $valor['zona_nombre'] = $z['zona_nombre'];
+                $valor['ciudad_id'] = $z['ciudad_id'];
                 $valor['today'] = 0;
 
                 $result[] = $valor;
@@ -102,6 +103,7 @@ class zonas extends REST_Controller
             foreach($zonas as $z) {
                 $valor['zona_id'] = $z['zona_id'];
                 $valor['zona_nombre'] = $z['zona_nombre'];
+                $valor['ciudad_id'] = $z['ciudad_id'];
 
                 $id_zona = $z['zona_id'];
                 $today = $this->zona_model->get_zona_hoy($id, $id_zona, $dia);

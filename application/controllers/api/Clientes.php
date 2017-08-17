@@ -314,31 +314,25 @@ class clientes extends REST_Controller
 
         $items = array();
         if ($direccion != null) {
-            $data = array(
-                'tipo' => 1,
-                'valor' => $direccion,
-                'principal' => true
-            );
+            $data[0] = 1;
+            $data[1] = $direccion;
+            $data[2] = 'true';
 
             array_push($items, $data);
         }
 
         if ($celular != null) {
-            $data = array(
-                'tipo' => 2,
-                'valor' => $celular,
-                'principal' => false
-            );
+            $data[0] = 2;
+            $data[1] = $celular;
+            $data[2] = 'false';
 
             array_push($items, $data);
         }
 
         if ($correo != null) {
-            $data = array(
-                'tipo' => 3,
-                'valor' => $correo,
-                'principal' => false
-            );
+            $data[0] = 3;
+            $data[1] = $correo;
+            $data[2] = 'false';
 
             array_push($items, $data);
         }
@@ -349,12 +343,12 @@ class clientes extends REST_Controller
             'representante_dni' => null
         );
 
-        if ($id == null) {
-            $result = $this->cliente_model->insertar($cliente, $_POST['items'], $datos);
+        if (!$id) {
+            $result = $this->cliente_model->insertar($cliente, $items, $datos);
 
         } else {
             $cliente['id_cliente'] = $id;
-            $result = $this->cliente_model->update($cliente, $_POST['items'], $datos);
+            $result = $this->cliente_model->update($cliente, $items, $datos);
         }
 
         if ($result === false) {
