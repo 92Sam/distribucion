@@ -1480,10 +1480,179 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
         );
     }
 
+    function devolver_inventario_doc($params)
+    {
+
+        $stock_actual = $this->db->get_where('inventario', array(
+            'id_producto' => $params['producto_id'],
+            'id_local' => $params['local_id']
+        ))->row();
+
+        if ($stock_actual == NULL) {
+            $this->db->insert('inventario', array(
+                'id_producto' => $params['producto_id'],
+                'id_local' => $params['local_id'],
+                'cantidad' => 0,
+                'fraccion' => 0,
+            ));
+        }
+
+        $stock_actual_min = $stock_actual != NULL ? $this->unidades_model->convert_minimo_um(
+            $params['producto_id'], $stock_actual->cantidad, $stock_actual->fraccion) : 0;
+
+        $stock_devolver_min = $this->unidades_model->convert_minimo_by_um($params['producto_id'], $params['unidad_id'], $params['cantidad']);
+
+        $new_stock = $this->unidades_model->get_cantidad_fraccion($params['producto_id'], $stock_actual_min + $stock_devolver_min);
+
+        $this->db->where('id_producto', $params['producto_id']);
+        $this->db->where('id_local', $params['local_id']);
+        $this->db->update('inventario', array(
+            'cantidad' => $new_stock['cantidad'],
+            'fraccion' => $new_stock['fraccion'],
+        ));
+    }
+
+    function anular_documento($fiscal_id)
+    {
+        $doc_fiscal = $this->db->get_where('documento_fiscal', array('documento_fiscal_id' => $fiscal_id))->row();
+        $venta = $this->db->get_where('venta', array('venta_id' => $doc_fiscal->venta_id))->row();
+        $doc_detalles = $this->db->get_where('documento_detalle', array('documento_fiscal_id' => $doc_fiscal->documento_fiscal_id))->result();
+
+        $tipo = 3;
+        if ($doc_fiscal->documento_tipo == 'FACTURA')
+            $tipo = 1;
+
+        foreach ($doc_detalles as $detalle) {
+
+            $this->kardex_model->insert_kardex(array(
+                'local_id' => $venta->local_id,
+                'producto_id' => $detalle->id_producto,
+                'unidad_id' => $detalle->id_unidad,
+                'serie' => $doc_fiscal->documento_serie,
+                'numero' => $doc_fiscal->documento_numero,
+                'tipo_doc' => $tipo,
+                'tipo_operacion' => 1,
+                'cantidad' => ($detalle->cantidad * -1),
+                'costo_unitario' => $detalle->bono != 1 ? $detalle->precio / 1.18 : 0.00,
+                'IO' => 2,
+                'ref_id' => $doc_fiscal->documento_fiscal_id,
+                'referencia' => 'ANULADO'
+            ));
+
+            $this->devolver_inventario_doc(array(
+                'producto_id' => $detalle->id_producto,
+                'local_id' => $venta->local_id,
+                'unidad_id' => $detalle->id_unidad,
+                'cantidad' => $detalle->cantidad,
+            ));
+        }
+
+        $this->db->where('documento_fiscal_id', $doc_fiscal->documento_fiscal_id);
+        $this->db->update('documento_fiscal', array('estado' => 0));
+    }
+
+    function devolver_nc_documento($fiscal_id, $productos)
+    {
+        $nota_correlativo = $this->getNC();
+        $doc_fiscal = $this->db->get_where('documento_fiscal', array('documento_fiscal_id' => $fiscal_id))->row();
+        $venta = $this->db->get_where('venta', array('venta_id' => $doc_fiscal->venta_id))->row();
+        $ref = '';
+        if ($doc_fiscal->documento_tipo == 'BOLETA DE VENTA')
+            $ref .= 'BO ';
+        else if ($doc_fiscal->documento_tipo == 'FACTURA')
+            $ref .= 'FA ';
+
+        $referencia = $ref . $doc_fiscal->documento_serie . '-' . $doc_fiscal->documento_numero;
+
+        foreach ($productos as $p) {
+
+            $this->kardex_model->insert_kardex(array(
+                'local_id' => $venta->local_id,
+                'producto_id' => $p['producto_id'],
+                'unidad_id' => $p['unidad_id'],
+                'serie' => $nota_correlativo['serie'],
+                'numero' => $nota_correlativo['numero'],
+                'tipo_doc' => 7,
+                'tipo_operacion' => 5,
+                'cantidad' => ($p['cantidad'] * -1),
+                'costo_unitario' => $p['bono'] != 1 ? $p['costo_unitario'] / 1.18 : 0.00,
+                'IO' => 2,
+                'ref_id' => $venta->venta_id,
+                'referencia' => $referencia
+            ));
+
+            $this->devolver_inventario_doc(array(
+                'producto_id' => $p['producto_id'],
+                'local_id' => $venta->local_id,
+                'unidad_id' => $p['unidad_id'],
+                'cantidad' => $p['cantidad'],
+            ));
+        }
+
+    }
+
+    function reimprimir_documento($fiscal_id, $productos)
+    {
+        $doc_fiscal = $this->db->get_where('documento_fiscal', array('documento_fiscal_id' => $fiscal_id))->row();
+        $venta = $this->db->get_where('venta', array('venta_id' => $doc_fiscal->venta_id))->row();
+        $doc_detalles = $this->db->get_where('documento_detalle', array('documento_fiscal_id' => $doc_fiscal->documento_fiscal_id))->result();
+
+        $tipo = 3;
+        if ($doc_fiscal->documento_tipo == 'FACTURA')
+            $tipo = 1;
+
+        $nuevo_fiscal_id = $this->updateFiscal($venta);
+        $fiscal = $this->db->get_where('documento_fiscal', array('documento_fiscal_id' => $nuevo_fiscal_id))->row();
+
+        foreach ($doc_detalles as $detalle) {
+
+            foreach ($productos as $p) {
+
+                if ($p['producto_id'] == $detalle->id_producto)
+                    if ($p['unidad_id'] == $detalle->id_unidad)
+                        if ($p['bono'] == $detalle->bono) {
+                            $detalle->cantidad -= $p['cantidad'];
+                        }
+            }
+
+            if ($detalle->cantidad > 0) {
+                $this->db->insert('documento_detalle', array(
+                    'documento_fiscal_id' => $nuevo_fiscal_id,
+                    'id_venta' => $venta->venta_id,
+                    'id_producto' => $detalle->id_producto,
+                    'precio' => $detalle->precio,
+                    'cantidad' => $detalle->cantidad,
+                    'id_unidad' => $detalle->id_unidad,
+                    'detalle_importe' => $detalle->cantidad * $detalle->precio,
+                    'bono' => $detalle->bono
+                ));
+
+                $this->kardex_model->insert_kardex(array(
+                    'local_id' => $venta->local_id,
+                    'producto_id' => $detalle->id_producto,
+                    'unidad_id' => $detalle->id_unidad,
+                    'serie' => $fiscal->documento_serie,
+                    'numero' => $fiscal->documento_numero,
+                    'tipo_doc' => $tipo,
+                    'tipo_operacion' => 1,
+                    'cantidad' => $detalle->cantidad,
+                    'costo_unitario' => $detalle->bono != 1 ? $detalle->precio / 1.18 : 0.00,
+                    'IO' => 2,
+                    'ref_id' => $nuevo_fiscal_id,
+                    'referencia' => $detalle->bono == 1 ? 'BONO' : ''
+                ));
+            }
+
+        }
+
+
+    }
+
     function devolver_parcial($venta_id)
     {
 
         $venta = $this->db->get_where('venta', array('venta_id' => $venta_id))->row();
+        $cliente = $this->db->get_where('cliente', array('id_cliente' => $venta->id_cliente))->row();
         $docs_fiscal = $this->db->get_where('documento_fiscal', array('venta_id' => $venta_id))->result();
         foreach ($docs_fiscal as $doc)
             $doc->detalles = $this->db->get_where('documento_detalle', array('documento_fiscal_id' => $doc->documento_fiscal_id))->result();
@@ -1532,174 +1701,41 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
 
         foreach ($result as $key => $productos) {
 
-            $nota_correlativo = $this->getNC();
-
-            $doc_fiscal = $this->db->get_where('documento_fiscal', array('documento_fiscal_id' => $key))->row();
-            $ref = '';
-            if ($doc_fiscal->documento_tipo == 'BOLETA DE VENTA')
-                $ref .= 'BO ';
-            else if ($doc_fiscal->documento_tipo == 'FACTURA')
-                $ref .= 'FA ';
-
-            $referencia = $ref . $doc_fiscal->documento_serie . '-' . $doc_fiscal->documento_numero;
+            $devolver_count = 0;
+            $doc_count = $this->db->select('SUM(cantidad) as cantidad')
+                ->from('documento_detalle')
+                ->where('documento_fiscal_id', $key)->get()->row();
 
             foreach ($productos as $p) {
-
-                $this->kardex_model->insert_kardex(array(
-                    'local_id' => $venta->local_id,
-                    'producto_id' => $p['producto_id'],
-                    'unidad_id' => $p['unidad_id'],
-                    'serie' => $nota_correlativo['serie'],
-                    'numero' => $nota_correlativo['numero'],
-                    'tipo_doc' => 7,
-                    'tipo_operacion' => 5,
-                    'cantidad' => ($p['cantidad'] * -1),
-                    'costo_unitario' => $p['costo_unitario'],
-                    'IO' => 2,
-                    'ref_id' => $venta_id,
-                    'referencia' => $referencia
-                ));
-
-                $stock_actual = $this->db->get_where('inventario', array(
-                    'id_producto' => $p['producto_id'],
-                    'id_local' => $venta->local_id
-                ))->row();
-
-                if ($stock_actual == NULL) {
-                    $this->db->insert('inventario', array(
-                        'id_producto' => $p['producto_id'],
-                        'id_local' => $venta->local_id,
-                        'cantidad' => 0,
-                        'fraccion' => 0,
-                    ));
-                }
-
-                $stock_actual_min = $stock_actual != NULL ? $this->unidades_model->convert_minimo_um(
-                    $p['producto_id'], $stock_actual->cantidad, $stock_actual->fraccion) : 0;
-
-                $stock_devolver_min = $this->unidades_model->convert_minimo_by_um($p['producto_id'], $p['unidad_id'], $p['cantidad']);
-
-                $new_stock = $this->unidades_model->get_cantidad_fraccion($p['producto_id'], $stock_actual_min + $stock_devolver_min);
-
-                $this->db->where('id_producto', $p['producto_id']);
-                $this->db->where('id_local', $venta->local_id);
-                $this->db->update('inventario', array(
-                    'cantidad' => $new_stock['cantidad'],
-                    'fraccion' => $new_stock['fraccion'],
-                ));
+                $devolver_count += $p['cantidad'];
             }
 
-
+            if ($devolver_count < $doc_count->cantidad) {
+                if ($cliente->nombre_boleta == 1 || $venta->tipo_doc_fiscal == 'FACTURA')
+                    $this->devolver_nc_documento($key, $productos);
+                else {
+                    $this->anular_documento($key);
+                    $this->reimprimir_documento($key, $productos);
+                }
+            } else {
+                $this->anular_documento($key);
+            }
         }
+
 
         return true;
 
     }
 
-    function devolver_parcial_stock($venta_id)
-    {
-        $this->db->trans_start(true);
-        $this->db->trans_begin();
-
-        $venta = $this->db->get_where('venta', array('venta_id' => $venta_id))->row();
-
-        $detalle_historial = $this->db->select('historial_pedido_detalle.*')
-            ->from('historial_pedido_detalle')
-            ->join('historial_pedido_proceso', 'historial_pedido_proceso.id = historial_pedido_detalle.historial_pedido_proceso_id')
-            ->where('historial_pedido_proceso.pedido_id', $venta_id)
-            ->where('historial_pedido_proceso.proceso_id', PROCESO_DEVOLVER)
-            ->get()->result();
-
-        foreach ($detalle_historial as $historial) {
-            $detalle_fiscal = $this->db->get_where('documento_detalle', array(
-                'id_venta' => $venta_id,
-                'id_producto' => $historial->producto_id,
-                'id_unidad' => $historial->unidad_id
-            ))->result();
-
-            $referencia = array();
-            foreach ($detalle_fiscal as $detalle) {
-                $doc_fiscal = $this->db->get_where('documento_fiscal', array('documento_fiscal_id' => $detalle->documento_fiscal_id))->row();
-                $ref = '';
-                if ($doc_fiscal->documento_tipo == 'BOLETA DE VENTA')
-                    $ref .= 'BO ';
-                else if ($doc_fiscal->documento_tipo == 'FACTURA')
-                    $ref .= 'FA ';
-
-                $referencia[] = $ref . $doc_fiscal->documento_serie . '-' . $doc_fiscal->documento_numero;
-            }
-
-
-            $nota_correlativo = $this->db->select_max('numero')
-                ->from('kardex')
-                ->where('IO', 2)
-                ->where('tipo_doc', 7)->get()->row();
-
-            $nota_correlativo = $nota_correlativo->numero != null ? ($nota_correlativo->numero + 1) : 1;
-            $this->kardex_model->insert_kardex(array(
-                'local_id' => $venta->local_id,
-                'producto_id' => $historial->producto_id,
-                'unidad_id' => $historial->unidad_id,
-                'serie' => '0001',
-                'numero' => sumCod($nota_correlativo, 5),
-                'tipo_doc' => 7,
-                'tipo_operacion' => 5,
-                'cantidad' => ($historial->stock * -1),
-                'costo_unitario' => $historial->precio_unitario,
-                'IO' => 2,
-                'ref_id' => $venta_id,
-                'referencia' => implode("|", $referencia)
-            ));
-
-            $stock_actual = $this->db->get_where('inventario', array(
-                'id_producto' => $historial->producto_id,
-                'id_local' => $venta->local_id
-            ))->row();
-
-            if ($stock_actual == NULL) {
-                $this->db->insert('inventario', array(
-                    'id_producto' => $historial->producto_id,
-                    'id_local' => $venta->local_id,
-                    'cantidad' => 0,
-                    'fraccion' => 0,
-                ));
-            }
-
-            $stock_actual_min = $stock_actual != NULL ? $this->unidades_model->convert_minimo_um(
-                $historial->producto_id, $stock_actual->cantidad, $stock_actual->fraccion) : 0;
-
-            $stock_devolver_min = $this->unidades_model->convert_minimo_by_um($historial->producto_id, $historial->unidad_id, $historial->stock);
-
-            $new_stock = $this->unidades_model->get_cantidad_fraccion($historial->producto_id, $stock_actual_min + $stock_devolver_min);
-
-            $this->db->where('id_producto', $historial->producto_id);
-            $this->db->where('id_local', $venta->local_id);
-            $this->db->update('inventario', array(
-                'cantidad' => $new_stock['cantidad'],
-                'fraccion' => $new_stock['fraccion'],
-            ));
-        }
-
-
-        $this->db->trans_complete();
-        if ($this->db->trans_status() === FALSE) {
-            return false;
-        } else {
-            return true;
-        }
-
-        $this->db->trans_off();
-    }
 
     function devolver_all_stock($id)
     {
-        $this->db->trans_start(true);
-        $this->db->trans_begin();
         $venta = $this->db->get_where('venta', array('venta_id' => $id))->row();
+        $cliente = $this->db->get_where('cliente', array('id_cliente' => $venta->id_cliente))->row();
 
         $proceso = $this->db->get_where('historial_pedido_proceso', array(
             'proceso_id' => PROCESO_DEVOLVER,
-            'pedido_id' => $id,
+            'pedido_id' => $venta->venta_id,
         ))->row();
 
         if ($proceso != NULL) {
@@ -1707,156 +1743,81 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
             $this->db->delete('historial_pedido_detalle');
 
             $this->db->where('proceso_id', PROCESO_DEVOLVER);
-            $this->db->where('pedido_id', $id);
+            $this->db->where('pedido_id', $venta->venta_id);
             $this->db->delete('historial_pedido_proceso');
         }
 
-
         $this->historial_pedido_model->insertar_pedido(PROCESO_DEVOLVER, array(
-            'pedido_id' => $id,
+            'pedido_id' => $venta->venta_id,
             'responsable_id' => $this->session->userdata('nUsuCodigo'),
             'fecha_plan' => date('Y-m-d H:i:s')
         ));
 
-        $data = array();
+        if ($cliente->nombre_boleta == 1 || $venta->tipo_doc_fiscal == 'FACTURA') {
+            $nota_correlativo = $this->getNC();
+            $venta_detalle = $this->db->get_where('detalle_venta', array('id_venta' => $venta->venta_id))->result();
+            foreach ($venta_detalle as $detalle) {
 
+                $detalle_fiscal = $this->db->get_where('documento_detalle', array(
+                    'id_venta' => $id,
+                    'id_producto' => $detalle->id_producto,
+                    'id_unidad' => $detalle->unidad_medida
+                ))->group_by('documento_fiscal_id')->result();
 
-        $sql_detalle_venta = $this->db->query("SELECT * FROM detalle_venta
-JOIN producto ON producto.producto_id=detalle_venta.id_producto
-LEFT JOIN unidades_has_producto ON unidades_has_producto.producto_id=producto.producto_id AND unidades_has_producto.orden=1
-LEFT JOIN unidades ON unidades.id_unidad=unidades_has_producto.id_unidad
-JOIN venta ON venta.`venta_id`=detalle_venta.`id_venta` join documento_venta on documento_venta.id_tipo_documento=venta.numero_documento
- left join documento_fiscal on documento_fiscal.venta_id=venta.venta_id
-WHERE detalle_venta.id_venta='$id' group by detalle_venta.id_detalle");
+                $referencia = array();
+                foreach ($detalle_fiscal as $detalle_f) {
+                    $doc_fiscal = $this->db->get_where('documento_fiscal', array('documento_fiscal_id' => $detalle_f->documento_fiscal_id))->row();
+                    $ref = '';
+                    if ($doc_fiscal->documento_tipo == 'BOLETA DE VENTA')
+                        $ref .= 'BO ';
+                    else if ($doc_fiscal->documento_tipo == 'FACTURA')
+                        $ref .= 'FA ';
 
-        $query_detalle_venta = $sql_detalle_venta->result_array();
-
-        $nota_correlativo = $this->getNC();
-
-        /*************COMIENZO A DEVOLVER EL STOCK**********/
-        for ($i = 0; $i < count($query_detalle_venta); $i++) {
-
-            $detalle_fiscal = $this->db->get_where('documento_detalle', array(
-                'id_venta' => $id,
-                'id_producto' => $query_detalle_venta[$i]['producto_id'],
-                'id_unidad' => $query_detalle_venta[$i]['unidad_medida']
-            ))->result();
-
-            $referencia = array();
-            foreach ($detalle_fiscal as $detalle) {
-                $doc_fiscal = $this->db->get_where('documento_fiscal', array('documento_fiscal_id' => $detalle->documento_fiscal_id))->row();
-                $ref = '';
-                if ($doc_fiscal->documento_tipo == 'BOLETA DE VENTA')
-                    $ref .= 'BO ';
-                else if ($doc_fiscal->documento_tipo == 'FACTURA')
-                    $ref .= 'FA ';
-
-                $referencia[] = $ref . $doc_fiscal->documento_serie . '-' . $doc_fiscal->documento_numero;
-            }
-
-
-            $this->kardex_model->insert_kardex(array(
-                'local_id' => $query_detalle_venta[$i]['local_id'],
-                'producto_id' => $query_detalle_venta[$i]['producto_id'],
-                'unidad_id' => $query_detalle_venta[$i]['unidad_medida'],
-                'serie' => $nota_correlativo['serie'],
-                'numero' => $nota_correlativo['numero'],
-                'tipo_doc' => 7,
-                'tipo_operacion' => 5,
-                'cantidad' => ($query_detalle_venta[$i]['cantidad'] * -1),
-                'costo_unitario' => $query_detalle_venta[$i]['precio'] / 1.18,
-                'IO' => 2,
-                'ref_id' => $id,
-                'referencia' => implode("|", $referencia),
-            ));
-
-
-            $local = $query_detalle_venta[$i]['local_id'];
-            $unidad_maxima = $query_detalle_venta[$i]['unidades'];
-            $unidad_minima = $query_detalle_venta[sizeof($query_detalle_venta) - 1];
-
-            $producto_id = $query_detalle_venta[$i]['producto_id'];
-            $unidad = $query_detalle_venta[$i]['unidad_medida'];
-            $cantidad_compra = $query_detalle_venta[$i]['cantidad'];
-
-            $sql_inventario = $this->db->query("SELECT id_inventario, cantidad, fraccion
-            FROM inventario where id_producto='$producto_id' and id_local='$local'");
-            $inventario_existente = $sql_inventario->row_array();
-            if (count($inventario_existente) > 0) {
-                $id_inventario = $inventario_existente['id_inventario'];
-                $cantidad_vieja = $inventario_existente['cantidad'];
-                $fraccion_vieja = $inventario_existente['fraccion'];
-            } else {
-                $cantidad_vieja = 0;
-                $fraccion_vieja = 0;
-            }
-
-
-            $query = $this->db->query("SELECT * FROM unidades_has_producto WHERE producto_id='$producto_id' ORDER BY orden");
-
-            $unidades_producto = $query->result_array();
-
-            foreach ($unidades_producto as $row) {
-                if ($row['id_unidad'] == $unidad) {
-                    $unidad_form = $row;
+                    $referencia[] = $ref . $doc_fiscal->documento_serie . '-' . $doc_fiscal->documento_numero;
                 }
+
+
+                $this->kardex_model->insert_kardex(array(
+                    'local_id' => $venta->local_id,
+                    'producto_id' => $detalle->id_producto,
+                    'unidad_id' => $detalle->unidad_medida,
+                    'serie' => $nota_correlativo['serie'],
+                    'numero' => $nota_correlativo['numero'],
+                    'tipo_doc' => 7,
+                    'tipo_operacion' => 5,
+                    'cantidad' => ($detalle->cantidad * -1),
+                    'costo_unitario' => $detalle->precio / 1.18,
+                    'IO' => 2,
+                    'ref_id' => $venta->venta_id,
+                    'referencia' => implode("|", $referencia),
+                ));
+
+                $this->devolver_inventario_doc(array(
+                    'producto_id' => $detalle->id_producto,
+                    'local_id' => $venta->local_id,
+                    'unidad_id' => $detalle->unidad_medida,
+                    'cantidad' => $detalle->cantidad,
+                ));
             }
-
-            if ($cantidad_vieja >= 1) {
-                $unidades_minimas_inventario = ($cantidad_vieja * $query_detalle_venta[$i]['unidades']) + $fraccion_vieja;
-            } else {
-                $unidades_minimas_inventario = $fraccion_vieja;
-            }
-
-            $unidades_minimas_detalle = $unidad_form['unidades'] * $cantidad_compra;
-
-            $suma = $unidades_minimas_inventario + $unidades_minimas_detalle;
-
-            $cont = 0;
-            while ($suma >= $unidad_maxima) {
-                $cont++;
-                $suma = $suma - $unidad_maxima;
-            }
-
-            if ($cont < 1) {
-                $cantidad_nueva = 0;
-                $fraccion_nueva = $suma;
-            } else {
-                $cantidad_nueva = $cont;
-                $fraccion_nueva = $suma;
-            }
-
-            $inventario_nuevo = array(
-                'cantidad' => $cantidad_nueva,
-                'fraccion' => $fraccion_nueva
-            );
-
-
-            $where = array('id_inventario' => $id_inventario);
-            $this->update_inventario($inventario_nuevo, $where);
-        }
-
-
-        $this->db->trans_complete();
-
-        if ($this->db->trans_status() === FALSE) {
-            return false;
         } else {
-
-            $this->db->where('venta_id', $id);
-            $this->db->update('documento_fiscal', array('estado' => 0));
-
-            $venta_status['fecha'] = date('Y-m-d h:m:s');
-            $venta_status['venta_id'] = $id;
-            $venta_status['vendedor_id'] = $this->session->userdata('nUsuCodigo');
-            $venta_status['estatus'] = PEDIDO_RECHAZADO;
-            $this->db->insert('venta_estatus', $venta_status);
-
-            return true;
-
+            $docs_fiscal = $this->db->get_where('documento_fiscal', array('venta_id' => $venta->venta_id))->result();
+            foreach ($docs_fiscal as $fiscal) {
+                $this->anular_documento($fiscal->documento_fiscal_id);
+            }
         }
 
-        $this->db->trans_off();
+        $this->db->where('venta_id', $venta->venta_id);
+        $this->db->update('documento_fiscal', array('estado' => 0));
+
+        $venta_status['fecha'] = date('Y-m-d h:m:s');
+        $venta_status['venta_id'] = $id;
+        $venta_status['vendedor_id'] = $this->session->userdata('nUsuCodigo');
+        $venta_status['estatus'] = PEDIDO_RECHAZADO;
+        $this->db->insert('venta_estatus', $venta_status);
+
+        return true;
+
+
     }
 
 
@@ -2664,7 +2625,7 @@ where v.venta_id=" . $id_venta . " group by tr.id_detalle order by 1 ";
                 left join (SELECT c.cliente_id, c.tipo, c.valor, c.principal, COUNT(*) FROM cliente_datos c WHERE c.tipo =1 GROUP BY c.cliente_id, c.tipo  ) cli_dat on cli_dat.cliente_id = c.id_cliente
 
 			where
-				v.venta_id = " . $id_venta . " order by 1");
+				df.estado = 1 AND v.venta_id = " . $id_venta . " order by 1");
 
         $data = array();
         $ventas = $descripcion->result_array();

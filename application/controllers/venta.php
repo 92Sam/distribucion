@@ -522,7 +522,7 @@ class venta extends MY_Controller
         $this->db->where('config_key', 'NC_SERIE');
         $serie = $this->db->get('configuraciones')->row();
         $data['serie'] = $serie != NULL ? $serie->config_value : 1;
-        
+
         header('Content-Type: application/json');
         echo json_encode($data);
     }
@@ -3009,7 +3009,8 @@ class venta extends MY_Controller
             ->join('grupos_cliente AS gc', 'gc.id_grupos_cliente = c.grupo_id')
             ->join('zonas AS z', 'z.zona_id = c.id_zona')
             ->where('df.documento_tipo', 'BOLETA DE VENTA')
-            ->where('hpp.proceso_id', PROCESO_IMPRIMIR);
+            ->where('hpp.proceso_id', PROCESO_IMPRIMIR)
+            ->where('df.estado', 1);
 
         if ($tipo == 'CONSOLIDADO')
             $this->db->where('cd.consolidado_id', $id);
@@ -3135,7 +3136,8 @@ class venta extends MY_Controller
             ->join('grupos_cliente AS gc', 'gc.id_grupos_cliente = c.grupo_id')
             ->join('zonas AS z', 'z.zona_id = c.id_zona')
             ->where('df.documento_tipo', 'FACTURA')
-            ->where('hpp.proceso_id', PROCESO_IMPRIMIR);
+            ->where('hpp.proceso_id', PROCESO_IMPRIMIR)
+            ->where('df.estado', 1);
 
         if ($tipo == 'CONSOLIDADO')
             $this->db->where('cd.consolidado_id', $id);
