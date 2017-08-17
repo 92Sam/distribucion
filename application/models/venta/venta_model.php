@@ -1731,7 +1731,7 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
     function devolver_all_stock($id)
     {
         $venta = $this->db->get_where('venta', array('venta_id' => $id))->row();
-        $cliente = $this->db->get_where('cliente', array('id_cliente' => $venta->id_cliente))->row();
+//        $cliente = $this->db->get_where('cliente', array('id_cliente' => $venta->id_cliente))->row();
 
         $proceso = $this->db->get_where('historial_pedido_proceso', array(
             'proceso_id' => PROCESO_DEVOLVER,
@@ -1753,58 +1753,58 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
             'fecha_plan' => date('Y-m-d H:i:s')
         ));
 
-        if ($cliente->nombre_boleta == 1 || $venta->tipo_doc_fiscal == 'FACTURA') {
-            $nota_correlativo = $this->getNC();
-            $venta_detalle = $this->db->get_where('detalle_venta', array('id_venta' => $venta->venta_id))->result();
-            foreach ($venta_detalle as $detalle) {
-
-                $detalle_fiscal = $this->db->get_where('documento_detalle', array(
-                    'id_venta' => $id,
-                    'id_producto' => $detalle->id_producto,
-                    'id_unidad' => $detalle->unidad_medida
-                ))->group_by('documento_fiscal_id')->result();
-
-                $referencia = array();
-                foreach ($detalle_fiscal as $detalle_f) {
-                    $doc_fiscal = $this->db->get_where('documento_fiscal', array('documento_fiscal_id' => $detalle_f->documento_fiscal_id))->row();
-                    $ref = '';
-                    if ($doc_fiscal->documento_tipo == 'BOLETA DE VENTA')
-                        $ref .= 'BO ';
-                    else if ($doc_fiscal->documento_tipo == 'FACTURA')
-                        $ref .= 'FA ';
-
-                    $referencia[] = $ref . $doc_fiscal->documento_serie . '-' . $doc_fiscal->documento_numero;
-                }
-
-
-                $this->kardex_model->insert_kardex(array(
-                    'local_id' => $venta->local_id,
-                    'producto_id' => $detalle->id_producto,
-                    'unidad_id' => $detalle->unidad_medida,
-                    'serie' => $nota_correlativo['serie'],
-                    'numero' => $nota_correlativo['numero'],
-                    'tipo_doc' => 7,
-                    'tipo_operacion' => 5,
-                    'cantidad' => ($detalle->cantidad * -1),
-                    'costo_unitario' => $detalle->precio / 1.18,
-                    'IO' => 2,
-                    'ref_id' => $venta->venta_id,
-                    'referencia' => implode("|", $referencia),
-                ));
-
-                $this->devolver_inventario_doc(array(
-                    'producto_id' => $detalle->id_producto,
-                    'local_id' => $venta->local_id,
-                    'unidad_id' => $detalle->unidad_medida,
-                    'cantidad' => $detalle->cantidad,
-                ));
-            }
-        } else {
-            $docs_fiscal = $this->db->get_where('documento_fiscal', array('venta_id' => $venta->venta_id))->result();
-            foreach ($docs_fiscal as $fiscal) {
-                $this->anular_documento($fiscal->documento_fiscal_id);
-            }
+//        if ($cliente->nombre_boleta == 1 || $venta->tipo_doc_fiscal == 'FACTURA') {
+//            $nota_correlativo = $this->getNC();
+//            $venta_detalle = $this->db->get_where('detalle_venta', array('id_venta' => $venta->venta_id))->result();
+//            foreach ($venta_detalle as $detalle) {
+//
+//                $detalle_fiscal = $this->db->get_where('documento_detalle', array(
+//                    'id_venta' => $id,
+//                    'id_producto' => $detalle->id_producto,
+//                    'id_unidad' => $detalle->unidad_medida
+//                ))->group_by('documento_fiscal_id')->result();
+//
+//                $referencia = array();
+//                foreach ($detalle_fiscal as $detalle_f) {
+//                    $doc_fiscal = $this->db->get_where('documento_fiscal', array('documento_fiscal_id' => $detalle_f->documento_fiscal_id))->row();
+//                    $ref = '';
+//                    if ($doc_fiscal->documento_tipo == 'BOLETA DE VENTA')
+//                        $ref .= 'BO ';
+//                    else if ($doc_fiscal->documento_tipo == 'FACTURA')
+//                        $ref .= 'FA ';
+//
+//                    $referencia[] = $ref . $doc_fiscal->documento_serie . '-' . $doc_fiscal->documento_numero;
+//                }
+//
+//
+//                $this->kardex_model->insert_kardex(array(
+//                    'local_id' => $venta->local_id,
+//                    'producto_id' => $detalle->id_producto,
+//                    'unidad_id' => $detalle->unidad_medida,
+//                    'serie' => $nota_correlativo['serie'],
+//                    'numero' => $nota_correlativo['numero'],
+//                    'tipo_doc' => 7,
+//                    'tipo_operacion' => 5,
+//                    'cantidad' => ($detalle->cantidad * -1),
+//                    'costo_unitario' => $detalle->precio / 1.18,
+//                    'IO' => 2,
+//                    'ref_id' => $venta->venta_id,
+//                    'referencia' => implode("|", $referencia),
+//                ));
+//
+//                $this->devolver_inventario_doc(array(
+//                    'producto_id' => $detalle->id_producto,
+//                    'local_id' => $venta->local_id,
+//                    'unidad_id' => $detalle->unidad_medida,
+//                    'cantidad' => $detalle->cantidad,
+//                ));
+//            }
+//        } else {
+        $docs_fiscal = $this->db->get_where('documento_fiscal', array('venta_id' => $venta->venta_id))->result();
+        foreach ($docs_fiscal as $fiscal) {
+            $this->anular_documento($fiscal->documento_fiscal_id);
         }
+//        }
 
         $this->db->where('venta_id', $venta->venta_id);
         $this->db->update('documento_fiscal', array('estado' => 0));
