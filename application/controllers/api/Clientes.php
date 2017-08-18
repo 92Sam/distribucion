@@ -344,15 +344,15 @@ class clientes extends REST_Controller
         );
 
         if (!$id) {
-            $this->response($cliente, 200);
-            //$result = $this->cliente_model->insertar($cliente, $items, $datos);
+            //$this->response($cliente, 200);
+            $result = $this->cliente_model->insertar($cliente, $items, $datos);
 
         } else {
             $cliente['id_cliente'] = $id;
             $result = $this->cliente_model->update($cliente, $items, $datos);
         }
 
-        /*if ($result === true) {
+        if ($result === true) {
             $this->response(array('status' => 'success'));
 
         } else if ($result === CEDULA_EXISTE){
@@ -360,6 +360,6 @@ class clientes extends REST_Controller
 
         } else {
             $this->response(array('status' => ''));
-        }*/
+        }
     }
 }
