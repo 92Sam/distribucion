@@ -1575,7 +1575,7 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
                 'tipo_doc' => 7,
                 'tipo_operacion' => 5,
                 'cantidad' => ($p['cantidad'] * -1),
-                'costo_unitario' => $p['bono'] != 1 ? $p['costo_unitario'] / 1.18 : 0.00,
+                'costo_unitario' => $p['bono'] != 1 ? $p['precio_unitario'] / 1.18 : 0.00,
                 'IO' => 2,
                 'ref_id' => $venta->venta_id,
                 'referencia' => $referencia
@@ -1689,6 +1689,7 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
                                         'producto_id' => $historial->producto_id,
                                         'unidad_id' => $historial->unidad_id,
                                         'costo_unitario' => $historial->costo_unitario,
+                                        'precio_unitario' => $historial->precio_unitario,
                                         'cantidad' => $cantidad,
                                         'bono' => $historial->bonificacion,
                                     );
