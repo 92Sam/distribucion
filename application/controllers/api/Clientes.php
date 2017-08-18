@@ -268,9 +268,7 @@ class clientes extends REST_Controller
         $razon_social = $post['razon_social'];
         $ruc_cliente = $post['ruc_cliente'];
         $latitud = $post['latitud'];
-        $latitud = "111111111";
         $longitud = $post['longitud'];
-        $longitud = "222222222";
         $zona_id = $post['zona_id'];
         $direccion = $post['direccion'];
         $celular = $post['celular'];
@@ -311,7 +309,7 @@ class clientes extends REST_Controller
             'longitud' => $longitud,
             'importe_deuda' => $importe_deuda,
             'id_zona' => $zona_id,
-            'vendedor_a' => $vendedor_id,
+            'vendedor_a' => $vendedor_id
         );
 
         $items = array();
@@ -346,7 +344,8 @@ class clientes extends REST_Controller
         );
 
         if (!$id) {
-            $result = $this->cliente_model->insertar($cliente, $items, $datos);
+            $this->response($cliente, 200);
+            //$result = $this->cliente_model->insertar($cliente, $items, $datos);
 
         } else {
             $cliente['id_cliente'] = $id;
