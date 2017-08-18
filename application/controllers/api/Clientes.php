@@ -352,7 +352,7 @@ class clientes extends REST_Controller
             $result = $this->cliente_model->update($cliente, $items, $datos);
         }
 
-        if ($result === true) {
+        /*if ($result === true) {
             $this->response(array('status' => 'success'));
 
         } else if ($result === CEDULA_EXISTE){
@@ -360,6 +360,6 @@ class clientes extends REST_Controller
 
         } else {
             $this->response(array('status' => ''));
-        }
+        }*/
     }
 }
