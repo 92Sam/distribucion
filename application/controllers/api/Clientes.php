@@ -268,7 +268,9 @@ class clientes extends REST_Controller
         $razon_social = $post['razon_social'];
         $ruc_cliente = $post['ruc_cliente'];
         $latitud = $post['latitud'];
+        $latitud = "111111111";
         $longitud = $post['longitud'];
+        $longitud = "222222222";
         $zona_id = $post['zona_id'];
         $direccion = $post['direccion'];
         $celular = $post['celular'];
