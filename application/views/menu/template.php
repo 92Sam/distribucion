@@ -399,6 +399,12 @@ $primary_nav = array(
                         'icon' => 'fa  fa-map-marker',
                         'slug' => 'reporteventas'
                     ),
+                    array(
+                        'name' => 'Por productos',
+                        'url' => $ruta . 'reporte/por_productos',
+                        'icon' => 'fa fa-bar-chart',
+                        'slug' => 'reporteventas'
+                    )
                 ),
             ),
 
@@ -422,6 +428,12 @@ $primary_nav = array(
                     array(
                         'name' => 'Avance de Pagos',
                         'url' => $ruta . 'reporte_compra/proveedor_estado',
+                        'icon' => 'fa fa-bar-chart',
+                        'slug' => 'reportecompras'
+                    ),
+                    array(
+                        'name' => 'Por productos',
+                        'url' => $ruta . 'reporte_compra/por_productos',
                         'icon' => 'fa fa-bar-chart',
                         'slug' => 'reportecompras'
                     )
@@ -583,32 +595,32 @@ $primary_nav = array(
         'name' => 'OPCIONES',
         'slug' => 'opciones',
         'sub' => array(
-           array(
+            array(
                 'name' => 'Metodos de Pago',
                 'url' => $ruta . 'metodosdepago',
                 'icon' => 'fa fa-money',
                 'slug' => 'metodospago'
             ),
 
-             array(
+            array(
                 'name' => 'Condiciones de Pago',
                 'url' => $ruta . 'condicionespago',
                 'icon' => 'fa fa-ticket',
                 'slug' => 'condicionespago'
             ),
-             array(
+            array(
                 'name' => 'Locales',
                 'url' => $ruta . 'local',
                 'icon' => 'gi gi-shop_window',
                 'slug' => 'locales'
             ),
-              array(
+            array(
                 'name' => 'Precios',
                 'url' => $ruta . 'precio',
                 'icon' => 'fa fa-money',
                 'slug' => 'precios'
             ),
-              array(
+            array(
                 'name' => 'Impuestos',
                 'url' => $ruta . 'impuesto',
                 'icon' => 'fa fa-money',
@@ -702,16 +714,16 @@ $primary_nav = array(
         var baseurl = '<?php echo base_url();?>';
     </script>
     <style>
-    table th {
-        font-size: 11px !important;
-        padding: 6px 2px;
-        text-align: center;
-        vertical-align: middle;
-    }
+        table th {
+            font-size: 11px !important;
+            padding: 6px 2px;
+            text-align: center;
+            vertical-align: middle;
+        }
 
-    table td {
-        font-size: 10px !important;
-    }
+        table td {
+            font-size: 10px !important;
+        }
 
         .loading-icon {
             background: url("<?php echo $ruta ?>recursos/img/loading.gif") no-repeat;
@@ -727,7 +739,7 @@ $primary_nav = array(
             border-radius: 3px !important;
         }
 
-        .form-control{
+        .form-control {
             font-size: 12px !important;
             padding: 2px 3px !important;
             margin: 1px 0 !important;
@@ -849,7 +861,9 @@ $primary_nav = array(
 
                     <!-- Brand -->
                     <a href="<?= $ruta ?>principal" class="sidebar-brand">
-                        <i class="gi gi-cart_out"></i><strong>CD ARKAD  <spam style="font-size: 10px"> V.01 </spam></strong>
+                        <i class="gi gi-cart_out"></i><strong>CD ARKAD
+                            <spam style="font-size: 10px"> V.01</spam>
+                        </strong>
                     </a>
                     <!-- END Brand -->
 
@@ -871,7 +885,7 @@ $primary_nav = array(
                             <a href="#modal-user-settings" data-toggle="modal" class="enable-tooltip"
                                data-placement="bottom" title="Configuración"><i class="gi gi-user"></i></a>
                             <a href="logout" data-toggle="tooltip" data-placement="bottom" title="Cerrar Sesion"><i
-                                    class="gi gi-exit"></i></a>
+                                        class="gi gi-exit"></i></a>
                         </div>
                     </div>
                     <!-- END User Info -->
@@ -968,7 +982,7 @@ $primary_nav = array(
                                         <li class="sidebar-header">
                                             <?php if (isset($link['opt']) && $link['opt']) { // If the header has options set ?>
                                                 <span
-                                                    class="sidebar-header-options clearfix"><?php echo $link['opt']; ?></span>
+                                                        class="sidebar-header-options clearfix"><?php echo $link['opt']; ?></span>
                                             <?php } ?>
                                             <span class="sidebar-header-title"><?php echo $link['name']; ?></span>
                                         </li>
@@ -1178,19 +1192,21 @@ $primary_nav = array(
 
                             <?php if ($this->usuarios_grupos_model->user_has_perm($this->session->userdata('nUsuCodigo'), 'ad_estadodecuenta')) { ?>
                                 <li>
-                                    <a class="menulink" href="<?= $ruta ?>reporte/cliente_estado">Estado de Cuentas Clientes</a>
+                                    <a class="menulink" href="<?= $ruta ?>reporte/cliente_estado">Estado de Cuentas
+                                        Clientes</a>
                                 </li>
                             <?php } ?>
 
                             <?php if ($this->usuarios_grupos_model->user_has_perm($this->session->userdata('nUsuCodigo'), 'ad_reporteventas')) { ?>
                                 <li>
-                                    <a class="menulink" href="<?= $ruta?>reporte/historial_cobranzas">Historial de Cobranza</a>
+                                    <a class="menulink" href="<?= $ruta ?>reporte/historial_cobranzas">Historial de
+                                        Cobranza</a>
                                 </li>
                             <?php } ?>
 
                             <?php if ($this->usuarios_grupos_model->user_has_perm($this->session->userdata('nUsuCodigo'), 'ad_resumencompras')) { ?>
                                 <li>
-                                    <a class="menulink" href="<?= $ruta?>reporte_compra/compras">Resumen de Compras</a>
+                                    <a class="menulink" href="<?= $ruta ?>reporte_compra/compras">Resumen de Compras</a>
                                 </li>
                             <?php } ?>
                         </ul>

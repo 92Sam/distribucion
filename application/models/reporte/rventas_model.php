@@ -568,4 +568,70 @@ class rventas_model extends CI_Model
         return $this->db->query($query)->result();
     }
 
+
+    function getVentasProducto($data)
+    {
+        $query = "
+            SELECT 
+                v.venta_id,
+                hpp.fecha_plan AS fecha,
+                doc_v.documento_Serie AS serie, 
+                doc_v.documento_Numero AS numero, 
+                v.tipo_doc_fiscal AS doc_fiscal,
+                hpd.producto_id AS producto_id, 
+                hpd.stock AS cantidad,
+                hpd.costo_unitario, 
+                hpd.precio_unitario, 
+                hpd.bonificacion AS bono, 
+                v.venta_status AS estado
+            FROM
+                venta AS v 
+            JOIN documento_venta AS doc_v ON doc_v.id_tipo_documento = v.numero_documento 
+            JOIN historial_pedido_proceso AS hpp ON hpp.pedido_id = v.venta_id 
+            JOIN historial_pedido_detalle AS hpd ON hpd.historial_pedido_proceso_id = hpp.id  
+            JOIN producto AS p ON p.producto_id = hpd.producto_id  
+            WHERE ";
+
+        if (isset($data['fecha_ini']) && isset($data['fecha_fin']))
+            $query .= " hpp.fecha_plan >= '" . $data['fecha_ini'] . " 00:00:00'  AND hpp.fecha_plan <= '" . $data['fecha_fin'] . " 23:59:59'";
+
+        if (isset($data['producto_id']) && $data['producto_id'] != 0)
+            $query .= " AND hpd.producto_id = " . $data['producto_id'];
+
+        if (isset($data['grupo_id']) && $data['grupo_id'] != 0)
+            $query .= " AND p.produto_grupo = " . $data['grupo_id'];
+
+        if (isset($data['marca_id']) && $data['marca_id'] != 0)
+            $query .= " AND p.producto_marca = " . $data['marca_id'];
+
+        if (isset($data['linea_id']) && $data['linea_id'] != 0)
+            $query .= " AND p.producto_subgrupo = " . $data['linea_id'];
+
+        if (isset($data['sublinea_id']) && $data['sublinea_id'] != 0)
+            $query .= " AND p.producto_familia = " . $data['sublinea_id'];
+
+        if (isset($data['tipo_documento']) && $data['tipo_documento'] != '0')
+            $query .= " AND v.tipo_doc_fiscal = '" . $data['tipo_documento'] . "'";
+
+        if (isset($data['estado']) && $data['estado'] != '0') {
+            if ($data['estado'] == 'ENTREGADO') {
+                $query .= " AND hpp.proceso_id = 4 AND (v.venta_status = 'ENTREGADO' OR v.venta_status = 'DEVUELTO PARCIALMENTE')";
+            } elseif ($data['estado'] == 'DEVUELTO') {
+                $query .= " AND hpp.proceso_id = 6 AND (v.venta_status = 'RECHAZADO' OR v.venta_status = 'DEVUELTO PARCIALMENTE')";
+            } elseif ($data['estado'] == 'ANULADO') {
+                $query .= " AND hpp.proceso_id = 1 AND v.venta_status = 'ANULADO'";
+            }
+
+        }
+
+
+        $query .= "
+            GROUP BY hpd.id 
+            ORDER BY hpp.fecha_plan, v.venta_id ASC 
+        ";
+
+        return $this->db->query($query)->result();
+
+    }
+
 }

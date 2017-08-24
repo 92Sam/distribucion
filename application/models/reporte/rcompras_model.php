@@ -158,4 +158,63 @@ class rcompras_model extends CI_Model
         $this->db->join('proveedor', 'ingreso.int_Proveedor_id = proveedor.id_proveedor');
     }
 
+    function getComprasProducto($data)
+    {
+        $query = "
+            SELECT 
+                i.fecha_registro,
+                i.fecha_emision,
+                i.tipo_documento,
+                i.documento_serie, 
+                i.documento_numero, 
+                i.ingreso_status,
+                di.id_producto as producto_id,
+                di.cantidad, 
+                di.precio, 
+                di.precio_valor,
+                di.total_detalle,
+                i.ingreso_status as estado
+            FROM
+                ingreso AS i 
+            JOIN detalleingreso AS di ON di.id_ingreso = i.id_ingreso  
+            JOIN producto AS p ON p.producto_id = di.id_producto  
+            WHERE ";
+
+        if (isset($data['fecha_ini']) && isset($data['fecha_fin']))
+            $query .= " i.fecha_emision >= '" . $data['fecha_ini'] . " 00:00:00'  AND i.fecha_emision <= '" . $data['fecha_fin'] . " 23:59:59'";
+
+        if (isset($data['producto_id']) && $data['producto_id'] != 0)
+            $query .= " AND di.id_producto = " . $data['producto_id'];
+
+        if (isset($data['proveedor_id']) && $data['proveedor_id'] != 0)
+            $query .= " AND i.int_Proveedor_id = " . $data['proveedor_id'];
+
+        if (isset($data['grupo_id']) && $data['grupo_id'] != 0)
+            $query .= " AND p.produto_grupo = " . $data['grupo_id'];
+
+        if (isset($data['marca_id']) && $data['marca_id'] != 0)
+            $query .= " AND p.producto_marca = " . $data['marca_id'];
+
+        if (isset($data['linea_id']) && $data['linea_id'] != 0)
+            $query .= " AND p.producto_subgrupo = " . $data['linea_id'];
+
+        if (isset($data['sublinea_id']) && $data['sublinea_id'] != 0)
+            $query .= " AND p.producto_familia = " . $data['sublinea_id'];
+
+        if (isset($data['tipo_documento']) && $data['tipo_documento'] != '0')
+            $query .= " AND i.tipo_documento = '" . $data['tipo_documento'] . "'";
+
+        if (isset($data['estado']) && $data['estado'] != '0')
+            $query .= " AND i.ingreso_status = '" . $data['estado'] . "'";
+
+
+        $query .= "
+            GROUP BY di.id_detalle_ingreso 
+            ORDER BY i.fecha_emision, i.documento_numero ASC
+        ";
+
+        return $this->db->query($query)->result();
+
+    }
+
 }
