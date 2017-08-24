@@ -309,7 +309,7 @@ class clientes extends REST_Controller
             'longitud' => $longitud,
             'importe_deuda' => $importe_deuda,
             'id_zona' => $zona_id,
-            'vendedor_a' => $vendedor_id,
+            'vendedor_a' => $vendedor_id
         );
 
         $items = array();
@@ -344,6 +344,7 @@ class clientes extends REST_Controller
         );
 
         if (!$id) {
+            //$this->response($cliente, 200);
             $result = $this->cliente_model->insertar($cliente, $items, $datos);
 
         } else {
@@ -351,11 +352,14 @@ class clientes extends REST_Controller
             $result = $this->cliente_model->update($cliente, $items, $datos);
         }
 
-        if ($result === false) {
-            $this->response(array('status' => 'failed'));
+        if ($result === true) {
+            $this->response(array('status' => 'success'));
+
+        } else if ($result === CEDULA_EXISTE){
+            $this->response(array('status' => 'existe'));
 
         } else {
-            $this->response(array('status' => 'success'));
+            $this->response(array('status' => ''));
         }
     }
 }
