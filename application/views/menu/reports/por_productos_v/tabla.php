@@ -61,7 +61,9 @@
             <td><?= MONEDA ?> <?= number_format($total_importe / $total_cantidad, 2) ?></td>
             <td><?= MONEDA ?> <?= number_format($productos_list[count($productos_list) - 1]->costo_unitario * 1.18, 2) ?></td>
             <td><?= MONEDA ?> <?= $total_importe ?></td>
-            <td colspan="2"></td>
+            <td colspan="2" style="text-align: right;">
+                <?= MONEDA ?> <?= number_format($total_importe / $total_cantidad, 2) - number_format($productos_list[count($productos_list) - 1]->costo_unitario * 1.18, 2) ?>
+            </td>
         </tr>
         <tr style="font-weight: bold;">
             <th colspan="2"></th>
@@ -69,9 +71,9 @@
             <th colspan=""></th>
             <th>Total Cantidad</th>
             <th>Precio Promedio</th>
-            <th>Ultimo Costo</th>
+            <th>Costo Promedio</th>
             <th>Total Importe</th>
-            <th colspan="2"></th>
+            <th colspan="2" style="text-align: right;">Margen Unitario</th>
         </tr>
         </tbody>
     </table>
