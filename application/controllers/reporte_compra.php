@@ -181,7 +181,7 @@ class reporte_compra extends MY_Controller
             default: {
 
                 $data['productos_list'] = $this->rcompras_model->getComprasProducto(array(
-                    'fecha_ini' => date('Y-m-01'),
+                    'fecha_ini' => date('Y-m-d'),
                     'fecha_fin' => date('Y-m-d'),
                     'estado' => 'COMPLETADO'
                 ));

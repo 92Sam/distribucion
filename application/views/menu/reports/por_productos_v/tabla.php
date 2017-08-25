@@ -39,8 +39,12 @@
         <?php foreach ($productos_list as $p): ?>
             <tr>
                 <td><?= date('d/m/Y H:i:s', strtotime($p->fecha)) ?></td>
-                <td><?= $p->doc_fiscal ?></td>
-                <td><?= $p->serie . ' - ' . $p->numero ?></td>
+                <?php
+                $doc = 'BO';
+                if ($p->doc_fiscal == 'FACTURA')
+                    $doc = 'FA'; ?>
+                <td><?= $doc ?></td>
+                <td><?= 'NE ' . $p->serie . ' - ' . $p->numero ?></td>
                 <td><?= sumCod($p->producto_id, 4) ?></td>
                 <?php $total_cantidad += $p->cantidad ?>
                 <td><?= $p->cantidad ?></td>
