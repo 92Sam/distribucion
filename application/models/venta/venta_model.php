@@ -2326,7 +2326,7 @@ LEFT JOIN ingreso ON ingreso.id_ingreso = detalleingreso.id_ingreso WHERE id_pro
         return $query->result();
     }
 
-    function get_ventas_by($condicion, $completado = FALSE)
+    function get_ventas_by($condicion, $limit = false, $completado = FALSE)
     {
         $this->db->select('venta.*, cliente.*, zonas.zona_nombre, local.*,condiciones_pago.*,documento_venta.*,usuario.*, grupos_cliente.*,
         
@@ -2357,6 +2357,11 @@ LEFT JOIN ingreso ON ingreso.id_ingreso = detalleingreso.id_ingreso WHERE id_pro
             $this->db->where('venta_status !=', PEDIDO_ENVIADO);
             unset($condicion['venta_status']);
         }
+
+        if ($limit == true) {
+            $this->db->limit(3);
+        }
+
         $this->db->where($condicion);
         $query = $this->db->get();
 
@@ -3019,6 +3024,18 @@ where v.venta_id=" . $id_venta . " group by tr.id_detalle order by 1 ";
         $this->db->order_by('c.representante', 'asc');
 
         $query = $this->db->get();
+        return $query->result_array();
+    }
+
+    function getPedidoResumenBonos($pedido_id) {
+        $this->db->select("detalle_venta.*, producto.producto_nombre, unidades.nombre_unidad");
+        $this->db->from('detalle_venta');
+        $this->db->join('producto', 'producto.producto_id = detalle_venta.id_producto');
+        $this->db->join('unidades', 'unidades.id_unidad = detalle_venta.unidad_medida');
+        $this->db->where('detalle_venta.id_venta', $pedido_id);
+        $this->db->where('detalle_venta.bono', 1);
+        $query = $this->db->get();
+
         return $query->result_array();
     }
 }
