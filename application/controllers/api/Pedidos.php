@@ -93,7 +93,7 @@ class pedidos extends REST_Controller
         $condicion['venta_tipo'] = 'entrega';
 
         $datas = array();
-        if ($condicion['venta_status'] == PEDIDO_ENVIADO) {
+        if ($condicion['venta_status'] == PEDIDO_ENTREGADO) {
             $limit = true;
         } else {
             $limit = false;
