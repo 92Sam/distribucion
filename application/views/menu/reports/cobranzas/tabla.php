@@ -34,9 +34,9 @@
             <td><?= $cobranza->documento_serie . '-' . $cobranza->documento_numero ?></td>
             <td><?= $cobranza->cliente_nombre ?></td>
             <td><?= date('d/m/Y', strtotime($cobranza->fecha_venta)) ?></td>
-            <td><?= MONEDA . ' ' . number_format($cobranza->total_deuda, 2) ?></td>
-            <td><?= MONEDA . ' ' . number_format($cobranza->actual, 2) ?></td>
-            <td><?= MONEDA . ' ' . number_format($cobranza->saldo, 2) ?></td>
+            <td><?= MONEDA . ' ' . formatPrice($cobranza->total_deuda) ?></td>
+            <td><?= MONEDA . ' ' . formatPrice($cobranza->actual) ?></td>
+            <td><?= MONEDA . ' ' . formatPrice($cobranza->saldo) ?></td>
             <td><?= $cobranza->cliente_zona_nombre ?></td>
             <td><?= $cobranza->vendedor_nombre ?></td>
             <td><?= $cobranza->atraso ?></td>
@@ -47,16 +47,16 @@
                 <td colspan="3"><?= $detalle->tipo_pago_nombre ?></td>
                 <td><?= date('d/m/Y', strtotime($detalle->fecha)) ?></td>
                 <td></td>
-                <td><?= MONEDA . ' ' . number_format($detalle->monto, 2) ?></td>
+                <td><?= MONEDA . ' ' . formatPrice($detalle->monto) ?></td>
                 <?php $actual_desglose += $detalle->monto; ?>
-                <td><?= MONEDA . ' ' . number_format($cobranza->total_deuda - $actual_desglose, 2) ?></td>
+                <td><?= MONEDA . ' ' . formatPrice($cobranza->total_deuda - $actual_desglose) ?></td>
             </tr>
         <?php endforeach; ?>
     <?php endforeach; ?>
 </table>
-<input type="hidden" id="input_venta" value="<?= number_format($total_venta, 2) ?>">
-<input type="hidden" id="input_pago" value="<?= number_format($total_pago, 2) ?>">
-<input type="hidden" id="input_saldo" value="<?= number_format($total_saldo, 2) ?>">
+<input type="hidden" id="input_venta" value="<?= formatPrice($total_venta) ?>">
+<input type="hidden" id="input_pago" value="<?= formatPrice($total_pago) ?>">
+<input type="hidden" id="input_saldo" value="<?= formatPrice($total_saldo) ?>">
 
 <script>
     $(document).ready(function () {

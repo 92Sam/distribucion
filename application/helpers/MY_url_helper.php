@@ -12,10 +12,13 @@ function get_pago($id){
     return $pagos[$id];
 }
 
-function formatPrice($price, $min = 10) {
-    $r = number_format($price, 2, '.', '');
-    $round = explode('.', $r);
+function formatPrice($price, $min = 10, $dec = '.', $thousand = ',') {
+    $r = number_format($price, 2, $dec, $thousand);
+    $round = explode($dec, $r);
+
     $entero = $round[0];
+    if($thousand != '')
+        $entero = str_replace($thousand, '', $entero);
     $fraccion = $round[1];
 
     for ($i = 0; $i <= 100; $i = $i + $min) {
@@ -31,7 +34,7 @@ function formatPrice($price, $min = 10) {
             }
         }
     }
-    $result = number_format($entero.'.'.$fraccion, 2);;
+    $result = number_format($entero.$dec.$fraccion, 2, $dec, $thousand);
     return $result;
 }
 

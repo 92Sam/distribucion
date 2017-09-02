@@ -1150,24 +1150,24 @@ class consolidadodecargas extends MY_Controller
         if ($consolidado->status == 'ABIERTO') {
             $pedidos = $this->db->get_where('consolidado_detalle', array('consolidado_id' => $id))->result();
             foreach ($pedidos as $pedido) {
-                $venta = $this->db->get_where('venta', array('venta_id' => $pedido->pedido_id))->row();
+                $this->historial_pedido_model->insertar_pedido(PROCESO_IMPRIMIR, array(
+                    'pedido_id' => $pedido->pedido_id,
+                    'responsable_id' => $this->session->userdata('nUsuCodigo'),
+                    'fecha_plan' => $consolidado->fecha
+                ));
+
                 $split = $this->venta_model->generar_documentos_fiscales($pedido->pedido_id);
-            }
-        }
-
-        if ($split == true) {
-            $data['consolidado'] = $this->consolidado_model->get_consolidado_by(array('consolidado_id' => $id));
-            foreach ($data['consolidado'] as $campoCarga) {
-                if ($campoCarga['status'] == 'ABIERTO') {
-                    $status = array(
-                        'consolidado_id' => $id,
-                        'status' => 'IMPRESO'
-                    );
-
-                    $this->consolidado_model->updateStatus($status);
+                if($split != true){
+                    echo "No se ha podido generar los documentos de este consolidado. Revise el logger y contacta a Antonio Martin.";
+                    return false;
                 }
             }
 
+            $this->db->where('consolidado_id', $id);
+            $this->db->update('consolidado_carga', array('status' => 'IMPRESO'));
+        }
+
+        if ($split == true) {
             $template_name = 'consolidado.docx';
             $word = new \PhpOffice\PhpWord\PhpWord();
             $template = new \PhpOffice\PhpWord\TemplateProcessor(base_url('recursos/formatos/consolidado/' . $template_name));

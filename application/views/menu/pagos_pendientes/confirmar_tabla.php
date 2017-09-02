@@ -12,14 +12,14 @@
 <?php foreach ($pagos->consolidado as $pago): ?>
     <?php $total_consolidado += $pago->monto; ?>
 <?php endforeach; ?>
-<input type="hidden" id="total_efectivo" value="<?= $total_efectivo ?>">
-<input type="hidden" id="total_pendiente" value="<?= $total_pendiente ?>">
-<input type="hidden" id="total_consolidado" value="<?= $total_consolidado ?>">
+<input type="hidden" id="total_efectivo" value="<?= formatPrice($total_efectivo) ?>">
+<input type="hidden" id="total_pendiente" value="<?= formatPrice($total_pendiente) ?>">
+<input type="hidden" id="total_consolidado" value="<?= formatPrice($total_consolidado) ?>">
 <div id="pen_liquidar" style="display: none;">
     <h4>
         Por Liquidar
     <span style="float: right;">
-        <?= MONEDA . ' ' . number_format($total_efectivo, 2) ?>
+        <?= MONEDA . ' ' . formatPrice($total_efectivo) ?>
     </span>
     </h4>
     <table class="table table-bordered">
@@ -37,7 +37,7 @@
                 <td><?= $pago->documento ?></td>
                 <td><?= date('d/m/Y H:i:s', strtotime($pago->fecha)) ?></td>
                 <td><?= $pago->vendedor_nombre ?></td>
-                <td><?= MONEDA . ' ' . number_format($pago->monto, 2) ?></td>
+                <td><?= MONEDA . ' ' . formatPrice($pago->monto) ?></td>
             </tr>
         <?php endforeach; ?>
         </tbody>
@@ -55,7 +55,7 @@
             </button>
         </div>
                         <span style="float: right;">
-                            <?= MONEDA . ' ' . number_format($total_pendiente, 2) ?>
+                            <?= MONEDA . ' ' . formatPrice($total_pendiente) ?>
                         </span>
     </h4>
     <table class="table table-bordered">
@@ -102,7 +102,7 @@
                     <?php endif; ?>
                 </td>
                 <td><?= $pago->num_oper ?></td>
-                <td><?= MONEDA . ' ' . number_format($pago->monto, 2) ?></td>
+                <td><?= MONEDA . ' ' . formatPrice($pago->monto) ?></td>
                 <td>
                     <div class="btn-group">
                         <button class="btn btn-sm btn-primary tip confirmar_liquidacion"
@@ -136,7 +136,7 @@
             </button>
         </div>
                         <span style="float: right;">
-                            <?= MONEDA . ' ' . number_format($total_consolidado, 2) ?>
+                            <?= MONEDA . ' ' . formatPrice($total_consolidado) ?>
                         </span>
     </h4>
     <table class="table table-bordered">
@@ -186,7 +186,7 @@
                     <?php endif; ?>
                 </td>
                 <td><?= $pago->num_oper ?></td>
-                <td><?= MONEDA . ' ' . number_format($pago->monto, 2) ?></td>
+                <td><?= MONEDA . ' ' . formatPrice($pago->monto) ?></td>
                 <td>
                     <div class="btn-group">
                         <button class="btn btn-sm btn-primary tip confirmar_liquidacion"

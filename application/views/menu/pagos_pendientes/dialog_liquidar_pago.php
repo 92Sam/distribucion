@@ -15,12 +15,13 @@
                 <?php $total_pendiente += $pago->monto; ?>
             <?php endforeach; ?>
             <input type="hidden" id="vendedor" value="<?= $venta->vendedor_id ?>">
-            <input type="hidden" id="total_efectivo" value="<?= $total_efectivo ?>">
-            <input type="hidden" id="total_pendiente" value="<?= $total_pendiente ?>">
+            <input type="hidden" id="total_efectivo" value="<?= formatPrice($total_efectivo, 10, '.', '') ?>">
+            <input type="hidden" id="total_pendiente" value="<?= formatPrice($total_pendiente, 10, '.', '') ?>">
             <div class="row">
                 <div class="col-md-5">
                     <h4>Por Liquidar <span
-                            style="float: right;"><?= MONEDA . ' ' . number_format($total_efectivo, 2) ?></span></h4>
+                                style="float: right;"><?= MONEDA . ' ' . formatPrice($total_efectivo) ?></span>
+                    </h4>
                     <div class="row">
                         <div class="col-md-4">
                             <label>Medio de Pago</label>
@@ -30,7 +31,7 @@
                                 <?php foreach ($metodos_pago as $pago): ?>
                                     <?php if ($pago->id_metodo != 7): ?>
                                         <option
-                                            value="<?= $pago->id_metodo ?>"
+                                                value="<?= $pago->id_metodo ?>"
                                             <?= $pago->id_metodo == 3 ? 'selected' : '' ?>><?= $pago->nombre_metodo ?></option>
                                     <?php endif; ?>
                                 <?php endforeach ?>
@@ -47,7 +48,7 @@
                                 <select name="banco_id" id="banco_id" class="form-control">
                                     <?php foreach ($bancos as $banco): ?>
                                         <option
-                                            value="<?= $banco->banco_id ?>"><?= $banco->banco_nombre ?></option>
+                                                value="<?= $banco->banco_id ?>"><?= $banco->banco_nombre ?></option>
                                     <?php endforeach ?>
                                 </select>
                             </div>
@@ -109,7 +110,7 @@
                         <tbody>
                         <tr style="font-weight: bold;">
                             <td colspan="3">TOTAL EFECTIVO</td>
-                            <td><?= MONEDA . ' ' . number_format($total_efectivo, 2) ?></td>
+                            <td><?= MONEDA . ' ' . formatPrice($total_efectivo) ?></td>
                             <td></td>
                         </tr>
                         <?php foreach ($pagos->pendientes as $pago): ?>
@@ -118,8 +119,9 @@
                                 <td><?= $pago->documento ?></td>
                                 <td><?= date('d/m/Y H:i:s', strtotime($pago->fecha)) ?></td>
                                 <td>
-                                    <?= MONEDA . ' ' ?> <?= number_format($pago->monto, 2) ?>
-                                    <span style="display: none;" id="monto_<?= $pago->id ?>"><?= number_format($pago->monto, 2, '.', '') ?></span>
+                                    <?= MONEDA . ' ' ?> <?= formatPrice($pago->monto) ?>
+                                    <span style="display: none;"
+                                          id="monto_<?= $pago->id ?>"><?= formatPrice($pago->monto, 10, '.', '') ?></span>
                                 </td>
                                 <td>
                                     <div class="btn-group">
@@ -243,11 +245,11 @@
             }
 
             if ($("#pago_id").val() == "4") {
-                if (validarNumeroOperacion() == true){
+                if (validarNumeroOperacion() == true) {
                     show_msg('warning', '<h4>Error. </h4><p>El numero de operacion ingresado ya fue registrado.</p>');
                     return false;
                 }
-             }
+            }
 
 
             var importe = isNaN(parseFloat($("#importe").val())) ? 0 : parseFloat($("#importe").val());
@@ -264,7 +266,7 @@
                 'banco_id': $("#banco_id").val(),
                 'num_oper': $("#num_oper").val(),
                 'importe': $("#importe").val(),
-                'fec_oper':$("#fec_oper").val(),
+                'fec_oper': $("#fec_oper").val(),
                 'historial_id': prepare_historial_id()
             };
 
@@ -379,26 +381,26 @@
 
     }
 
-     function  validarNumeroOperacion(){
+    function validarNumeroOperacion() {
 
         return false;
         var operacion = $("#num_oper").val();
         $.ajax({
             url: '<?= base_url()?>banco/validaNumeroOperacion/' + operacion,
-            dataType:'json',
+            dataType: 'json',
             async: false,
             data: {'operacion': operacion},
             type: 'POST',
 
-            success: function(data){
+            success: function (data) {
                 if (data.error == undefined)
                     result = false;
                 else
                     result = true;
 
             },
-            error:function(){
-                show_msg('danger','Ha ocurrido un error vuelva a intentar');
+            error: function () {
+                show_msg('danger', 'Ha ocurrido un error vuelva a intentar');
             }
         })
 

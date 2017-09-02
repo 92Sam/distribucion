@@ -23,7 +23,7 @@
                         <div class="col-md-4">
                             <input type="text" name="fecha_bonificacion" id="fecha_bonificacion" required="true"
                                    class="input-small input-datepicker form-control"
-                                   value="<?php if (isset($bonificaciones['fecha'])) echo date('d-m-Y',strtotime($bonificaciones['fecha'])); ?>"/>
+                                   value="<?php if (isset($bonificaciones['fecha'])) echo date('d-m-Y', strtotime($bonificaciones['fecha'])); ?>"/>
                         </div>
                     </div>
                 </div>
@@ -35,7 +35,8 @@
                         </div>
                         <div class="col-md-4">
 
-                            <select name="producto_condicion[]" id="producto_condicion" class='form-control selectpicker' multiple="true" >
+                            <select name="producto_condicion[]" id="producto_condicion"
+                                    class='form-control selectpicker' multiple="true">
 
                                 <?php foreach ($productos as $producto_condicion) { ?>
 
@@ -46,14 +47,14 @@
                                             if (isset($usz['id_producto']) and $usz['id_producto'] == $producto_condicion['producto_id']) {
                                                 ?>
                                                 <option
-                                                    value="<?php echo $producto_condicion['producto_id'] ?>"
-                                                    selected><?= sumCod($producto_condicion['producto_id'])." - ".$producto_condicion['producto_nombre'] ?></option>
+                                                        value="<?php echo $producto_condicion['producto_id'] ?>"
+                                                        selected><?= sumCod($producto_condicion['producto_id']) . " - " . $producto_condicion['producto_nombre'] ?></option>
                                                 <?php break;
                                             }
                                             if ($cantidad == $i) {
                                                 ?>
                                                 <option
-                                                    value="<?php echo $producto_condicion['producto_id'] ?>"><?= sumCod($producto_condicion['producto_id'])." - ".$producto_condicion['producto_nombre'] ?></option>
+                                                        value="<?php echo $producto_condicion['producto_id'] ?>"><?= sumCod($producto_condicion['producto_id']) . " - " . $producto_condicion['producto_nombre'] ?></option>
                                                 <?php
                                             } else {
                                                 $i++;
@@ -62,7 +63,7 @@
                                         }
                                     } else { ?>
                                         <option
-                                            value="<?php echo $producto_condicion['producto_id'] ?>"><?= sumCod($producto_condicion['producto_id'])." - ".$producto_condicion['producto_nombre'] ?></option>
+                                                value="<?php echo $producto_condicion['producto_id'] ?>"><?= sumCod($producto_condicion['producto_id']) . " - " . $producto_condicion['producto_nombre'] ?></option>
                                     <?php };
 
                                 } ?>
@@ -78,11 +79,11 @@
                         <div class="col-md-4">
 
                             <select name="bono_producto" id="bono_producto" required="true"
-                                    class="cho form-control">
+                                    class="form-control">
                                 <option value="">Seleccione</option>
                                 <?php foreach ($bonoproducto as $bono_producto): ?>
                                     <option
-                                        value="<?php echo $bono_producto['producto_id'] ?>" <?php if (isset($bonificaciones['bono_producto']) and $bonificaciones['bono_producto'] == $bono_producto['producto_id']) echo 'selected' ?>><?= sumCod($bono_producto['producto_id'])." - ".$bono_producto['producto_nombre'] ?></option>
+                                            value="<?php echo $bono_producto['producto_id'] ?>" <?php if (isset($bonificaciones['bono_producto']) and $bonificaciones['bono_producto'] == $bono_producto['producto_id']) echo 'selected' ?>><?= sumCod($bono_producto['producto_id']) . " - " . $bono_producto['producto_nombre'] ?></option>
                                 <?php endforeach ?>
                             </select>
 
@@ -101,8 +102,8 @@
 
                                 <?php foreach ($unidades as $unidad): ?>
                                     <option
-                                        value="<?php echo $unidad['id_unidad'] ?>" <?php if (isset($bonificaciones['id_unidad']) and $bonificaciones['id_unidad'] == $unidad['id_unidad']) echo 'selected' ?>><?= $unidad['nombre_unidad'] ?></option>
-                                <?php endforeach; ?>    
+                                            value="<?php echo $unidad['id_unidad'] ?>" <?php if (isset($bonificaciones['id_unidad']) and $bonificaciones['id_unidad'] == $unidad['id_unidad']) echo 'selected' ?>><?= $unidad['nombre_unidad'] ?></option>
+                                <?php endforeach; ?>
 
                             </select>
 
@@ -116,7 +117,7 @@
                                     class="cho form-control">
                                 <?php foreach ($unidades_bono as $unidad): ?>
                                     <option
-                                        value="<?php echo $unidad['id_unidad'] ?>" <?php if (isset($bonificaciones['bono_unidad']) and $bonificaciones['bono_unidad'] == $unidad['id_unidad']) echo 'selected' ?>><?= $unidad['nombre_unidad'] ?></option>
+                                            value="<?php echo $unidad['id_unidad'] ?>" <?php if (isset($bonificaciones['bono_unidad']) and $bonificaciones['bono_unidad'] == $unidad['id_unidad']) echo 'selected' ?>><?= $unidad['nombre_unidad'] ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </div>
@@ -134,7 +135,7 @@
                                 <option value="">Seleccione</option>
                                 <?php foreach ($marcas as $marca_condicion): ?>
                                     <option
-                                        value="<?php echo $marca_condicion['id_marca'] ?>" <?php if (isset($bonificaciones['id_marca']) and $bonificaciones['id_marca'] == $marca_condicion['id_marca']) echo 'selected' ?>><?= $marca_condicion['nombre_marca'] ?></option>
+                                            value="<?php echo $marca_condicion['id_marca'] ?>" <?php if (isset($bonificaciones['id_marca']) and $bonificaciones['id_marca'] == $marca_condicion['id_marca']) echo 'selected' ?>><?= $marca_condicion['nombre_marca'] ?></option>
                                 <?php endforeach ?>
                             </select>
 
@@ -162,7 +163,7 @@
                                 <option value="">Seleccione</option>
                                 <?php foreach ($grupos as $grupo_condicion): ?>
                                     <option
-                                        value="<?php echo $grupo_condicion['id_grupo'] ?>" <?php if (isset($bonificaciones['id_grupo']) and $bonificaciones['id_grupo'] == $grupo_condicion['id_grupo']) echo 'selected' ?>><?= $grupo_condicion['nombre_grupo'] ?></option>
+                                            value="<?php echo $grupo_condicion['id_grupo'] ?>" <?php if (isset($bonificaciones['id_grupo']) and $bonificaciones['id_grupo'] == $grupo_condicion['id_grupo']) echo 'selected' ?>><?= $grupo_condicion['nombre_grupo'] ?></option>
                                 <?php endforeach ?>
                             </select>
 
@@ -175,8 +176,8 @@
 
                             <select name="grupos" id="grupos" class='cho form-control filter-input'>
                                 <option
-                                    value="<?php echo $grupo_clie_id; ?>"
-                                    id="<?php echo $grupo_clie; ?>">
+                                        value="<?php echo $grupo_clie_id; ?>"
+                                        id="<?php echo $grupo_clie; ?>">
                                     <?php echo $grupo_clie; ?></option>
                             </select>
                         </div>
@@ -194,15 +195,16 @@
 
                             <select name="subgrupos" id="subgrupos" class="cho form-control">
                                 <option value="">Seleccione</option>
-                                <?php if(count($subgrupos)>0){ foreach ($subgrupos as $subgrupo): ?>
-                                    <option
-                                        value="<?php echo $subgrupo['id_subgrupo'] ?>" <?php if (isset($bonificaciones['subgrupo_id']) and $bonificaciones['subgrupo_id'] == $subgrupo['id_subgrupo']) echo 'selected' ?>>
-                                        <?= $subgrupo['nombre_subgrupo'] ?></option>
-                                <?php endforeach; } ?>
+                                <?php if (count($subgrupos) > 0) {
+                                    foreach ($subgrupos as $subgrupo): ?>
+                                        <option
+                                                value="<?php echo $subgrupo['id_subgrupo'] ?>" <?php if (isset($bonificaciones['subgrupo_id']) and $bonificaciones['subgrupo_id'] == $subgrupo['id_subgrupo']) echo 'selected' ?>>
+                                            <?= $subgrupo['nombre_subgrupo'] ?></option>
+                                    <?php endforeach;
+                                } ?>
                             </select>
 
                         </div>
-
 
 
                     </div>
@@ -218,14 +220,15 @@
                                 <option value="">Seleccione</option>
                                 <?php foreach ($familias as $familia_condicion): ?>
                                     <option
-                                        value="<?php echo $familia_condicion['id_familia'] ?>" <?php if (isset($bonificaciones['id_familia']) and $bonificaciones['id_familia'] == $familia_condicion['id_familia']) echo 'selected' ?>><?= $familia_condicion['nombre_familia'] ?></option>
+                                            value="<?php echo $familia_condicion['id_familia'] ?>" <?php if (isset($bonificaciones['id_familia']) and $bonificaciones['id_familia'] == $familia_condicion['id_familia']) echo 'selected' ?>><?= $familia_condicion['nombre_familia'] ?></option>
                                 <?php endforeach ?>
                             </select>
 
                         </div>
 
                     </div>
-                </div> <div class="row">
+                </div>
+                <div class="row">
                     <div class="form-group">
 
                         <div class="col-md-2">
@@ -235,18 +238,19 @@
 
                             <select name="subfamilia" id="subfamilia" class="cho form-control">
                                 <option value="">Seleccione</option>
-                                <?php if(count($subfamilias)>0){ foreach ($subfamilias as $subfamilia): ?>
-                                    <option
-                                        value="<?php echo $subfamilia['id_subfamilia'] ?>" <?php if (isset($bonificaciones['subfamilia_id']) and $bonificaciones['subfamilia_id'] == $subfamilia['id_subfamilia']) echo 'selected' ?>>
-                                        <?= $subfamilia['nombre_subfamilia'] ?></option>
-                                <?php endforeach; } ?>
+                                <?php if (count($subfamilias) > 0) {
+                                    foreach ($subfamilias as $subfamilia): ?>
+                                        <option
+                                                value="<?php echo $subfamilia['id_subfamilia'] ?>" <?php if (isset($bonificaciones['subfamilia_id']) and $bonificaciones['subfamilia_id'] == $subfamilia['id_subfamilia']) echo 'selected' ?>>
+                                            <?= $subfamilia['nombre_subfamilia'] ?></option>
+                                    <?php endforeach;
+                                } ?>
                             </select>
 
                         </div>
 
                     </div>
                 </div>
-
 
 
                 <div class="row">
@@ -260,7 +264,7 @@
                                 <option value="">Seleccione</option>
                                 <?php foreach ($lineas as $linea_condicion): ?>
                                     <option
-                                        value="<?php echo $linea_condicion['id_linea'] ?>" <?php if (isset($bonificaciones['id_linea']) and $bonificaciones['id_linea'] == $linea_condicion['id_linea']) echo 'selected' ?>><?= $linea_condicion['nombre_linea'] ?></option>
+                                            value="<?php echo $linea_condicion['id_linea'] ?>" <?php if (isset($bonificaciones['id_linea']) and $bonificaciones['id_linea'] == $linea_condicion['id_linea']) echo 'selected' ?>><?= $linea_condicion['nombre_linea'] ?></option>
                                 <?php endforeach ?>
                             </select>
 
@@ -301,7 +305,7 @@
 </form>
 
 <script>
-    function unidadesencomun(){
+    function unidadesencomun() {
         $.ajax({
             url: '<?=$ruta?>bonificaciones/get_unidades_en_comun',
             type: 'POST',
@@ -314,16 +318,16 @@
                 var options = '';
                 for (var i = 0; i < data.unidades.length; i++) {
 
-                    var unidadselected="<?php echo isset($bonificaciones['id_unidad'])?$bonificaciones['id_unidad']:''?>";
+                    var unidadselected = "<?php echo isset($bonificaciones['id_unidad']) ? $bonificaciones['id_unidad'] : ''?>";
                     console.log(unidadselected);
                     options += '<option value="'
                         + data.unidades[i].id_unidad
                         + '"';
 
-                    if(unidadselected!=''){
-                        options+=' selected ';
+                    if (unidadselected != '') {
+                        options += ' selected ';
                     }
-                    options+= '>'+data.unidades[i].nombre_unidad
+                    options += '>' + data.unidades[i].nombre_unidad
                         + '</option>';
                     // console.info(data.unidades[i]);
                 }
@@ -343,7 +347,9 @@
     }
 
     $(document).ready(function () {
-
+        $("#bono_producto").chosen({
+            search_contains: true
+        });
         //$("select[id!='producto_condicion']").chosen({width: "100%"});
         $("select[id!='producto_condicion']").chosen({width: "100%"});
         $('#producto_condicion').selectpicker({
@@ -351,11 +357,12 @@
             liveSearch: true
         });
 
+
         $("#fecha_bonificacion").datepicker("option", "minDate", new Date());
 
         $("#producto_condicion").on("change", function () {
 
-           unidadesencomun();
+            unidadesencomun();
         });
 
         $("#bono_producto").on("change", function () {
@@ -382,7 +389,7 @@
 
                     $("#bono_unidad")
                         .html(
-                        '<option value="">Seleccione</option>');
+                            '<option value="">Seleccione</option>');
 
                     $("#bono_unidad")
                         .append(options);

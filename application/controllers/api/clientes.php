@@ -260,6 +260,7 @@ class clientes extends REST_Controller
     public function guardar_get()
     {
         $post = $this->input->get();
+//        $this->response(array('data' => $post));
 
         //Datos variables
         $id = $post['cliente_id'];
@@ -273,6 +274,8 @@ class clientes extends REST_Controller
         $direccion = $post['direccion'];
         $celular = $post['celular'];
         $correo = $post['correo'];
+
+
 
         //Datos fijos
         $descuento = 2;

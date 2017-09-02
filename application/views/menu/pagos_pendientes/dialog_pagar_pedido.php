@@ -31,7 +31,7 @@
                             <div class="input-group-addon"><?= MONEDA ?></div>
                             <input type="text" id="venta_total" name="venta_total"
                                    class="form-control"
-                                   value="<?= $venta->total_deuda ?>" readonly>
+                                   value="<?= formatPrice($venta->total_deuda, 10, '.', '') ?>" readonly>
                         </div>
                     </div>
                 </div>
@@ -47,7 +47,7 @@
                             <div class="input-group-addon"><?= MONEDA ?></div>
                             <input type="text" id="saldo" name="saldo"
                                    class="form-control"
-                                   value="<?= $venta->saldo ?>" readonly>
+                                   value="<?= formatPrice($venta->saldo, 10, '.', '') ?>" readonly>
                         </div>
                     </div>
                 </div>
@@ -143,6 +143,7 @@
                         <input type="text" id="importe" name="importe"
                                class="form-control" autocomplete="off"
                                value="">
+                        <input type="checkbox" id="check_all"> <label for="check_all">Cobar todo</label>
                     </div>
                 </div>
             </div>
@@ -182,6 +183,14 @@
 
     $(document).ready(function () {
 
+        $('#check_all').on('change', function(){
+            if($(this).prop('checked')){
+                $('#importe').val($('#saldo').val());
+            }
+            else{
+                $('#importe').val('')
+            }
+        });
         $("#btn_save_form").on('click', function(){
 
             if($("#pago_id").val() == ""){

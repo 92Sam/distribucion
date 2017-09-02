@@ -1156,16 +1156,6 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
     public
     function devolver_venta($venta_id, $total_importe, $devoluciones)
     {
-        $total = $total_importe;
-        $impuesto = number_format(($total * 18) / 100, 2);
-        $subtotal = $total - $impuesto;
-
-        $this->db->where('venta_id', $venta_id);
-        $this->db->update('venta', array(
-            'total' => $total,
-            'subtotal' => $subtotal,
-            'total_impuesto' => $impuesto,
-        ));
 
         $this->db->where('detalle_venta.id_venta', $venta_id);
         $this->db->delete('detalle_venta');
@@ -1226,6 +1216,20 @@ JOIN detalleingreso ON detalleingreso.id_ingreso=ingreso.id_ingreso WHERE detall
                 ));
             }
         }
+
+        $total_detalle = $this->db->select('SUM(detalle_importe) as total')->from('detalle_venta')
+            ->where('id_venta', $venta_id)->get()->row();
+
+        $total = $total_detalle->total;
+        $impuesto = number_format(($total * 18) / 100, 2);
+        $subtotal = $total - $impuesto;
+
+        $this->db->where('venta_id', $venta_id);
+        $this->db->update('venta', array(
+            'total' => $total,
+            'subtotal' => $subtotal,
+            'total_impuesto' => $impuesto,
+        ));
     }
 
     public

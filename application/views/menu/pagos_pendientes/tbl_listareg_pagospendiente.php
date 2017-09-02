@@ -33,13 +33,13 @@
             <th>Cliente</th>
             <td colspan="4"><?= $cliente->cliente_nombre ?></td>
             <th>Total Vendido</th>
-            <td colspan="4"><?= MONEDA ?> <span><?= number_format($cliente->subtotal_venta, 2) ?></span></td>
+            <td colspan="4"><?= MONEDA ?> <span><?= formatPrice($cliente->subtotal_venta) ?></span></td>
         </tr>
         <tr>
             <th>Zona</th>
             <td colspan="4"><?= $cliente->cliente_zona_nombre ?></td>
             <th>Total Pagado</th>
-            <td colspan="4"><?= MONEDA ?> <span><?= number_format($cliente->subtotal_pago, 2) ?></span></td>
+            <td colspan="4"><?= MONEDA ?> <span><?= formatPrice($cliente->subtotal_pago) ?></span></td>
         </tr>
         <tr>
             <th>Vendedor</th>
@@ -49,7 +49,7 @@
                 <label style="margin-bottom: 0px;"
                        class="control-label badge <?= $cliente->vendedor_pendiente > 0 ? 'b-danger' : 'b-default' ?>">
                     <?= MONEDA ?>
-                    <?= number_format($cliente->vendedor_pendiente, 2) ?>
+                    <?= formatPrice($cliente->vendedor_pendiente) ?>
                 </label>
                 <button style="float: right" type="button" class="b-primary luiquidar_pago"
                         data-vendedor_id="<?= $cliente->vendedor_id ?>">
@@ -61,7 +61,7 @@
                 <label style="margin-bottom: 0px;"
                        class="control-label badge <?= $cliente->subtotal_venta - $cliente->subtotal_pago > 0 ? 'b-danger' : 'b-default' ?>">
                     <?= MONEDA ?>
-                    <?= number_format($cliente->subtotal_venta - $cliente->subtotal_pago, 2) ?>
+                    <?= formatPrice($cliente->subtotal_venta - $cliente->subtotal_pago) ?>
                 </label>
                 <?php if ($cliente->subtotal_venta - $cliente->subtotal_pago > 0): ?>
                     <button style="float: right" type="button" class="b-primary pagar_cliente"
@@ -89,13 +89,13 @@
                     -
                     <?= $cobranza->documento_numero ?>
                 </td>
-                <td><?= MONEDA . ' ' . number_format($cobranza->total_deuda, 2) ?></td>
-                <td><?= MONEDA . ' ' . number_format($cobranza->actual - $cobranza->pagado_pendientes, 2) ?></td>
-                <td><?= MONEDA . ' ' . number_format($cobranza->pagado_pendientes, 2) ?></td>
+                <td><?= MONEDA . ' ' . formatPrice($cobranza->total_deuda) ?></td>
+                <td><?= MONEDA . ' ' . formatPrice($cobranza->actual - $cobranza->pagado_pendientes, 2) ?></td>
+                <td><?= MONEDA . ' ' . formatPrice($cobranza->pagado_pendientes) ?></td>
                 <td>
                     <label style="margin-bottom: 0px;"
                            class="control-label badge <?= $cobranza->credito > 0 ? 'b-danger' : 'b-default' ?>">
-                        <?= MONEDA . ' ' . number_format($cobranza->credito, 2) ?>
+                        <?= MONEDA . ' ' . formatPrice($cobranza->credito) ?>
                     </label>
                     <?php if ($cobranza->credito > 0): ?>
                         <button style="float: right" type="button" class="b-primary pagar_pedido"

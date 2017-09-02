@@ -31,7 +31,7 @@
                             <div class="input-group-addon"><?= MONEDA ?></div>
                             <input type="text" id="venta_total" name="venta_total"
                                    class="form-control"
-                                   value="<?= $venta->total_deuda ?>" readonly>
+                                   value="<?= formatPrice($venta->total_deuda) ?>" readonly>
                         </div>
                     </div>
                 </div>
@@ -47,7 +47,7 @@
                             <div class="input-group-addon"><?= MONEDA ?></div>
                             <input type="text" id="saldo" name="saldo"
                                    class="form-control"
-                                   value="<?= $venta->saldo ?>" readonly>
+                                   value="<?= formatPrice($venta->saldo) ?>" readonly>
                         </div>
                     </div>
                 </div>
@@ -73,7 +73,7 @@
                         <td><?= $pago->pago_nombre ?></td>
                         <td><?= $pago->pago_id == 4 ? 'BANCO: ' . $pago->banco_nombre : 'CAJA' ?></td>
                         <td><?= $pago->num_oper ?></td>
-                        <td><?= MONEDA . ' ' . number_format($pago->monto, 2) ?></td>
+                        <td><?= MONEDA . ' ' . formatPrice($pago->monto) ?></td>
                         <td>
                             <label style="margin-bottom: 0px;"
                                    class="control-label badge <?= $pago->estado == 'PENDIENTE' ? 'b-danger' : 'b-default' ?>">
