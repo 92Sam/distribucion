@@ -67,30 +67,38 @@ class pedidos extends REST_Controller
     public function index_get()
     {
         $condicion = array();
-        if ($this->input->get('id_local') != "") {
-            $condicion['local_id'] = $this->input->get('id_local');
-        }
-        /*if ($this->input->get('desde') != "") {
-            $condicion['fecha >= '] = date('Y-m-d', strtotime($this->input->get('desde'))) . " " . date('H:i:s', strtotime('00:00:00'));
-        }
-        if ($this->input->get('hasta') != "") {
-            $condicion['fecha <='] = date('Y-m-d', strtotime($this->input->get('hasta'))) . " " . date('H:i:s', strtotime('23:59:59'));
-        }*/
-        if ($this->input->get('status') != "") {
-            $condicion['venta_status'] = $this->input->get('status');
-        }
-        if ($this->input->get('cliente') != "") {
-            $condicion['id_cliente'] = $this->input->get('cliente');
-        }
-        if ($this->input->get('vendedor') != "") {
-            $condicion['id_vendedor'] = $this->input->get('vendedor');
+
+        $get = $this->input->get(null, true);
+
+        $id_local = isset($get['id_local']) ? $get['id_local'] : null;
+        if ($id_local) {
+            $condicion['local_id'] = $id_local;
         }
 
+        $venta_status = isset($get['status']) ? $get['status'] : null;
+        if ($venta_status) {
+            $condicion['venta_status'] = $venta_status;
+        }
+
+        $id_cliente = isset($get['cliente']) ? $get['cliente'] : null;
+        if ($id_cliente) {
+            $condicion['venta.id_cliente'] = $id_cliente;
+        }
+
+        $id_vendedor = isset($get['vendedor']) ? $get['vendedor'] : null;
+        if ($id_vendedor) {
+            $condicion['id_vendedor'] = $id_vendedor;
+        }
 
         $condicion['venta_tipo'] = 'entrega';
 
         $datas = array();
-        $datas['pedidos'] = $this->ventas->get_ventas_by($condicion);
+        if ($condicion['venta_status'] == PEDIDO_ENTREGADO) {
+            $limit = true;
+        } else {
+            $limit = false;
+        }
+        $datas['pedidos'] = $this->ventas->get_ventas_by($condicion, $limit);
 
         for ($i = 0; $i < count($datas['pedidos']); $i++) {
             $detalles = $this->db->get_where('detalle_venta', array('id_venta' => $datas['pedidos'][$i]->venta_id))->result();
@@ -229,6 +237,9 @@ class pedidos extends REST_Controller
 
             }
         }
+
+        $result = $this->ventas->getPedidoResumenBonos($id);
+        $data['pedido']['bonos'] = $result;
 
         $data['pedido']['items_pedido'] = $lista_productos;
         $data['pedido']['bonos_existentes'] = $lista_bonos_existentes;
