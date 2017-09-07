@@ -468,6 +468,12 @@ $primary_nav = array(
                         'url' => $ruta . 'producto/reporteEstado',
                         'icon' => 'fa fa-bar-chart',
                         'slug' => 'reporteinventario'
+                    ),
+                    array(
+                        'name' => 'Por productos',
+                        'url' => $ruta . 'reporte_general/por_productos',
+                        'icon' => 'fa fa-bar-chart',
+                        'slug' => 'reporteinventario'
                     )
                 ),
             ),

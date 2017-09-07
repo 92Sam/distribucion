@@ -1150,17 +1150,23 @@ class consolidadodecargas extends MY_Controller
         if ($consolidado->status == 'ABIERTO') {
             $pedidos = $this->db->get_where('consolidado_detalle', array('consolidado_id' => $id))->result();
             foreach ($pedidos as $pedido) {
+//                $proceso = $this->db->get_where('historial_pedido_proceso', array(
+//                    'proceso_id' => PROCESO_IMPRIMIR,
+//                    'pedido_id' => $pedido->pedido_id,
+//                ))->row();
+
+//                if ($proceso == NULL) {
                 $this->historial_pedido_model->insertar_pedido(PROCESO_IMPRIMIR, array(
                     'pedido_id' => $pedido->pedido_id,
                     'responsable_id' => $this->session->userdata('nUsuCodigo'),
                     'fecha_plan' => $consolidado->fecha
                 ));
-
                 $split = $this->venta_model->generar_documentos_fiscales($pedido->pedido_id);
-                if($split != true){
-                    echo "No se ha podido generar los documentos de este consolidado. Revise el logger y contacta a Antonio Martin.";
+                if ($split != true) {
+                    echo "No se ha podido generar los documentos del pedido " . $pedido->pedido_id . ". Revise el logger y contacta a Antonio Martin.";
                     return false;
                 }
+//                }
             }
 
             $this->db->where('consolidado_id', $id);

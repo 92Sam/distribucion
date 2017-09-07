@@ -2348,8 +2348,8 @@ class venta extends MY_Controller
                 $template->setValue('imp' . $index_p, $importe);
             }
 
-            $igv = $total * 0.18;
-            $sub = $total - $igv;
+            $sub = $total / 1.18;
+            $igv = $sub * 0.18;
             $template->setValue('letras' . $index, numtoletras($total));
             $template->setValue('sub' . $index, 'S/. ' . number_format($sub, 2));
             $template->setValue('igv' . $index, 'S/. ' . number_format($igv, 2));
@@ -3214,8 +3214,9 @@ class venta extends MY_Controller
                 $template->setValue('imp' . $index_p, $importe);
             }
 
-            $igv = $total * 0.18;
-            $sub = $total - $igv;
+
+            $sub = $total / 1.18;
+            $igv = $sub * 0.18;
             $template->setValue('letras' . $index, numtoletras($total));
             $template->setValue('sub' . $index, 'S/. ' . number_format($sub, 2));
             $template->setValue('igv' . $index, 'S/. ' . number_format($igv, 2));
