@@ -43,18 +43,21 @@
                     if ($days < 0)
                         $days = 0; ?>
                     <div>
-                        <label class="label <?php if (floor($days) <= 0) {echo "label-success";
-                        } else { echo "label-danger";
-                            } ?> "> <?php if (floor($days) <= 0) {
+                        <label class="label <?php if (floor($days) <= 0) {
+                            echo "label-success";
+                        } else {
+                            echo "label-danger";
+                        } ?> "> <?php if (floor($days) <= 0) {
                                 echo "Activa";
                             } else {
                                 echo "Vencida";
                             } ?></label>
                     </div>
                 </td>
-
+                <?php $comprometido = 0; ?>
                 <td> <?php foreach ($bonificaciones['bonificaciones_has_producto'] as $produc) {
-                            echo sumCod($produc['id_producto']) . " " . $produc['producto_nombre']; ?>
+                        $comprometido += $produc['comprometido'];
+                        echo sumCod($produc['id_producto']) . " " . $produc['producto_nombre']; ?>
                         <br><?php } ?>
                 </td>
 
@@ -65,33 +68,34 @@
                 <td><?= $bonificaciones['unidad_bonificacion'] ?></td>
                 <td><?= $bonificaciones['bono_cantidad'] ?></td>
                 <td class="center">
-                    <div class="btn-group">
+                    <?php if ($comprometido == 0): ?>
+                        <div class="btn-group">
 
-                        <a class="btn btn-default" data-toggle="tooltip" title="Editar"
-                           data-original-title="fa fa-comment-o"
-                           href="#"
-                           onclick="editar(
-                                '<?= $bonificaciones["id_bonificacion"] ?>',
-                                '<?= isset($bonificaciones['producto_id']) ? $bonificaciones['producto_id'] : "false" ?>',
-                                '<?= $bonificaciones['bono_producto'] ?>',
-                                '<?= $id_grupoclie ?>')">
-                            <i class="fa fa-edit"></i>
-                        </a>
+                            <a class="btn btn-default" data-toggle="tooltip" title="Editar"
+                               data-original-title="fa fa-comment-o"
+                               href="#"
+                               onclick="editar(
+                                       '<?= $bonificaciones["id_bonificacion"] ?>',
+                                       '<?= isset($bonificaciones['producto_id']) ? $bonificaciones['producto_id'] : "false" ?>',
+                                       '<?= $bonificaciones['bono_producto'] ?>',
+                                       '<?= $id_grupoclie ?>')">
+                                <i class="fa fa-edit"></i>
+                            </a>
 
-                        <?='<a class="btn btn-danger" data-toggle="tooltip"
+                            <?= '<a class="btn btn-danger" data-toggle="tooltip"
                                      title="Eliminar" data-original-title="fa fa-comment-o"
                                      onclick="borrar(' . $bonificaciones['id_bonificacion'] . ');">'; ?>
-                        <i class="fa fa-trash-o"></i>
-                        </a>
+                            <i class="fa fa-trash-o"></i>
+                            </a>
 
-                    </div>
+                        </div>
+                    <?php endif; ?>
                 </td>
             </tr>
         <?php endforeach; ?>
         </tbody>
     </table>
 </div>
-
 
 
 <script>

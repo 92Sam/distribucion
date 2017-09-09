@@ -578,7 +578,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
             if ($("#pago_id").val() != 0) {
 
                 if ($("#pago_id").val() == 3)
-                    $("#confirmacion").modal('show');
+                    grupo.guardar();
 
                 if ($("#pago_id").val() == 4) {
                     if (banco != '' && numeroOperacion != '') {
@@ -587,7 +587,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                             $('#monto').trigger('focus');
                         }
                         else
-                            $("#confirmacion").modal('show');
+                            grupo.guardar();
                     }
                     else
                         show_msg('warning', 'Es necesario seleccionar un banco e indicar el numero de operación');
@@ -598,7 +598,7 @@ echo validation_errors('<div class="alert alert-danger alert-dismissable"">', "<
                         $('#monto').trigger('focus');
                     }
                     else
-                        $("#confirmacion").modal('show');
+                        grupo.guardar();
                 }
             }
             else {

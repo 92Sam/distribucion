@@ -27,7 +27,8 @@ class bonificaciones_model extends CI_Model
         return $query->result_array();
     }
 
-    function get_by_groupclie($id) {
+    function get_by_groupclie($id)
+    {
 
         $this->db->select('bonificaciones.id_bonificacion,bonificaciones.fecha,bonificaciones.bonificacion_status,
                                     bonificaciones.cantidad_condicion,bonificaciones.bono_cantidad,bonificaciones.bono_producto,
@@ -65,7 +66,7 @@ class bonificaciones_model extends CI_Model
         return $query->row_array();
 
     }
-    
+
     function get_where($where)
     {
         $this->db->select('bonificaciones.*, unidades.*, p2.producto_nombre as producto_bonificacion, u2.nombre_unidad as unidad_bonificacion');
@@ -86,11 +87,16 @@ class bonificaciones_model extends CI_Model
 
     function bonificaciones_has_producto($campo, $valor)
     {
-        $this->db->select('bonificaciones_has_producto.*,producto.*');
-        $this->db->join('producto','producto.producto_id = bonificaciones_has_producto.id_producto');
-        $this->db->where($campo, $valor);
-        $query = $this->db->get('bonificaciones_has_producto');
-        return $query->result_array();
+        return $this->db->query("
+            SELECT `bonificaciones_has_producto`.*, `producto`.*, 
+            (SELECT count(venta.venta_id) 
+            FROM venta 
+            JOIN detalle_venta ON detalle_venta.id_venta = venta.venta_id 
+            WHERE (venta.venta_status = 'GENERADO' OR venta.venta_status = 'ENVIADO') AND detalle_venta.id_producto = producto.producto_id) as comprometido
+            FROM (`bonificaciones_has_producto`) 
+            JOIN `producto` ON `producto`.`producto_id` = `bonificaciones_has_producto`.`id_producto` 
+            WHERE `" . $campo . "` = " . $valor . "
+        ")->result_array();
 
     }
 
@@ -131,15 +137,15 @@ class bonificaciones_model extends CI_Model
         $query = $this->db->join('unidades_has_producto', 'unidades_has_producto.producto_id=p2.producto_id AND unidades_has_producto.id_unidad=u2.id_unidad', 'left');
 
         $this->db->where($where);
-        $this->db->order_by('cantidad_condicion','desc');
-        $this->db->order_by('bono_cantidad','desc');
+        $this->db->order_by('cantidad_condicion', 'desc');
+        $this->db->order_by('bono_cantidad', 'desc');
         $query = $this->db->get('bonificaciones');
         //echo $this->db->last_query();
         return $query->result_array();
 
     }
 
-    function get_all_by_condiciones2($producto,$gruclie)
+    function get_all_by_condiciones2($producto, $gruclie)
     {
         $query = $this->db->select('bonificaciones.*, unidades_has_producto.unidades, unidades.*, familia.*, grupos.*, marcas.*, lineas.*,p2.producto_nombre as producto_bonificacion, u2.nombre_unidad as unidad_bonificacion, p2.venta_sin_stock as venta_sin_stock_bono');
         $query = $this->db->where('bonificacion_status', 1);
@@ -177,8 +183,8 @@ class bonificaciones_model extends CI_Model
 
         $this->db->where($where);
         $this->db->where('bonificaciones.id_grupos_cliente', $gruclie);
-        $this->db->order_by('cantidad_condicion','desc');
-        $this->db->order_by('bono_cantidad','desc');
+        $this->db->order_by('cantidad_condicion', 'desc');
+        $this->db->order_by('bono_cantidad', 'desc');
         $query = $this->db->get('bonificaciones');
         //echo $this->db->last_query();
         return $query->result_array();

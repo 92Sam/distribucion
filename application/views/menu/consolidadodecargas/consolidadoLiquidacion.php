@@ -55,7 +55,7 @@
                                 <?php if ($consolidadoDetalles['venta_status'] == 'ENVIADO') $cerrar_consolidado_flag = false; ?>
                                 <?php if ($status == 'IMPRESO'): ?>
                                     <td style="text-align: center">
-                                        <button type="button" id="liquidar_p"
+                                        <button type="button"
                                                 data-pedido_id="<?= $consolidadoDetalles['venta_id']; ?>"
                                                 class="btn btn-sm btn-<?= $consolidadoDetalles['venta_status'] == 'ENVIADO' ? 'default' : 'warning' ?> liquidar_pedido">
                                             <i
