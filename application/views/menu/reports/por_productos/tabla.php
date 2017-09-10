@@ -23,7 +23,6 @@
             <th>Registro</th>
             <th>Emision</th>
             <th>Documento</th>
-            <th>Producto</th>
             <th>Cantidad</th>
             <th>Precio Compra</th>
             <th>Precio Valor</th>
@@ -34,7 +33,40 @@
         <?php $total_importe = 0; ?>
         <?php $p_precio = 0; ?>
         <?php $p_precio_valor = 0; ?>
+        <?php $p_selected = false; ?>
         <?php foreach ($productos_list as $p): ?>
+            <?php if ($p_selected != $p->producto_id): ?>
+                <tr style="font-weight: bold;">
+                    <td colspan="2"
+                    ><?= sumCod($p->producto_id, 4) . ' - ' . $p->nombre . ' ' . $p->presentacion ?></td>
+
+
+                    <?php $total_cantidad = 0; ?>
+                    <?php $total_importe = 0; ?>
+                    <?php $p_precio = 0; ?>
+                    <?php $p_precio_valor = 0; ?>
+                    <?php $costo = 0; ?>
+                    <?php $count = 0; ?>
+
+                    <?php foreach ($productos_list as $p_temp): ?>
+                        <?php if ($p_temp->producto_id == $p->producto_id): ?>
+                            <?php $total_cantidad += $p_temp->cantidad ?>
+                            <?php $p_precio += $p->precio ?>
+                            <?php $p_precio_valor += $p->precio_valor ?>
+                            <?php $total_importe += $p->total_detalle ?>
+                            <?php $count++; ?>
+                        <?php endif; ?>
+                    <? endforeach; ?>
+                    <td><?= $count ?> compras</td>
+                    <td><?= $total_cantidad ?></td>
+                    <td><?= MONEDA ?> <?= number_format($p_precio / $count, 2) ?></td>
+                    <td><?= MONEDA ?> <?= number_format($p_precio_valor / $count, 2) ?></td>
+                    <td colspan="2"><?= MONEDA ?> <?= $total_importe ?></td>
+                </tr>
+            <?php endif; ?>
+
+            <?php $p_selected = $p->producto_id; ?>
+
             <tr>
                 <td><?= date('d/m/Y H:i:s', strtotime($p->fecha_registro)) ?></td>
                 <td><?= date('d/m/Y', strtotime($p->fecha_emision)) ?></td>
@@ -44,38 +76,13 @@
                     $doc = 'BO ';
                 else $doc = 'NP '; ?>
                 <td><?= $doc . $p->documento_serie . ' - ' . $p->documento_numero ?></td>
-                <td><?= sumCod($p->producto_id, 4) ?></td>
-                <?php $total_cantidad += $p->cantidad ?>
                 <td><?= $p->cantidad ?></td>
-                <?php $p_precio += $p->precio ?>
                 <td><?= MONEDA ?> <?= $p->precio ?></td>
-                <?php $p_precio_valor += $p->precio_valor ?>
                 <td><?= MONEDA ?> <?= $p->precio_valor ?></td>
-                <?php $total_importe += $p->total_detalle ?>
                 <td><?= MONEDA ?> <?= $p->total_detalle ?></td>
                 <td><?= $p->estado ?></td>
             </tr>
         <?php endforeach; ?>
-        <tr style="font-weight: bold;">
-            <td colspan="2"></td>
-            <td><?= count($productos_list) ?></td>
-            <td></td>
-            <td><?= $total_cantidad ?></td>
-            <td><?= MONEDA ?> <?= number_format($p_precio / count($productos_list), 2) ?></td>
-            <td><?= MONEDA ?> <?= number_format($p_precio_valor / count($productos_list), 2) ?></td>
-            <td><?= MONEDA ?> <?= $total_importe ?></td>
-            <td></td>
-        </tr>
-        <tr style="font-weight: bold;">
-            <th colspan="2"></th>
-            <th>Total Compras</th>
-            <th></th>
-            <th>Total Cantidad</th>
-            <th>Precio Promedio</th>
-            <th>Precio Valor</th>
-            <th>Total Importe</th>
-            <th></th>
-        </tr>
         </tbody>
     </table>
 

@@ -178,6 +178,24 @@ class reporte_compra extends MY_Controller
                 echo $this->load->view('menu/reports/por_productos/tabla', $data, true);
                 break;
             }
+            case 'excel': {
+                $params = json_decode($this->input->get('data'));
+                $data['productos_list'] = $this->rcompras_model->getComprasProducto(array(
+                    'fecha_ini' => date('Y-m-d', strtotime($params->fecha_ini)),
+                    'fecha_fin' => date('Y-m-d', strtotime($params->fecha_fin)),
+                    'proveedor_id' => $params->proveedor_id,
+                    'tipo_documento' => $params->tipo_documento,
+                    'producto_id' => $params->producto_id,
+                    'estado' => $params->estado,
+                    'grupo_id' => $params->grupo_id,
+                    'marca_id' => $params->marca_id,
+                    'linea_id' => $params->linea_id,
+                    'sublinea_id' => $params->sublinea_id,
+                ));
+
+                echo $this->load->view('menu/reports/por_productos/tabla_excel', $data, true);
+                break;
+            }
             default: {
 
                 $data['productos_list'] = $this->rcompras_model->getComprasProducto(array(

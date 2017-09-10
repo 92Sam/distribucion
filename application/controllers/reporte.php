@@ -431,7 +431,6 @@ class reporte extends MY_Controller
                 $data['productos_list'] = $this->rventas_model->getVentasProducto(array(
                     'fecha_ini' => date('Y-m-d', strtotime($this->input->post('fecha_ini'))),
                     'fecha_fin' => date('Y-m-d', strtotime($this->input->post('fecha_fin'))),
-                    'proveedor_id' => $this->input->post('proveedor_id'),
                     'tipo_documento' => $this->input->post('tipo_documento'),
                     'producto_id' => $this->input->post('producto_id'),
                     'estado' => $this->input->post('estado'),
@@ -442,6 +441,23 @@ class reporte extends MY_Controller
                 ));
 
                 echo $this->load->view('menu/reports/por_productos_v/tabla', $data, true);
+                break;
+            }
+            case 'excel': {
+                $params = json_decode($this->input->get('data'));
+                $data['productos_list'] = $this->rventas_model->getVentasProducto(array(
+                    'fecha_ini' => date('Y-m-d', strtotime($params->fecha_ini)),
+                    'fecha_fin' => date('Y-m-d', strtotime($params->fecha_fin)),
+                    'tipo_documento' => $params->tipo_documento,
+                    'producto_id' => $params->producto_id,
+                    'estado' => $params->estado,
+                    'grupo_id' => $params->grupo_id,
+                    'marca_id' => $params->marca_id,
+                    'linea_id' => $params->linea_id,
+                    'sublinea_id' => $params->sublinea_id,
+                ));
+
+                echo $this->load->view('menu/reports/por_productos_v/tabla_excel', $data, true);
                 break;
             }
             default: {

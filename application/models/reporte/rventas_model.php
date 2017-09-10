@@ -583,7 +583,9 @@ class rventas_model extends CI_Model
                 hpd.costo_unitario, 
                 hpd.precio_unitario, 
                 hpd.bonificacion AS bono, 
-                v.venta_status AS estado
+                v.venta_status AS estado, 
+                p.producto_nombre AS nombre,
+                p.presentacion AS presentacion
             FROM
                 venta AS v 
             JOIN documento_venta AS doc_v ON doc_v.id_tipo_documento = v.numero_documento 
@@ -627,7 +629,7 @@ class rventas_model extends CI_Model
 
         $query .= "
             GROUP BY hpd.id 
-            ORDER BY hpp.fecha_plan, v.venta_id ASC 
+            ORDER BY hpd.producto_id, hpp.fecha_plan, v.venta_id ASC 
         ";
 
         return $this->db->query($query)->result();

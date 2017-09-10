@@ -144,9 +144,7 @@
             </select>
         </div>
 
-        <div class="col-md-1">
 
-        </div>
         <div class="col-md-2">
             <label class="control-label">Fecha Inicial:</label>
             <input id="fecha_ini" type="text" class="form-control input-datepicker" value="<?= date('d-m-Y') ?>"
@@ -173,6 +171,12 @@
                 <i class="fa fa-plus"></i>
             </button>
         </div>
+        <div class="col-md-1">
+            <br>
+            <button type="button" id="exportar_excel" class="btn form-control">
+                <i class="fa fa-file-excel-o fa-fw"></i>
+            </button>
+        </div>
     </div>
 </form>
 <script src="<?= base_url('recursos/js/tcharm.js') ?>"></script>
@@ -196,6 +200,10 @@
 
         $('.btn_buscar').on('click', function () {
             filter_cobranzas();
+        });
+
+        $('#exportar_excel').on('click', function () {
+            exportar_excel();
         });
 
         $("#incluir_fecha").on('change', function () {
@@ -256,6 +264,24 @@
                 $('#barloadermodal').modal('hide');
             }
         });
+    }
+
+    function exportar_excel() {
+        var data = {
+            'fecha_ini': $("#fecha_ini").val(),
+            'fecha_fin': $("#fecha_fin").val(),
+            'producto_id': $("#producto_id").val(),
+            'proveedor_id': $("#proveedor_id").val(),
+            'tipo_documento': $("#tipo_documento").val(),
+            'estado': $("#estado").val(),
+            'grupo_id': $("#grupo_id").val(),
+            'marca_id': $("#marca_id").val(),
+            'linea_id': $("#linea_id").val(),
+            'sublinea_id': $("#sublinea_id").val(),
+        };
+
+        var win = window.open('<?= base_url()?>reporte_compra/por_productos/excel?data=' + JSON.stringify(data), '_blank');
+        win.focus();
     }
 
     function add_checkbox_events() {

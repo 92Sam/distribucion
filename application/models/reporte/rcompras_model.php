@@ -173,7 +173,9 @@ class rcompras_model extends CI_Model
                 di.precio, 
                 di.precio_valor,
                 di.total_detalle,
-                i.ingreso_status as estado
+                i.ingreso_status as estado, 
+                p.producto_nombre AS nombre,
+                p.presentacion AS presentacion
             FROM
                 ingreso AS i 
             JOIN detalleingreso AS di ON di.id_ingreso = i.id_ingreso  
@@ -210,7 +212,7 @@ class rcompras_model extends CI_Model
 
         $query .= "
             GROUP BY di.id_detalle_ingreso 
-            ORDER BY i.fecha_emision, i.documento_numero ASC
+            ORDER BY di.id_producto, i.fecha_emision, i.documento_numero ASC
         ";
 
         return $this->db->query($query)->result();
